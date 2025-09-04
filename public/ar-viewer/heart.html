@@ -1,0 +1,384 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta name='viewport' content='width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0'>
+		<script src="vendor/three.101.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/three@0.101.1/examples/js/loaders/GLTFLoader.js"></script>
+		<script src="THREEAR.js"></script>
+		<title>AR Heart Explorer - Kids Anatomy</title>
+		<style>
+			body {
+				margin: 0px;
+				overflow: hidden;
+				font-family: 'Arial', sans-serif;
+				background-color: #000;
+			}
+			
+			.ar-ui {
+				position: absolute;
+				top: 20px;
+				left: 20px;
+				z-index: 100;
+				background: rgba(255, 255, 255, 0.9);
+				padding: 15px;
+				border-radius: 15px;
+				box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+				max-width: 300px;
+			}
+			
+			.ar-title {
+				color: #ff6b6b;
+				font-size: 1.4rem;
+				font-weight: bold;
+				margin: 0 0 10px 0;
+			}
+			
+			.ar-instructions {
+				color: #333;
+				font-size: 0.9rem;
+				margin: 0 0 15px 0;
+				line-height: 1.4;
+			}
+			
+			.ar-back-btn {
+				background: #ff6b6b;
+				color: white;
+				border: none;
+				padding: 10px 20px;
+				border-radius: 10px;
+				font-weight: bold;
+				cursor: pointer;
+				font-size: 0.9rem;
+			}
+			
+			.ar-back-btn:hover {
+				background: #ff5252;
+			}
+			
+			.zoom-controls {
+				position: absolute;
+				bottom: 80px;
+				right: 20px;
+				z-index: 100;
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+			}
+			.zoom-btn {
+				background: rgba(255, 255, 255, 0.9);
+				border: 2px solid #ff6b6b;
+				color: #ff6b6b;
+				width: 50px;
+				height: 50px;
+				border-radius: 50%;
+				font-size: 1.5rem;
+				font-weight: bold;
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+				transition: all 0.2s ease;
+			}
+			.zoom-btn:hover {
+				background: #ff6b6b;
+				color: white;
+				transform: scale(1.1);
+			}
+			.zoom-btn:active {
+				transform: scale(0.95);
+			}
+			.zoom-info {
+				position: absolute;
+				bottom: 100px;
+				right: 80px;
+				background: rgba(255, 255, 255, 0.9);
+				padding: 8px 12px;
+				border-radius: 8px;
+				font-size: 0.8rem;
+				color: #333;
+				z-index: 100;
+				min-width: 60px;
+				text-align: center;
+			}
+			
+			.heart-info {
+				position: absolute;
+				bottom: 20px;
+				left: 20px;
+				right: 20px;
+				background: rgba(255, 107, 107, 0.9);
+				color: white;
+				padding: 15px;
+				border-radius: 15px;
+				text-align: center;
+				z-index: 100;
+			}
+			
+			.heart-fact {
+				font-size: 1.1rem;
+				font-weight: bold;
+				margin: 0;
+			}
+		</style>
+	</head>
+
+	<body>
+		<!-- AR UI Overlay -->
+		<div class="ar-ui">
+			<h1 class="ar-title">❤️ AR Heart Explorer</h1>
+			<p class="ar-instructions">
+				Point your camera at the AR marker to see a 3D heart! 
+				The heart will appear above the marker and beat just like a real one!
+			</p>
+			<button class="ar-back-btn" onclick="window.history.back()">← Back to Organs</button>
+		</div>
+		
+		<!-- Heart Info -->
+		<div class="heart-info">
+			<p class="heart-fact">💝 Your heart beats about 100,000 times every day!</p>
+		</div>
+		
+		<!-- Zoom Controls -->
+		<div class="zoom-controls">
+			<button class="zoom-btn" onclick="zoomIn()">+</button>
+			<button class="zoom-btn" onclick="zoomOut()">−</button>
+		</div>
+		<div class="zoom-info" id="zoomInfo">100%</div>
+
+		<script>
+			// Initialize Three.js renderer with transparency
+			var renderer = new THREE.WebGLRenderer({
+				alpha: true,
+				antialias: true
+			});
+			renderer.setClearColor(new THREE.Color('lightgrey'), 0);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.domElement.style.position = 'absolute';
+			renderer.domElement.style.top = '0px';
+			renderer.domElement.style.left = '0px';
+			document.body.appendChild(renderer.domElement);
+		
+			// Initialize scene and camera
+			var scene = new THREE.Scene();
+			var camera = new THREE.Camera();
+			scene.add(camera);
+
+			// Create group for heart objects
+			var heartGroup = new THREE.Group();
+			scene.add(heartGroup);
+			
+			// Zoom variables
+			var currentZoom = 1.0;
+			var minZoom = 0.5;
+			var maxZoom = 3.0;
+			var zoomStep = 0.2;
+			
+			// Zoom functions
+			function zoomIn() {
+				if (currentZoom < maxZoom) {
+					currentZoom += zoomStep;
+					updateZoom();
+				}
+			}
+			
+			function zoomOut() {
+				if (currentZoom > minZoom) {
+					currentZoom -= zoomStep;
+					updateZoom();
+				}
+			}
+			
+			function updateZoom() {
+				// Apply zoom to the heart group
+				heartGroup.userData.zoomScale = currentZoom;
+				document.getElementById('zoomInfo').textContent = Math.round(currentZoom * 100) + '%';
+			}
+		
+			// Initialize THREEAR source
+			var source = new THREEAR.Source({ renderer, camera });
+
+			THREEAR.initialize({ source: source }).then((controller) => {
+
+				// Load 3D Heart Model
+				var loader = new THREE.GLTFLoader();
+				loader.load('../models/heart3D/scene.gltf', function(gltf) {
+					var heartModel = gltf.scene;
+					
+					// Scale the heart model to appropriate size for AR
+					heartModel.scale.set(0.3, 0.3, 0.3);
+					heartModel.position.y = 0.5;
+					
+					// Make the model lighter/brighter
+					heartModel.traverse(function(child) {
+						if (child.isMesh) {
+							if (child.material) {
+								// Increase brightness and make materials more vibrant
+								child.material.emissive = new THREE.Color(0.2, 0.1, 0.1); // Add slight red glow
+								child.material.emissiveIntensity = 0.3;
+								
+								// If it has a color property, make it brighter
+								if (child.material.color) {
+									child.material.color.multiplyScalar(1.5); // Make 50% brighter
+								}
+							}
+						}
+					});
+					
+					// Add the heart model to the group
+					heartGroup.add(heartModel);
+					
+					// Initialize zoom scale
+					heartGroup.userData.zoomScale = currentZoom;
+					
+					// Add beating animation to the model
+					var originalScale = { x: 0.3, y: 0.3, z: 0.3 };
+					var time = 0;
+					
+					// Animation loop for beating heart
+					function animateHeart() {
+						time += 0.016; // 60fps
+						var beatScale = 1 + Math.sin(time * 3) * 0.1; // Heartbeat effect
+						
+						// Apply both zoom and beating animation
+						var zoomScale = heartGroup.userData.zoomScale || 1.0;
+						heartModel.scale.set(
+							originalScale.x * beatScale * zoomScale,
+							originalScale.y * beatScale * zoomScale,
+							originalScale.z * beatScale * zoomScale
+						);
+						heartModel.rotation.y += 0.005; // Slow rotation
+					}
+					
+					// Start the animation
+					var animationId;
+					function animate() {
+						animationId = requestAnimationFrame(animate);
+						animateHeart();
+						
+						controller.update(source.domElement);
+						renderer.render(scene, camera);
+					}
+					animate();
+					
+				}, function(progress) {
+					console.log('Loading heart model...', (progress.loaded / progress.total * 100) + '%');
+				}, function(error) {
+					console.error('Error loading heart model:', error);
+					// Fallback to simple geometry if model fails to load
+					createSimpleHeart();
+				});
+
+				// Fallback function to create simple heart if GLTF fails
+				function createSimpleHeart() {
+					var heartShape = new THREE.Shape();
+					heartShape.moveTo(25, 25);
+					heartShape.bezierCurveTo(25, 25, 20, 0, 0, 0);
+					heartShape.bezierCurveTo(-30, 0, -30, 35, -30, 35);
+					heartShape.bezierCurveTo(-30, 55, -10, 77, 25, 95);
+					heartShape.bezierCurveTo(60, 77, 80, 55, 80, 35);
+					heartShape.bezierCurveTo(80, 35, 80, 0, 50, 0);
+					heartShape.bezierCurveTo(35, 0, 25, 25, 25, 25);
+
+					var extrudeSettings = {
+						depth: 8,
+						bevelEnabled: true,
+						bevelSegments: 2,
+						steps: 2,
+						bevelSize: 1,
+						bevelThickness: 1
+					};
+
+					var heartGeometry = new THREE.ExtrudeGeometry(heartShape, extrudeSettings);
+					heartGeometry.scale(0.01, 0.01, 0.01);
+					
+					var heartMaterial = new THREE.MeshPhongMaterial({ 
+						color: 0xff6b6b,
+						shininess: 100,
+						transparent: true,
+						opacity: 0.9
+					});
+					
+					var heart = new THREE.Mesh(heartGeometry, heartMaterial);
+					heart.position.y = 0.5;
+					heart.rotation.z = Math.PI;
+					heartGroup.add(heart);
+				}
+
+				// Add lighting for better heart appearance
+				var ambientLight = new THREE.AmbientLight(0x404040, 0.8); // Increased ambient light
+				scene.add(ambientLight);
+				
+				var directionalLight = new THREE.DirectionalLight(0xffffff, 1.0); // Increased directional light
+				directionalLight.position.set(1, 1, 1);
+				scene.add(directionalLight);
+				
+				// Add additional soft lighting for better visibility
+				var hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6);
+				scene.add(hemisphereLight);
+
+				// Create pattern marker for tracking
+				var patternMarker = new THREEAR.PatternMarker({
+					patternUrl: 'data/patt.hiro',
+					markerObject: heartGroup
+				});
+
+				controller.trackMarker(patternMarker);
+
+				// Handle window resize
+				window.addEventListener('resize', function() {
+					renderer.setSize(window.innerWidth, window.innerHeight);
+				});
+				
+				// Touch gesture support for pinch-to-zoom
+				var initialDistance = 0;
+				var initialZoom = currentZoom;
+				
+				function getDistance(touches) {
+					var dx = touches[0].clientX - touches[1].clientX;
+					var dy = touches[0].clientY - touches[1].clientY;
+					return Math.sqrt(dx * dx + dy * dy);
+				}
+				
+				document.addEventListener('touchstart', function(e) {
+					if (e.touches.length === 2) {
+						e.preventDefault();
+						initialDistance = getDistance(e.touches);
+						initialZoom = currentZoom;
+					}
+				});
+				
+				document.addEventListener('touchmove', function(e) {
+					if (e.touches.length === 2) {
+						e.preventDefault();
+						var currentDistance = getDistance(e.touches);
+						var scaleFactor = currentDistance / initialDistance;
+						var newZoom = initialZoom * scaleFactor;
+						
+						// Clamp zoom within limits
+						newZoom = Math.max(minZoom, Math.min(maxZoom, newZoom));
+						currentZoom = newZoom;
+						updateZoom();
+					}
+				});
+				
+				// Mouse wheel zoom for desktop
+				document.addEventListener('wheel', function(e) {
+					e.preventDefault();
+					if (e.deltaY < 0) {
+						zoomIn();
+					} else {
+						zoomOut();
+					}
+				});
+
+			}).catch((error) => {
+				console.error('THREEAR initialization failed:', error);
+				alert('AR initialization failed. Please make sure you have a camera and try again.');
+			});
+
+		</script>
+	</body>
+	
+</html>

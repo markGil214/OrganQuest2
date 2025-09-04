@@ -1,0 +1,214 @@
+.organ-card {
+  background: linear-gradient(135deg, var(--organ-color, #3498db) 0%, rgba(255, 255, 255, 0.1) 100%);
+  border-radius: 20px;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 3px solid transparent;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  touch-action: manipulation;
+}
+
+.organ-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.organ-card:focus {
+  outline: none;
+  border-color: #fff;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.3);
+}
+
+.organ-card:active {
+  transform: translateY(-4px) scale(0.98);
+}
+
+.organ-icon {
+  text-align: center;
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 2;
+}
+
+.organ-image {
+  width: 64px;
+  height: 64px;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+  transition: transform 0.3s ease;
+}
+
+.organ-emoji {
+  font-size: 64px;
+  display: block;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+  transition: transform 0.3s ease;
+}
+
+.organ-card:hover .organ-image,
+.organ-card:hover .organ-emoji {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.organ-info {
+  text-align: center;
+  color: white;
+  position: relative;
+  z-index: 2;
+  margin-bottom: 16px;
+}
+
+.organ-name {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0 0 8px 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.organ-description {
+  font-size: 0.9rem;
+  margin: 0;
+  opacity: 0.9;
+  line-height: 1.4;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.scan-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 8px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  position: relative;
+  z-index: 2;
+}
+
+.scan-icon {
+  font-size: 1.2rem;
+  animation: pulse 2s infinite;
+}
+
+.scan-text {
+  color: white;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Glass effect overlay */
+.organ-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .organ-card {
+    padding: 20px;
+    min-height: 180px;
+  }
+
+  .organ-image {
+    width: 56px;
+    height: 56px;
+  }
+
+  .organ-emoji {
+    font-size: 56px;
+  }
+
+  .organ-name {
+    font-size: 1.3rem;
+  }
+
+  .organ-description {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .organ-card {
+    padding: 16px;
+    min-height: 160px;
+  }
+
+  .organ-image {
+    width: 48px;
+    height: 48px;
+  }
+
+  .organ-emoji {
+    font-size: 48px;
+  }
+
+  .organ-name {
+    font-size: 1.2rem;
+  }
+
+  .scan-indicator {
+    padding: 6px 12px;
+  }
+
+  .scan-text {
+    font-size: 0.8rem;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .organ-card {
+    border: 3px solid currentColor;
+  }
+
+  .organ-card:focus {
+    outline: 3px solid currentColor;
+    outline-offset: 2px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .organ-card {
+    transition: none;
+  }
+
+  .organ-card:hover {
+    transform: none;
+  }
+
+  .scan-icon {
+    animation: none;
+  }
+}

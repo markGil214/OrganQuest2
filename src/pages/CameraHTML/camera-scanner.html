@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Camera Scanner - Kids Anatomy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* Kid-Friendly Camera Scanner Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-purple: #8B5CF6;
+            --primary-pink: #EC4899;
+            --primary-blue: #3B82F6;
+            --primary-green: #10B981;
+            --primary-orange: #F59E0B;
+            --primary-red: #EF4444;
+            
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            
+            --text-dark: #1F2937;
+            --text-medium: #6B7280;
+            --text-light: #9CA3AF;
+            
+            --border-radius-md: 24px;
+            --border-radius-lg: 32px;
+            
+            --spacing-sm: 12px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            
+            --font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .camera-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: var(--spacing-md);
+        }
+
+        /* Header */
+        .camera-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-lg);
+            position: relative;
+            z-index: 100;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            background: var(--card-bg);
+            border: none;
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-md) var(--spacing-lg);
+            font-family: var(--font-family);
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-dark);
+            cursor: pointer;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            min-height: 56px;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-4px) scale(1.05);
+        }
+
+        .back-arrow {
+            font-size: 24px;
+            color: var(--primary-purple);
+        }
+
+        .camera-title {
+            font-size: 24px;
+            font-weight: 900;
+            color: white;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            flex: 1;
+        }
+
+        .organ-info {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            background: var(--card-bg);
+            border-radius: var(--border-radius-md);
+            padding: var(--spacing-sm) var(--spacing-md);
+            box-shadow: var(--card-shadow);
+        }
+
+        .organ-icon {
+            font-size: 24px;
+        }
+
+        .organ-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
+
+        /* Permission Screen */
+        .permission-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            text-align: center;
+            padding: var(--spacing-xl);
+        }
+
+        .permission-icon {
+            font-size: 80px;
+            margin-bottom: var(--spacing-lg);
+            animation: bounce 2s infinite;
+        }
+
+        .permission-screen h2 {
+            font-size: 28px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: var(--spacing-md);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .permission-screen p {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: var(--spacing-xl);
+            line-height: 1.6;
+        }
+
+        .enable-camera-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            background: linear-gradient(135deg, var(--primary-pink), var(--primary-purple));
+            border: none;
+            border-radius: var(--border-radius-lg);
+            color: white;
+            font-family: var(--font-family);
+            font-size: 20px;
+            font-weight: 800;
+            padding: var(--spacing-lg) var(--spacing-xl);
+            cursor: pointer;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            min-height: 64px;
+            margin: 0 auto;
+        }
+
+        .enable-camera-btn:hover {
+            transform: translateY(-6px) scale(1.08);
+        }
+
+        .btn-icon {
+            font-size: 28px;
+        }
+
+        /* Camera Screen */
+        .camera-screen {
+            display: none;
+            flex: 1;
+            position: relative;
+        }
+
+        .camera-screen.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .video-container {
+            position: relative;
+            flex: 1;
+            border-radius: var(--border-radius-lg);
+            overflow: hidden;
+            background: black;
+            min-height: 400px;
+        }
+
+        #camera-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* AR Overlay */
+        .ar-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+
+        .scan-frame {
+            position: absolute;
+            top: 20%;
+            left: 20%;
+            right: 20%;
+            bottom: 20%;
+            border: 3px solid var(--primary-blue);
+            border-radius: var(--border-radius-md);
+            animation: pulse-frame 2s infinite;
+        }
+
+        .scan-corners {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .corner {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 4px solid var(--primary-green);
+            border-radius: 8px;
+        }
+
+        .corner-tl {
+            top: -15px;
+            left: -15px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .corner-tr {
+            top: -15px;
+            right: -15px;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .corner-bl {
+            bottom: -15px;
+            left: -15px;
+            border-right: none;
+            border-top: none;
+        }
+
+        .corner-br {
+            bottom: -15px;
+            right: -15px;
+            border-left: none;
+            border-top: none;
+        }
+
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                var(--primary-blue) 20%, 
+                var(--primary-green) 50%, 
+                var(--primary-blue) 80%, 
+                transparent 100%
+            );
+            border-radius: 2px;
+            animation: scan-move 2s ease-in-out infinite;
+        }
+
+        .instructions {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius-md);
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        /* Scan Results */
+        .scan-result {
+            position: absolute;
+            background: var(--card-bg);
+            border-radius: var(--border-radius-md);
+            padding: var(--spacing-md);
+            box-shadow: var(--card-shadow);
+            transform: translate(-50%, -50%);
+            animation: result-pop 0.5s ease;
+            display: none;
+        }
+
+        .scan-result.visible {
+            display: block;
+        }
+
+        .result-content {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .result-icon {
+            font-size: 40px;
+        }
+
+        .result-info h4 {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .result-info p {
+            font-size: 14px;
+            color: var(--text-medium);
+            margin: 0;
+        }
+
+        /* Controls */
+        .camera-controls {
+            margin-top: var(--spacing-lg);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
+
+        .scan-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            background: linear-gradient(135deg, var(--primary-green), var(--primary-blue));
+            border: none;
+            border-radius: var(--border-radius-lg);
+            color: white;
+            font-family: var(--font-family);
+            font-size: 20px;
+            font-weight: 800;
+            padding: var(--spacing-lg);
+            cursor: pointer;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            min-height: 64px;
+            justify-content: center;
+        }
+
+        .scan-btn:hover:not(:disabled) {
+            transform: translateY(-4px) scale(1.05);
+        }
+
+        .scan-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .scanning-spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Organ Switcher */
+        .organ-switcher {
+            background: var(--card-bg);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-lg);
+            box-shadow: var(--card-shadow);
+        }
+
+        .organ-switcher h4 {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: var(--spacing-md);
+            text-align: center;
+        }
+
+        .organ-pills {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-sm);
+        }
+
+        .organ-pill {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            background: rgba(var(--pill-color), 0.1);
+            border: 2px solid rgba(var(--pill-color), 0.3);
+            border-radius: var(--border-radius-md);
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-family: var(--font-family);
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .organ-pill:hover {
+            transform: translateY(-2px) scale(1.02);
+            background: rgba(var(--pill-color), 0.2);
+        }
+
+        .organ-pill.active {
+            background: var(--primary-purple);
+            color: white;
+            border-color: var(--primary-purple);
+        }
+
+        .pill-icon {
+            font-size: 20px;
+        }
+
+        /* Error Message */
+        .error-message {
+            background: var(--primary-red);
+            color: white;
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius-md);
+            margin-top: var(--spacing-md);
+            text-align: center;
+            font-weight: 600;
+        }
+
+        /* Results Panel */
+        .results-panel {
+            display: none;
+            background: var(--card-bg);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-xl);
+            box-shadow: var(--card-shadow);
+            margin-top: var(--spacing-lg);
+            animation: slide-up 0.5s ease;
+        }
+
+        .results-panel.visible {
+            display: block;
+        }
+
+        .results-panel h3 {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: var(--spacing-lg);
+            text-align: center;
+        }
+
+        .fun-facts {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .fun-facts h4 {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--primary-purple);
+            margin-bottom: var(--spacing-md);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .fun-facts ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .fun-facts li {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-dark);
+            line-height: 1.5;
+        }
+
+        .fun-facts li::before {
+            content: '💡';
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .results-actions {
+            display: flex;
+            gap: var(--spacing-md);
+        }
+
+        .action-btn {
+            flex: 1;
+            background: var(--primary-purple);
+            border: none;
+            border-radius: var(--border-radius-md);
+            color: white;
+            font-family: var(--font-family);
+            font-size: 16px;
+            font-weight: 700;
+            padding: var(--spacing-md);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            background: var(--primary-pink);
+        }
+
+        /* Animations */
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        @keyframes pulse-frame {
+            0%, 100% {
+                opacity: 0.8;
+                box-shadow: 0 0 0 0 var(--primary-blue);
+            }
+            50% {
+                opacity: 1;
+                box-shadow: 0 0 0 10px rgba(59, 130, 246, 0.3);
+            }
+        }
+
+        @keyframes scan-move {
+            0% {
+                top: 0;
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                top: calc(100% - 4px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes result-pop {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 0;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes slide-up {
+            0% {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .camera-container {
+                padding: var(--spacing-sm);
+            }
+            
+            .camera-title {
+                font-size: 20px;
+            }
+            
+            .organ-pills {
+                grid-template-columns: 1fr;
+            }
+            
+            .results-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="camera-container">
+        <!-- Header -->
+        <div class="camera-header">
+            <a href="../../index.html" class="back-btn">
+                <span class="back-arrow">←</span>
+                Back
+            </a>
+            <h1 class="camera-title">AR Scanner</h1>
+            <div class="organ-info">
+                <span class="organ-icon" id="current-organ-icon">❤️</span>
+                <span class="organ-name" id="current-organ-name">Heart</span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Permission Screen -->
+            <div class="permission-screen" id="permission-screen">
+                <div class="permission-icon">📱</div>
+                <h2>Camera Access Needed</h2>
+                <p>To use AR scanning, we need access to your camera to explore your amazing body!</p>
+                <button class="enable-camera-btn" onclick="requestCamera()">
+                    <span class="btn-icon">📷</span>
+                    Enable Camera
+                </button>
+                <div class="error-message" id="error-message" style="display: none;"></div>
+            </div>
+
+            <!-- Camera Screen -->
+            <div class="camera-screen" id="camera-screen">
+                <div class="video-container">
+                    <video id="camera-video" autoplay playsinline muted></video>
+                    
+                    <!-- AR Overlay -->
+                    <div class="ar-overlay">
+                        <div class="scan-frame" id="scan-frame">
+                            <div class="scan-corners">
+                                <div class="corner corner-tl"></div>
+                                <div class="corner corner-tr"></div>
+                                <div class="corner corner-bl"></div>
+                                <div class="corner corner-br"></div>
+                            </div>
+                            <div class="scan-line" id="scan-line" style="display: none;"></div>
+                        </div>
+
+                        <div class="instructions" id="instructions">
+                            Point your camera at your chest area to scan your heart!
+                        </div>
+
+                        <div class="scan-result" id="scan-result">
+                            <div class="result-content">
+                                <div class="result-icon" id="result-icon">❤️</div>
+                                <div class="result-info">
+                                    <h4 id="result-title">Heart</h4>
+                                    <p id="result-confidence">95% Match</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="camera-controls">
+                    <button class="scan-btn" id="scan-btn" onclick="startScan()">
+                        <span class="btn-icon">🔍</span>
+                        <span id="scan-btn-text">Scan Heart</span>
+                    </button>
+
+                    <!-- Organ Switcher -->
+                    <div class="organ-switcher">
+                        <h4>Switch Organ:</h4>
+                        <div class="organ-pills" id="organ-pills">
+                            <!-- Dynamically populated -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Panel -->
+        <div class="results-panel" id="results-panel">
+            <h3 id="results-title">Great! We found your Heart!</h3>
+            <div class="fun-facts">
+                <h4>🤔 Did You Know?</h4>
+                <ul id="fun-facts-list">
+                    <!-- Dynamically populated -->
+                </ul>
+            </div>
+            <div class="results-actions">
+                <button class="action-btn" onclick="scanAgain()">Scan Again</button>
+                <button class="action-btn" onclick="learnMore()">Learn More</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Organ data
+        const organs = [
+            {
+                id: 'heart',
+                name: 'Heart',
+                description: 'Your amazing heart pumps blood all day long!',
+                icon: '❤️',
+                color: '255, 107, 157', // RGB values for CSS
+                funFacts: [
+                    'Your heart beats about 100,000 times every day!',
+                    'It\'s about the size of your fist!',
+                    'It pumps 5 liters of blood every minute!'
+                ],
+                instructions: 'Point your camera at your chest area to scan your heart!'
+            },
+            {
+                id: 'brain',
+                name: 'Brain',
+                description: 'Your brain controls everything you do!',
+                icon: '🧠',
+                color: '167, 139, 250',
+                funFacts: [
+                    'Your brain has billions of tiny brain cells!',
+                    'It never stops working, even when you sleep!',
+                    'It uses 20% of your body\'s energy!'
+                ],
+                instructions: 'Point your camera at your head to scan your brain!'
+            },
+            {
+                id: 'lungs',
+                name: 'Lungs',
+                description: 'Your lungs help you breathe fresh air!',
+                icon: '🫁',
+                color: '96, 165, 250',
+                funFacts: [
+                    'You breathe about 20,000 times a day!',
+                    'They help you talk and sing!',
+                    'They have 300 million tiny air sacs!'
+                ],
+                instructions: 'Point your camera at your chest to scan your lungs!'
+            },
+            {
+                id: 'liver',
+                name: 'Liver',
+                description: 'Your liver is your body\'s amazing cleaner!',
+                icon: '🟤',
+                color: '245, 158, 11',
+                funFacts: [
+                    'It\'s like a superhero that fights bad stuff!',
+                    'It can fix itself if it gets hurt!',
+                    'It does over 500 different jobs!'
+                ],
+                instructions: 'Point your camera at your right side to scan your liver!'
+            },
+            {
+                id: 'kidney',
+                name: 'Kidneys',
+                description: 'Your kidneys are amazing filters!',
+                icon: '🫘',
+                color: '16, 185, 129',
+                funFacts: [
+                    'You have two kidneys!',
+                    'They clean your blood like a washing machine!',
+                    'They filter 50 gallons of blood every day!'
+                ],
+                instructions: 'Point your camera at your back to scan your kidneys!'
+            },
+            {
+                id: 'stomach',
+                name: 'Stomach',
+                description: 'Your stomach breaks down yummy food!',
+                icon: '🍽️',
+                color: '249, 115, 22',
+                funFacts: [
+                    'It\'s like a food blender inside you!',
+                    'It can stretch to fit lots of food!',
+                    'It has super strong acid to break down food!'
+                ],
+                instructions: 'Point your camera at your belly to scan your stomach!'
+            }
+        ];
+
+        let currentOrgan = organs[0]; // Default to heart
+        let stream = null;
+        let isScanning = false;
+
+        // Get organ from URL parameter
+        function getOrganFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const organId = urlParams.get('organ') || 'heart';
+            const organ = organs.find(o => o.id === organId);
+            return organ || organs[0];
+        }
+
+        // Initialize page
+        function init() {
+            currentOrgan = getOrganFromURL();
+            updateCurrentOrgan();
+            generateOrganPills();
+        }
+
+        // Update current organ display
+        function updateCurrentOrgan() {
+            document.getElementById('current-organ-icon').textContent = currentOrgan.icon;
+            document.getElementById('current-organ-name').textContent = currentOrgan.name;
+            document.getElementById('instructions').textContent = currentOrgan.instructions;
+            document.getElementById('scan-btn-text').textContent = `Scan ${currentOrgan.name}`;
+        }
+
+        // Generate organ switching pills
+        function generateOrganPills() {
+            const pillsContainer = document.getElementById('organ-pills');
+            pillsContainer.innerHTML = '';
+            
+            organs.forEach(organ => {
+                const pill = document.createElement('button');
+                pill.className = `organ-pill ${organ.id === currentOrgan.id ? 'active' : ''}`;
+                pill.style.setProperty('--pill-color', organ.color);
+                pill.onclick = () => switchOrgan(organ.id);
+                
+                pill.innerHTML = `
+                    <span class="pill-icon">${organ.icon}</span>
+                    <span class="pill-name">${organ.name}</span>
+                `;
+                
+                pillsContainer.appendChild(pill);
+            });
+        }
+
+        // Switch organ
+        function switchOrgan(organId) {
+            const organ = organs.find(o => o.id === organId);
+            if (organ) {
+                currentOrgan = organ;
+                updateCurrentOrgan();
+                generateOrganPills();
+                hideResults();
+                
+                // Update URL
+                const url = new URL(window.location);
+                url.searchParams.set('organ', organId);
+                window.history.replaceState(null, '', url);
+            }
+        }
+
+        // Request camera access
+        async function requestCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'environment', // Back camera on mobile
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }
+                });
+                
+                const video = document.getElementById('camera-video');
+                video.srcObject = stream;
+                
+                // Hide permission screen, show camera
+                document.getElementById('permission-screen').style.display = 'none';
+                document.getElementById('camera-screen').classList.add('active');
+                document.getElementById('error-message').style.display = 'none';
+                
+            } catch (error) {
+                console.error('Camera access error:', error);
+                const errorMsg = document.getElementById('error-message');
+                errorMsg.textContent = 'Camera access denied. Please allow camera permissions to use AR scanning.';
+                errorMsg.style.display = 'block';
+            }
+        }
+
+        // Start scanning
+        function startScan() {
+            if (isScanning) return;
+            
+            isScanning = true;
+            const scanBtn = document.getElementById('scan-btn');
+            const scanLine = document.getElementById('scan-line');
+            
+            // Update button
+            scanBtn.disabled = true;
+            scanBtn.innerHTML = '<div class="scanning-spinner"></div>Scanning...';
+            
+            // Show scan line
+            scanLine.style.display = 'block';
+            
+            // Hide previous results
+            hideResults();
+            
+            // Simulate scanning process
+            setTimeout(() => {
+                showScanResult();
+                isScanning = false;
+                
+                // Reset button
+                scanBtn.disabled = false;
+                scanBtn.innerHTML = `<span class="btn-icon">🔍</span><span>Scan ${currentOrgan.name}</span>`;
+                
+                // Hide scan line
+                scanLine.style.display = 'none';
+                
+                // Show results panel
+                showResults();
+            }, 3000);
+        }
+
+        // Show scan result overlay
+        function showScanResult() {
+            const result = document.getElementById('scan-result');
+            const resultIcon = document.getElementById('result-icon');
+            const resultTitle = document.getElementById('result-title');
+            const resultConfidence = document.getElementById('result-confidence');
+            
+            resultIcon.textContent = currentOrgan.icon;
+            resultTitle.textContent = currentOrgan.name;
+            resultConfidence.textContent = '95% Match';
+            
+            // Position result in center
+            result.style.left = '50%';
+            result.style.top = '50%';
+            result.classList.add('visible');
+            
+            // Hide after 3 seconds
+            setTimeout(() => {
+                result.classList.remove('visible');
+            }, 3000);
+        }
+
+        // Show results panel
+        function showResults() {
+            const panel = document.getElementById('results-panel');
+            const title = document.getElementById('results-title');
+            const factsList = document.getElementById('fun-facts-list');
+            
+            title.textContent = `Great! We found your ${currentOrgan.name}!`;
+            
+            // Populate fun facts
+            factsList.innerHTML = '';
+            currentOrgan.funFacts.forEach(fact => {
+                const li = document.createElement('li');
+                li.textContent = fact;
+                factsList.appendChild(li);
+            });
+            
+            panel.classList.add('visible');
+        }
+
+        // Hide results
+        function hideResults() {
+            document.getElementById('results-panel').classList.remove('visible');
+            document.getElementById('scan-result').classList.remove('visible');
+        }
+
+        // Scan again
+        function scanAgain() {
+            hideResults();
+        }
+
+        // Learn more
+        function learnMore() {
+            // Navigate to detailed organ page
+            window.location.href = `../organ-detail.html?organ=${currentOrgan.id}`;
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        });
+
+        // Initialize when page loads
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>

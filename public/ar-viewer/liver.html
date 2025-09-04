@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+	<head>
+		<meta name='viewport' content='width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0'>
+		<script src="vendor/three.101.min.js"></script>	
+		<script src="THREEAR.js"></script>
+		<title>AR Liver Explorer - Kids Anatomy</title>
+		<style>
+			body { margin: 0px; overflow: hidden; font-family: 'Arial', sans-serif; background-color: #000; }
+			.ar-ui { position: absolute; top: 20px; left: 20px; z-index: 100; background: rgba(255, 255, 255, 0.9); padding: 15px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); max-width: 300px; }
+			.ar-title { color: #ff9f43; font-size: 1.4rem; font-weight: bold; margin: 0 0 10px 0; }
+			.ar-instructions { color: #333; font-size: 0.9rem; margin: 0 0 15px 0; line-height: 1.4; }
+			.ar-back-btn { background: #ff9f43; color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 0.9rem; }
+			.ar-back-btn:hover { background: #ff8c1a; }
+			.liver-info { position: absolute; bottom: 20px; left: 20px; right: 20px; background: rgba(255, 159, 67, 0.9); color: white; padding: 15px; border-radius: 15px; text-align: center; z-index: 100; }
+			.liver-fact { font-size: 1.1rem; font-weight: bold; margin: 0; }
+		</style>
+	</head>
+	<body>
+		<div class="ar-ui">
+			<h1 class="ar-title">🫀 AR Liver Explorer</h1>
+			<p class="ar-instructions">Point your camera at the AR marker to see a 3D liver! Watch it filter and clean your blood!</p>
+			<button class="ar-back-btn" onclick="window.history.back()">← Back to Organs</button>
+		</div>
+		<div class="liver-info">
+			<p class="liver-fact">🫀 Your liver performs over 500 different functions!</p>
+		</div>
+		<script>
+			var renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+			renderer.setClearColor(new THREE.Color('lightgrey'), 0);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.domElement.style.position = 'absolute';
+			renderer.domElement.style.top = '0px';
+			renderer.domElement.style.left = '0px';
+			document.body.appendChild(renderer.domElement);
+			
+			var scene = new THREE.Scene();
+			var camera = new THREE.Camera();
+			scene.add(camera);
+			var liverGroup = new THREE.Group();
+			scene.add(liverGroup);
+			var source = new THREEAR.Source({ renderer, camera });
+
+			THREEAR.initialize({ source: source }).then((controller) => {
+				var liverGeometry = new THREE.BoxGeometry(0.6, 0.4, 0.3);
+				liverGeometry.vertices.forEach(vertex => {
+					vertex.x += (Math.random() - 0.5) * 0.1;
+					vertex.y += (Math.random() - 0.5) * 0.1;
+					vertex.z += (Math.random() - 0.5) * 0.1;
+				});
+				var liverMaterial = new THREE.MeshPhongMaterial({ color: 0xff9f43, transparent: true, opacity: 0.9 });
+				var liver = new THREE.Mesh(liverGeometry, liverMaterial);
+				liver.position.y = 0.5;
+				liverGroup.add(liver);
+
+				var cleaningParticles = [];
+				for (let i = 0; i < 25; i++) {
+					var particleGeometry = new THREE.SphereGeometry(0.01, 6, 6);
+					var particleMaterial = new THREE.MeshBasicMaterial({ color: 0x90ee90, transparent: true, opacity: 0.8 });
+					var particle = new THREE.Mesh(particleGeometry, particleMaterial);
+					particle.position.set((Math.random() - 0.5) * 1.2, Math.random() * 1.2 + 0.2, (Math.random() - 0.5) * 1.2);
+					cleaningParticles.push(particle);
+					liverGroup.add(particle);
+				}
+
+				var ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+				scene.add(ambientLight);
+				var directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+				directionalLight.position.set(1, 1, 1);
+				scene.add(directionalLight);
+
+				var patternMarker = new THREEAR.PatternMarker({ patternUrl: 'data/patt.hiro', markerObject: liverGroup });
+				controller.trackMarker(patternMarker);
+
+				var time = 0;
+				requestAnimationFrame(function animate(nowMsec){
+					requestAnimationFrame(animate);
+					time += 0.016;
+					
+					var workingScale = 1 + Math.sin(time * 1.5) * 0.08;
+					liver.scale.set(workingScale, workingScale, workingScale);
+					liver.rotation.y += 0.003;
+					
+					cleaningParticles.forEach((particle, index) => {
+						particle.position.y += Math.sin(time + index) * 0.005;
+						particle.rotation.x += 0.03;
+						particle.rotation.y += 0.03;
+					});
+					
+					controller.update(source.domElement);
+					renderer.render(scene, camera);
+				});
+			});
+		</script>
+	</body>
+</html>

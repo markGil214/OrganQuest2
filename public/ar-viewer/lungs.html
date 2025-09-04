@@ -1,0 +1,249 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta name='viewport' content='width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0'>
+		<script src="vendor/three.101.min.js"></script>	
+		<script src="THREEAR.js"></script>
+		<title>AR Lungs Explorer - Kids Anatomy</title>
+		<style>
+			body {
+				margin: 0px;
+				overflow: hidden;
+				font-family: 'Arial', sans-serif;
+				background-color: #000;
+			}
+			
+			.ar-ui {
+				position: absolute;
+				top: 20px;
+				left: 20px;
+				z-index: 100;
+				background: rgba(255, 255, 255, 0.9);
+				padding: 15px;
+				border-radius: 15px;
+				box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+				max-width: 300px;
+			}
+			
+			.ar-title {
+				color: #4ecdc4;
+				font-size: 1.4rem;
+				font-weight: bold;
+				margin: 0 0 10px 0;
+			}
+			
+			.ar-instructions {
+				color: #333;
+				font-size: 0.9rem;
+				margin: 0 0 15px 0;
+				line-height: 1.4;
+			}
+			
+			.ar-back-btn {
+				background: #4ecdc4;
+				color: white;
+				border: none;
+				padding: 10px 20px;
+				border-radius: 10px;
+				font-weight: bold;
+				cursor: pointer;
+				font-size: 0.9rem;
+			}
+			
+			.ar-back-btn:hover {
+				background: #45b7aa;
+			}
+			
+			.lungs-info {
+				position: absolute;
+				bottom: 20px;
+				left: 20px;
+				right: 20px;
+				background: rgba(78, 205, 196, 0.9);
+				color: white;
+				padding: 15px;
+				border-radius: 15px;
+				text-align: center;
+				z-index: 100;
+			}
+			
+			.lungs-fact {
+				font-size: 1.1rem;
+				font-weight: bold;
+				margin: 0;
+			}
+		</style>
+	</head>
+
+	<body>
+		<!-- AR UI Overlay -->
+		<div class="ar-ui">
+			<h1 class="ar-title">🫁 AR Lungs Explorer</h1>
+			<p class="ar-instructions">
+				Point your camera at the AR marker to see 3D lungs! 
+				Watch them breathe in and out just like your real lungs!
+			</p>
+			<button class="ar-back-btn" onclick="window.history.back()">← Back to Organs</button>
+		</div>
+		
+		<!-- Lungs Info -->
+		<div class="lungs-info">
+			<p class="lungs-fact">🫁 You breathe about 20,000 times every day!</p>
+		</div>
+
+		<script>
+			var renderer = new THREE.WebGLRenderer({
+				alpha: true,
+				antialias: true
+			});
+			renderer.setClearColor(new THREE.Color('lightgrey'), 0);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.domElement.style.position = 'absolute';
+			renderer.domElement.style.top = '0px';
+			renderer.domElement.style.left = '0px';
+			document.body.appendChild(renderer.domElement);
+		
+			var scene = new THREE.Scene();
+			var camera = new THREE.Camera();
+			scene.add(camera);
+
+			var lungsGroup = new THREE.Group();
+			scene.add(lungsGroup);
+		
+			var source = new THREEAR.Source({ renderer, camera });
+
+			THREEAR.initialize({ source: source }).then((controller) => {
+
+				// Create left lung
+				var leftLungGeometry = new THREE.CylinderGeometry(0.15, 0.25, 0.6, 12);
+				var leftLungMaterial = new THREE.MeshPhongMaterial({ 
+					color: 0x4ecdc4,
+					transparent: true,
+					opacity: 0.8
+				});
+				var leftLung = new THREE.Mesh(leftLungGeometry, leftLungMaterial);
+				leftLung.position.set(-0.2, 0.5, 0);
+				lungsGroup.add(leftLung);
+
+				// Create right lung
+				var rightLungGeometry = new THREE.CylinderGeometry(0.15, 0.25, 0.6, 12);
+				var rightLungMaterial = new THREE.MeshPhongMaterial({ 
+					color: 0x4ecdc4,
+					transparent: true,
+					opacity: 0.8
+				});
+				var rightLung = new THREE.Mesh(rightLungGeometry, rightLungMaterial);
+				rightLung.position.set(0.2, 0.5, 0);
+				lungsGroup.add(rightLung);
+
+				// Create trachea (windpipe)
+				var tracheaGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.3, 8);
+				var tracheaMaterial = new THREE.MeshPhongMaterial({ 
+					color: 0x3ba399,
+					transparent: true,
+					opacity: 0.9
+				});
+				var trachea = new THREE.Mesh(tracheaGeometry, tracheaMaterial);
+				trachea.position.set(0, 0.9, 0);
+				lungsGroup.add(trachea);
+
+				// Create bronchi (tubes connecting to lungs)
+				var bronchiGeometry = new THREE.CylinderGeometry(0.03, 0.03, 0.2, 6);
+				var bronchiMaterial = new THREE.MeshPhongMaterial({ 
+					color: 0x3ba399,
+					transparent: true,
+					opacity: 0.9
+				});
+				
+				var leftBronchus = new THREE.Mesh(bronchiGeometry, bronchiMaterial);
+				leftBronchus.position.set(-0.1, 0.75, 0);
+				leftBronchus.rotation.z = -Math.PI / 6;
+				lungsGroup.add(leftBronchus);
+				
+				var rightBronchus = new THREE.Mesh(bronchiGeometry, bronchiMaterial);
+				rightBronchus.position.set(0.1, 0.75, 0);
+				rightBronchus.rotation.z = Math.PI / 6;
+				lungsGroup.add(rightBronchus);
+
+				// Create air particles
+				var airParticles = [];
+				var airParticleGeometry = new THREE.SphereGeometry(0.01, 6, 6);
+				var airParticleMaterial = new THREE.MeshBasicMaterial({ 
+					color: 0x87ceeb,
+					transparent: true,
+					opacity: 0.7
+				});
+				
+				for (let i = 0; i < 30; i++) {
+					var particle = new THREE.Mesh(airParticleGeometry, airParticleMaterial);
+					particle.position.x = (Math.random() - 0.5) * 0.8;
+					particle.position.y = Math.random() * 1.5 + 0.2;
+					particle.position.z = (Math.random() - 0.5) * 0.8;
+					particle.userData = {
+						speed: Math.random() * 0.02 + 0.01,
+						direction: Math.random() > 0.5 ? 1 : -1
+					};
+					airParticles.push(particle);
+					lungsGroup.add(particle);
+				}
+
+				// Add lighting
+				var ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+				scene.add(ambientLight);
+				
+				var directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+				directionalLight.position.set(1, 1, 1);
+				scene.add(directionalLight);
+
+				var patternMarker = new THREEAR.PatternMarker({
+					patternUrl: 'data/patt.hiro',
+					markerObject: lungsGroup
+				});
+
+				controller.trackMarker(patternMarker);
+
+				var time = 0;
+				var breathTime = 0;
+
+				requestAnimationFrame(function animate(nowMsec){
+					requestAnimationFrame(animate);
+					
+					time += 0.016;
+					breathTime += 0.03; // Breathing speed
+					
+					// Breathing animation (expand and contract)
+					var breathScale = 1 + Math.sin(breathTime * Math.PI * 2) * 0.15;
+					leftLung.scale.set(breathScale, breathScale, breathScale);
+					rightLung.scale.set(breathScale, breathScale, breathScale);
+					
+					// Animate air particles (breathing in and out)
+					airParticles.forEach((particle, index) => {
+						var breathDirection = Math.sin(breathTime * Math.PI * 2);
+						particle.position.y += particle.userData.speed * particle.userData.direction * breathDirection;
+						
+						// Reset particle position if it goes too far
+						if (particle.position.y > 1.5) particle.position.y = 0.2;
+						if (particle.position.y < 0.2) particle.position.y = 1.5;
+						
+						particle.rotation.x += 0.02;
+						particle.rotation.y += 0.02;
+					});
+					
+					controller.update(source.domElement);
+					renderer.render(scene, camera);
+				});
+
+				window.addEventListener('resize', function() {
+					renderer.setSize(window.innerWidth, window.innerHeight);
+				});
+
+			}).catch((error) => {
+				console.error('THREEAR initialization failed:', error);
+				alert('AR initialization failed. Please make sure you have a camera and try again.');
+			});
+
+		</script>
+	</body>
+	
+</html>

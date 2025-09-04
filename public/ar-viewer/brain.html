@@ -1,0 +1,257 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta name='viewport' content='width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0'>
+		<script src="vendor/three.101.min.js"></script>	
+		<script src="THREEAR.js"></script>
+		<title>AR Brain Explorer - Kids Anatomy</title>
+		<style>
+			body {
+				margin: 0px;
+				overflow: hidden;
+				font-family: 'Arial', sans-serif;
+				background-color: #000;
+			}
+			
+			.ar-ui {
+				position: absolute;
+				top: 20px;
+				left: 20px;
+				z-index: 100;
+				background: rgba(255, 255, 255, 0.9);
+				padding: 15px;
+				border-radius: 15px;
+				box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+				max-width: 300px;
+			}
+			
+			.ar-title {
+				color: #845ec2;
+				font-size: 1.4rem;
+				font-weight: bold;
+				margin: 0 0 10px 0;
+			}
+			
+			.ar-instructions {
+				color: #333;
+				font-size: 0.9rem;
+				margin: 0 0 15px 0;
+				line-height: 1.4;
+			}
+			
+			.ar-back-btn {
+				background: #845ec2;
+				color: white;
+				border: none;
+				padding: 10px 20px;
+				border-radius: 10px;
+				font-weight: bold;
+				cursor: pointer;
+				font-size: 0.9rem;
+			}
+			
+			.ar-back-btn:hover {
+				background: #7549b8;
+			}
+			
+			.brain-info {
+				position: absolute;
+				bottom: 20px;
+				left: 20px;
+				right: 20px;
+				background: rgba(132, 94, 194, 0.9);
+				color: white;
+				padding: 15px;
+				border-radius: 15px;
+				text-align: center;
+				z-index: 100;
+			}
+			
+			.brain-fact {
+				font-size: 1.1rem;
+				font-weight: bold;
+				margin: 0;
+			}
+		</style>
+	</head>
+
+	<body>
+		<!-- AR UI Overlay -->
+		<div class="ar-ui">
+			<h1 class="ar-title">🧠 AR Brain Explorer</h1>
+			<p class="ar-instructions">
+				Point your camera at the AR marker to see a 3D brain! 
+				Watch it glow with electrical activity like a real brain!
+			</p>
+			<button class="ar-back-btn" onclick="window.history.back()">← Back to Organs</button>
+		</div>
+		
+		<!-- Brain Info -->
+		<div class="brain-info">
+			<p class="brain-fact">🧠 Your brain has 86 billion neurons working together!</p>
+		</div>
+
+		<script>
+			var renderer = new THREE.WebGLRenderer({
+				alpha: true,
+				antialias: true
+			});
+			renderer.setClearColor(new THREE.Color('lightgrey'), 0);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.domElement.style.position = 'absolute';
+			renderer.domElement.style.top = '0px';
+			renderer.domElement.style.left = '0px';
+			document.body.appendChild(renderer.domElement);
+		
+			var scene = new THREE.Scene();
+			var camera = new THREE.Camera();
+			scene.add(camera);
+
+			var brainGroup = new THREE.Group();
+			scene.add(brainGroup);
+		
+			var source = new THREEAR.Source({ renderer, camera });
+
+			THREEAR.initialize({ source: source }).then((controller) => {
+
+				// Create brain geometry (sphere with bumpy surface for brain-like texture)
+				var brainGeometry = new THREE.SphereGeometry(0.4, 32, 32);
+				
+				// Modify vertices to make it brain-like
+				var vertices = brainGeometry.vertices;
+				for (var i = 0; i < vertices.length; i++) {
+					var vertex = vertices[i];
+					var noise = Math.random() * 0.1 - 0.05;
+					vertex.multiplyScalar(1 + noise);
+				}
+				brainGeometry.verticesNeedUpdate = true;
+				brainGeometry.computeFaceNormals();
+				
+				// Create brain material with a purple/pink gradient
+				var brainMaterial = new THREE.MeshPhongMaterial({ 
+					color: 0x845ec2,
+					shininess: 30,
+					transparent: true,
+					opacity: 0.9
+				});
+				
+				var brain = new THREE.Mesh(brainGeometry, brainMaterial);
+				brain.position.y = 0.5;
+				brainGroup.add(brain);
+
+				// Add electrical activity lines (synapses)
+				var synapses = [];
+				for (let i = 0; i < 15; i++) {
+					var lineGeometry = new THREE.BufferGeometry();
+					var points = [];
+					
+					// Create random curved line for synapse
+					var start = new THREE.Vector3(
+						(Math.random() - 0.5) * 0.8,
+						Math.random() * 0.8 + 0.1,
+						(Math.random() - 0.5) * 0.8
+					);
+					var end = new THREE.Vector3(
+						(Math.random() - 0.5) * 0.8,
+						Math.random() * 0.8 + 0.1,
+						(Math.random() - 0.5) * 0.8
+					);
+					
+					// Create curved path
+					for (let j = 0; j <= 10; j++) {
+						var t = j / 10;
+						var point = start.clone().lerp(end, t);
+						point.y += Math.sin(t * Math.PI) * 0.2; // Arc
+						points.push(point.x, point.y, point.z);
+					}
+					
+					lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
+					
+					var lineMaterial = new THREE.LineBasicMaterial({ 
+						color: 0x00ffff,
+						transparent: true,
+						opacity: 0.6
+					});
+					
+					var synapse = new THREE.Line(lineGeometry, lineMaterial);
+					synapses.push(synapse);
+					brainGroup.add(synapse);
+				}
+
+				// Add thinking particles
+				var particleGeometry = new THREE.SphereGeometry(0.01, 8, 8);
+				var particleMaterial = new THREE.MeshBasicMaterial({ 
+					color: 0xffd700,
+					transparent: true,
+					opacity: 0.8
+				});
+				
+				var particles = [];
+				for (let i = 0; i < 20; i++) {
+					var particle = new THREE.Mesh(particleGeometry, particleMaterial);
+					particle.position.x = (Math.random() - 0.5) * 1.5;
+					particle.position.y = Math.random() * 1.2 + 0.2;
+					particle.position.z = (Math.random() - 0.5) * 1.5;
+					particles.push(particle);
+					brainGroup.add(particle);
+				}
+
+				// Add lighting
+				var ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+				scene.add(ambientLight);
+				
+				var directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+				directionalLight.position.set(1, 1, 1);
+				scene.add(directionalLight);
+
+				var patternMarker = new THREEAR.PatternMarker({
+					patternUrl: 'data/patt.hiro',
+					markerObject: brainGroup
+				});
+
+				controller.trackMarker(patternMarker);
+
+				var time = 0;
+
+				requestAnimationFrame(function animate(nowMsec){
+					requestAnimationFrame(animate);
+					
+					time += 0.016;
+					
+					// Brain gentle pulsing (thinking)
+					var pulseScale = 1 + Math.sin(time * 2) * 0.05;
+					brain.scale.set(pulseScale, pulseScale, pulseScale);
+					
+					// Gentle rotation
+					brain.rotation.y += 0.002;
+					
+					// Animate synapses opacity (electrical activity)
+					synapses.forEach((synapse, index) => {
+						synapse.material.opacity = 0.3 + Math.sin(time * 3 + index) * 0.3;
+					});
+					
+					// Animate thinking particles
+					particles.forEach((particle, index) => {
+						particle.position.y += Math.sin(time + index) * 0.003;
+						particle.rotation.x += 0.02;
+						particle.rotation.y += 0.02;
+					});
+					
+					controller.update(source.domElement);
+					renderer.render(scene, camera);
+				});
+
+				window.addEventListener('resize', function() {
+					renderer.setSize(window.innerWidth, window.innerHeight);
+				});
+
+			}).catch((error) => {
+				console.error('THREEAR initialization failed:', error);
+				alert('AR initialization failed. Please make sure you have a camera and try again.');
+			});
+
+		</script>
+	</body>
+	
+</html>

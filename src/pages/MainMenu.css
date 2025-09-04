@@ -1,0 +1,414 @@
+.main-menu {
+  height: 100vh;
+  background: linear-gradient(135deg, #2c1810 0%, #4a3061 50%, #6a4c93 100%);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Subtle background pattern */
+.main-menu::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 50px 50px;
+  z-index: 0;
+}
+
+/* Header Section */
+.menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  z-index: 10;
+  position: relative;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
+}
+
+.greeting {
+  flex: 1;
+}
+
+.hello-text {
+  color: #f39c12;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.welcome-back {
+  color: #ecf0f1;
+  font-size: 1rem;
+  margin: 0.25rem 0 0 0;
+  opacity: 0.9;
+}
+
+/* User Avatar */
+.user-avatar {
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.user-avatar:hover {
+  transform: scale(1.05);
+}
+
+.avatar-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 3px solid #f39c12;
+  box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+  transition: all 0.3s ease;
+}
+
+.avatar-ring {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  border-radius: 50%;
+  border: 2px solid rgba(243, 156, 18, 0.3);
+  animation: pulse-ring 2s infinite;
+}
+
+@keyframes pulse-ring {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.1;
+  }
+}
+
+/* Logo Section */
+.logo-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  position: relative;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
+}
+
+.app-logo {
+  text-align: center;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.logo-icon {
+  font-size: 3rem;
+  margin-bottom: 0.25rem;
+  animation: heartbeat 2s infinite;
+}
+
+@keyframes heartbeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.app-title {
+  font-size: 2.8rem;
+  font-weight: bold;
+  color: #f39c12;
+  margin: 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: -0.02em;
+}
+
+.app-subtitle {
+  font-size: 1rem;
+  color: #ecf0f1;
+  margin: 0.25rem 0 0 0;
+  opacity: 0.8;
+  font-weight: 300;
+}
+
+/* Menu Grid */
+.menu-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  z-index: 10;
+  position: relative;
+  max-width: 600px;
+  margin: 0 auto;
+  flex: 1;
+  min-height: 0;
+}
+
+
+/* Floating Decorations */
+.floating-decorations {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.decoration {
+  position: absolute;
+  font-size: 1.5rem;
+  opacity: 0.3;
+  animation: float 6s ease-in-out infinite;
+}
+
+.decoration.heart {
+  top: 20%;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.decoration.brain {
+  top: 15%;
+  right: 15%;
+  animation-delay: 1s;
+}
+
+.decoration.lungs {
+  bottom: 30%;
+  left: 5%;
+  animation-delay: 2s;
+}
+
+.decoration.star {
+  bottom: 20%;
+  right: 20%;
+  animation-delay: 3s;
+}
+
+.decoration.sparkle {
+  top: 60%;
+  left: 80%;
+  animation-delay: 4s;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  33% {
+    transform: translateY(-15px) rotate(5deg);
+  }
+  66% {
+    transform: translateY(-10px) rotate(-5deg);
+  }
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .main-menu {
+    padding: 0.5rem;
+  }
+  
+  .hello-text {
+    font-size: 1.3rem;
+  }
+  
+  .app-title {
+    font-size: 2.2rem;
+  }
+  
+  .logo-icon {
+    font-size: 2.5rem;
+  }
+  
+  .avatar-image {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .menu-grid {
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-menu {
+    padding: 0.5rem;
+  }
+  
+  .menu-header {
+    margin-bottom: 0.75rem;
+  }
+  
+  .hello-text {
+    font-size: 1.2rem;
+  }
+  
+  .welcome-back {
+    font-size: 0.85rem;
+  }
+  
+  .app-title {
+    font-size: 1.8rem;
+  }
+  
+  .app-subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .logo-icon {
+    font-size: 2rem;
+  }
+  
+  .avatar-image {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .menu-grid {
+    gap: 1rem;
+    grid-template-columns: 1fr 1fr;
+    max-width: 350px;
+  }
+  
+  .decoration {
+    font-size: 1rem;
+  }
+}
+
+/* Portrait orientation optimization */
+@media (orientation: portrait) and (max-height: 700px) {
+  .logo-section {
+    margin-bottom: 0.5rem;
+  }
+  
+  .app-title {
+    font-size: 2rem;
+  }
+  
+  .logo-icon {
+    font-size: 2rem;
+    margin-bottom: 0.1rem;
+  }
+  
+  .menu-header {
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Very short screens */
+@media (max-height: 600px) {
+  .main-menu {
+    padding: 0.5rem;
+  }
+  
+  .menu-header {
+    margin-bottom: 0.5rem;
+  }
+  
+  .logo-section {
+    margin-bottom: 0.5rem;
+  }
+  
+  .hello-text {
+    font-size: 1.2rem;
+  }
+  
+  .app-title {
+    font-size: 1.8rem;
+  }
+  
+  .logo-icon {
+    font-size: 1.8rem;
+    margin-bottom: 0.1rem;
+  }
+  
+  .app-subtitle {
+    font-size: 0.9rem;
+    margin-top: 0.1rem;
+  }
+  
+  .avatar-image {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .menu-grid {
+    gap: 0.5rem;
+  }
+}
+
+/* Very small screens - maintain 2-column layout */
+@media (max-width: 320px) {
+  .main-menu {
+    padding: 0.3rem;
+  }
+  
+  .menu-header {
+    margin-bottom: 0.5rem;
+  }
+  
+  .logo-section {
+    margin-bottom: 0.5rem;
+  }
+  
+  .hello-text {
+    font-size: 1rem;
+  }
+  
+  .welcome-back {
+    font-size: 0.75rem;
+  }
+  
+  .app-title {
+    font-size: 1.5rem;
+  }
+  
+  .app-subtitle {
+    font-size: 0.8rem;
+  }
+  
+  .logo-icon {
+    font-size: 1.5rem;
+  }
+  
+  .avatar-image {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .menu-grid {
+    gap: 0.4rem;
+    max-width: 280px;
+  }
+  
+  .decoration {
+    font-size: 0.8rem;
+  }
+}

@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organ Details - Kids Anatomy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* Reuse similar styles from camera scanner */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-purple: #8B5CF6;
+            --primary-pink: #EC4899;
+            --primary-blue: #3B82F6;
+            --primary-green: #10B981;
+            --primary-orange: #F59E0B;
+            --primary-red: #EF4444;
+            
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            
+            --text-dark: #1F2937;
+            --text-medium: #6B7280;
+            --text-light: #9CA3AF;
+            
+            --border-radius-md: 24px;
+            --border-radius-lg: 32px;
+            
+            --spacing-sm: 12px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            
+            --font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--bg-gradient);
+            min-height: 100vh;
+        }
+
+        .detail-container {
+            min-height: 100vh;
+            padding: var(--spacing-md);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
+
+        /* Header */
+        .detail-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            background: var(--card-bg);
+            border: none;
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-md) var(--spacing-lg);
+            font-family: var(--font-family);
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-dark);
+            cursor: pointer;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            min-height: 56px;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-4px) scale(1.05);
+        }
+
+        .back-arrow {
+            font-size: 24px;
+            color: var(--primary-purple);
+        }
+
+        .detail-title {
+            font-size: 28px;
+            font-weight: 900;
+            color: white;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            flex: 1;
+        }
+
+        /* Organ Showcase */
+        .organ-showcase {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--card-bg);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-xl);
+            box-shadow: var(--card-shadow);
+            min-height: 200px;
+        }
+
+        .large-organ {
+            position: relative;
+            font-size: 120px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .organ-glow {
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            border-radius: 50%;
+            background: radial-gradient(circle, 
+                rgba(var(--organ-color), 0.3) 0%, 
+                transparent 70%
+            );
+            animation: glow-pulse 2s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        /* Organ Info */
+        .organ-info {
+            background: var(--card-bg);
+            border-radius: var(--border-radius-lg);
+            padding: var(--spacing-xl);
+            box-shadow: var(--card-shadow);
+        }
+
+        .organ-description {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: var(--spacing-xl);
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        .did-you-know {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .did-you-know h3 {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--primary-purple);
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .facts-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .fact-item {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--spacing-md);
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-dark);
+            line-height: 1.5;
+            background: rgba(var(--organ-color), 0.1);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius-md);
+        }
+
+        .fact-bullet {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-md);
+            background: linear-gradient(135deg, var(--primary-green), var(--primary-blue));
+            border: none;
+            border-radius: var(--border-radius-lg);
+            color: white;
+            font-family: var(--font-family);
+            font-size: 18px;
+            font-weight: 800;
+            padding: var(--spacing-lg);
+            cursor: pointer;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            min-height: 64px;
+            text-decoration: none;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-4px) scale(1.05);
+        }
+
+        .action-btn.secondary {
+            background: linear-gradient(135deg, var(--primary-pink), var(--primary-purple));
+        }
+
+        .btn-icon {
+            font-size: 24px;
+        }
+
+        /* Animations */
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            33% {
+                transform: translateY(-10px) rotate(2deg);
+            }
+            66% {
+                transform: translateY(5px) rotate(-1deg);
+            }
+        }
+
+        @keyframes glow-pulse {
+            0%, 100% {
+                opacity: 0.5;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.8;
+                transform: scale(1.1);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .detail-container {
+                padding: var(--spacing-sm);
+            }
+            
+            .detail-title {
+                font-size: 24px;
+            }
+            
+            .large-organ {
+                font-size: 100px;
+            }
+            
+            .organ-description {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="detail-container">
+        <!-- Header -->
+        <div class="detail-header">
+            <a href="camera-scanner.html" class="back-btn" id="back-btn">
+                <span class="back-arrow">←</span>
+                Back to Scanner
+            </a>
+            <h1 class="detail-title" id="organ-title">Heart</h1>
+        </div>
+
+        <!-- Organ Showcase -->
+        <div class="organ-showcase">
+            <div class="large-organ" id="large-organ-icon" style="--organ-color: 255, 107, 157">
+                ❤️
+                <div class="organ-glow"></div>
+            </div>
+        </div>
+
+        <!-- Organ Info -->
+        <div class="organ-info">
+            <h2 class="organ-description" id="organ-description">
+                Your amazing heart pumps blood all day long!
+            </h2>
+
+            <div class="did-you-know">
+                <h3>🤔 Did You Know?</h3>
+                <ul class="facts-list" id="facts-list">
+                    <!-- Dynamically populated -->
+                </ul>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="#" class="action-btn" id="scan-again-btn">
+                    <span class="btn-icon">📱</span>
+                    Scan Again in AR
+                </a>
+                <a href="../../index.html" class="action-btn secondary">
+                    <span class="btn-icon">🏠</span>
+                    Back to Main Menu
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Same organ data as camera scanner
+        const organs = [
+            {
+                id: 'heart',
+                name: 'Heart',
+                description: 'Your amazing heart pumps blood all day long!',
+                icon: '❤️',
+                color: '255, 107, 157',
+                funFacts: [
+                    'Your heart beats about 100,000 times every day!',
+                    'It\'s about the size of your fist!',
+                    'It pumps 5 liters of blood every minute!',
+                    'It started beating before you were even born!',
+                    'Your heart is the strongest muscle in your body!'
+                ]
+            },
+            {
+                id: 'brain',
+                name: 'Brain',
+                description: 'Your brain controls everything you do!',
+                icon: '🧠',
+                color: '167, 139, 250',
+                funFacts: [
+                    'Your brain has billions of tiny brain cells!',
+                    'It never stops working, even when you sleep!',
+                    'It uses 20% of your body\'s energy!',
+                    'It can store more information than any computer!',
+                    'It helps you dream amazing dreams at night!'
+                ]
+            },
+            {
+                id: 'lungs',
+                name: 'Lungs',
+                description: 'Your lungs help you breathe fresh air!',
+                icon: '🫁',
+                color: '96, 165, 250',
+                funFacts: [
+                    'You breathe about 20,000 times a day!',
+                    'They help you talk and sing!',
+                    'They have 300 million tiny air sacs!',
+                    'They can hold about 6 liters of air!',
+                    'They clean the air you breathe!'
+                ]
+            },
+            {
+                id: 'liver',
+                name: 'Liver',
+                description: 'Your liver is your body\'s amazing cleaner!',
+                icon: '🟤',
+                color: '245, 158, 11',
+                funFacts: [
+                    'It\'s like a superhero that fights bad stuff!',
+                    'It can fix itself if it gets hurt!',
+                    'It does over 500 different jobs!',
+                    'It makes bile to help digest food!',
+                    'It stores vitamins and minerals for your body!'
+                ]
+            },
+            {
+                id: 'kidney',
+                name: 'Kidneys',
+                description: 'Your kidneys are amazing filters!',
+                icon: '🫘',
+                color: '16, 185, 129',
+                funFacts: [
+                    'You have two kidneys!',
+                    'They clean your blood like a washing machine!',
+                    'They filter 50 gallons of blood every day!',
+                    'They help control your blood pressure!',
+                    'They make a hormone that helps make red blood cells!'
+                ]
+            },
+            {
+                id: 'stomach',
+                name: 'Stomach',
+                description: 'Your stomach breaks down yummy food!',
+                icon: '🍽️',
+                color: '249, 115, 22',
+                funFacts: [
+                    'It\'s like a food blender inside you!',
+                    'It can stretch to fit lots of food!',
+                    'It has super strong acid to break down food!',
+                    'It has muscles that mix your food around!',
+                    'It can hold up to 4 liters of food and liquid!'
+                ]
+            }
+        ];
+
+        let currentOrgan = organs[0];
+
+        // Get organ from URL parameter
+        function getOrganFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const organId = urlParams.get('organ') || 'heart';
+            const organ = organs.find(o => o.id === organId);
+            return organ || organs[0];
+        }
+
+        // Initialize page
+        function init() {
+            currentOrgan = getOrganFromURL();
+            updatePage();
+        }
+
+        // Update page content
+        function updatePage() {
+            // Update title
+            document.getElementById('organ-title').textContent = currentOrgan.name;
+            document.title = `${currentOrgan.name} Details - Kids Anatomy`;
+
+            // Update icon and color
+            const organIcon = document.getElementById('large-organ-icon');
+            organIcon.textContent = currentOrgan.icon;
+            organIcon.style.setProperty('--organ-color', currentOrgan.color);
+
+            // Update description
+            document.getElementById('organ-description').textContent = currentOrgan.description;
+
+            // Update facts list
+            const factsList = document.getElementById('facts-list');
+            factsList.innerHTML = '';
+            
+            currentOrgan.funFacts.forEach(fact => {
+                const li = document.createElement('li');
+                li.className = 'fact-item';
+                li.style.setProperty('--organ-color', currentOrgan.color);
+                li.innerHTML = `
+                    <span class="fact-bullet">💡</span>
+                    ${fact}
+                `;
+                factsList.appendChild(li);
+            });
+
+            // Update scan again button
+            const scanAgainBtn = document.getElementById('scan-again-btn');
+            scanAgainBtn.href = `camera-scanner.html?organ=${currentOrgan.id}`;
+
+            // Update back button
+            const backBtn = document.getElementById('back-btn');
+            backBtn.href = `camera-scanner.html?organ=${currentOrgan.id}`;
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
