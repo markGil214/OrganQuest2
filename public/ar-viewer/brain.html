@@ -1,0 +1,381 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta name='viewport' content='width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0'>
+		<script src="vendor/three.101.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/three@0.101.1/examples/js/loaders/GLTFLoader.js"></script>
+		<script src="THREEAR.js"></script>
+		<title>AR Brain Explorer - Kids Anatomy</title>
+		<style>
+			body {
+				margin: 0px;
+				overflow: hidden;
+				font-family: 'Arial', sans-serif;
+				background-color: #000;
+			}
+			
+			.ar-ui {
+				position: absolute;
+				top: 20px;
+				left: 20px;
+				z-index: 100;
+				background: rgba(255, 255, 255, 0.9);
+				padding: 15px;
+				border-radius: 15px;
+				box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+				max-width: 300px;
+			}
+			
+			.ar-title {
+				color: #845ec2;
+				font-size: 1.4rem;
+				font-weight: bold;
+				margin: 0 0 10px 0;
+			}
+			
+			.ar-instructions {
+				color: #333;
+				font-size: 0.9rem;
+				margin: 0 0 15px 0;
+				line-height: 1.4;
+			}
+			
+			.ar-back-btn {
+				background: #845ec2;
+				color: white;
+				border: none;
+				padding: 10px 20px;
+				border-radius: 10px;
+				font-weight: bold;
+				cursor: pointer;
+				font-size: 0.9rem;
+			}
+			
+			.ar-back-btn:hover {
+				background: #7549b8;
+			}
+			
+			.zoom-controls {
+				position: absolute;
+				bottom: 80px;
+				right: 20px;
+				z-index: 100;
+				display: flex;
+				flex-direction: column;
+				gap: 10px;
+			}
+			.zoom-btn {
+				background: rgba(255, 255, 255, 0.9);
+				border: 2px solid #845ec2;
+				color: #845ec2;
+				width: 50px;
+				height: 50px;
+				border-radius: 50%;
+				font-size: 1.5rem;
+				font-weight: bold;
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+				transition: all 0.2s ease;
+			}
+			.zoom-btn:hover {
+				background: #845ec2;
+				color: white;
+				transform: scale(1.1);
+			}
+			.zoom-btn:active {
+				transform: scale(0.95);
+			}
+			.zoom-info {
+				position: absolute;
+				bottom: 100px;
+				right: 80px;
+				background: rgba(255, 255, 255, 0.9);
+				padding: 8px 12px;
+				border-radius: 8px;
+				font-size: 0.8rem;
+				color: #333;
+				z-index: 100;
+				min-width: 60px;
+				text-align: center;
+			}
+			
+			.brain-info {
+				position: absolute;
+				bottom: 20px;
+				left: 20px;
+				right: 20px;
+				background: rgba(132, 94, 194, 0.9);
+				color: white;
+				padding: 15px;
+				border-radius: 15px;
+				text-align: center;
+				z-index: 100;
+			}
+			
+			.brain-fact {
+				font-size: 1.1rem;
+				font-weight: bold;
+				margin: 0;
+			}
+		</style>
+	</head>
+
+	<body>
+		<!-- AR UI Overlay -->
+		<div class="ar-ui">
+			<h1 class="ar-title">🧠 AR Brain Explorer</h1>
+			<p class="ar-instructions">
+				Point your camera at the AR marker to see a 3D brain! 
+				Watch it glow with electrical activity like a real brain!
+			</p>
+			<button class="ar-back-btn" onclick="window.history.back()">← Back to Organs</button>
+		</div>
+		
+		<!-- Brain Info -->
+		<div class="brain-info">
+			<p class="brain-fact">🧠 Your brain has 86 billion neurons working together!</p>
+		</div>
+		
+		<!-- Zoom Controls -->
+		<div class="zoom-controls">
+			<button class="zoom-btn" onclick="zoomIn()">+</button>
+			<button class="zoom-btn" onclick="zoomOut()">−</button>
+		</div>
+		<div class="zoom-info" id="zoomInfo">100%</div>
+
+		<script>
+			var renderer = new THREE.WebGLRenderer({
+				alpha: true,
+				antialias: true
+			});
+			renderer.setClearColor(new THREE.Color('lightgrey'), 0);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.domElement.style.position = 'absolute';
+			renderer.domElement.style.top = '0px';
+			renderer.domElement.style.left = '0px';
+			document.body.appendChild(renderer.domElement);
+		
+			var scene = new THREE.Scene();
+			var camera = new THREE.Camera();
+			scene.add(camera);
+
+		var brainGroup = new THREE.Group();
+		scene.add(brainGroup);
+		
+		// Zoom variables
+		var currentZoom = 8.0;
+		var minZoom = 7.5;
+		var maxZoom = 10.0;
+		var zoomStep = 0.1;
+		
+		// Zoom functions
+		function zoomIn() {
+			if (currentZoom < maxZoom) {
+				currentZoom += zoomStep;
+				updateZoom();
+			}
+		}
+		
+		function zoomOut() {
+			if (currentZoom > minZoom) {
+				currentZoom -= zoomStep;
+				updateZoom();
+			}
+		}
+		
+		function updateZoom() {
+			// Apply zoom to the brain group
+			brainGroup.userData.zoomScale = currentZoom;
+			document.getElementById('zoomInfo').textContent = Math.round(currentZoom * 100) + '%';
+		}
+	
+		var source = new THREEAR.Source({ renderer, camera });
+
+		THREEAR.initialize({ source: source }).then((controller) => {				// Load 3D Brain Model
+				var loader = new THREE.GLTFLoader();
+				loader.load('../models/brain/scene.gltf', function(gltf) {
+					var brainModel = gltf.scene;
+					
+					// Scale the brain model to appropriate size for AR
+					brainModel.scale.set(0.5, 0.5, 0.5);
+					brainModel.position.y = 0.5;
+					
+					// Make the model lighter/brighter with purple tint
+					brainModel.traverse(function(child) {
+						if (child.isMesh) {
+							if (child.material) {
+								// Add purple glow for brain activity
+								child.material.emissive = new THREE.Color(0.2, 0.1, 0.2);
+								child.material.emissiveIntensity = 0.3;
+								
+								// If it has a color property, make it brighter
+								if (child.material.color) {
+									child.material.color.multiplyScalar(1.5);
+								}
+							}
+						}
+					});
+					
+					// Add the brain model to the group
+					brainGroup.add(brainModel);
+					
+					// Initialize zoom scale
+					brainGroup.userData.zoomScale = currentZoom;
+					
+					// Add brain activity animation to the model
+					var originalScale = { x: 0.5, y: 0.5, z: 0.5 };
+					var time = 0;
+					
+					// Animation loop for thinking brain
+					function animateBrain() {
+						time += 0.016; // 60fps
+						var thinkingScale = 1 + Math.sin(time * 2) * 0.05; // Gentle pulsing
+						
+						// Apply both zoom and thinking animation
+						var zoomScale = brainGroup.userData.zoomScale || 1.0;
+						brainModel.scale.set(
+							originalScale.x * thinkingScale * zoomScale,
+							originalScale.y * thinkingScale * zoomScale,
+							originalScale.z * thinkingScale * zoomScale
+						);
+						brainModel.rotation.y += 0.005; // Slow rotation
+					}
+					
+					// Start the animation
+					var animationId;
+					function animate() {
+						animationId = requestAnimationFrame(animate);
+						animateBrain();
+						
+						controller.update(source.domElement);
+						renderer.render(scene, camera);
+					}
+					animate();
+					
+				}, function(progress) {
+					console.log('Loading brain model...', (progress.loaded / progress.total * 100) + '%');
+				}, function(error) {
+					console.error('Error loading brain model:', error);
+					// Fallback to simple geometry if model fails to load
+					createSimpleBrain();
+				});
+
+				// Fallback function to create simple brain if GLTF fails
+				function createSimpleBrain() {
+					// Create brain geometry (sphere with bumpy surface for brain-like texture)
+					var brainGeometry = new THREE.SphereGeometry(0.4, 32, 32);
+					
+					// Create brain material with a purple/pink gradient
+					var brainMaterial = new THREE.MeshPhongMaterial({ 
+						color: 0x845ec2,
+						shininess: 30,
+						transparent: true,
+						opacity: 0.9
+					});
+					
+					var brain = new THREE.Mesh(brainGeometry, brainMaterial);
+					brain.position.y = 0.5;
+					brainGroup.add(brain);
+					
+					// Add simple animation for fallback brain
+					var time = 0;
+					function animateFallbackBrain() {
+						requestAnimationFrame(animateFallbackBrain);
+						time += 0.016;
+						
+						// Brain gentle pulsing (thinking)
+						var pulseScale = 1 + Math.sin(time * 2) * 0.05;
+						var zoomScale = brainGroup.userData.zoomScale || 1.0;
+						brain.scale.set(
+							pulseScale * zoomScale,
+							pulseScale * zoomScale,
+							pulseScale * zoomScale
+						);
+						brain.rotation.y += 0.002;
+						
+						controller.update(source.domElement);
+						renderer.render(scene, camera);
+					}
+					animateFallbackBrain();
+				}
+
+				// Add lighting for better brain appearance
+				var ambientLight = new THREE.AmbientLight(0x404040, 0.8); // Increased ambient light
+				scene.add(ambientLight);
+				
+				var directionalLight = new THREE.DirectionalLight(0xffffff, 1.0); // Increased directional light
+				directionalLight.position.set(1, 1, 1);
+				scene.add(directionalLight);
+				
+				// Add additional soft lighting for better visibility
+				var hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6);
+				scene.add(hemisphereLight);
+
+				// Create pattern marker for tracking
+				var patternMarker = new THREEAR.PatternMarker({
+					patternUrl: 'data/patt.hiro',
+					markerObject: brainGroup
+				});
+
+				controller.trackMarker(patternMarker);
+
+				// Touch gesture support for pinch-to-zoom
+				var initialDistance = 0;
+				var initialZoom = currentZoom;
+				
+				function getDistance(touches) {
+					var dx = touches[0].clientX - touches[1].clientX;
+					var dy = touches[0].clientY - touches[1].clientY;
+					return Math.sqrt(dx * dx + dy * dy);
+				}
+				
+				document.addEventListener('touchstart', function(e) {
+					if (e.touches.length === 2) {
+						e.preventDefault();
+						initialDistance = getDistance(e.touches);
+						initialZoom = currentZoom;
+					}
+				});
+				
+				document.addEventListener('touchmove', function(e) {
+					if (e.touches.length === 2) {
+						e.preventDefault();
+						var currentDistance = getDistance(e.touches);
+						var scaleFactor = currentDistance / initialDistance;
+						var newZoom = initialZoom * scaleFactor;
+						
+						// Clamp zoom within limits
+						newZoom = Math.max(minZoom, Math.min(maxZoom, newZoom));
+						currentZoom = newZoom;
+						updateZoom();
+					}
+				});
+				
+				// Mouse wheel zoom for desktop
+				document.addEventListener('wheel', function(e) {
+					e.preventDefault();
+					if (e.deltaY < 0) {
+						zoomIn();
+					} else {
+						zoomOut();
+					}
+				});
+
+				// Handle window resize
+				window.addEventListener('resize', function() {
+					renderer.setSize(window.innerWidth, window.innerHeight);
+				});
+
+			}).catch((error) => {
+				console.error('THREEAR initialization failed:', error);
+				alert('AR initialization failed. Please make sure you have a camera and try again.');
+			});
+
+		</script>
+	</body>
+	
+</html>

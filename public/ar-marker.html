@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Marker - Print or Display This</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .marker-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+            margin: 20px;
+        }
+        .marker-image {
+            max-width: 400px;
+            width: 100%;
+            height: auto;
+            border: 2px solid #333;
+        }
+        .instructions {
+            max-width: 600px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: left;
+        }
+        .instructions h2 {
+            color: #ff6b6b;
+            margin-top: 0;
+        }
+        .instructions ol {
+            line-height: 1.6;
+        }
+        .instructions li {
+            margin: 10px 0;
+        }
+        .print-btn {
+            background: #4ecdc4;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .print-btn:hover {
+            background: #45b7b8;
+        }
+        @media print {
+            body {
+                background: white;
+            }
+            .instructions, .print-btn {
+                display: none;
+            }
+            .marker-container {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>🎯 AR Marker for Organ Explorer</h1>
+    
+    <div class="marker-container">
+        <img src="ar-viewer/data/hiro.jpg" alt="Hiro AR Marker" class="marker-image">
+        <p><strong>Point your camera at this marker!</strong></p>
+    </div>
+    
+    <button class="print-btn" onclick="window.print()">🖨️ Print This Marker</button>
+    <button class="print-btn" onclick="window.history.back()">← Back to App</button>
+    
+    <div class="instructions">
+        <h2>📱 How to Use AR:</h2>
+        <ol>
+            <li><strong>Print this page</strong> or display it on another device/screen</li>
+            <li>Go back to the organ explorer app</li>
+            <li>Select any organ (Heart, Brain, Lungs, etc.)</li>
+            <li>Tap "✨ Explore [Organ] in AR!"</li>
+            <li><strong>Point your camera at this printed marker</strong></li>
+            <li>Watch the 3D organ appear on the marker! 🎉</li>
+        </ol>
+        
+        <h2>💡 Tips:</h2>
+        <ul>
+            <li>Keep good lighting on the marker</li>
+            <li>Hold your device steady</li>
+            <li>Make sure the whole marker is visible in the camera</li>
+            <li>If it doesn't work, try moving closer or farther from the marker</li>
+        </ul>
+        
+        <h2>🔧 Troubleshooting:</h2>
+        <ul>
+            <li>Allow camera permissions when prompted</li>
+            <li>Make sure marker is flat (not wrinkled)</li>
+            <li>Try different angles if the organ doesn't appear</li>
+            <li>Ensure good contrast between marker and background</li>
+        </ul>
+    </div>
+</body>
+</html>

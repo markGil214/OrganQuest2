@@ -1,0 +1,543 @@
+<!doctype html>
+<html>
+<head>
+    <meta name='viewport' content='width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0'>
+    <script src="vendor/three.101.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.101.1/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="THREEAR.js"></script>
+    <title>AR Heart Explorer - Kids Anatomy</title>
+    <style>
+        body {
+            margin: 0px;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+            background-color: #000;
+        }
+        
+        .ar-ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            max-width: 300px;
+        }
+        
+        .ar-title {
+            color: #ff6b6b;
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin: 0 0 10px 0;
+        }
+        
+        .ar-instructions {
+            color: #333;
+            font-size: 0.9rem;
+            margin: 0 0 15px 0;
+            line-height: 1.4;
+        }
+        
+        .ar-back-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .ar-back-btn:hover {
+            background: #ff5252;
+        }
+        
+        .zoom-controls {
+            position: absolute;
+            bottom: 80px;
+            right: 20px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .zoom-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #ff6b6b;
+            color: #ff6b6b;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+        }
+        
+        .zoom-btn:hover {
+            background: #ff6b6b;
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .zoom-info {
+            position: absolute;
+            bottom: 100px;
+            right: 80px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: #333;
+            z-index: 100;
+            min-width: 60px;
+            text-align: center;
+        }
+        
+        .heart-info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(255, 107, 107, 0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 100;
+        }
+        
+        .heart-fact {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin: 0;
+        }
+        
+        .slice-mode-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 87, 51, 0.9);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            z-index: 100;
+            display: none;
+            animation: pulse-glow 2s infinite;
+        }
+        
+        .slice-mode-indicator.visible {
+            display: block;
+        }
+        
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 5px rgba(255, 87, 51, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(255, 87, 51, 0.8); }
+            100% { box-shadow: 0 0 5px rgba(255, 87, 51, 0.5); }
+        }
+    </style>
+</head>
+<body>
+    <div class="ar-ui">
+        <h1 class="ar-title">❤️ AR Heart Explorer</h1>
+        <p class="ar-instructions">Point your camera at the AR marker to see a 3D heart! Watch it beat like a real heart! Use zoom to explore details.</p>
+        <button class="ar-back-btn" onclick="goBack()">← Back to Organs</button>
+    </div>
+    
+    <div class="zoom-controls">
+        <button class="zoom-btn" onclick="zoomIn()">+</button>
+        <button class="zoom-btn" onclick="zoomOut()">−</button>
+    </div>
+    <div class="zoom-info" id="zoomInfo">100%</div>
+    
+    <div class="heart-info">
+        <p class="heart-fact">💝 Your heart beats about 100,000 times every day!</p>
+    </div>
+    
+    <div class="slice-mode-indicator" id="sliceIndicator">
+        🔍 Internal View Active - Zoom out to return
+    </div>
+
+    <script>
+        // Heart AR viewer with sliced heart model and zoom controls
+        var renderer = new THREE.WebGLRenderer({
+            alpha: true,
+            antialias: true
+        });
+        renderer.setClearColor(new THREE.Color('lightgrey'), 0);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.domElement.style.position = 'absolute';
+        renderer.domElement.style.top = '0px';
+        renderer.domElement.style.left = '0px';
+        document.body.appendChild(renderer.domElement);
+
+        var scene = new THREE.Scene();
+        var camera = new THREE.Camera();
+        scene.add(camera);
+
+        var heartGroup = new THREE.Group();
+        scene.add(heartGroup);
+
+        // Zoom variables
+        var currentZoom = 1.0;
+        var minZoom = 0.5;
+        var maxZoom = 3.0;
+        var zoomStep = 0.2;
+        var isSliceMode = false;
+
+        // Zoom functions
+        function zoomIn() {
+            if (currentZoom < maxZoom) {
+                currentZoom += zoomStep;
+                updateZoom();
+                
+                // Activate slice mode at max zoom
+                if (currentZoom >= maxZoom && !isSliceMode) {
+                    activateSliceMode();
+                }
+            }
+        }
+
+        function zoomOut() {
+            if (currentZoom > minZoom) {
+                currentZoom -= zoomStep;
+                updateZoom();
+                
+                // Deactivate slice mode when zooming out from max
+                if (currentZoom < maxZoom && isSliceMode) {
+                    deactivateSliceMode();
+                }
+            }
+        }
+
+        function updateZoom() {
+            // Apply zoom to the heart group
+            heartGroup.userData.zoomScale = currentZoom;
+            document.getElementById('zoomInfo').textContent = Math.round(currentZoom * 100) + '%';
+        }
+
+        // Slice mode functionality
+        function activateSliceMode() {
+            isSliceMode = true;
+            // Show slice mode indicator
+            document.getElementById('sliceIndicator').classList.add('visible');
+            // Load sliced heart model
+            loadSlicedHeart();
+            console.log('Slice mode activated - showing internal heart structure');
+        }
+
+        function deactivateSliceMode() {
+            isSliceMode = false;
+            // Hide slice mode indicator
+            document.getElementById('sliceIndicator').classList.remove('visible');
+            // Switch back to regular heart
+            loadRegularHeart();
+            console.log('Slice mode deactivated - showing external heart');
+        }
+
+        var source = new THREEAR.Source({ renderer, camera });
+
+        THREEAR.initialize({ source: source }).then((controller) => {
+            
+            // Start with regular heart model
+            loadRegularHeart();
+
+            // Add lighting for better heart appearance
+            var ambientLight = new THREE.AmbientLight(0x404040, 0.8);
+            scene.add(ambientLight);
+            
+            var directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
+            directionalLight.position.set(1, 1, 1);
+            scene.add(directionalLight);
+            
+            // Add additional soft lighting for better visibility
+            var hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6);
+            scene.add(hemisphereLight);
+
+            // Create pattern marker for tracking
+            var patternMarker = new THREEAR.PatternMarker({
+                patternUrl: 'data/patt.hiro',
+                markerObject: heartGroup
+            });
+
+            controller.trackMarker(patternMarker);
+
+            // Touch gesture support for pinch-to-zoom
+            var initialDistance = 0;
+            var initialZoom = currentZoom;
+            
+            function getDistance(touches) {
+                var dx = touches[0].clientX - touches[1].clientX;
+                var dy = touches[0].clientY - touches[1].clientY;
+                return Math.sqrt(dx * dx + dy * dy);
+            }
+            
+            document.addEventListener('touchstart', function(e) {
+                if (e.touches.length === 2) {
+                    e.preventDefault();
+                    initialDistance = getDistance(e.touches);
+                    initialZoom = currentZoom;
+                }
+            });
+            
+            document.addEventListener('touchmove', function(e) {
+                if (e.touches.length === 2) {
+                    e.preventDefault();
+                    var currentDistance = getDistance(e.touches);
+                    var scaleFactor = currentDistance / initialDistance;
+                    var newZoom = initialZoom * scaleFactor;
+                    
+                    // Clamp zoom within limits
+                    newZoom = Math.max(minZoom, Math.min(maxZoom, newZoom));
+                    currentZoom = newZoom;
+                    updateZoom();
+                    
+                    // Handle slice mode transitions
+                    if (currentZoom >= maxZoom && !isSliceMode) {
+                        activateSliceMode();
+                    } else if (currentZoom < maxZoom && isSliceMode) {
+                        deactivateSliceMode();
+                    }
+                }
+            });
+            
+            // Mouse wheel zoom for desktop
+            document.addEventListener('wheel', function(e) {
+                e.preventDefault();
+                if (e.deltaY < 0) {
+                    zoomIn();
+                } else {
+                    zoomOut();
+                }
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+        }).catch((error) => {
+            console.error('THREEAR initialization failed:', error);
+            alert('AR initialization failed. Please make sure you have a camera and try again.');
+        });
+
+        // Function to load regular heart model
+        function loadRegularHeart() {
+            // Clear existing heart models
+            clearHeartModels();
+            
+            // Load regular heart model
+            var loader = new THREE.GLTFLoader();
+            loader.load('../models/heart3D/scene.gltf', function(gltf) {
+                var heartModel = gltf.scene;
+                
+                // Scale the heart model to appropriate size for AR
+                heartModel.scale.set(0.01, 0.01, 0.01);
+                heartModel.position.y = 0.5;
+                
+                // Make the model lighter/brighter with red tint
+                heartModel.traverse(function(child) {
+                    if (child.isMesh) {
+                        if (child.material) {
+                            // Add red glow for heart activity
+                            child.material.emissive = new THREE.Color(0.2, 0.05, 0.05);
+                            child.material.emissiveIntensity = 0.3;
+                            
+                            // If it has a color property, make it brighter
+                            if (child.material.color) {
+                                child.material.color.multiplyScalar(1.5);
+                            }
+                        }
+                    }
+                });
+                
+                // Add the heart model to the group
+                heartGroup.add(heartModel);
+                
+                // Initialize zoom scale
+                heartGroup.userData.zoomScale = currentZoom;
+                
+                // Add heart beating animation to the model
+                var originalScale = { x: 0.01, y: 0.01, z: 0.01 };
+                var time = 0;
+                
+                // Animation loop for beating heart
+                function animateHeart() {
+                    time += 0.016; // 60fps
+                    var beatScale = 1 + Math.sin(time * 8) * 0.1; // Fast beating
+                    
+                    // Apply both zoom and beating animation
+                    var zoomScale = heartGroup.userData.zoomScale || 1.0;
+                    heartModel.scale.set(
+                        originalScale.x * beatScale * zoomScale,
+                        originalScale.y * beatScale * zoomScale,
+                        originalScale.z * beatScale * zoomScale
+                    );
+                    
+                    // Slow rotation for better viewing
+                    heartModel.rotation.y += 0.005;
+                }
+                
+                // Start the animation
+                var animationId;
+                function animate() {
+                    animationId = requestAnimationFrame(animate);
+                    animateHeart();
+                    
+                    controller.update(source.domElement);
+                    renderer.render(scene, camera);
+                }
+                animate();
+                
+            }, function(progress) {
+                console.log('Loading heart model...', (progress.loaded / progress.total * 100) + '%');
+            }, function(error) {
+                console.error('Error loading heart model:', error);
+                // Fallback to simple geometry if model fails to load
+                createSimpleHeart();
+            });
+        }
+
+        // Function to load sliced heart model
+        function loadSlicedHeart() {
+            // Clear existing heart models
+            clearHeartModels();
+            
+            // Load sliced heart model
+            var loader = new THREE.GLTFLoader();
+            loader.load('../models/heart.glb', function(gltf) {
+                var slicedHeartModel = gltf.scene;
+                
+                // Scale the sliced heart model
+                slicedHeartModel.scale.set(1.5, 1.5, 1.5);
+                slicedHeartModel.position.y = 0.5;
+                
+                // Enhance materials for better visibility
+                slicedHeartModel.traverse(function(child) {
+                    if (child.isMesh) {
+                        if (child.material) {
+                            // Make materials brighter and more colorful
+                            child.material.metalness = 0.1;
+                            child.material.roughness = 0.7;
+                            
+                            // Add slight emissive glow
+                            if (!child.material.emissive) {
+                                child.material.emissive = new THREE.Color(0.1, 0.05, 0.05);
+                            }
+                            
+                            // Enhance colors
+                            if (child.material.color) {
+                                child.material.color.multiplyScalar(1.2);
+                            }
+                        }
+                    }
+                });
+                
+                // Add the sliced heart model to the group
+                heartGroup.add(slicedHeartModel);
+                
+                // Initialize zoom scale
+                heartGroup.userData.zoomScale = currentZoom;
+                
+                // Add gentle beating animation for sliced heart
+                var time = 0;
+                function animateSlicedHeart() {
+                    time += 0.016;
+                    var gentleBeat = 1 + Math.sin(time * 6) * 0.05; // Gentler beating for slice mode
+                    
+                    var zoomScale = heartGroup.userData.zoomScale || 1.0;
+                    slicedHeartModel.scale.set(
+                        1.5 * gentleBeat * zoomScale,
+                        1.5 * gentleBeat * zoomScale,
+                        1.5 * gentleBeat * zoomScale
+                    );
+                    
+                    // Slower rotation for detailed examination
+                    slicedHeartModel.rotation.y += 0.003;
+                }
+                
+                // Animation loop for sliced heart
+                function animateSliced() {
+                    if (isSliceMode) {
+                        requestAnimationFrame(animateSliced);
+                        animateSlicedHeart();
+                        
+                        controller.update(source.domElement);
+                        renderer.render(scene, camera);
+                    }
+                }
+                animateSliced();
+                
+            }, function(progress) {
+                console.log('Loading sliced heart model...', (progress.loaded / progress.total * 100) + '%');
+            }, function(error) {
+                console.error('Error loading sliced heart model:', error);
+                // Fallback to regular heart if sliced heart fails
+                loadRegularHeart();
+            });
+        }
+
+        // Function to clear existing heart models
+        function clearHeartModels() {
+            // Remove all children from heart group
+            while(heartGroup.children.length > 0) {
+                heartGroup.remove(heartGroup.children[0]);
+            }
+        }
+
+        // Fallback function to create simple heart if GLTF fails
+        function createSimpleHeart() {
+            // Create heart geometry (combination of spheres for heart shape)
+            var heartGeometry = new THREE.SphereGeometry(0.3, 16, 16);
+            
+            // Create heart material with a red gradient
+            var heartMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0xff6b6b,
+                shininess: 30,
+                transparent: true,
+                opacity: 0.9
+            });
+            
+            var heart = new THREE.Mesh(heartGeometry, heartMaterial);
+            heart.position.y = 0.5;
+            heartGroup.add(heart);
+            
+            // Add simple animation for fallback heart
+            var time = 0;
+            function animateFallbackHeart() {
+                requestAnimationFrame(animateFallbackHeart);
+                time += 0.016;
+                
+                // Heart beating
+                var beatScale = 1 + Math.sin(time * 8) * 0.1;
+                var zoomScale = heartGroup.userData.zoomScale || 1.0;
+                heart.scale.set(
+                    beatScale * zoomScale,
+                    beatScale * zoomScale,
+                    beatScale * zoomScale
+                );
+                heart.rotation.y += 0.005;
+                
+                controller.update(source.domElement);
+                renderer.render(scene, camera);
+            }
+            animateFallbackHeart();
+        }
+
+        // Back button function
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+</body>
+</html>
