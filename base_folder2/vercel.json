@@ -1,0 +1,77 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/ARScannerPage.html",
+      "destination": "/ARScannerPage.html"
+    },
+    {
+      "source": "/BrainViewer.html",
+      "destination": "/BrainViewer.html"
+    },
+    {
+      "source": "/KidneyViewer.html",
+      "destination": "/KidneyViewer.html"
+    },
+    {
+      "source": "/LungsViewer.html",
+      "destination": "/LungsViewer.html"
+    },
+    {
+      "source": "/SlicedHeartViewer.html",
+      "destination": "/SlicedHeartViewer.html"
+    },
+    {
+      "source": "/ARScannerPage",
+      "destination": "/ARScannerPage.html"
+    },
+    {
+      "source": "/BrainViewer",
+      "destination": "/BrainViewer.html"
+    },
+    {
+      "source": "/KidneyViewer",
+      "destination": "/KidneyViewer.html"
+    },
+    {
+      "source": "/LungsViewer",
+      "destination": "/LungsViewer.html"
+    },
+    {
+      "source": "/SlicedHeartViewer",
+      "destination": "/SlicedHeartViewer.html"
+    },
+    {
+      "source": "/((?!api|_next|_static|favicon.ico|ARScannerPage|BrainViewer|KidneyViewer|LungsViewer|SlicedHeartViewer|assets|vendor|brain|kidney|lungs|sliced_organs|realistic_human_heart).*)",
+      "destination": "/index.html"
+    }
+  ],  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|webp|glb|gltf)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ]
+}

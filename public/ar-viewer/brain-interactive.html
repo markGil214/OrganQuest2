@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <title>Interactive Brain Anatomy - 3D Brain Explorer</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      html {
+        font-size: 16px;
+        height: 100%;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+      }
+
+      body {
+        font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #9b59b6 100%);
+        overflow: hidden;
+        height: 100vh;
+        height: 100dvh;
+        margin: 0;
+        padding: 0;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        /* Handle iOS safe areas */
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+      }
+
+      /* Subtle background pattern */
+      body::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: 
+          radial-gradient(circle at 25% 25%, rgba(155, 89, 182, 0.1) 1px, transparent 1px),
+          radial-gradient(circle at 75% 75%, rgba(155, 89, 182, 0.1) 1px, transparent 1px);
+        background-size: 50px 50px;
+        z-index: 0;
+      }
+
+      /* Main Container using CSS Grid */
+      #root {
+        display: grid;
+        grid-template-areas:
+          "back-btn back-btn"
+          "info-btn header"
+          "canvas canvas"
+          "info info";
+        grid-template-rows: auto auto 1fr auto;
+        grid-template-columns: auto 1fr;
+        width: 100vw;
+        height: 100vh;
+        height: 100dvh;
+        gap: 1rem;
+        padding: 1rem;
+        box-sizing: border-box;
+        overflow: hidden;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* Canvas Container */
+      #canvas-container {
+        grid-area: canvas;
+        position: relative;
+        min-height: 0;
+        min-width: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        border-radius: 20px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        background: rgba(155, 89, 182, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(155, 89, 182, 0.2);
+      }
+
+      #canvas-container canvas {
+        width: 100% !important;
+        height: 100% !important;
+        display: block;
+        touch-action: manipulation;
+        border-radius: 20px;
+      }
+
+      /* Header Section */
+      .header {
+        grid-area: header;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        pointer-events: auto;
+        z-index: 100;
+        animation: fadeInUp 0.8s ease-out;
+      }
+
+      .header h1 {
+        color: #9b59b6;
+        font-size: 2rem;
+        font-weight: bold;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        margin-bottom: 0.25rem;
+        letter-spacing: -0.02em;
+      }
+
+      .header p {
+        color: #ecf0f1;
+        font-size: 1rem;
+        opacity: 0.8;
+        font-weight: 300;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+      }
+
+      /* Back Button */
+      .back-button {
+        grid-area: back-btn;
+        justify-self: center;
+        position: relative;
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        color: white;
+        border: none;
+        padding: 1rem 1.5rem;
+        border-radius: 20px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        pointer-events: auto;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        overflow: hidden;
+      }
+
+      .back-button:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      .back-button:active {
+        transform: translateY(-2px) scale(0.98);
+        transition: all 0.1s ease;
+      }
+
+      .back-button:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+      }
+
+      /* Button shine effect */
+      .back-button::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+          45deg,
+          transparent,
+          rgba(255, 255, 255, 0.1),
+          transparent
+        );
+        transform: rotate(45deg) translate(-100%, -100%);
+        transition: transform 0.6s ease;
+        z-index: 1;
+      }
+
+      .back-button:hover::before {
+        transform: rotate(45deg) translate(100%, 100%);
+      }
+
+      /* Info Button */
+      .info-button {
+        grid-area: info-btn;
+        align-self: center;
+        justify-self: start;
+        position: relative;
+        background: linear-gradient(135deg, #9b59b6 0%, #663399 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem;
+        border-radius: 50%;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        pointer-events: auto;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 3rem;
+        height: 3rem;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        overflow: hidden;
+      }
+
+      .info-button:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      .info-button:active {
+        transform: translateY(-2px) scale(0.98);
+        transition: all 0.1s ease;
+      }
+
+      .info-button:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+      }
+
+      /* Info button shine effect */
+      .info-button::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+          45deg,
+          transparent,
+          rgba(255, 255, 255, 0.1),
+          transparent
+        );
+        transform: rotate(45deg) translate(-100%, -100%);
+        transition: transform 0.6s ease;
+        z-index: 1;
+      }
+
+      .info-button:hover::before {
+        transform: rotate(45deg) translate(100%, 100%);
+      }
+
+      /* Controls Modal */
+      .controls-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 300;
+        backdrop-filter: blur(10px);
+      }
+
+      .controls-modal.visible {
+        display: flex;
+      }
+
+      .controls-modal-content {
+        background: linear-gradient(135deg, rgba(26, 26, 46, 0.95), rgba(155, 89, 182, 0.95));
+        color: #ecf0f1;
+        padding: 2rem;
+        border-radius: 20px;
+        max-width: 90%;
+        max-height: 80%;
+        overflow-y: auto;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(155, 89, 182, 0.3);
+        backdrop-filter: blur(20px);
+        border-radius: 1rem;
+        max-width: 20rem;
+        width: 90%;
+        position: relative;
+      }
+
+      .controls-modal h4 {
+        color: #9b59b6;
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        text-align: center;
+      }
+
+      .controls-modal .controls-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .controls-modal .control-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-size: 1rem;
+        padding: 0.75rem;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 0.5rem;
+      }
+
+      .controls-modal .control-icon {
+        width: 2rem;
+        height: 2rem;
+        background: #9b59b6;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        font-weight: bold;
+        flex-shrink: 0;
+      }
+
+      .close-modal {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: rgba(231, 76, 60, 0.9);
+        color: white;
+        border: none;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        font-weight: bold;
+        transition: all 0.3s ease;
+      }
+
+      .close-modal:hover {
+        background: rgba(231, 76, 60, 1);
+        transform: scale(1.1);
+      }
+
+      /* Loading Screen */
+      #loading {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #9b59b6 100%);
+        color: #ecf0f1;
+        font-size: 1.2rem;
+        font-weight: 600;
+        z-index: 1000;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      #loading::before {
+        content: '🧠';
+        font-size: 2rem;
+        margin-right: 1rem;
+        animation: think-pulse 2s infinite;
+      }
+
+      @keyframes think-pulse {
+        0%, 100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1) rotate(5deg);
+        }
+      }
+
+      /* Info Panel using Flexbox - Hidden for card system */
+      .info-panel {
+        display: none;
+      }
+
+      /* Centered Info Card Modal */
+      .info-card {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(10px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 1rem;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .info-card.visible {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .info-card-content {
+        background: linear-gradient(
+          145deg,
+          rgba(26, 26, 46, 0.98),
+          rgba(155, 89, 182, 0.98)
+        );
+        backdrop-filter: blur(20px);
+        color: white;
+        padding: 2.5rem;
+        border-radius: 1.5rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4),
+          0 0 0 1px rgba(155, 89, 182, 0.3);
+        max-width: 32rem;
+        width: 90vw;
+        max-height: 80vh;
+        position: relative;
+        transform: scale(0.7) translateY(20px);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow-y: auto;
+        text-align: center;
+      }
+
+      .info-card.visible .info-card-content {
+        transform: scale(1) translateY(0);
+      }
+
+      .info-card h3 {
+        color: #9b59b6;
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0 0 1.5rem 0;
+        text-align: center;
+        border-bottom: 3px solid rgba(155, 89, 182, 0.4);
+        padding-bottom: 1rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .info-card p {
+        font-size: 1.1rem;
+        line-height: 1.7;
+        margin: 0;
+        opacity: 0.95;
+        text-align: left;
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      .close-card {
+        position: absolute;
+        top: 1.2rem;
+        right: 1.2rem;
+        background: linear-gradient(
+          135deg,
+          rgba(231, 76, 60, 0.9),
+          rgba(192, 57, 43, 0.9)
+        );
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 3rem;
+        height: 3rem;
+        font-size: 1.4rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        font-weight: bold;
+        z-index: 2;
+        box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+      }
+
+      .close-card:hover {
+        background: linear-gradient(
+          135deg,
+          rgba(231, 76, 60, 1),
+          rgba(192, 57, 43, 1)
+        );
+        transform: scale(1.1) rotate(90deg);
+        box-shadow: 0 6px 16px rgba(231, 76, 60, 0.4);
+      }
+
+      .close-card:active {
+        transform: scale(0.95) rotate(90deg);
+      }
+
+      /* Loading Indicator */
+      .loading {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-size: 1.2rem;
+        text-align: center;
+        pointer-events: none;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+      }
+
+      .loading::after {
+        content: "";
+        width: 1.25rem;
+        height: 1.25rem;
+        border: 0.1875rem solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #9b59b6;
+        animation: spin 1s ease-in-out infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Numbered Label Points */
+      .label-point {
+        position: absolute;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+        background: rgba(155, 89, 182, 0.9);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: bold;
+        border: 0.125rem solid white;
+        box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+        pointer-events: auto;
+        z-index: 10;
+        user-select: none;
+      }
+
+      /* Individual label colors for brain regions */
+      .label-point[data-part-id="1"] {
+        background: rgba(74, 144, 226, 0.9); /* Blue for Frontal Lobe */
+      }
+
+      .label-point[data-part-id="2"] {
+        background: rgba(50, 205, 50, 0.9); /* Green for Parietal Lobe */
+      }
+
+      .label-point[data-part-id="3"] {
+        background: rgba(233, 30, 99, 0.9); /* Pink for Occipital Lobe */
+      }
+
+      .label-point[data-part-id="4"] {
+        background: rgba(156, 39, 176, 0.9); /* Purple for Temporal Lobe */
+      }
+
+      .label-point[data-part-id="5"] {
+        background: rgba(255, 152, 0, 0.9); /* Orange for Cerebellum */
+      }
+
+      .label-point[data-part-id="6"] {
+        background: rgba(96, 125, 139, 0.9); /* Blue Grey for Brain Stem */
+      }
+
+      .label-point:hover {
+        transform: scale(1.2);
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.5);
+      }
+
+      .label-point.selected {
+        background: #9b59b6 !important;
+        transform: scale(1.3);
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(155, 89, 182, 0.7);
+        }
+        70% {
+          box-shadow: 0 0 0 0.625rem rgba(155, 89, 182, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(155, 89, 182, 0);
+        }
+      }
+
+      /* Animations */
+      @keyframes fadeInUp {
+        0% {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Touch-friendly interactions */
+      @media (pointer: coarse) {
+        .label-point {
+          width: 2rem;
+          height: 2rem;
+          font-size: 1rem;
+        }
+
+        .back-button,
+        .info-button {
+          min-height: 44px;
+          min-width: 44px;
+        }
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        #root {
+          padding: 0.5rem;
+          gap: 0.75rem;
+        }
+        
+        .header h1 {
+          font-size: 1.5rem;
+        }
+        
+        .header p {
+          font-size: 0.9rem;
+        }
+        
+        .back-button {
+          padding: 0.75rem 1.25rem;
+          font-size: 0.9rem;
+        }
+        
+        .info-button {
+          width: 2.5rem;
+          height: 2.5rem;
+          font-size: 0.9rem;
+        }
+        
+        .info-panel {
+          padding: 0.75rem;
+          max-height: 150px;
+        }
+        
+        .info-panel h3 {
+          font-size: 1rem;
+        }
+        
+        .info-panel p {
+          font-size: 0.8rem;
+        }
+        
+        .controls-modal-content {
+          padding: 1.5rem;
+          margin: 1rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        #root {
+          padding: 0.5rem;
+          gap: 0.5rem;
+        }
+        
+        .header h1 {
+          font-size: 1.3rem;
+        }
+        
+        .header p {
+          font-size: 0.8rem;
+        }
+        
+        .back-button {
+          padding: 0.6rem 1rem;
+          font-size: 0.8rem;
+          border-radius: 15px;
+        }
+        
+        .info-button {
+          width: 2.2rem;
+          height: 2.2rem;
+          font-size: 0.8rem;
+        }
+        
+        .info-panel {
+          padding: 0.6rem;
+          max-height: 120px;
+        }
+        
+        .label-point {
+          width: 1.8rem;
+          height: 1.8rem;
+          font-size: 0.9rem;
+        }
+      }
+
+      /* Very small screens */
+      @media (max-width: 320px) {
+        .header h1 {
+          font-size: 1.1rem;
+        }
+        
+        .header p {
+          font-size: 0.7rem;
+        }
+        
+        .back-button {
+          padding: 0.5rem 0.8rem;
+          font-size: 0.7rem;
+          border-radius: 12px;
+        }
+        
+        .info-button {
+          width: 2rem;
+          height: 2rem;
+          font-size: 0.7rem;
+        }
+        
+        .info-panel {
+          padding: 0.5rem;
+          max-height: 100px;
+        }
+        
+        .info-panel h3 {
+          font-size: 0.9rem;
+        }
+        
+        .info-panel p {
+          font-size: 0.7rem;
+        }
+      }
+
+      /* Focus styles for accessibility */
+      button:focus {
+        outline: 2px solid #9b59b6;
+        outline-offset: 2px;
+      }
+
+      /* Touch-friendly enhancements for mobile */
+      @media (hover: none) and (pointer: coarse) {
+        .back-button:active,
+        .info-button:active {
+          transform: scale(0.95);
+          transition: transform 0.1s ease;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <!-- Info Button -->
+      <button class="info-button" onclick="showModal()">ℹ️</button>
+
+      <!-- Back Button -->
+      <button class="back-button" onclick="goBackToAR()">
+        ← Back to AR Scanner
+      </button>
+      <!-- Header -->
+      <div class="header">
+        <h1>Interactive Brain Anatomy</h1>
+        <p>Explore the detailed structure of the human brain</p>
+      </div>
+
+      <!-- Canvas Container -->
+      <div id="canvas-container"></div>
+
+      <!-- Loading Indicator -->
+      <div class="loading" id="loading">Loading 3D brain model...</div>
+
+      <!-- Info Panel -->
+      <div class="info-panel" id="info-panel">
+        <h3 id="part-name">Select a part</h3>
+        <p id="part-description">
+          Click on the numbered points to learn about different parts of the
+          brain.
+        </p>
+      </div>
+    </div>
+    <!-- Controls Modal -->
+    <div class="controls-modal" id="controls-modal">
+      <div class="controls-modal-content">
+        <button class="close-modal" onclick="hideModal()">×</button>
+        <h4>Controls</h4>
+        <div class="controls-list">
+          <div class="control-item">
+            <div class="control-icon">🖱️</div>
+            <span>Click & drag to rotate</span>
+          </div>
+          <div class="control-item">
+            <div class="control-icon">🔍</div>
+            <span>Scroll to zoom</span>
+          </div>
+          <div class="control-item">
+            <div class="control-icon">📍</div>
+            <span>Click numbered points for info</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info Card Modal -->
+    <div class="info-card" id="info-card">
+      <div class="info-card-content">
+        <button class="close-card" onclick="hideInfoCard()">×</button>
+        <h3 id="card-part-name">Part Name</h3>
+        <p id="card-part-description">Description will appear here.</p>
+      </div>
+    </div>
+
+    <!-- Include THREE.js and OrbitControls -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+    <script>
+      // Essential brain parts data
+      const brainParts = [
+        {
+          id: "1",
+          name: "Frontal Lobe",
+          description:
+            "Controls thinking, planning, personality, and movement. This is where decision-making and problem-solving happen.",
+          position: [-0.5, 0.8, 0.3],
+          color: "#4A90E2",
+        },
+        {
+          id: "2",
+          name: "Parietal Lobe",
+          description:
+            "Processes touch, temperature, and spatial awareness. Helps you understand where your body is in space.",
+          position: [0.3, 0.6, -0.2],
+          color: "#32CD32",
+        },
+        {
+          id: "3",
+          name: "Occipital Lobe",
+          description:
+            "The vision center of the brain. Processes everything you see including colors, shapes, and movement.",
+          position: [0.4, 0.2, -0.5],
+          color: "#E91E63",
+        },
+        {
+          id: "4",
+          name: "Temporal Lobe",
+          description:
+            "Handles hearing, language, and memory. Contains the hippocampus which is crucial for forming new memories.",
+          position: [-0.6, 0.1, 0.2],
+          color: "#9C27B0",
+        },
+        {
+          id: "5",
+          name: "Cerebellum",
+          description:
+            "The 'little brain' that controls balance, coordination, and smooth movements. Essential for motor learning.",
+          position: [0.2, -0.4, -0.3],
+          color: "#FF9800",
+        },
+        {
+          id: "6",
+          name: "Brain Stem",
+          description:
+            "Controls vital functions like breathing, heart rate, and blood pressure. Connects the brain to the spinal cord.",
+          position: [0.0, -0.7, 0.0],
+          color: "#607D8B",
+        },
+      ];
+
+      // Global variables
+      let scene, camera, renderer, controls;
+      let brainModel = null;
+      let labelPoints = [];
+      let selectedPart = null;
+      let labelElements = [];
+      let resizeTimeout = null;
+
+      // Initialize the 3D scene
+      function initScene() {
+        // Check URL parameters for zoom level
+        const urlParams = new URLSearchParams(window.location.search);
+        const zoomLevel = urlParams.get('zoom');
+        
+        // Create scene
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x1a1a2e);
+
+        // Get container dimensions
+        const container = document.getElementById("canvas-container");
+        const containerRect = container.getBoundingClientRect();
+
+        // Create camera
+        camera = new THREE.PerspectiveCamera(
+          45,
+          containerRect.width / containerRect.height,
+          0.1,
+          1000
+        );
+        
+        // Set camera position based on zoom level
+        if (zoomLevel === 'close') {
+          camera.position.set(5, 0, 2.5); // Start closer for zoomed view
+        } else {
+          camera.position.set(1, 1, 5); // Default position
+        }
+
+        // Create renderer
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(containerRect.width, containerRect.height);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Limit pixel ratio for performance
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+        // Add renderer to container
+        container.appendChild(renderer.domElement);
+
+        // Create controls
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.25;
+        controls.enableZoom = true;
+        controls.enablePan = false; // Disable panning
+        controls.enableRotate = false; // Disable rotation
+        
+        // Adjust zoom limits based on starting position
+        if (zoomLevel === 'close') {
+          controls.minDistance = 1.5; // Allow closer zoom when starting zoomed
+          controls.maxDistance = 8;
+        } else {
+          controls.minDistance = 2;   // Default zoom limits
+          controls.maxDistance = 10;
+        }
+
+        // Better zoom controls for mobile (disable rotation touches)
+        controls.zoomSpeed = 0.8;
+        controls.touches = {
+          ONE: THREE.TOUCH.DOLLY, // Single touch for zoom only
+          TWO: THREE.TOUCH.DOLLY_PAN, // Two finger pinch for zoom
+        };
+
+        // Disable mouse rotation, keep only zoom
+        controls.mouseButtons = {
+          LEFT: null, // Disable left click rotation
+          MIDDLE: THREE.MOUSE.DOLLY, // Middle mouse for zoom
+          RIGHT: null // Disable right click pan
+        };
+
+        // Add lights
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(10, 10, 5);
+        directionalLight.castShadow = true;
+        scene.add(directionalLight);
+
+        const pointLight = new THREE.PointLight(0xffffff, 0.5);
+        pointLight.position.set(-10, -10, -5);
+        scene.add(pointLight);
+
+        // Load brain model
+        loadBrainModel();
+
+        // Create label points
+        createLabelPoints();
+
+        // Start render loop
+        animate();
+      }
+
+      // Load 3D brain model
+      function loadBrainModel() {
+        const loader = new THREE.GLTFLoader();
+
+        // Try to load sliced brain model from base_folder2
+        loader.load(
+          "../../base_folder2/public/sliced_organs/sliced_brain.glb",
+          (gltf) => {
+            brainModel = gltf.scene;
+            brainModel.scale.set(1.5, 1.5, 1.5);
+            brainModel.position.set(0, 0, 0);
+
+            // Enable shadows
+            brainModel.traverse((child) => {
+              if (child.isMesh) {
+                child.castShadow = true;
+                child.receiveShadow = true;
+                
+                // Enhance brain material appearance
+                if (child.material) {
+                  child.material.metalness = 0.05;
+                  child.material.roughness = 0.6;
+                  
+                  // Add subtle purple glow
+                  if (!child.material.emissive) {
+                    child.material.emissive = new THREE.Color(0x2a1a3e);
+                  } else {
+                    child.material.emissive.setHex(0x2a1a3e);
+                  }
+                  
+                  // Brighten the materials
+                  if (child.material.color) {
+                    child.material.color.multiplyScalar(1.3);
+                  }
+                }
+              }
+            });
+
+            scene.add(brainModel);
+            hideLoading();
+          },
+          (progress) => {
+            console.log("Loading progress:", progress);
+          },
+          (error) => {
+            console.error("Error loading sliced brain model:", error);
+            // Fallback to regular brain model
+            loadFallbackBrain();
+          }
+        );
+      }
+
+      // Hide loading indicator
+      function hideLoading() {
+        const loadingElement = document.getElementById("loading");
+        if (loadingElement) {
+          loadingElement.style.display = "none";
+        }
+      }
+
+      // Fallback brain model
+      function loadFallbackBrain() {
+        const loader = new THREE.GLTFLoader();
+        loader.load(
+          "../models/brain/scene.gltf",
+          (gltf) => {
+            brainModel = gltf.scene;
+            brainModel.scale.set(0.01, 0.01, 0.01);
+            brainModel.position.set(0, 0, 0);
+
+            brainModel.traverse((child) => {
+              if (child.isMesh) {
+                child.castShadow = true;
+                child.receiveShadow = true;
+                
+                if (child.material) {
+                  child.material.emissive = new THREE.Color(0x2a1a3e);
+                  child.material.emissiveIntensity = 0.2;
+                  
+                  if (child.material.color) {
+                    child.material.color.multiplyScalar(1.3);
+                  }
+                }
+              }
+            });
+
+            scene.add(brainModel);
+            hideLoading();
+          },
+          undefined,
+          (error) => {
+            console.error("Error loading fallback brain model:", error);
+            createFallbackGeometry();
+          }
+        );
+      }
+
+      // Create fallback geometry if models fail to load
+      function createFallbackGeometry() {
+        const geometry = new THREE.SphereGeometry(1, 32, 32);
+        const material = new THREE.MeshPhongMaterial({
+          color: 0x9b59b6,
+          transparent: true,
+          opacity: 0.8,
+        });
+
+        brainModel = new THREE.Mesh(geometry, material);
+        brainModel.position.set(0, 0, 0);
+        brainModel.castShadow = true;
+        brainModel.receiveShadow = true;
+
+        scene.add(brainModel);
+        hideLoading();
+      }
+
+      // Create interactive label points
+      function createLabelPoints() {
+        const container = document.getElementById("canvas-container");
+
+        brainParts.forEach((part, index) => {
+          // Create 3D invisible sphere for raycasting
+          const geometry = new THREE.SphereGeometry(0.08, 16, 16);
+          const material = new THREE.MeshPhongMaterial({
+            color: part.color,
+            transparent: true,
+            opacity: 0, // Invisible
+            emissive: 0x000000,
+          });
+
+          const sphere = new THREE.Mesh(geometry, material);
+          sphere.position.set(...part.position);
+          sphere.userData = { partId: part.id, partData: part };
+
+          labelPoints.push(sphere);
+          scene.add(sphere);
+
+          // Create 2D label element
+          const labelElement = document.createElement("div");
+          labelElement.className = "label-point";
+          labelElement.textContent = part.id;
+          labelElement.style.left = "50%";
+          labelElement.style.top = "50%";
+          labelElement.dataset.partId = part.id;
+          labelElement.setAttribute("data-part-id", part.id);
+
+          // Add click event
+          labelElement.addEventListener("click", (e) => {
+            e.stopPropagation();
+            selectPart(part.id);
+          });
+
+          container.appendChild(labelElement);
+          labelElements.push(labelElement);
+        });
+      }
+
+      // Handle mouse clicks and touch events on label points
+      function onMouseClick(event) {
+        const container = document.getElementById("canvas-container");
+        const rect = container.getBoundingClientRect();
+
+        // Handle both mouse and touch events
+        const clientX = event.touches
+          ? event.touches[0]?.clientX || event.changedTouches[0]?.clientX
+          : event.clientX;
+        const clientY = event.touches
+          ? event.touches[0]?.clientY || event.changedTouches[0]?.clientY
+          : event.clientY;
+
+        if (!clientX || !clientY) return;
+
+        const mouse = new THREE.Vector2();
+        mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(mouse, camera);
+
+        const intersects = raycaster.intersectObjects(labelPoints);
+
+        if (intersects.length > 0) {
+          const clickedObject = intersects[0].object;
+          const partId = clickedObject.userData.partId;
+          selectPart(partId);
+        } else {
+          selectPart(null);
+        }
+      }
+
+      // Select a brain part
+      function selectPart(partId) {
+        selectedPart = partId;
+
+        // Update visual feedback for 3D points
+        labelPoints.forEach((point) => {
+          const isSelected = point.userData.partId === partId;
+          if (point.material && point.material.emissive) {
+            point.material.emissive.setHex(isSelected ? 0x444444 : 0x000000);
+          }
+          point.scale.setScalar(isSelected ? 1.5 : 1);
+        });
+
+        // Update label point selection visual
+        labelElements.forEach((label) => {
+          label.classList.remove("selected");
+        });
+
+        // Show info card instead of info panel
+        if (partId) {
+          const part = brainParts.find((p) => p.id === partId);
+          if (part) {
+            // Add selected class to the clicked label
+            const selectedLabel = labelElements.find(
+              (label) => label.dataset.partId === partId
+            );
+            if (selectedLabel) {
+              selectedLabel.classList.add("selected");
+            }
+
+            // Show the info card
+            document.getElementById("card-part-name").textContent = part.name;
+            document.getElementById("card-part-description").textContent =
+              part.description;
+            document.getElementById("info-card").classList.add("visible");
+
+            // Hide the bottom info panel
+            document.getElementById("info-panel").classList.remove("visible");
+          }
+        } else {
+          // Hide info card when nothing is selected
+          document.getElementById("info-card").classList.remove("visible");
+          document.getElementById("info-panel").classList.remove("visible");
+        }
+      }
+
+      // Update 2D label positions based on 3D positions
+      function updateLabelPositions() {
+        labelPoints.forEach((point, index) => {
+          const labelElement = labelElements[index];
+          if (!labelElement) return;
+
+          // Project 3D position to 2D screen coordinates
+          const vector = point.position.clone();
+          vector.project(camera);
+
+          // Convert to screen coordinates
+          const x = (vector.x * 0.5 + 0.5) * renderer.domElement.clientWidth;
+          const y = (vector.y * -0.5 + 0.5) * renderer.domElement.clientHeight;
+
+          // Update label position
+          labelElement.style.left = x + "px";
+          labelElement.style.top = y + "px";
+
+          // Hide labels that are behind the camera or too far
+          const distance = camera.position.distanceTo(point.position);
+          const isVisible = vector.z < 1 && distance < 15;
+          labelElement.style.display = isVisible ? "flex" : "none";
+
+          // Adjust opacity based on distance
+          if (isVisible) {
+            const opacity = Math.max(0.6, 1 - (distance - 2) / 8);
+            labelElement.style.opacity = opacity;
+          }
+        });
+      }
+
+      // Animation loop
+      function animate() {
+        requestAnimationFrame(animate);
+
+        controls.update();
+
+        // Update label positions to follow 3D model
+        updateLabelPositions();
+
+        // Brain model is static - no rotation
+        // Removed: brainModel.rotation.y += 0.005;
+
+        renderer.render(scene, camera);
+      }
+
+      // Handle window resize with throttling
+      function onWindowResize() {
+        if (resizeTimeout) {
+          clearTimeout(resizeTimeout);
+        }
+
+        resizeTimeout = setTimeout(() => {
+          const container = document.getElementById("canvas-container");
+          if (!container) return;
+
+          const containerRect = container.getBoundingClientRect();
+
+          if (containerRect.width > 0 && containerRect.height > 0) {
+            camera.aspect = containerRect.width / containerRect.height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(containerRect.width, containerRect.height);
+          }
+        }, 100);
+      }
+
+      // Show controls modal
+      function showModal() {
+        document.getElementById("controls-modal").classList.add("visible");
+      }
+
+      // Hide controls modal
+      function hideModal() {
+        document.getElementById("controls-modal").classList.remove("visible");
+      }
+
+      // Hide info card
+      function hideInfoCard() {
+        document.getElementById("info-card").classList.remove("visible");
+        // Clear selection when card is closed
+        selectPart(null);
+      }
+
+      // Handle keyboard events
+      function handleKeyPress(event) {
+        if (event.key === "Escape") {
+          // Close info card if open
+          if (
+            document.getElementById("info-card").classList.contains("visible")
+          ) {
+            hideInfoCard();
+          }
+          // Close controls modal if open
+          if (
+            document
+              .getElementById("controls-modal")
+              .classList.contains("visible")
+          ) {
+            hideModal();
+          }
+        }
+      }
+
+      // Navigate back to AR Scanner
+      function goBackToAR() {
+        // Clear the scene and dispose of resources
+        if (renderer) {
+          renderer.dispose();
+        }
+
+        // Navigate back to the AR scanner
+        window.history.back();
+      }
+
+      // Initialize everything when page loads
+      window.addEventListener("load", () => {
+        initScene();
+
+        // Add resize listeners
+        window.addEventListener("resize", onWindowResize);
+
+        // Add ResizeObserver for container size changes
+        if (window.ResizeObserver) {
+          const resizeObserver = new ResizeObserver(onWindowResize);
+          resizeObserver.observe(document.getElementById("canvas-container"));
+        }
+
+        // Add both mouse and touch events
+        window.addEventListener("click", onMouseClick);
+        window.addEventListener("touchend", onMouseClick);
+
+        // Add keyboard event listener
+        document.addEventListener("keydown", handleKeyPress);
+
+        // Prevent default touch behaviors that might interfere
+        document.addEventListener(
+          "touchstart",
+          function (e) {
+            if (e.touches.length > 1) {
+              e.preventDefault();
+            }
+          },
+          { passive: false }
+        );
+
+        document.addEventListener(
+          "touchmove",
+          function (e) {
+            if (e.touches.length > 1) {
+              e.preventDefault();
+            }
+          },
+          { passive: false }
+        );
+
+        // Close modal when clicking outside of it
+        document
+          .getElementById("controls-modal")
+          .addEventListener("click", (event) => {
+            if (event.target.id === "controls-modal") {
+              hideModal();
+            }
+          });
+
+        // Close info card when clicking outside of it
+        document
+          .getElementById("info-card")
+          .addEventListener("click", (event) => {
+            if (event.target.id === "info-card") {
+              hideInfoCard();
+            }
+          });
+
+        // Force initial resize after a short delay
+        setTimeout(onWindowResize, 100);
+      });
+
+      // Cleanup when page unloads
+      window.addEventListener("beforeunload", () => {
+        if (renderer) {
+          renderer.dispose();
+        }
+      });
+    </script>
+  </body>
+</html>
