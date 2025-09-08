@@ -1,7 +1,7 @@
 import React from 'react';
 import './ProfileModal.css';
 
-const ProfileModal = ({ username, userAvatar, onClose }) => {
+const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) {
       onClose();
@@ -15,9 +15,13 @@ const ProfileModal = ({ username, userAvatar, onClose }) => {
 
   const handleLogout = () => {
     console.log('Logging out...');
-    // TODO: Implement logout functionality
-    window.location.href = '#home';
-    onClose();
+    onClose(); // Close modal first
+    if (onLogout) {
+      onLogout(); // Call the logout function from App.jsx
+    } else {
+      // Fallback if no logout function provided
+      window.location.href = '#home';
+    }
   };
 
   return (

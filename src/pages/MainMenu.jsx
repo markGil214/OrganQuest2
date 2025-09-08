@@ -3,7 +3,7 @@ import MenuButton from '../components/MenuButton';
 import ProfileModal from '../components/ProfileModal';
 import './MainMenu.css';
 
-const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg' }) => {
+const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg', onLogout }) => {
   const [showProfileModal, setShowProfileModal] = useState(false);
 
   const menuOptions = [
@@ -102,6 +102,7 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg' 
           username={username}
           userAvatar={userAvatar}
           onClose={closeProfileModal}
+          onLogout={onLogout}
         />
       )}
 
