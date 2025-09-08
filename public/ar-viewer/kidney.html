@@ -1,106 +1,582 @@
 <!doctype html>
 <html>
+
 	<head>
 		<meta name='viewport' content='width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0'>
-		<script src="vendor/three.101.min.js"></script>	
+		<script src="vendor/three.101.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/three@0.101.1/examples/js/loaders/GLTFLoader.js"></script>
 		<script src="THREEAR.js"></script>
-		<title>AR Kidneys Explorer - Kids Anatomy</title>
+		<title>AR Kidney Explorer - Kids Anatomy</title>
 		<style>
-			body { margin: 0px; overflow: hidden; font-family: 'Arial', sans-serif; background-color: #000; }
-			.ar-ui { position: absolute; top: 20px; left: 20px; z-index: 100; background: rgba(255, 255, 255, 0.9); padding: 15px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); max-width: 300px; }
-			.ar-title { color: #26de81; font-size: 1.4rem; font-weight: bold; margin: 0 0 10px 0; }
-			.ar-instructions { color: #333; font-size: 0.9rem; margin: 0 0 15px 0; line-height: 1.4; }
-			.ar-back-btn { background: #26de81; color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 0.9rem; }
-			.ar-back-btn:hover { background: #20c76b; }
-			.kidney-info { position: absolute; bottom: 20px; left: 20px; right: 20px; background: rgba(38, 222, 129, 0.9); color: white; padding: 15px; border-radius: 15px; text-align: center; z-index: 100; }
-			.kidney-fact { font-size: 1.1rem; font-weight: bold; margin: 0; }
+			@import url('https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&family=Nunito:wght@400;600;700&display=swap');
+			
+			body {
+				margin: 0px;
+				overflow: hidden;
+				font-family: 'Nunito', sans-serif;
+				background-color: #000;
+			}
+			
+			/* Compact Header Bar */
+			.header-bar {
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				height: 60px;
+				background: linear-gradient(135deg, #26de81 0%, #20bf6b 100%);
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 0 15px;
+				z-index: 100;
+				box-shadow: 0 2px 15px rgba(0,0,0,0.2);
+			}
+			
+			.header-title {
+				color: white;
+				font-family: 'Fredoka One', cursive;
+				font-size: 1.3rem;
+				margin: 0;
+				text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+			}
+			
+			.header-controls {
+				display: flex;
+				gap: 10px;
+				align-items: center;
+			}
+			
+			.back-btn {
+				background: white;
+				color: #20bf6b;
+				border: none;
+				padding: 8px 16px;
+				border-radius: 20px;
+				font-weight: 700;
+				font-size: 0.8rem;
+				cursor: pointer;
+				transition: all 0.2s ease;
+				box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+			}
+			
+			.back-btn:hover {
+				transform: translateY(-1px);
+				box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+			}
+			
+			/* Floating Instructions Card */
+			.instructions-card {
+				position: absolute;
+				top: 80px;
+				left: 15px;
+				background: rgba(255, 255, 255, 0.95);
+				padding: 12px 15px;
+				border-radius: 20px;
+				max-width: 280px;
+				z-index: 99;
+				box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+				border: 3px solid #26de81;
+				animation: float-in 0.8s ease-out;
+			}
+			
+			@keyframes float-in {
+				from { transform: translateX(-100%); opacity: 0; }
+				to { transform: translateX(0); opacity: 1; }
+			}
+			
+			.instructions-text {
+				color: #333;
+				font-size: 0.85rem;
+				margin: 0;
+				line-height: 1.4;
+				font-weight: 600;
+			}
+			
+			.kidney-emoji {
+				font-size: 1.2rem;
+				animation: filter-pulse 2s infinite;
+			}
+			
+			@keyframes filter-pulse {
+				0%, 100% { transform: scale(1); }
+				50% { transform: scale(1.1) rotate(3deg); }
+			}
+			
+			/* Compact Zoom Controls */
+			.zoom-panel {
+				position: absolute;
+				bottom: 20px;
+				right: 15px;
+				background: rgba(255, 255, 255, 0.95);
+				border-radius: 25px;
+				padding: 8px;
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+				z-index: 100;
+				box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+				border: 3px solid #20bf6b;
+			}
+			
+			.zoom-btn {
+				background: #20bf6b;
+				border: none;
+				color: white;
+				width: 40px;
+				height: 40px;
+				border-radius: 50%;
+				font-size: 1.2rem;
+				font-weight: bold;
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				transition: all 0.2s ease;
+				box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+			}
+			
+			.zoom-btn:hover {
+				background: #17a2b8;
+				transform: scale(1.1);
+			}
+			
+			.zoom-btn:active {
+				transform: scale(0.95);
+			}
+			
+			.zoom-display {
+				background: white;
+				color: #20bf6b;
+				padding: 6px 10px;
+				border-radius: 15px;
+				font-size: 0.75rem;
+				font-weight: 700;
+				text-align: center;
+				border: 2px solid #20bf6b;
+			}
+			
+			/* Fun Fact Bubble */
+			.fact-bubble {
+				position: absolute;
+				bottom: 20px;
+				left: 15px;
+				right: 90px;
+				background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+				color: white;
+				padding: 12px 18px;
+				border-radius: 25px;
+				text-align: center;
+				z-index: 100;
+				box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+				border: 3px solid #74b9ff;
+				animation: bounce-in 1s ease-out 2s both;
+			}
+			
+			@keyframes bounce-in {
+				0% { transform: translateY(100%); opacity: 0; }
+				60% { transform: translateY(-10px); opacity: 1; }
+				100% { transform: translateY(0); opacity: 1; }
+			}
+			
+			.fact-text {
+				font-size: 0.9rem;
+				font-weight: 700;
+				margin: 0;
+				text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+			}
+			
+			/* Zoom Hint Popup */
+			@keyframes pulse-hint {
+				0% { opacity: 0.9; transform: translate(-50%, -50%) scale(1); }
+				50% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+				100% { opacity: 0.9; transform: translate(-50%, -50%) scale(1); }
+			}
+			
+			/* Hide instructions after some time */
+			.instructions-card.fade-out {
+				animation: fade-out 0.5s ease-out 8s both;
+			}
+			
+			@keyframes fade-out {
+				from { opacity: 1; transform: translateX(0); }
+				to { opacity: 0; transform: translateX(-100%); }
+			}
+			
+			/* Mobile responsive adjustments */
+			@media (max-width: 480px) {
+				.header-title {
+					font-size: 1.1rem;
+				}
+				
+				.instructions-card {
+					max-width: 240px;
+					padding: 10px 12px;
+				}
+				
+				.instructions-text {
+					font-size: 0.8rem;
+				}
+				
+				.fact-bubble {
+					right: 70px;
+					padding: 10px 15px;
+				}
+				
+				.fact-text {
+					font-size: 0.8rem;
+				}
+				
+				.zoom-btn {
+					width: 35px;
+					height: 35px;
+					font-size: 1rem;
+				}
+				
+				.zoom-display {
+					font-size: 0.7rem;
+					padding: 4px 8px;
+				}
+			}
+			
+			/* Very small screens */
+			@media (max-width: 320px) {
+				.header-bar {
+					height: 50px;
+					padding: 0 10px;
+				}
+				
+				.header-title {
+					font-size: 1rem;
+				}
+				
+				.back-btn {
+					padding: 6px 12px;
+					font-size: 0.7rem;
+				}
+				
+				.instructions-card {
+					top: 65px;
+					left: 10px;
+					max-width: 200px;
+					padding: 8px 10px;
+				}
+				
+				.instructions-text {
+					font-size: 0.75rem;
+				}
+			}
 		</style>
 	</head>
+
 	<body>
-		<div class="ar-ui">
-			<h1 class="ar-title">🫘 AR Kidneys Explorer</h1>
-			<p class="ar-instructions">Point your camera at the AR marker to see 3D kidneys! Watch them filter blood like tiny cleaning machines!</p>
-			<button class="ar-back-btn" onclick="window.history.back()">← Back to Organs</button>
+		<!-- Compact Header Bar -->
+		<div class="header-bar">
+			<h1 class="header-title">🫘 Kidney Explorer</h1>
+			<div class="header-controls">
+				<button class="back-btn" onclick="window.history.back()">← Back</button>
+			</div>
 		</div>
-		<div class="kidney-info">
-			<p class="kidney-fact">🫘 Your kidneys clean 50 gallons of blood every day!</p>
+		
+		<!-- Floating Instructions -->
+		<div class="instructions-card" id="instructionsCard">
+			<p class="instructions-text">
+				<span class="kidney-emoji">🫘</span> Point your camera at the AR marker to see filtering kidneys! Watch them clean your blood!
+			</p>
 		</div>
+		
+		<!-- Fun Fact Bubble -->
+		<div class="fact-bubble">
+			<p class="fact-text">🌊 Your kidneys filter 50 gallons of blood every day!</p>
+		</div>
+		
+		<!-- Zoom Hint Popup -->
+		<!-- Compact Zoom Panel -->
+		<div class="zoom-panel">
+			<button class="zoom-btn" onclick="zoomIn()" title="Zoom In">+</button>
+			<div class="zoom-display" id="zoomDisplay">100%</div>
+			<button class="zoom-btn" onclick="zoomOut()" title="Zoom Out">−</button>
+		</div>
+
 		<script>
-			var renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+			// Initialize Three.js renderer with transparency
+			var renderer = new THREE.WebGLRenderer({
+				alpha: true,
+				antialias: true
+			});
 			renderer.setClearColor(new THREE.Color('lightgrey'), 0);
 			renderer.setSize(window.innerWidth, window.innerHeight);
 			renderer.domElement.style.position = 'absolute';
 			renderer.domElement.style.top = '0px';
 			renderer.domElement.style.left = '0px';
 			document.body.appendChild(renderer.domElement);
-			
+		
+			// Initialize scene and camera
 			var scene = new THREE.Scene();
 			var camera = new THREE.Camera();
 			scene.add(camera);
+
+			// Create group for kidney objects
 			var kidneyGroup = new THREE.Group();
 			scene.add(kidneyGroup);
+			
+			// Zoom variables
+			var currentZoom = 1.0;
+			var minZoom = 0.5;
+			var maxZoom = 3.0;
+			var zoomStep = 0.2;
+			
+			// Auto-hide instructions after 8 seconds
+			setTimeout(function() {
+				var card = document.getElementById('instructionsCard');
+				if (card) {
+					card.classList.add('fade-out');
+				}
+			}, 8000);
+			
+			// Zoom functions
+			function zoomIn() {
+				if (currentZoom < maxZoom) {
+					currentZoom += zoomStep;
+					updateZoom();
+					
+					// Auto-redirect to interactive view when reaching maximum zoom
+					if (currentZoom >= maxZoom) {
+						// Show special transition message
+						showTransitionMessage();
+						setTimeout(function() {
+							window.location.href = 'kidney-interactive.html?zoom=close';
+						}, 1500); // Longer delay for smooth transition
+					}
+				}
+			}
+			
+			function zoomOut() {
+				if (currentZoom > minZoom) {
+					currentZoom -= zoomStep;
+					updateZoom();
+				}
+			}
+			
+			function updateZoom() {
+				// Apply zoom to the kidney group
+				kidneyGroup.userData.zoomScale = currentZoom;
+				document.getElementById('zoomDisplay').textContent = Math.round(currentZoom * 100) + '%';
+				
+				// Show visual feedback when approaching max zoom
+				var zoomDisplay = document.getElementById('zoomDisplay');
+				if (currentZoom >= maxZoom * 0.8) {
+					zoomDisplay.style.background = '#00cec9';
+					zoomDisplay.style.color = 'white';
+					zoomDisplay.style.borderColor = '#00cec9';
+				} else {
+					zoomDisplay.style.background = 'white';
+					zoomDisplay.style.color = '#20bf6b';
+					zoomDisplay.style.borderColor = '#20bf6b';
+				}
+			}
+			
+			// Function to show transition message (removed zoom hint functionality)
+			function showTransitionMessage() {
+				// Transition message functionality removed
+			}
+			
+
+		
+			// Initialize THREEAR source
 			var source = new THREEAR.Source({ renderer, camera });
 
 			THREEAR.initialize({ source: source }).then((controller) => {
-				// Create left kidney
-				var leftKidneyGeometry = new THREE.SphereGeometry(0.15, 16, 16);
-				leftKidneyGeometry.scale(1, 1.5, 0.8); // Make kidney-shaped
-				var leftKidneyMaterial = new THREE.MeshPhongMaterial({ color: 0x26de81, transparent: true, opacity: 0.9 });
-				var leftKidney = new THREE.Mesh(leftKidneyGeometry, leftKidneyMaterial);
-				leftKidney.position.set(-0.2, 0.5, 0);
-				kidneyGroup.add(leftKidney);
 
-				// Create right kidney
-				var rightKidneyGeometry = new THREE.SphereGeometry(0.15, 16, 16);
-				rightKidneyGeometry.scale(1, 1.5, 0.8);
-				var rightKidneyMaterial = new THREE.MeshPhongMaterial({ color: 0x26de81, transparent: true, opacity: 0.9 });
-				var rightKidney = new THREE.Mesh(rightKidneyGeometry, rightKidneyMaterial);
-				rightKidney.position.set(0.2, 0.5, 0);
-				kidneyGroup.add(rightKidney);
-
-				// Create filtering particles
-				var filterParticles = [];
-				for (let i = 0; i < 40; i++) {
-					var particleGeometry = new THREE.SphereGeometry(0.008, 6, 6);
-					var particleMaterial = new THREE.MeshBasicMaterial({ color: 0x4169e1, transparent: true, opacity: 0.8 });
-					var particle = new THREE.Mesh(particleGeometry, particleMaterial);
-					particle.position.set((Math.random() - 0.5) * 1.0, Math.random() * 1.2 + 0.2, (Math.random() - 0.5) * 1.0);
-					particle.userData = { speed: Math.random() * 0.02 + 0.01 };
-					filterParticles.push(particle);
-					kidneyGroup.add(particle);
-				}
-
-				var ambientLight = new THREE.AmbientLight(0x404040, 0.6);
-				scene.add(ambientLight);
-				var directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-				directionalLight.position.set(1, 1, 1);
-				scene.add(directionalLight);
-
-				var patternMarker = new THREEAR.PatternMarker({ patternUrl: 'data/patt.hiro', markerObject: kidneyGroup });
-				controller.trackMarker(patternMarker);
-
-				var time = 0;
-				requestAnimationFrame(function animate(nowMsec){
-					requestAnimationFrame(animate);
-					time += 0.016;
+				// Load 3D Kidney Model
+				var loader = new THREE.GLTFLoader();
+				loader.load('../../base_folder2/public/kidney/scene.gltf', function(gltf) {
+					var kidneyModel = gltf.scene;
 					
-					// Filtering animation (gentle pulsing)
-					var filterScale = 1 + Math.sin(time * 2) * 0.06;
-					leftKidney.scale.set(filterScale, filterScale, filterScale);
-					rightKidney.scale.set(filterScale, filterScale, filterScale);
+					// Scale the kidney model to much smaller size for AR
+					kidneyModel.scale.set(0.01, 0.01, 0.01);
+					kidneyModel.position.y = 0.5;
 					
-					// Animate filtering particles
-					filterParticles.forEach((particle, index) => {
-						particle.position.y += Math.sin(time + index) * particle.userData.speed;
-						if (particle.position.y > 1.5) particle.position.y = 0.2;
-						particle.rotation.x += 0.02;
-						particle.rotation.y += 0.02;
+					// Make the model lighter/brighter with green tint
+					kidneyModel.traverse(function(child) {
+						if (child.isMesh) {
+							if (child.material) {
+								// Add green glow for filtering activity
+								child.material.emissive = new THREE.Color(0.1, 0.2, 0.1);
+								child.material.emissiveIntensity = 0.3;
+								
+								// If it has a color property, make it brighter
+								if (child.material.color) {
+									child.material.color.multiplyScalar(1.5);
+								}
+							}
+						}
 					});
 					
-					controller.update(source.domElement);
-					renderer.render(scene, camera);
+					// Add the kidney model to the group
+					kidneyGroup.add(kidneyModel);
+					
+					// Initialize zoom scale
+					kidneyGroup.userData.zoomScale = currentZoom;
+					
+					// Add filtering animation to the model
+					var originalScale = { x: 0.01, y: 0.01, z: 0.01 };
+					var time = 0;
+					
+					// Animation loop for filtering kidney
+					function animateKidney() {
+						time += 0.016; // 60fps
+						var filterScale = 1 + Math.sin(time * 2) * 0.05; // Gentle filtering pulsing
+						
+						// Apply both zoom and filtering animation
+						var zoomScale = kidneyGroup.userData.zoomScale || 1.0;
+						kidneyModel.scale.set(
+							originalScale.x * filterScale * zoomScale,
+							originalScale.y * filterScale * zoomScale,
+							originalScale.z * filterScale * zoomScale
+						);
+						kidneyModel.rotation.y += 0.003; // Slow rotation
+					}
+					
+					// Start the animation
+					var animationId;
+					function animate() {
+						animationId = requestAnimationFrame(animate);
+						animateKidney();
+						
+						controller.update(source.domElement);
+						renderer.render(scene, camera);
+					}
+					animate();
+					
+				}, function(progress) {
+					console.log('Loading kidney model...', (progress.loaded / progress.total * 100) + '%');
+				}, function(error) {
+					console.error('Error loading kidney model:', error);
+					// Fallback to simple geometry if model fails to load
+					createSimpleKidney();
 				});
+
+				// Fallback function to create simple kidney if GLTF fails
+				function createSimpleKidney() {
+					// Create kidney geometry (bean-shaped)
+					var kidneyGeometry = new THREE.SphereGeometry(0.03, 32, 32);
+					kidneyGeometry.scale(1, 1.5, 0.8); // Make kidney-shaped
+					
+					var kidneyMaterial = new THREE.MeshPhongMaterial({ 
+						color: 0x26de81,
+						shininess: 30,
+						transparent: true,
+						opacity: 0.9
+					});
+					
+					var kidney = new THREE.Mesh(kidneyGeometry, kidneyMaterial);
+					kidney.position.y = 0.5;
+					kidneyGroup.add(kidney);
+					
+					// Add simple animation for fallback kidney
+					var time = 0;
+					function animateFallbackKidney() {
+						requestAnimationFrame(animateFallbackKidney);
+						time += 0.016;
+						
+						// Kidney filtering animation (gentle pulsing)
+						var pulseScale = 1 + Math.sin(time * 2) * 0.05;
+						var zoomScale = kidneyGroup.userData.zoomScale || 1.0;
+						kidney.scale.set(
+							pulseScale * zoomScale,
+							pulseScale * zoomScale * 1.5, // Keep kidney shape
+							pulseScale * zoomScale * 0.8
+						);
+						kidney.rotation.y += 0.002;
+						
+						controller.update(source.domElement);
+						renderer.render(scene, camera);
+					}
+					animateFallbackKidney();
+				}
+
+				// Add lighting for better kidney appearance
+				var ambientLight = new THREE.AmbientLight(0x404040, 0.8); // Increased ambient light
+				scene.add(ambientLight);
+				
+				var directionalLight = new THREE.DirectionalLight(0xffffff, 1.0); // Increased directional light
+				directionalLight.position.set(1, 1, 1);
+				scene.add(directionalLight);
+				
+				// Add additional soft lighting for better visibility
+				var hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6);
+				scene.add(hemisphereLight);
+
+				// Create pattern marker for tracking
+				var patternMarker = new THREEAR.PatternMarker({
+					patternUrl: 'data/patt.hiro',
+					markerObject: kidneyGroup
+				});
+
+				controller.trackMarker(patternMarker);
+
+				// Handle window resize
+				window.addEventListener('resize', function() {
+					renderer.setSize(window.innerWidth, window.innerHeight);
+				});
+				
+				// Touch gesture support for pinch-to-zoom
+				var initialDistance = 0;
+				var initialZoom = currentZoom;
+				
+				function getDistance(touches) {
+					var dx = touches[0].clientX - touches[1].clientX;
+					var dy = touches[0].clientY - touches[1].clientY;
+					return Math.sqrt(dx * dx + dy * dy);
+				}
+				
+				document.addEventListener('touchstart', function(e) {
+					if (e.touches.length === 2) {
+						e.preventDefault();
+						initialDistance = getDistance(e.touches);
+						initialZoom = currentZoom;
+					}
+				});
+				
+				document.addEventListener('touchmove', function(e) {
+					if (e.touches.length === 2) {
+						e.preventDefault();
+						var currentDistance = getDistance(e.touches);
+						var scaleFactor = currentDistance / initialDistance;
+						var newZoom = initialZoom * scaleFactor;
+						
+						// Clamp zoom within limits
+						newZoom = Math.max(minZoom, Math.min(maxZoom, newZoom));
+						currentZoom = newZoom;
+						updateZoom();
+						
+						// Auto-redirect to interactive view when reaching maximum zoom via touch
+						if (currentZoom >= maxZoom) {
+							showTransitionMessage();
+							setTimeout(function() {
+								window.location.href = 'kidney-interactive.html?zoom=close';
+							}, 1500);
+						}
+					}
+				});
+				
+				// Mouse wheel zoom for desktop
+				document.addEventListener('wheel', function(e) {
+					e.preventDefault();
+					if (e.deltaY < 0) {
+						zoomIn();
+					} else {
+						zoomOut();
+					}
+				});
+
+			}).catch((error) => {
+				console.error('THREEAR initialization failed:', error);
+				alert('AR initialization failed. Please make sure you have a camera and try again.');
 			});
+
 		</script>
 	</body>
+	
 </html>

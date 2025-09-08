@@ -9,7 +9,7 @@ const QuizMenu = () => {
       icon: '🧠',
       title: 'Multiple Choice',
       description: 'Test your knowledge with fun questions about human anatomy!',
-      route: '/quiz/mcq',
+      route: 'quiz/mcq',
       color: '#3498db'
     },
     {
@@ -17,7 +17,7 @@ const QuizMenu = () => {
       icon: '🧩',
       title: 'Memory Matching',
       description: 'Match organ pairs and boost your memory skills!',
-      route: '/quiz/memory',
+      route: 'quiz/memory',
       color: '#e74c3c'
     },
     {
@@ -25,7 +25,7 @@ const QuizMenu = () => {
       icon: '⚡',
       title: 'Timed Challenge',
       description: 'Race against time to answer as many questions as possible!',
-      route: '/quiz/timed',
+      route: 'quiz/timed',
       color: '#f39c12'
     }
   ];
