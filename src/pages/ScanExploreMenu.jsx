@@ -11,7 +11,7 @@ const ScanExploreMenu = () => {
     {
       id: 'heart',
       name: 'Heart',
-      icon: '❤️',
+      icon: '/organs/heart.png',
       color: '#ff6b6b',
       funFact: 'Your heart beats all day!',
       description: 'The heart is your body\'s amazing pump!',
@@ -21,7 +21,7 @@ const ScanExploreMenu = () => {
     {
       id: 'brain',
       name: 'Brain',
-      icon: '🧠',
+      icon: '/organs/brain.png',
       color: '#845ec2',
       funFact: 'Your brain controls everything!',
       description: 'The brain is your control center!',
@@ -31,7 +31,7 @@ const ScanExploreMenu = () => {
     {
       id: 'lungs',
       name: 'Lungs',
-      icon: '🫁',
+      icon: '/organs/lungs.png',
       color: '#4ecdc4',
       funFact: 'Your lungs help you breathe!',
       description: 'Lungs give you fresh air to live!',
@@ -41,7 +41,7 @@ const ScanExploreMenu = () => {
     {
       id: 'liver',
       name: 'Liver',
-      icon: '🫀',
+      icon: '/organs/liver.png',
       color: '#ff9f43',
       funFact: 'Your liver cleans your body!',
       description: 'The liver is your body\'s cleaner!',
@@ -51,22 +51,12 @@ const ScanExploreMenu = () => {
     {
       id: 'kidney',
       name: 'Kidneys',
-      icon: '🫘',
+      icon: '/organs/kidney.png',
       color: '#26de81',
       funFact: 'Your kidneys filter your blood!',
       description: 'Kidneys are your body\'s filters!',
       didYouKnow: ['You have two kidneys!', 'They clean 50 gallons of blood every day!'],
       sound: 'filter'
-    },
-    {
-      id: 'stomach',
-      name: 'Stomach',
-      icon: '🍽️',
-      color: '#feca57',
-      funFact: 'Your stomach breaks down food!',
-      description: 'The stomach is your food mixer!',
-      didYouKnow: ['It can stretch like a balloon!', 'It makes special juice to break down food!'],
-      sound: 'digest'
     }
   ];
 
@@ -164,7 +154,7 @@ const ScanExploreMenu = () => {
             className="large-organ-icon"
             style={{ backgroundColor: selectedOrgan.color }}
           >
-            {selectedOrgan.icon}
+            <img src={selectedOrgan.icon} alt={selectedOrgan.name} />
           </div>
         </div>
 
@@ -226,7 +216,9 @@ const ScanExploreMenu = () => {
             onClick={() => handleOrganSelect(organ)}
             style={{ backgroundColor: organ.color }}
           >
-            <div className="organ-icon-large">{organ.icon}</div>
+            <div className="organ-icon-large">
+              <img src={organ.icon} alt={organ.name} />
+            </div>
             <div className="organ-content">
               <h3 className="organ-name">{organ.name}</h3>
               <p className="organ-fun-fact">{organ.funFact}</p>
