@@ -24,7 +24,7 @@
 
       body {
         font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #26de81 100%);
+        background: linear-gradient(135deg, #1a2e1a 0%, #16213e 50%, #26de81 100%);
         overflow: hidden;
         height: 100vh;
         height: 100dvh;
@@ -276,7 +276,7 @@
       }
 
       .controls-modal-content {
-        background: linear-gradient(135deg, rgba(26, 26, 46, 0.95), rgba(38, 222, 129, 0.95));
+        background: linear-gradient(135deg, rgba(26, 46, 26, 0.95), rgba(38, 222, 129, 0.95));
         color: #ecf0f1;
         padding: 2rem;
         border-radius: 20px;
@@ -353,6 +353,66 @@
         transform: scale(1.1);
       }
 
+      /* Loading Screen */
+      #loading {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #1a2e1a 0%, #16213e 50%, #26de81 100%);
+        color: #ecf0f1;
+        font-size: 1.2rem;
+        font-weight: 600;
+        z-index: 1000;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      #loading::before {
+        content: '🫘';
+        font-size: 2rem;
+        margin-right: 1rem;
+        animation: filter-pulse 2s infinite;
+      }
+
+      @keyframes filter-pulse {
+        0%, 100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1) rotate(3deg);
+        }
+      }
+
+      /* Loading Indicator */
+      .loading {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-size: 1.2rem;
+        text-align: center;
+        pointer-events: none;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+      }
+
+      .loading::after {
+        content: "";
+        width: 1.25rem;
+        height: 1.25rem;
+        border: 0.1875rem solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #26de81;
+        animation: spin 1s ease-in-out infinite;
+      }
+
       /* Info Panel using Flexbox - Hidden for card system */
       .info-panel {
         display: none;
@@ -385,7 +445,7 @@
       .info-card-content {
         background: linear-gradient(
           145deg,
-          rgba(26, 26, 46, 0.98),
+          rgba(26, 46, 26, 0.98),
           rgba(38, 222, 129, 0.98)
         );
         backdrop-filter: blur(20px);
@@ -731,6 +791,9 @@
       <!-- Canvas Container -->
       <div id="canvas-container"></div>
 
+      <!-- Loading Indicator -->
+      <div class="loading" id="loading">Loading 3D kidney model...</div>
+
       <!-- Info Panel -->
       <div class="info-panel" id="info-panel">
         <h3 id="part-name">Select a part</h3>
@@ -748,7 +811,7 @@
         <div class="controls-list">
           <div class="control-item">
             <div class="control-icon">🖱️</div>
-            <span>Click & drag to pan view</span>
+            <span>Click & drag to rotate</span>
           </div>
           <div class="control-item">
             <div class="control-icon">🔍</div>
@@ -777,71 +840,47 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 
     <script>
-      // Essential kidney parts data based on kidney anatomy
+      // Essential kidney parts data
       const kidneyParts = [
         {
           id: "1",
-          name: "Cortical Blood Vessels",
+          name: "Renal Cortex",
           description:
-            "The cortical blood vessels are a network of tiny capillaries found in the kidney cortex. These vessels, including the interlobular arteries and veins, supply blood to the glomeruli and tubules. They play a crucial role in the filtration process and maintaining proper blood pressure within the kidneys.",
-          position: [-0.4, 0.3, 0.2],
-          color: "#DC143C", // Red
+            "The outer layer of the kidney containing millions of nephrons. This is where blood filtration begins, removing waste products and excess substances from the blood to form urine.",
+          position: [0.5, 0.8, 0.2],
+          color: "#20B2AA",
         },
         {
           id: "2",
-          name: "Renal Pelvis",
+          name: "Renal Medulla",
           description:
-            "The renal pelvis is the funnel-shaped structure at the center of the kidney where urine collects before flowing into the ureter. It's formed by the merging of the major calyces and serves as a reservoir for urine. The smooth muscle in its walls helps propel urine toward the bladder through peristaltic contractions.",
-          position: [0.0, 0.0, 0.0],
-          color: "#FFD700", // Gold
+            "The inner region containing pyramid-shaped structures called renal pyramids. These concentrate urine and help maintain the body's water balance through specialized collecting ducts.",
+          position: [-0.3, 0.4, -0.1],
+          color: "#32CD32",
         },
         {
           id: "3",
-          name: "Medulla",
+          name: "Renal Pelvis",
           description:
-            "The renal medulla is the innermost part of the kidney, consisting of cone-shaped structures called pyramids. It contains the loops of Henle and collecting ducts, which are essential for concentrating urine. The medulla's unique structure allows the kidney to conserve water and maintain the body's fluid balance.",
-          position: [0.2, -0.2, 0.1],
-          color: "#32CD32", // Green
+            "The central collecting chamber where urine accumulates before flowing to the bladder. It acts as a funnel, channeling urine from the kidney into the ureter.",
+          position: [0.2, 0.0, 0.1],
+          color: "#FFD700",
         },
         {
           id: "4",
-          name: "Cortex",
+          name: "Renal Blood Vessels",
           description:
-            "The renal cortex is the outer layer of the kidney, containing most of the nephrons' glomeruli and proximal tubules. This region is responsible for the initial filtration of blood and reabsorption of essential nutrients, water, and electrolytes. Its granular appearance is due to the dense concentration of nephrons.",
-          position: [-0.3, 0.1, -0.1],
-          color: "#20B2AA", // Teal
+            "Network of blood vessels including glomeruli and peritubular capillaries. These vessels deliver blood for filtration and reabsorb filtered nutrients back into the bloodstream.",
+          position: [-0.4, 0.6, 0.3],
+          color: "#FF4500",
         },
         {
           id: "5",
-          name: "Capsule",
-          description:
-            "The renal capsule is a tough, fibrous membrane that surrounds and protects the kidney. It maintains the kidney's shape and provides a barrier against trauma and infection. The capsule is normally smooth and can be easily stripped from a healthy kidney, but may adhere tightly during disease.",
-          position: [0.4, 0.2, 0.3],
-          color: "#8B4513", // Brown
-        },
-        {
-          id: "6",
           name: "Ureter",
           description:
-            "The ureter is a muscular tube that carries urine from the renal pelvis to the bladder. Each kidney has one ureter, approximately 25-30 cm long. The ureter's walls contain smooth muscle that contracts in waves (peristalsis) to propel urine downward, even against gravity when lying down.",
-          position: [0.1, -0.5, -0.2],
-          color: "#4B0082", // Indigo
-        },
-        {
-          id: "7",
-          name: "Renal Artery",
-          description:
-            "The renal artery supplies oxygenated blood to the kidney. It branches from the abdominal aorta and carries about 20% of the heart's total output to the kidneys. The renal artery divides into smaller branches, ultimately forming the glomerular capillaries where filtration occurs.",
-          position: [-0.5, -0.1, 0.0],
-          color: "#FF4500", // Orange
-        },
-        {
-          id: "8",
-          name: "Renal Vein",
-          description:
-            "The renal vein carries filtered blood away from the kidney back to the heart. It collects blood from all the small veins within the kidney and returns it to the inferior vena cava. The renal vein typically has a larger diameter than the renal artery due to the lower pressure of venous blood flow.",
-          position: [-0.5, 0.0, -0.1],
-          color: "#1E90FF", // Blue
+            "The muscular tube carrying urine from the kidney to the bladder. Peristaltic waves (muscle contractions) push urine downward, ensuring one-way flow toward the bladder.",
+          position: [0.3, -0.7, -0.2],
+          color: "#4B0082",
         },
       ];
 
@@ -861,7 +900,7 @@
         
         // Create scene
         scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x1a1a2e);
+        scene.background = new THREE.Color(0x1a2e1a);
 
         // Get container dimensions
         const container = document.getElementById("canvas-container");
@@ -892,13 +931,13 @@
         // Add renderer to container
         container.appendChild(renderer.domElement);
 
-        // Create controls with rotation disabled
+        // Create controls
         controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.25;
         controls.enableZoom = true;
-        controls.enablePan = true;
-        controls.enableRotate = false; // Disable rotation as requested
+        controls.enablePan = false; // Disable panning
+        controls.enableRotate = true; // Enable rotation
         
         // Adjust zoom limits based on starting position
         if (zoomLevel === 'close') {
@@ -909,13 +948,18 @@
           controls.maxDistance = 10;
         }
 
-        // Better touch controls for mobile (no rotation)
-        controls.rotateSpeed = 0; // Disabled rotation
+        // Better zoom controls for mobile (disable rotation touches)
         controls.zoomSpeed = 0.8;
-        controls.panSpeed = 0.8;
         controls.touches = {
-          ONE: THREE.TOUCH.PAN, // Changed from ROTATE to PAN
-          TWO: THREE.TOUCH.DOLLY_PAN,
+          ONE: THREE.TOUCH.ROTATE, // Single touch for rotate
+          TWO: THREE.TOUCH.DOLLY_PAN, // Two finger pinch for zoom
+        };
+
+        // Disable mouse rotation, keep only zoom
+        controls.mouseButtons = {
+          LEFT: THREE.MOUSE.ROTATE, // Left click rotation
+          MIDDLE: THREE.MOUSE.DOLLY, // Middle mouse for zoom
+          RIGHT: null // Disable right click pan
         };
 
         // Add enhanced lighting for bright kidney model
@@ -956,11 +1000,16 @@
 
         // Try to load kidney model from base_folder2
         loader.load(
-          "../../base_folder2/public/kidney/scene.gltf",
+          "../models/slicedKidney/slicedKidney.glb",
           (gltf) => {
             kidneyModel = gltf.scene;
-            kidneyModel.scale.set(0.006, 0.006, 0.006); // Updated to 0.006
+            kidneyModel.scale.set(1.5, 1.5, 1.5);
             kidneyModel.position.set(0, 0, 0);
+            
+            // Rotate kidney to face forward like in the reference image
+            kidneyModel.rotation.y = Math.PI / 2; // 90 degrees around Y-axis
+            kidneyModel.rotation.x = 0; // No X rotation
+            kidneyModel.rotation.z = 0; // No Z rotation
 
             // Enable shadows and enhance materials for bright appearance with original colors
             kidneyModel.traverse((child) => {
@@ -993,6 +1042,7 @@
             });
 
             scene.add(kidneyModel);
+            hideLoading();
           },
           (progress) => {
             console.log("Loading progress:", progress);
@@ -1009,11 +1059,16 @@
       function loadFallbackKidney() {
         const loader = new THREE.GLTFLoader();
         loader.load(
-          "../../base_folder2/public/new_kidney/kidney.glb",
+          "../models/slicedKidney/slicedKidney.glb",
           (gltf) => {
             kidneyModel = gltf.scene;
-            kidneyModel.scale.set(0.0006, 0.0006, 0.0006); // Updated to 0.0006
-            kidneyModel.position.set(0, 0, 0);
+            kidneyModel.scale.set(0.02, 0.02, 0.02);
+            kidneyModel.position.set(0, 1.5, 0);
+            
+            // Rotate fallback kidney to face forward like reference image
+            kidneyModel.rotation.y = Math.PI / 2; // 90 degrees around Y-axis
+            kidneyModel.rotation.x = 0;
+            kidneyModel.rotation.z = 0;
 
             kidneyModel.traverse((child) => {
               if (child.isMesh) {
@@ -1037,6 +1092,7 @@
             });
 
             scene.add(kidneyModel);
+            hideLoading();
           },
           undefined,
           (error) => {
@@ -1048,23 +1104,31 @@
 
       // Create fallback geometry if models fail to load
       function createFallbackGeometry() {
-        const geometry = new THREE.SphereGeometry(0.6, 32, 32); // Updated to 0.6
-        geometry.scale(1, 1.5, 0.8); // Make kidney-shaped
+        const geometry = new THREE.SphereGeometry(1, 32, 32);
+        // Make it kidney-shaped
+        geometry.scale(1.3, 1.8, 0.9);
+        
         const material = new THREE.MeshPhongMaterial({
-          color: 0x26de81, // Original kidney color
+          color: 0x26de81,
           transparent: true,
-          opacity: 0.8, // Original opacity
-          emissive: 0x0f1a0f, // Subtle original glow
-          emissiveIntensity: 0.1,
-          shininess: 30, // Original shininess
+          opacity: 0.8,
         });
 
         kidneyModel = new THREE.Mesh(geometry, material);
-        kidneyModel.position.set(0, 0, 0);
+        kidneyModel.position.set(1, 0, 0);
         kidneyModel.castShadow = true;
         kidneyModel.receiveShadow = true;
 
         scene.add(kidneyModel);
+        hideLoading();
+      }
+
+      // Hide loading indicator
+      function hideLoading() {
+        const loadingElement = document.getElementById("loading");
+        if (loadingElement) {
+          loadingElement.style.display = "none";
+        }
       }
 
       // Create interactive label points

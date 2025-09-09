@@ -353,40 +353,6 @@
         transform: scale(1.1);
       }
 
-      /* Loading Screen */
-      #loading {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #4ecdc4 100%);
-        color: #ecf0f1;
-        font-size: 1.2rem;
-        font-weight: 600;
-        z-index: 1000;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-      }
-
-      #loading::before {
-        content: '🫁';
-        font-size: 2rem;
-        margin-right: 1rem;
-        animation: breathe-pulse 2s infinite;
-      }
-
-      @keyframes breathe-pulse {
-        0%, 100% {
-          transform: scale(1);
-        }
-        50% {
-          transform: scale(1.1) rotate(5deg);
-        }
-      }
-
       /* Info Panel using Flexbox - Hidden for card system */
       .info-panel {
         display: none;
@@ -779,9 +745,6 @@
       <!-- Canvas Container -->
       <div id="canvas-container"></div>
 
-      <!-- Loading Indicator -->
-      <div class="loading" id="loading">Loading 3D lungs model...</div>
-
       <!-- Info Panel -->
       <div class="info-panel" id="info-panel">
         <h3 id="part-name">Select a part</h3>
@@ -984,6 +947,11 @@
             lungsModel = gltf.scene;
             lungsModel.scale.set(1.5, 1.5, 1.5);
             lungsModel.position.set(0, 0, 0);
+            
+            // Rotate lungs to face forward like reference image
+            lungsModel.rotation.y = Math.PI / 2; // 90 degrees around Y-axis
+            lungsModel.rotation.x = 0; // No X rotation
+            lungsModel.rotation.z = 0; // No Z rotation
 
             // Enable shadows
             lungsModel.traverse((child) => {
@@ -1012,7 +980,6 @@
             });
 
             scene.add(lungsModel);
-            hideLoading();
           },
           (progress) => {
             console.log("Loading progress:", progress);
@@ -1025,14 +992,6 @@
         );
       }
 
-      // Hide loading indicator
-      function hideLoading() {
-        const loadingElement = document.getElementById("loading");
-        if (loadingElement) {
-          loadingElement.style.display = "none";
-        }
-      }
-
       // Fallback lungs model
       function loadFallbackLungs() {
         const loader = new THREE.GLTFLoader();
@@ -1042,6 +1001,11 @@
             lungsModel = gltf.scene;
             lungsModel.scale.set(0.01, 0.01, 0.01);
             lungsModel.position.set(0, 0, 0);
+            
+            // Rotate fallback lungs to face forward like reference image
+            lungsModel.rotation.y = Math.PI / 2; // 90 degrees around Y-axis
+            lungsModel.rotation.x = 0;
+            lungsModel.rotation.z = 0;
 
             lungsModel.traverse((child) => {
               if (child.isMesh) {
@@ -1060,7 +1024,6 @@
             });
 
             scene.add(lungsModel);
-            hideLoading();
           },
           undefined,
           (error) => {
@@ -1081,11 +1044,16 @@
 
         lungsModel = new THREE.Mesh(geometry, material);
         lungsModel.position.set(0, 0, 0);
+        
+        // Rotate fallback geometry to face forward
+        lungsModel.rotation.y = Math.PI / 2; // 90 degrees around Y-axis
+        lungsModel.rotation.x = 0;
+        lungsModel.rotation.z = 0;
+        
         lungsModel.castShadow = true;
         lungsModel.receiveShadow = true;
 
         scene.add(lungsModel);
-        hideLoading();
       }
 
       // Create interactive label points

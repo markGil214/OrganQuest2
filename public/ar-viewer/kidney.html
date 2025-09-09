@@ -187,6 +187,26 @@
 			}
 			
 			/* Zoom Hint Popup */
+			.zoom-hint {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+				color: white;
+				padding: 15px 20px;
+				border-radius: 25px;
+				font-size: 0.9rem;
+				font-weight: 700;
+				z-index: 150;
+				animation: pulse-hint 2s infinite;
+				pointer-events: none;
+				text-align: center;
+				max-width: 220px;
+				box-shadow: 0 6px 25px rgba(0,0,0,0.3);
+				border: 3px solid #74b9ff;
+			}
+			
 			@keyframes pulse-hint {
 				0% { opacity: 0.9; transform: translate(-50%, -50%) scale(1); }
 				50% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
@@ -291,6 +311,10 @@
 		</div>
 		
 		<!-- Zoom Hint Popup -->
+		<div class="zoom-hint" id="zoomHint" style="display: none;">
+			🔍 Zoom all the way in to explore the kidney's regions!
+		</div>
+		
 		<!-- Compact Zoom Panel -->
 		<div class="zoom-panel">
 			<button class="zoom-btn" onclick="zoomIn()" title="Zoom In">+</button>
@@ -366,9 +390,11 @@
 				// Show visual feedback when approaching max zoom
 				var zoomDisplay = document.getElementById('zoomDisplay');
 				if (currentZoom >= maxZoom * 0.8) {
-					zoomDisplay.style.background = '#00cec9';
+					zoomDisplay.style.background = '#26de81';
 					zoomDisplay.style.color = 'white';
-					zoomDisplay.style.borderColor = '#00cec9';
+					zoomDisplay.style.borderColor = '#26de81';
+					// Hide zoom hint when close to max zoom
+					document.getElementById('zoomHint').style.display = 'none';
 				} else {
 					zoomDisplay.style.background = 'white';
 					zoomDisplay.style.color = '#20bf6b';
@@ -376,9 +402,24 @@
 				}
 			}
 			
-			// Function to show transition message (removed zoom hint functionality)
+			// Function to show transition message
 			function showTransitionMessage() {
-				// Transition message functionality removed
+				var hint = document.getElementById('zoomHint');
+				hint.innerHTML = '🫘 Exploring kidney regions!';
+				hint.style.background = 'linear-gradient(135deg, #26de81 0%, #20bf6b 100%)';
+				hint.style.display = 'block';
+				hint.style.animation = 'pulse-hint 0.5s infinite';
+			}
+			
+			// Function to show zoom hint
+			function showZoomHint() {
+				setTimeout(function() {
+					document.getElementById('zoomHint').style.display = 'block';
+					// Auto-hide after 6 seconds
+					setTimeout(function() {
+						document.getElementById('zoomHint').style.display = 'none';
+					}, 6000);
+				}, 4000); // Show hint 4 seconds after kidney appears
 			}
 			
 
@@ -390,28 +431,14 @@
 
 				// Load 3D Kidney Model
 				var loader = new THREE.GLTFLoader();
-				loader.load('../../base_folder2/public/kidney/scene.gltf', function(gltf) {
+				loader.load('../models/kidney/kidney.glb', function(gltf) {
 					var kidneyModel = gltf.scene;
 					
-					// Scale the kidney model to much smaller size for AR
-					kidneyModel.scale.set(0.01, 0.01, 0.01);
+					// Scale the kidney model to appropriate size for AR
+					kidneyModel.scale.set(2.0, 2.0, 2.0);
 					kidneyModel.position.y = 0.5;
 					
-					// Make the model lighter/brighter with green tint
-					kidneyModel.traverse(function(child) {
-						if (child.isMesh) {
-							if (child.material) {
-								// Add green glow for filtering activity
-								child.material.emissive = new THREE.Color(0.1, 0.2, 0.1);
-								child.material.emissiveIntensity = 0.3;
-								
-								// If it has a color property, make it brighter
-								if (child.material.color) {
-									child.material.color.multiplyScalar(1.5);
-								}
-							}
-						}
-					});
+					// Keep exact original colors from the 3D model
 					
 					// Add the kidney model to the group
 					kidneyGroup.add(kidneyModel);
@@ -419,14 +446,17 @@
 					// Initialize zoom scale
 					kidneyGroup.userData.zoomScale = currentZoom;
 					
+					// Show zoom hint to encourage interaction
+					showZoomHint();
+					
 					// Add filtering animation to the model
-					var originalScale = { x: 0.01, y: 0.01, z: 0.01 };
+					var originalScale = { x: 2.0, y: 2.0, z: 2.0 };
 					var time = 0;
 					
 					// Animation loop for filtering kidney
 					function animateKidney() {
 						time += 0.016; // 60fps
-						var filterScale = 1 + Math.sin(time * 2) * 0.05; // Gentle filtering pulsing
+						var filterScale = 1 + Math.sin(time * 2) * 0.06; // Gentle filtering pulsing
 						
 						// Apply both zoom and filtering animation
 						var zoomScale = kidneyGroup.userData.zoomScale || 1.0;
@@ -435,7 +465,7 @@
 							originalScale.y * filterScale * zoomScale,
 							originalScale.z * filterScale * zoomScale
 						);
-						kidneyModel.rotation.y += 0.003; // Slow rotation
+						kidneyModel.rotation.y += 0.004; // Slow rotation
 					}
 					
 					// Start the animation
@@ -453,15 +483,59 @@
 					console.log('Loading kidney model...', (progress.loaded / progress.total * 100) + '%');
 				}, function(error) {
 					console.error('Error loading kidney model:', error);
-					// Fallback to simple geometry if model fails to load
-					createSimpleKidney();
+					// Fallback to new_kidney model
+					loadFallbackKidney();
 				});
 
-				// Fallback function to create simple kidney if GLTF fails
+				// Fallback function to try alternative kidney model
+				function loadFallbackKidney() {
+					var loader = new THREE.GLTFLoader();
+					loader.load('models/kidney/kidney.glb', function(gltf) {
+						var kidneyModel = gltf.scene;
+						
+						// Scale the kidney model appropriately
+						kidneyModel.scale.set(1.5, 1.5, 1.5);
+						kidneyModel.position.y = 0.5;
+						
+						// Keep exact original colors from the 3D model
+						
+						kidneyGroup.add(kidneyModel);
+						kidneyGroup.userData.zoomScale = currentZoom;
+						showZoomHint();
+						
+						// Animation for fallback kidney
+						var originalScale = { x: 1.5, y: 1.5, z: 1.5 };
+						var time = 0;
+						
+						function animateFallbackKidney() {
+							requestAnimationFrame(animateFallbackKidney);
+							time += 0.016;
+							
+							var filterScale = 1 + Math.sin(time * 2) * 0.06;
+							var zoomScale = kidneyGroup.userData.zoomScale || 1.0;
+							kidneyModel.scale.set(
+								originalScale.x * filterScale * zoomScale,
+								originalScale.y * filterScale * zoomScale,
+								originalScale.z * filterScale * zoomScale
+							);
+							kidneyModel.rotation.y += 0.004;
+							
+							controller.update(source.domElement);
+							renderer.render(scene, camera);
+						}
+						animateFallbackKidney();
+						
+					}, undefined, function(error) {
+						console.error('Error loading fallback kidney model:', error);
+						createSimpleKidney();
+					});
+				}
+
+				// Final fallback function to create simple kidney if GLTF fails
 				function createSimpleKidney() {
 					// Create kidney geometry (bean-shaped)
-					var kidneyGeometry = new THREE.SphereGeometry(0.03, 32, 32);
-					kidneyGeometry.scale(1, 1.5, 0.8); // Make kidney-shaped
+					var kidneyGeometry = new THREE.SphereGeometry(1.2, 32, 32);
+					kidneyGeometry.scale(1.3, 1.8, 0.9); // Make kidney-shaped
 					
 					var kidneyMaterial = new THREE.MeshPhongMaterial({ 
 						color: 0x26de81,
@@ -474,6 +548,20 @@
 					kidney.position.y = 0.5;
 					kidneyGroup.add(kidney);
 					
+					// Show zoom hint for fallback kidney too
+					showZoomHint();
+					
+					// Add filtering particles
+					var filteringParticles = [];
+					for (let i = 0; i < 20; i++) {
+						var particleGeometry = new THREE.SphereGeometry(0.03, 8, 8);
+						var particleMaterial = new THREE.MeshBasicMaterial({ color: 0x74b9ff, transparent: true, opacity: 0.7 });
+						var particle = new THREE.Mesh(particleGeometry, particleMaterial);
+						particle.position.set((Math.random() - 0.5) * 2.2, Math.random() * 2.5 + 0.2, (Math.random() - 0.5) * 1.8);
+						filteringParticles.push(particle);
+						kidneyGroup.add(particle);
+					}
+					
 					// Add simple animation for fallback kidney
 					var time = 0;
 					function animateFallbackKidney() {
@@ -481,14 +569,21 @@
 						time += 0.016;
 						
 						// Kidney filtering animation (gentle pulsing)
-						var pulseScale = 1 + Math.sin(time * 2) * 0.05;
+						var pulseScale = 1 + Math.sin(time * 2) * 0.06;
 						var zoomScale = kidneyGroup.userData.zoomScale || 1.0;
 						kidney.scale.set(
-							pulseScale * zoomScale,
-							pulseScale * zoomScale * 1.5, // Keep kidney shape
-							pulseScale * zoomScale * 0.8
+							pulseScale * zoomScale * 1.3,
+							pulseScale * zoomScale * 1.8,
+							pulseScale * zoomScale * 0.9
 						);
-						kidney.rotation.y += 0.002;
+						kidney.rotation.y += 0.003;
+						
+						// Animate filtering particles
+						filteringParticles.forEach((particle, index) => {
+							particle.position.y += Math.sin(time + index) * 0.008;
+							particle.rotation.x += 0.02;
+							particle.rotation.y += 0.02;
+						});
 						
 						controller.update(source.domElement);
 						renderer.render(scene, camera);
@@ -496,17 +591,31 @@
 					animateFallbackKidney();
 				}
 
-				// Add lighting for better kidney appearance
-				var ambientLight = new THREE.AmbientLight(0x404040, 0.8); // Increased ambient light
+				// Add maximum brightness lighting setup
+				var ambientLight = new THREE.AmbientLight(0xffffff, 2.5); // Maximum ambient light
 				scene.add(ambientLight);
 				
-				var directionalLight = new THREE.DirectionalLight(0xffffff, 1.0); // Increased directional light
+				var directionalLight = new THREE.DirectionalLight(0xffffff, 3.0); // Maximum directional light
 				directionalLight.position.set(1, 1, 1);
 				scene.add(directionalLight);
 				
-				// Add additional soft lighting for better visibility
-				var hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6);
+				// Add second directional light from opposite angle
+				var directionalLight2 = new THREE.DirectionalLight(0xffffff, 2.0);
+				directionalLight2.position.set(-1, 1, -1);
+				scene.add(directionalLight2);
+				
+				// Add maximum brightness hemisphere lighting
+				var hemisphereLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 1.5);
 				scene.add(hemisphereLight);
+				
+				// Add point lights for extra illumination
+				var pointLight1 = new THREE.PointLight(0xffffff, 1.5, 100);
+				pointLight1.position.set(2, 2, 2);
+				scene.add(pointLight1);
+				
+				var pointLight2 = new THREE.PointLight(0xffffff, 1.5, 100);
+				pointLight2.position.set(-2, 2, -2);
+				scene.add(pointLight2);
 
 				// Create pattern marker for tracking
 				var patternMarker = new THREEAR.PatternMarker({

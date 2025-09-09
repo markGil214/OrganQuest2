@@ -353,39 +353,7 @@
         transform: scale(1.1);
       }
 
-      /* Loading Screen */
-      #loading {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #9b59b6 100%);
-        color: #ecf0f1;
-        font-size: 1.2rem;
-        font-weight: 600;
-        z-index: 1000;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-      }
 
-      #loading::before {
-        content: '🧠';
-        font-size: 2rem;
-        margin-right: 1rem;
-        animation: think-pulse 2s infinite;
-      }
-
-      @keyframes think-pulse {
-        0%, 100% {
-          transform: scale(1);
-        }
-        50% {
-          transform: scale(1.1) rotate(5deg);
-        }
-      }
 
       /* Info Panel using Flexbox - Hidden for card system */
       .info-panel {
@@ -501,37 +469,7 @@
         transform: scale(0.95) rotate(90deg);
       }
 
-      /* Loading Indicator */
-      .loading {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: white;
-        font-size: 1.2rem;
-        text-align: center;
-        pointer-events: none;
-        z-index: 100;
-        display: flex;
-        align-items: center;
-        gap: 0.625rem;
-      }
 
-      .loading::after {
-        content: "";
-        width: 1.25rem;
-        height: 1.25rem;
-        border: 0.1875rem solid rgba(255, 255, 255, 0.3);
-        border-radius: 50%;
-        border-top-color: #9b59b6;
-        animation: spin 1s ease-in-out infinite;
-      }
-
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
 
       /* Numbered Label Points */
       .label-point {
@@ -783,9 +721,6 @@
       <!-- Canvas Container -->
       <div id="canvas-container"></div>
 
-      <!-- Loading Indicator -->
-      <div class="loading" id="loading">Loading 3D brain model...</div>
-
       <!-- Info Panel -->
       <div class="info-panel" id="info-panel">
         <h3 id="part-name">Select a part</h3>
@@ -1024,7 +959,6 @@
             });
 
             scene.add(brainModel);
-            hideLoading();
           },
           (progress) => {
             console.log("Loading progress:", progress);
@@ -1035,14 +969,6 @@
             loadFallbackBrain();
           }
         );
-      }
-
-      // Hide loading indicator
-      function hideLoading() {
-        const loadingElement = document.getElementById("loading");
-        if (loadingElement) {
-          loadingElement.style.display = "none";
-        }
       }
 
       // Fallback brain model
@@ -1072,7 +998,6 @@
             });
 
             scene.add(brainModel);
-            hideLoading();
           },
           undefined,
           (error) => {
