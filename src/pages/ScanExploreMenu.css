@@ -299,11 +299,7 @@ body {
   width: 60px;
   height: 60px;
   object-fit: contain;
-  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3)) brightness(1.15) contrast(1.3) saturate(1.2);
-  mix-blend-mode: multiply;
-  background: transparent;
-  /* Try to make white areas more transparent */
-  opacity: 0.95;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 .organ-content {
@@ -443,11 +439,7 @@ body {
   width: 80px;
   height: 80px;
   object-fit: contain;
-  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3)) brightness(1.15) contrast(1.3) saturate(1.2);
-  mix-blend-mode: multiply;
-  background: transparent;
-  /* Try to make white areas more transparent */
-  opacity: 0.95;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 .organ-info {

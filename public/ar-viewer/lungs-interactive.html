@@ -942,7 +942,7 @@
 
         // Try to load sliced lungs model from base_folder2
         loader.load(
-          "../base_folder2/public/sliced_organs/lungs.glb",
+          "../models/lungs/scene.gltf",
           (gltf) => {
             lungsModel = gltf.scene;
             lungsModel.scale.set(1.5, 1.5, 1.5);
@@ -996,7 +996,7 @@
       function loadFallbackLungs() {
         const loader = new THREE.GLTFLoader();
         loader.load(
-          "../base_folder2/public/scene.gltf",
+          "../models/slicedLungs/lungs.glb",
           (gltf) => {
             lungsModel = gltf.scene;
             lungsModel.scale.set(0.01, 0.01, 0.01);

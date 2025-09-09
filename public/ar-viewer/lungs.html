@@ -3,7 +3,8 @@
 
 	<head>
 		<meta name='viewport' content='width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0'>
-		<script src="vendor/three.101.min.js"></script>	
+		<script src="vendor/three.101.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/three@0.101.1/examples/js/loaders/GLTFLoader.js"></script>
 		<script src="THREEAR.js"></script>
 		<title>AR Lungs Explorer - Kids Anatomy</title>
 		<style>
@@ -115,11 +116,11 @@
 				gap: 8px;
 				z-index: 100;
 				box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-				border: 3px solid #45b7aa;
+				border: 3px solid #4ecdc4;
 			}
 			
 			.zoom-btn {
-				background: #45b7aa;
+				background: #4ecdc4;
 				border: none;
 				color: white;
 				width: 40px;
@@ -136,7 +137,7 @@
 			}
 			
 			.zoom-btn:hover {
-				background: #3ba399;
+				background: #44a08d;
 				transform: scale(1.1);
 			}
 			
@@ -146,13 +147,13 @@
 			
 			.zoom-display {
 				background: white;
-				color: #45b7aa;
+				color: #4ecdc4;
 				padding: 6px 10px;
 				border-radius: 15px;
 				font-size: 0.75rem;
 				font-weight: 700;
 				text-align: center;
-				border: 2px solid #45b7aa;
+				border: 2px solid #4ecdc4;
 			}
 			
 			/* Fun Fact Bubble */
@@ -161,14 +162,14 @@
 				bottom: 20px;
 				left: 15px;
 				right: 90px;
-				background: linear-gradient(135deg, #4ecdc4 0%, #45b7aa 100%);
-				color: white;
+				background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+				color: #2d3436;
 				padding: 12px 18px;
 				border-radius: 25px;
 				text-align: center;
 				z-index: 100;
 				box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-				border: 3px solid #4ecdc4;
+				border: 3px solid #fdcb6e;
 				animation: bounce-in 1s ease-out 2s both;
 			}
 			
@@ -182,7 +183,7 @@
 				font-size: 0.9rem;
 				font-weight: 700;
 				margin: 0;
-				text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+				text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
 			}
 			
 			/* Zoom Hint Popup */
@@ -191,7 +192,7 @@
 				top: 50%;
 				left: 50%;
 				transform: translate(-50%, -50%);
-				background: linear-gradient(135deg, #4ecdc4 0%, #45b7aa 100%);
+				background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
 				color: white;
 				padding: 15px 20px;
 				border-radius: 25px;
@@ -203,7 +204,7 @@
 				text-align: center;
 				max-width: 220px;
 				box-shadow: 0 6px 25px rgba(0,0,0,0.3);
-				border: 3px solid #4ecdc4;
+				border: 3px solid #74b9ff;
 			}
 			
 			@keyframes pulse-hint {
@@ -300,18 +301,18 @@
 		<!-- Floating Instructions -->
 		<div class="instructions-card" id="instructionsCard">
 			<p class="instructions-text">
-				<span class="lungs-emoji">🫁</span> Point your camera at the AR marker to see breathing lungs! Watch them inhale and exhale with air particles!
+				<span class="lungs-emoji">🫁</span> Point your camera at the AR marker to see breathing lungs! Use zoom controls to explore!
 			</p>
 		</div>
 		
 		<!-- Fun Fact Bubble -->
 		<div class="fact-bubble">
-			<p class="fact-text">💨 You breathe about 20,000 times every day!</p>
+			<p class="fact-text">🎯 Did you know? You breathe about 20,000 times every day!</p>
 		</div>
 		
 		<!-- Zoom Hint Popup -->
 		<div class="zoom-hint" id="zoomHint" style="display: none;">
-			🔍 Zoom all the way in to explore the lungs' parts!
+			🔍 Zoom all the way in to explore the lungs' chambers!
 		</div>
 		
 		<!-- Compact Zoom Panel -->
@@ -389,22 +390,22 @@
 				// Show visual feedback when approaching max zoom
 				var zoomDisplay = document.getElementById('zoomDisplay');
 				if (currentZoom >= maxZoom * 0.8) {
-					zoomDisplay.style.background = '#4ecdc4';
+					zoomDisplay.style.background = '#74b9ff';
 					zoomDisplay.style.color = 'white';
-					zoomDisplay.style.borderColor = '#4ecdc4';
+					zoomDisplay.style.borderColor = '#74b9ff';
 					// Hide zoom hint when close to max zoom
 					document.getElementById('zoomHint').style.display = 'none';
 				} else {
 					zoomDisplay.style.background = 'white';
-					zoomDisplay.style.color = '#45b7aa';
-					zoomDisplay.style.borderColor = '#45b7aa';
+					zoomDisplay.style.color = '#4ecdc4';
+					zoomDisplay.style.borderColor = '#4ecdc4';
 				}
 			}
 			
 			// Function to show transition message
 			function showTransitionMessage() {
 				var hint = document.getElementById('zoomHint');
-				hint.innerHTML = '🫁 Exploring lungs anatomy!';
+				hint.innerHTML = '🚀 Taking you inside the lungs!';
 				hint.style.background = 'linear-gradient(135deg, #4ecdc4 0%, #45b7aa 100%)';
 				hint.style.display = 'block';
 				hint.style.animation = 'pulse-hint 0.5s infinite';
@@ -426,84 +427,111 @@
 
 			THREEAR.initialize({ source: source }).then((controller) => {
 
-				// Create left lung
-				var leftLungGeometry = new THREE.CylinderGeometry(0.15, 0.25, 0.6, 12);
-				var leftLungMaterial = new THREE.MeshPhongMaterial({
-					color: 0x4ecdc4,
-					transparent: true,
-					opacity: 0.8,
+				// Load 3D Lungs Model
+				var loader = new THREE.GLTFLoader();
+				loader.load('/models/lungs/scene.gltf', function(gltf) {
+					var lungsModel = gltf.scene;
+					
+					// Scale the lungs model to appropriate size for AR
+					lungsModel.scale.set(4.0, 4.0, 4.0);
+					lungsModel.position.y = 0.5;
+					
+					// Make the model lighter/brighter
+					lungsModel.traverse(function(child) {
+						if (child.isMesh) {
+							if (child.material) {
+								// Increase brightness and make materials more vibrant
+								child.material.emissive = new THREE.Color(0.1, 0.2, 0.2); // Add slight teal glow
+								child.material.emissiveIntensity = 0.3;
+								
+								// If it has a color property, make it brighter
+								if (child.material.color) {
+									child.material.color.multiplyScalar(1.5); // Make 50% brighter
+								}
+							}
+						}
+					});
+					
+					// Add the lungs model to the group
+					lungsGroup.add(lungsModel);
+					
+					// Initialize zoom scale
+					lungsGroup.userData.zoomScale = currentZoom;
+					
+					// Show zoom hint to encourage interaction
+					showZoomHint();
+					
+					// Add breathing animation to the model
+					var originalScale = { x: 4.0, y: 4.0, z: 4.0 };
+					var time = 0;
+					
+					// Animation loop for breathing lungs
+					function animateLungs() {
+						time += 0.016; // 60fps
+						var breathScale = 1 + Math.sin(time * 2) * 0.1; // Breathing effect
+						
+						// Apply both zoom and breathing animation
+						var zoomScale = lungsGroup.userData.zoomScale || 1.0;
+						lungsModel.scale.set(
+							originalScale.x * breathScale * zoomScale,
+							originalScale.y * breathScale * zoomScale,
+							originalScale.z * breathScale * zoomScale
+						);
+						lungsModel.rotation.y += 0.005; // Slow rotation
+					}
+					
+					// Start the animation
+					var animationId;
+					function animate() {
+						animationId = requestAnimationFrame(animate);
+						animateLungs();
+						
+						controller.update(source.domElement);
+						renderer.render(scene, camera);
+					}
+					animate();
+					
+				}, function(progress) {
+					console.log('Loading lungs model...', (progress.loaded / progress.total * 100) + '%');
+				}, function(error) {
+					console.error('Error loading lungs model:', error);
+					// Fallback to simple geometry if model fails to load
+					createSimpleLungs();
 				});
-				var leftLung = new THREE.Mesh(leftLungGeometry, leftLungMaterial);
-				leftLung.position.set(-0.2, 0.5, 0);
-				lungsGroup.add(leftLung);
 
-				// Create right lung
-				var rightLungGeometry = new THREE.CylinderGeometry(0.15, 0.25, 0.6, 12);
-				var rightLungMaterial = new THREE.MeshPhongMaterial({
-					color: 0x4ecdc4,
-					transparent: true,
-					opacity: 0.8,
-				});
-				var rightLung = new THREE.Mesh(rightLungGeometry, rightLungMaterial);
-				rightLung.position.set(0.2, 0.5, 0);
-				lungsGroup.add(rightLung);
+				// Fallback function to create simple lungs if GLTF fails
+				function createSimpleLungs() {
+					// Create left lung
+					var leftLungGeometry = new THREE.CylinderGeometry(0.15, 0.25, 0.6, 12);
+					var leftLungMaterial = new THREE.MeshPhongMaterial({
+						color: 0x4ecdc4,
+						transparent: true,
+						opacity: 0.8,
+					});
+					var leftLung = new THREE.Mesh(leftLungGeometry, leftLungMaterial);
+					leftLung.position.set(-0.2, 0.5, 0);
+					lungsGroup.add(leftLung);
 
-				// Create trachea (windpipe)
-				var tracheaGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.3, 8);
-				var tracheaMaterial = new THREE.MeshPhongMaterial({
-					color: 0x3ba399,
-					transparent: true,
-					opacity: 0.9,
-				});
-				var trachea = new THREE.Mesh(tracheaGeometry, tracheaMaterial);
-				trachea.position.set(0, 0.9, 0);
-				lungsGroup.add(trachea);
-
-				// Create bronchi (tubes connecting to lungs)
-				var bronchiGeometry = new THREE.CylinderGeometry(0.03, 0.03, 0.2, 6);
-				var bronchiMaterial = new THREE.MeshPhongMaterial({
-					color: 0x3ba399,
-					transparent: true,
-					opacity: 0.9,
-				});
-
-				var leftBronchus = new THREE.Mesh(bronchiGeometry, bronchiMaterial);
-				leftBronchus.position.set(-0.1, 0.75, 0);
-				leftBronchus.rotation.z = -Math.PI / 6;
-				lungsGroup.add(leftBronchus);
-
-				var rightBronchus = new THREE.Mesh(bronchiGeometry, bronchiMaterial);
-				rightBronchus.position.set(0.1, 0.75, 0);
-				rightBronchus.rotation.z = Math.PI / 6;
-				lungsGroup.add(rightBronchus);
-
-				// Create air particles
-				var airParticles = [];
-				var airParticleGeometry = new THREE.SphereGeometry(0.01, 6, 6);
-				var airParticleMaterial = new THREE.MeshBasicMaterial({
-					color: 0x87ceeb,
-					transparent: true,
-					opacity: 0.7,
-				});
-
-				for (let i = 0; i < 30; i++) {
-					var particle = new THREE.Mesh(airParticleGeometry, airParticleMaterial);
-					particle.position.x = (Math.random() - 0.5) * 0.8;
-					particle.position.y = Math.random() * 1.5 + 0.2;
-					particle.position.z = (Math.random() - 0.5) * 0.8;
-					particle.userData = {
-						speed: Math.random() * 0.02 + 0.01,
-						direction: Math.random() > 0.5 ? 1 : -1,
-					};
-					airParticles.push(particle);
-					lungsGroup.add(particle);
+					// Create right lung
+					var rightLungGeometry = new THREE.CylinderGeometry(0.15, 0.25, 0.6, 12);
+					var rightLungMaterial = new THREE.MeshPhongMaterial({
+						color: 0x4ecdc4,
+						transparent: true,
+						opacity: 0.8,
+					});
+					var rightLung = new THREE.Mesh(rightLungGeometry, rightLungMaterial);
+					rightLung.position.set(0.2, 0.5, 0);
+					lungsGroup.add(rightLung);
+					
+					// Show zoom hint for fallback lungs too
+					showZoomHint();
 				}
 
-				// Add lighting
-				var ambientLight = new THREE.AmbientLight(0x404040, 0.8);
+				// Add lighting for better lungs appearance
+				var ambientLight = new THREE.AmbientLight(0x404040, 0.8); // Increased ambient light
 				scene.add(ambientLight);
-
-				var directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
+				
+				var directionalLight = new THREE.DirectionalLight(0xffffff, 1.0); // Increased directional light
 				directionalLight.position.set(1, 1, 1);
 				scene.add(directionalLight);
 				
@@ -511,62 +539,13 @@
 				var hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6);
 				scene.add(hemisphereLight);
 
-				// Initialize zoom scale
-				lungsGroup.userData.zoomScale = currentZoom;
-				
-				// Show zoom hint to encourage interaction
-				showZoomHint();
-
+				// Create pattern marker for tracking
 				var patternMarker = new THREEAR.PatternMarker({
-					patternUrl: "data/patt.hiro",
-					markerObject: lungsGroup,
+					patternUrl: 'data/patt.hiro',
+					markerObject: lungsGroup
 				});
 
 				controller.trackMarker(patternMarker);
-
-				var time = 0;
-				var breathTime = 0;
-
-				requestAnimationFrame(function animate(nowMsec) {
-					requestAnimationFrame(animate);
-
-					time += 0.016;
-					breathTime += 0.03; // Breathing speed
-
-					// Breathing animation with zoom integration
-					var breathScale = 1 + Math.sin(breathTime * Math.PI * 2) * 0.15;
-					var zoomScale = lungsGroup.userData.zoomScale || 1.0;
-					
-					leftLung.scale.set(
-						breathScale * zoomScale,
-						breathScale * zoomScale,
-						breathScale * zoomScale
-					);
-					rightLung.scale.set(
-						breathScale * zoomScale,
-						breathScale * zoomScale,
-						breathScale * zoomScale
-					);
-
-					// Animate air particles (breathing in and out)
-					airParticles.forEach((particle, index) => {
-						var breathDirection = Math.sin(breathTime * Math.PI * 2);
-						particle.position.y +=
-							particle.userData.speed *
-							particle.userData.direction *
-							breathDirection;
-
-						// Reset particle position if it goes too far
-						if (particle.position.y > 1.5) particle.position.y = 0.2;
-						if (particle.position.y < 0.2) particle.position.y = 1.5;
-
-						particle.rotation.x += 0.02;
-						particle.rotation.y += 0.02;
-					});
-
-					controller.update(source.domElement);
-					renderer.render(scene, camera);
-				});
 
 				// Handle window resize
 				window.addEventListener("resize", function () {
@@ -605,10 +584,9 @@
 						
 						// Auto-redirect to interactive view when reaching maximum zoom via touch
 						if (currentZoom >= maxZoom) {
-							showTransitionMessage();
 							setTimeout(function() {
-								window.location.href = 'lungs-interactive.html?zoom=close';
-							}, 1500);
+								window.location.href = 'lungs-interactive.html';
+							}, 500);
 						}
 					}
 				});
@@ -624,10 +602,8 @@
 				});
 
 			}).catch((error) => {
-				console.error("THREEAR initialization failed:", error);
-				alert(
-					"AR initialization failed. Please make sure you have a camera and try again."
-				);
+				console.error('THREEAR initialization failed:', error);
+				alert('AR initialization failed. Please make sure you have a camera and try again.');
 			});
 
 		</script>
