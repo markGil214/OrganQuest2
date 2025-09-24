@@ -1,0 +1,693 @@
+<!doctype html>
+<html>
+
+	<head>
+		<meta name='viewport' content='width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0'>
+		<script src="vendor/three.101.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/three@0.101.1/examples/js/loaders/GLTFLoader.js"></script>
+		<script src="THREEAR.js"></script>
+		<title id="page-title">AR Organ Explorer - Kids Anatomy</title>
+		<style>
+			@import url('https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&family=Nunito:wght@400;600;700&display=swap');
+			
+			body {
+				margin: 0px;
+				overflow: hidden;
+				font-family: 'Nunito', sans-serif;
+				background-color: #000;
+			}
+			
+			/* Compact Header Bar */
+			.header-bar {
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				height: 60px;
+				background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 0 15px;
+				z-index: 100;
+				box-shadow: 0 2px 15px rgba(0,0,0,0.2);
+			}
+			
+			.header-title {
+				color: white;
+				font-family: 'Fredoka One', cursive;
+				font-size: 1.3rem;
+				margin: 0;
+				text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+			}
+			
+			.header-controls {
+				display: flex;
+				gap: 10px;
+				align-items: center;
+			}
+			
+			.back-btn {
+				background: white;
+				color: var(--secondary-color);
+				border: none;
+				padding: 8px 16px;
+				border-radius: 20px;
+				font-weight: 700;
+				font-size: 0.8rem;
+				cursor: pointer;
+				transition: all 0.2s ease;
+				box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+			}
+			
+			.back-btn:hover {
+				transform: translateY(-1px);
+				box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+			}
+			
+			/* Floating Instructions Card */
+			.instructions-card {
+				position: absolute;
+				top: 80px;
+				left: 15px;
+				background: rgba(255, 255, 255, 0.95);
+				padding: 12px 15px;
+				border-radius: 20px;
+				max-width: 280px;
+				z-index: 99;
+				box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+				border: 3px solid var(--primary-color);
+				animation: float-in 0.8s ease-out;
+			}
+			
+			@keyframes float-in {
+				from { transform: translateX(-100%); opacity: 0; }
+				to { transform: translateX(0); opacity: 1; }
+			}
+			
+			.instructions-text {
+				color: #333;
+				font-size: 0.85rem;
+				margin: 0;
+				line-height: 1.4;
+				font-weight: 600;
+			}
+			
+			.organ-emoji {
+				font-size: 1.2rem;
+				animation: organ-pulse 2s infinite;
+			}
+			
+			@keyframes organ-pulse {
+				0%, 100% { transform: scale(1); }
+				50% { transform: scale(1.1) rotate(5deg); }
+			}
+			
+			/* Compact Zoom Controls */
+			.zoom-panel {
+				position: absolute;
+				bottom: 20px;
+				right: 15px;
+				background: rgba(255, 255, 255, 0.95);
+				border-radius: 25px;
+				padding: 8px;
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+				z-index: 100;
+				box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+				border: 3px solid var(--primary-color);
+			}
+			
+			.zoom-btn {
+				background: var(--primary-color);
+				border: none;
+				color: white;
+				width: 40px;
+				height: 40px;
+				border-radius: 50%;
+				font-size: 1.2rem;
+				font-weight: bold;
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				transition: all 0.2s ease;
+				box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+			}
+			
+			.zoom-btn:hover {
+				background: var(--secondary-color);
+				transform: scale(1.1);
+			}
+			
+			.zoom-btn:active {
+				transform: scale(0.95);
+			}
+			
+			.zoom-display {
+				background: white;
+				color: var(--primary-color);
+				padding: 6px 10px;
+				border-radius: 15px;
+				font-size: 0.75rem;
+				font-weight: 700;
+				text-align: center;
+				border: 2px solid var(--primary-color);
+			}
+			
+			/* Fun Fact Bubble */
+			.fact-bubble {
+				position: absolute;
+				bottom: 20px;
+				left: 15px;
+				right: 90px;
+				background: linear-gradient(135deg, var(--fact-bg-1) 0%, var(--fact-bg-2) 100%);
+				color: var(--fact-text-color);
+				padding: 12px 18px;
+				border-radius: 25px;
+				text-align: center;
+				z-index: 100;
+				box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+				border: 3px solid var(--fact-border);
+				animation: bounce-in 1s ease-out 2s both;
+			}
+			
+			@keyframes bounce-in {
+				0% { transform: translateY(100%); opacity: 0; }
+				60% { transform: translateY(-10px); opacity: 1; }
+				100% { transform: translateY(0); opacity: 1; }
+			}
+			
+			.fact-text {
+				font-size: 0.9rem;
+				font-weight: 700;
+				margin: 0;
+				text-shadow: var(--fact-text-shadow);
+			}
+			
+			/* Zoom Hint Popup */
+			.zoom-hint {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				background: linear-gradient(135deg, var(--hint-bg-1) 0%, var(--hint-bg-2) 100%);
+				color: white;
+				padding: 15px 20px;
+				border-radius: 25px;
+				font-size: 0.9rem;
+				font-weight: 700;
+				z-index: 150;
+				animation: pulse-hint 2s infinite;
+				pointer-events: none;
+				text-align: center;
+				max-width: 220px;
+				box-shadow: 0 6px 25px rgba(0,0,0,0.3);
+				border: 3px solid var(--hint-border);
+			}
+			
+			@keyframes pulse-hint {
+				0% { opacity: 0.9; transform: translate(-50%, -50%) scale(1); }
+				50% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+				100% { opacity: 0.9; transform: translate(-50%, -50%) scale(1); }
+			}
+			
+			/* Hide instructions after some time */
+			.instructions-card.fade-out {
+				animation: fade-out 0.5s ease-out 8s both;
+			}
+			
+			@keyframes fade-out {
+				from { opacity: 1; transform: translateX(0); }
+				to { opacity: 0; transform: translateX(-100%); }
+			}
+			
+			/* Mobile responsive adjustments */
+			@media (max-width: 480px) {
+				.header-title {
+					font-size: 1.1rem;
+				}
+				
+				.instructions-card {
+					max-width: 240px;
+					padding: 10px 12px;
+				}
+				
+				.instructions-text {
+					font-size: 0.8rem;
+				}
+				
+				.fact-bubble {
+					right: 70px;
+					padding: 10px 15px;
+				}
+				
+				.fact-text {
+					font-size: 0.8rem;
+				}
+				
+				.zoom-btn {
+					width: 35px;
+					height: 35px;
+					font-size: 1rem;
+				}
+				
+				.zoom-display {
+					font-size: 0.7rem;
+					padding: 4px 8px;
+				}
+			}
+			
+			/* Very small screens */
+			@media (max-width: 320px) {
+				.header-bar {
+					height: 50px;
+					padding: 0 10px;
+				}
+				
+				.header-title {
+					font-size: 1rem;
+				}
+				
+				.back-btn {
+					padding: 6px 12px;
+					font-size: 0.7rem;
+				}
+				
+				.instructions-card {
+					top: 65px;
+					left: 10px;
+					max-width: 200px;
+					padding: 8px 10px;
+				}
+				
+				.instructions-text {
+					font-size: 0.75rem;
+				}
+			}
+		</style>
+	</head>
+
+	<body>
+		<!-- Compact Header Bar -->
+		<div class="header-bar">
+			<h1 class="header-title" id="header-title">Organ Explorer</h1>
+			<div class="header-controls">
+				<button class="back-btn" onclick="window.history.back()">← Back</button>
+			</div>
+		</div>
+		
+		<!-- Floating Instructions -->
+		<div class="instructions-card" id="instructionsCard">
+			<p class="instructions-text" id="instructions-text">
+				<span class="organ-emoji" id="organ-emoji">🫀</span> Point your camera at the AR marker to see the organ! Use zoom controls to explore!
+			</p>
+		</div>
+		
+		<!-- Fun Fact Bubble -->
+		<div class="fact-bubble">
+			<p class="fact-text" id="fact-text">Amazing organ facts will appear here!</p>
+		</div>
+		
+		<!-- Zoom Hint Popup -->
+		<div class="zoom-hint" id="zoomHint" style="display: none;">
+			🔍 Zoom all the way in to explore the organ's details!
+		</div>
+		
+		<!-- Compact Zoom Panel -->
+		<div class="zoom-panel">
+			<button class="zoom-btn" onclick="zoomIn()" title="Zoom In">+</button>
+			<div class="zoom-display" id="zoomDisplay">100%</div>
+			<button class="zoom-btn" onclick="zoomOut()" title="Zoom Out">−</button>
+		</div>
+
+		<script src="./organ-configs.js"></script>
+		<script>
+			// Get organ type from URL parameters
+			const urlParams = new URLSearchParams(window.location.search);
+			const organType = urlParams.get('organ') || 'heart';
+			const currentOrgan = organConfigs[organType];
+
+			// Apply CSS custom properties for dynamic theming
+			const root = document.documentElement;
+			const colors = currentOrgan.colors;
+			root.style.setProperty('--primary-color', colors.primary);
+			root.style.setProperty('--secondary-color', colors.secondary);
+			root.style.setProperty('--fact-bg-1', colors.factBg1);
+			root.style.setProperty('--fact-bg-2', colors.factBg2);
+			root.style.setProperty('--fact-border', colors.factBorder);
+			root.style.setProperty('--fact-text-color', colors.factTextColor);
+			root.style.setProperty('--fact-text-shadow', colors.factTextShadow);
+			root.style.setProperty('--hint-bg-1', colors.hintBg1);
+			root.style.setProperty('--hint-bg-2', colors.hintBg2);
+			root.style.setProperty('--hint-border', colors.hintBorder);
+
+			// Update page content
+			document.getElementById('page-title').textContent = `AR ${currentOrgan.name} Explorer - Kids Anatomy`;
+			document.getElementById('header-title').textContent = currentOrgan.title;
+			document.getElementById('organ-emoji').textContent = currentOrgan.emoji;
+			document.getElementById('instructions-text').innerHTML = `<span class="organ-emoji">${currentOrgan.emoji}</span> ${currentOrgan.instructions}`;
+			document.getElementById('fact-text').textContent = currentOrgan.funFact;
+			document.getElementById('zoomHint').textContent = currentOrgan.hintText;
+
+			// Initialize Three.js renderer with transparency
+			var renderer = new THREE.WebGLRenderer({
+				alpha: true,
+				antialias: true
+			});
+			renderer.setClearColor(new THREE.Color('lightgrey'), 0);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.domElement.style.position = 'absolute';
+			renderer.domElement.style.top = '0px';
+			renderer.domElement.style.left = '0px';
+			document.body.appendChild(renderer.domElement);
+		
+			// Initialize scene and camera
+			var scene = new THREE.Scene();
+			var camera = new THREE.Camera();
+			scene.add(camera);
+
+			// Create group for organ objects
+			var organGroup = new THREE.Group();
+			scene.add(organGroup);
+			
+			// Zoom variables
+			var currentZoom = 1.0;
+			var minZoom = 0.5;
+			var maxZoom = 3.0;
+			var zoomStep = 0.2;
+			
+			// Auto-hide instructions after 8 seconds
+			setTimeout(function() {
+				var card = document.getElementById('instructionsCard');
+				if (card) {
+					card.classList.add('fade-out');
+				}
+			}, 8000);
+			
+			// Zoom functions
+			function zoomIn() {
+				if (currentZoom < maxZoom) {
+					currentZoom += zoomStep;
+					updateZoom();
+					
+					// Auto-redirect to interactive view when reaching maximum zoom
+					if (currentZoom >= maxZoom) {
+						// Show special transition message
+						showTransitionMessage();
+						setTimeout(function() {
+							window.location.href = currentOrgan.interactivePage;
+						}, 1500); // Longer delay for smooth transition
+					}
+				}
+			}
+			
+			function zoomOut() {
+				if (currentZoom > minZoom) {
+					currentZoom -= zoomStep;
+					updateZoom();
+				}
+			}
+			
+			function updateZoom() {
+				// Apply zoom to the organ group
+				organGroup.userData.zoomScale = currentZoom;
+				document.getElementById('zoomDisplay').textContent = Math.round(currentZoom * 100) + '%';
+				
+				// Show visual feedback when approaching max zoom
+				var zoomDisplay = document.getElementById('zoomDisplay');
+				if (currentZoom >= maxZoom * 0.8) {
+					zoomDisplay.style.background = colors.hintBg1;
+					zoomDisplay.style.color = 'white';
+					zoomDisplay.style.borderColor = colors.hintBg1;
+					// Hide zoom hint when close to max zoom
+					document.getElementById('zoomHint').style.display = 'none';
+				} else {
+					zoomDisplay.style.background = 'white';
+					zoomDisplay.style.color = colors.primary;
+					zoomDisplay.style.borderColor = colors.primary;
+				}
+			}
+			
+			// Function to show transition message
+			function showTransitionMessage() {
+				var hint = document.getElementById('zoomHint');
+				hint.innerHTML = currentOrgan.transitionMessage;
+				hint.style.background = `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`;
+				hint.style.display = 'block';
+				hint.style.animation = 'pulse-hint 0.5s infinite';
+			}
+			
+			// Function to show zoom hint
+			function showZoomHint() {
+				setTimeout(function() {
+					document.getElementById('zoomHint').style.display = 'block';
+					// Auto-hide after 6 seconds
+					setTimeout(function() {
+						document.getElementById('zoomHint').style.display = 'none';
+					}, 6000);
+				}, 4000); // Show hint 4 seconds after organ appears
+			}
+
+			// Initialize THREEAR source
+			var source = new THREEAR.Source({ renderer, camera });
+
+			THREEAR.initialize({ source: source }).then((controller) => {
+
+				// Load 3D Organ Model
+				var loader = new THREE.GLTFLoader();
+				loader.load(currentOrgan.modelPath, function(gltf) {
+					var organModel = gltf.scene;
+					
+					// Scale the organ model to appropriate size for AR
+					organModel.scale.set(currentOrgan.scale.x, currentOrgan.scale.y, currentOrgan.scale.z);
+					organModel.position.y = currentOrgan.position.y;
+					
+					// Rotate kidney model to face front (like your existing code)
+					if (organType === 'kidney') {
+						organModel.rotation.y = Math.PI / 2; // 90 degrees
+					}
+					
+					// Make the model lighter/brighter
+					organModel.traverse(function(child) {
+						if (child.isMesh) {
+							if (child.material) {
+								// Increase brightness and make materials more vibrant
+								if (organType === 'lungs') {
+									child.material.emissive = new THREE.Color(0.1, 0.2, 0.2); // Add slight teal glow
+								} else {
+									child.material.emissive = new THREE.Color(0.1, 0.1, 0.1); // General brightness boost
+								}
+								child.material.emissiveIntensity = 0.3;
+								
+								// If it has a color property, make it brighter
+								if (child.material.color) {
+									child.material.color.multiplyScalar(1.5); // Make 50% brighter
+								}
+							}
+						}
+					});
+					
+					// Add the organ model to the group
+					organGroup.add(organModel);
+					
+					// Initialize zoom scale
+					organGroup.userData.zoomScale = currentZoom;
+					
+					// Show zoom hint to encourage interaction
+					showZoomHint();
+					
+					// Add animation to the model based on organ type
+					var originalScale = currentOrgan.scale;
+					var time = 0;
+					
+					// Animation loop
+					function animateOrgan() {
+						time += 0.016; // 60fps
+						
+						var animationScale = 1;
+						if (currentOrgan.animationType === 'beating') {
+							// Heart beating animation
+							animationScale = 1 + Math.sin(time * 4) * 0.1;
+						} else if (currentOrgan.animationType === 'breathing') {
+							// Lungs breathing animation
+							animationScale = 1 + Math.sin(time * 2) * 0.1;
+						} else if (currentOrgan.animationType === 'pulsing') {
+							// General pulsing animation
+							animationScale = 1 + Math.sin(time * 3) * 0.05;
+						}
+						
+						// Apply both zoom and animation
+						var zoomScale = organGroup.userData.zoomScale || 1.0;
+						organModel.scale.set(
+							originalScale.x * animationScale * zoomScale,
+							originalScale.y * animationScale * zoomScale,
+							originalScale.z * animationScale * zoomScale
+						);
+						
+						// Subtle rotation for all organs except kidney (which has fixed rotation)
+						if (organType !== 'kidney') {
+							organModel.rotation.y += 0.003;
+						}
+					}
+					
+					// Start the animation
+					var animationId;
+					function animate() {
+						animationId = requestAnimationFrame(animate);
+						animateOrgan();
+						
+						controller.update(source.domElement);
+						renderer.render(scene, camera);
+					}
+					animate();
+					
+				}, function(progress) {
+					console.log(`Loading ${currentOrgan.name} model...`, (progress.loaded / progress.total * 100) + '%');
+				}, function(error) {
+					console.error(`Error loading ${currentOrgan.name} model:`, error);
+					// Fallback to simple geometry if model fails to load
+					createSimpleOrgan();
+				});
+
+				// Fallback function to create simple organ if GLTF fails
+				function createSimpleOrgan() {
+					var organGeometry, organMaterial, organMesh;
+					
+					// Create different shapes based on organ type
+					if (organType === 'heart') {
+						organGeometry = new THREE.SphereGeometry(0.3, 16, 16);
+						organMaterial = new THREE.MeshPhongMaterial({ color: 0xff6b6b, transparent: true, opacity: 0.8 });
+					} else if (organType === 'brain') {
+						organGeometry = new THREE.SphereGeometry(0.35, 12, 12);
+						organMaterial = new THREE.MeshPhongMaterial({ color: 0x8e44ad, transparent: true, opacity: 0.8 });
+					} else if (organType === 'lungs') {
+						// Create two lung shapes
+						var leftLungGeometry = new THREE.CylinderGeometry(0.15, 0.25, 0.6, 12);
+						var leftLungMaterial = new THREE.MeshPhongMaterial({ color: 0x4ecdc4, transparent: true, opacity: 0.8 });
+						var leftLung = new THREE.Mesh(leftLungGeometry, leftLungMaterial);
+						leftLung.position.set(-0.2, 0.5, 0);
+						organGroup.add(leftLung);
+
+						var rightLungGeometry = new THREE.CylinderGeometry(0.15, 0.25, 0.6, 12);
+						var rightLungMaterial = new THREE.MeshPhongMaterial({ color: 0x4ecdc4, transparent: true, opacity: 0.8 });
+						var rightLung = new THREE.Mesh(rightLungGeometry, rightLungMaterial);
+						rightLung.position.set(0.2, 0.5, 0);
+						organGroup.add(rightLung);
+						
+						showZoomHint();
+						return; // Exit early for lungs
+					} else if (organType === 'liver') {
+						organGeometry = new THREE.BoxGeometry(0.4, 0.3, 0.2);
+						organMaterial = new THREE.MeshPhongMaterial({ color: 0xff9f43, transparent: true, opacity: 0.8 });
+					} else if (organType === 'kidney') {
+						organGeometry = new THREE.SphereGeometry(0.25, 12, 12);
+						organGeometry.scale(1, 1.5, 0.8); // Make it kidney-shaped
+						organMaterial = new THREE.MeshPhongMaterial({ color: 0x26de81, transparent: true, opacity: 0.8 });
+					} else {
+						// Default fallback
+						organGeometry = new THREE.SphereGeometry(0.3, 16, 16);
+						organMaterial = new THREE.MeshPhongMaterial({ color: 0x666666, transparent: true, opacity: 0.8 });
+					}
+					
+					organMesh = new THREE.Mesh(organGeometry, organMaterial);
+					organMesh.position.y = 0.5;
+					organGroup.add(organMesh);
+					
+					// Show zoom hint for fallback organ too
+					showZoomHint();
+				}
+
+				// Add lighting for better organ appearance
+				var ambientLight = new THREE.AmbientLight(0x404040, 2.5); // Enhanced ambient light
+				scene.add(ambientLight);
+				
+				var directionalLight = new THREE.DirectionalLight(0xffffff, 3.0); // Enhanced directional light
+				directionalLight.position.set(1, 1, 1);
+				scene.add(directionalLight);
+				
+				// Add additional point lights for better illumination
+				var pointLight1 = new THREE.PointLight(0xffffff, 1.5, 10);
+				pointLight1.position.set(2, 2, 2);
+				scene.add(pointLight1);
+				
+				var pointLight2 = new THREE.PointLight(0xffffff, 1.0, 8);
+				pointLight2.position.set(-2, 1, -1);
+				scene.add(pointLight2);
+				
+				// Add additional soft lighting for better visibility
+				var hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6);
+				scene.add(hemisphereLight);
+
+				// Create pattern marker for tracking
+				var patternMarker = new THREEAR.PatternMarker({
+					patternUrl: 'data/patt.hiro',
+					markerObject: organGroup
+				});
+
+				controller.trackMarker(patternMarker);
+
+				// Handle window resize
+				window.addEventListener("resize", function () {
+					renderer.setSize(window.innerWidth, window.innerHeight);
+				});
+				
+				// Touch gesture support for pinch-to-zoom
+				var initialDistance = 0;
+				var initialZoom = currentZoom;
+				
+				function getDistance(touches) {
+					var dx = touches[0].clientX - touches[1].clientX;
+					var dy = touches[0].clientY - touches[1].clientY;
+					return Math.sqrt(dx * dx + dy * dy);
+				}
+				
+				document.addEventListener('touchstart', function(e) {
+					if (e.touches.length === 2) {
+						e.preventDefault();
+						initialDistance = getDistance(e.touches);
+						initialZoom = currentZoom;
+					}
+				});
+				
+				document.addEventListener('touchmove', function(e) {
+					if (e.touches.length === 2) {
+						e.preventDefault();
+						var currentDistance = getDistance(e.touches);
+						var scaleFactor = currentDistance / initialDistance;
+						var newZoom = initialZoom * scaleFactor;
+						
+						// Clamp zoom within limits
+						newZoom = Math.max(minZoom, Math.min(maxZoom, newZoom));
+						currentZoom = newZoom;
+						updateZoom();
+						
+						// Auto-redirect to interactive view when reaching maximum zoom via touch
+						if (currentZoom >= maxZoom) {
+							setTimeout(function() {
+								window.location.href = currentOrgan.interactivePage;
+							}, 500);
+						}
+					}
+				});
+				
+				// Mouse wheel zoom for desktop
+				document.addEventListener('wheel', function(e) {
+					e.preventDefault();
+					if (e.deltaY < 0) {
+						zoomIn();
+					} else {
+						zoomOut();
+					}
+				});
+
+			}).catch((error) => {
+				console.error('THREEAR initialization failed:', error);
+				alert('AR initialization failed. Please make sure you have a camera and try again.');
+			});
+
+		</script>
+	</body>
+	
+</html>

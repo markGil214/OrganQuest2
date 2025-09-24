@@ -169,7 +169,7 @@ const ScanExploreMenu = () => {
           </div>
         </div>
 
-        <button className="big-back-button" onClick={() => window.location.href = `/ar-viewer/${selectedOrgan.id}.html`}>
+        <button className="big-back-button" onClick={() => window.location.href = `/ar-viewer/organ-viewer.html?organ=${selectedOrgan.id}`}>
           ✨ Explore {selectedOrgan.name} in AR!
         </button>
       </div>
