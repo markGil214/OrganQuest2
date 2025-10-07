@@ -57,6 +57,106 @@ const ScanExploreMenu = () => {
       description: 'Kidneys are your body\'s filters!',
       didYouKnow: ['You have two kidneys!', 'They clean 50 gallons of blood every day!'],
       sound: 'filter'
+    },
+    {
+      id: 'eyes',
+      name: 'Eyes',
+      icon: '/organs/eyes.png', // Using brain icon as closest match
+      color: '#3742fa',
+      funFact: 'Your eyes see millions of colors!',
+      description: 'Eyes are your windows to the world!',
+      didYouKnow: ['You can see 10 million different colors!', 'Your eyes move 50 times per second when reading!'],
+      sound: 'blink'
+    },
+    {
+      id: 'stomach',
+      name: 'Stomach',
+      icon: '/organs/stomach.png',
+      color: '#ff6348',
+      funFact: 'Your stomach churns food like a mixer!',
+      description: 'The stomach breaks down your food!',
+      didYouKnow: ['It can hold up to 4 liters of food!', 'Stomach acid is super strong - it could dissolve metal!'],
+      sound: 'gurgle'
+    },
+    {
+      id: 'intestine',
+      name: 'Intestines',
+      icon: '/organs/intestine.png',
+      color: '#f39c12',
+      funFact: 'Your intestines are 20 feet long!',
+      description: 'Intestines absorb nutrients from food!',
+      didYouKnow: ['Your small intestine is like a long winding road!', 'It has millions of tiny helpers called villi!'],
+      sound: 'process'
+    },
+    {
+      id: 'pancreas',
+      name: 'Pancreas',
+      icon: '/organs/pancreas.png',
+      color: '#e17055',
+      funFact: 'Your pancreas makes insulin!',
+      description: 'The pancreas helps control your blood sugar!',
+      didYouKnow: ['It\'s both an organ AND a gland!', 'It makes special juice to help digest food!'],
+      sound: 'bubble'
+    },
+    {
+      id: 'spleen',
+      name: 'Spleen',
+      icon: '/organs/spleen.png',
+      color: '#6c5ce7',
+      funFact: 'Your spleen filters blood!',
+      description: 'The spleen helps fight germs!',
+      didYouKnow: ['It stores red blood cells for emergencies!', 'It filters blood like a coffee filter!'],
+      sound: 'filter'
+    },
+    {
+      id: 'diaphragm',
+      name: 'Diaphragm',
+      icon: '/organs/diaphragm.png',
+      color: '#00b894',
+      funFact: 'Your main breathing muscle!',
+      description: 'The diaphragm helps you breathe!',
+      didYouKnow: ['It moves up and down 20,000 times a day!', 'It\'s controlled by nerves from your neck!'],
+      sound: 'breathe'
+    },
+    {
+      id: 'bladder',
+      name: 'Bladder',
+      icon: '/organs/bladder.png',
+      color: '#f39c12',
+      funFact: 'Your body\'s storage tank!',
+      description: 'The bladder stores urine until you\'re ready to go!',
+      didYouKnow: ['It can hold up to 2 cups of liquid!', 'It\'s made of stretchy muscle like a balloon!'],
+      sound: 'drop'
+    },
+    {
+      id: 'thyroid',
+      name: 'Thyroid',
+      icon: '/organs/thyroid-gland.png',
+      color: '#ff6b9d',
+      funFact: 'Your butterfly-shaped energy controller!',
+      description: 'The thyroid controls how fast your body works!',
+      didYouKnow: ['It\'s shaped like a butterfly in your neck!', 'It helps you grow and gives you energy!'],
+      sound: 'flutter'
+    },
+    {
+      id: 'tongue',
+      name: 'Tongue',
+      icon: '/organs/tongue.png',
+      color: '#fd79a8',
+      funFact: 'Your amazing taste detector!',
+      description: 'The tongue helps you taste, eat, and talk!',
+      didYouKnow: ['It has 10,000 tiny taste buds!', 'It\'s one of your strongest muscles!'],
+      sound: 'lick'
+    },
+    {
+      id: 'pelvis',
+      name: 'Pelvis & Femur',
+      icon: '/organs/pelvis-femur.png',
+      color: '#a29bfe',
+      funFact: 'Your body\'s strong foundation!',
+      description: 'These bones support your whole body!',
+      didYouKnow: ['Your femur is the longest bone in your body!', 'They help you walk, run, and jump!'],
+      sound: 'bone'
     }
   ];
 

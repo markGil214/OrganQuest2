@@ -199,6 +199,406 @@ const interactiveConfigs = {
 			{ position: { x: 0, y: -0.2, z: 0 }, text: 'Renal Pelvis', info: 'Collects urine before it goes to bladder' },
 			{ position: { x: 0.3, y: 0.2, z: 0 }, text: 'Nephrons', info: 'Tiny filtering units - 1 million per kidney!' }
 		]
+	},
+	eyes: {
+		modelPath: '/models/Eyes/Eyes.glb',
+		scale: { x: 3.0, y: 3.0, z: 3.0 },
+		position: { y: 0 },
+		colors: {
+			primary: '#3742fa',
+			secondary: '#2f3542',
+			accent: '#5352ed'
+		},
+		emoji: '👁️',
+		name: 'Eyes',
+		title: '👁️ Interactive Eye Explorer',
+		description: 'See the amazing world of vision! Discover how your eyes capture light and turn it into the beautiful images you see every day.',
+		funFacts: [
+			'👁️ Your eyes can distinguish 10 million colors!',
+			'⚡ Eyes move 50 times per second when reading!',
+			'📸 Each eye has 6 muscles controlling movement.',
+			'🔍 The eye is the second most complex organ after the brain!'
+		],
+		animationType: 'pulsing',
+		cameraControls: {
+			enableZoom: true,
+			enableRotate: true,
+			enablePan: true,
+			autoRotate: false,
+			minDistance: 2,
+			maxDistance: 10
+		},
+		lighting: {
+			ambientIntensity: 0.6,
+			directionalIntensity: 0.8,
+			spotlightIntensity: 1.0
+		},
+		annotations: [
+			{ position: { x: 0, y: 0, z: 0.4 }, text: 'Cornea', info: 'Clear front layer that focuses light' },
+			{ position: { x: 0, y: 0, z: 0.2 }, text: 'Iris', info: 'Colored part that controls light entry' },
+			{ position: { x: 0, y: 0, z: 0 }, text: 'Lens', info: 'Focuses light onto the retina' },
+			{ position: { x: 0, y: 0, z: -0.3 }, text: 'Retina', info: 'Light-sensitive layer that creates images' }
+		]
+	},
+	stomach: {
+		modelPath: '/models/stomach/stomach.glb',
+		scale: { x: 3.0, y: 3.0, z: 3.0 },
+		position: { y: 0 },
+		colors: {
+			primary: '#ff6348',
+			secondary: '#e55039',
+			accent: '#ff7675'
+		},
+		emoji: '🍽️',
+		name: 'Stomach',
+		title: '🍽️ Interactive Stomach Explorer',
+		description: 'Digest the amazing facts about your stomach! Learn how this muscular sac breaks down food and prepares nutrients for your body.',
+		funFacts: [
+			'🍽️ Your stomach can hold up to 4 liters of food!',
+			'💪 Stomach muscles churn food 3 times per minute.',
+			'🧪 Stomach acid is strong enough to dissolve metal!',
+			'🔄 Your stomach lining replaces itself every 3-5 days!'
+		],
+		animationType: 'pulsing',
+		cameraControls: {
+			enableZoom: true,
+			enableRotate: true,
+			enablePan: true,
+			autoRotate: false,
+			minDistance: 2,
+			maxDistance: 10
+		},
+		lighting: {
+			ambientIntensity: 0.6,
+			directionalIntensity: 0.8,
+			spotlightIntensity: 1.0
+		},
+		annotations: [
+			{ position: { x: 0, y: 0.4, z: 0.2 }, text: 'Fundus', info: 'Upper curved part of the stomach' },
+			{ position: { x: 0, y: 0, z: 0.3 }, text: 'Body', info: 'Main central region of the stomach' },
+			{ position: { x: 0.2, y: -0.3, z: 0 }, text: 'Antrum', info: 'Lower section that grinds food' },
+			{ position: { x: 0.3, y: -0.4, z: 0 }, text: 'Pylorus', info: 'Exit valve to small intestine' }
+		]
+	},
+	intestine: {
+		modelPath: '/models/Intestine/Intestine.glb',
+		scale: { x: 3.0, y: 3.0, z: 3.0 },
+		position: { y: 0 },
+		colors: {
+			primary: '#f39c12',
+			secondary: '#d68910',
+			accent: '#f4b942'
+		},
+		emoji: '🎢',
+		name: 'Intestines',
+		title: '🎢 Interactive Intestine Explorer',
+		description: 'Take a journey through your amazing digestive highway! Discover how your intestines absorb nutrients and complete digestion.',
+		funFacts: [
+			'🎢 Your small intestine is 20 feet long!',
+			'🔬 It has millions of tiny villi for absorption.',
+			'⏱️ Food spends 3-5 hours in the small intestine.',
+			'💧 Your large intestine absorbs 90% of water!'
+		],
+		animationType: 'pulsing',
+		cameraControls: {
+			enableZoom: true,
+			enableRotate: true,
+			enablePan: true,
+			autoRotate: false,
+			minDistance: 2,
+			maxDistance: 10
+		},
+		lighting: {
+			ambientIntensity: 0.6,
+			directionalIntensity: 0.8,
+			spotlightIntensity: 1.0
+		},
+		annotations: [
+			{ position: { x: 0.3, y: 0.2, z: 0 }, text: 'Small Intestine', info: 'Where most nutrient absorption happens' },
+			{ position: { x: -0.2, y: 0.3, z: 0 }, text: 'Large Intestine', info: 'Absorbs water and forms waste' },
+			{ position: { x: 0.1, y: 0, z: 0.3 }, text: 'Villi', info: 'Tiny finger-like projections that absorb nutrients' },
+			{ position: { x: -0.3, y: -0.2, z: 0 }, text: 'Colon', info: 'Final processing before elimination' }
+		]
+	},
+	pancreas: {
+		modelPath: '/models/Pancreas/Pancreas.glb',
+		scale: { x: 3.0, y: 3.0, z: 3.0 },
+		position: { y: 0 },
+		colors: {
+			primary: '#e17055',
+			secondary: '#d63031',
+			accent: '#fab1a0'
+		},
+		emoji: '🥞',
+		name: 'Pancreas',
+		title: '🥞 Interactive Pancreas Explorer',
+		description: 'Discover your body\'s dual-purpose organ! Learn how the pancreas produces insulin for blood sugar control and enzymes for digestion.',
+		funFacts: [
+			'🥞 Your pancreas is both an organ and a gland!',
+			'🍯 It produces insulin to control blood sugar.',
+			'💊 Makes digestive enzymes to break down food.',
+			'⚖️ Produces 1-3 liters of pancreatic juice daily!'
+		],
+		animationType: 'pulsing',
+		cameraControls: {
+			enableZoom: true,
+			enableRotate: true,
+			enablePan: true,
+			autoRotate: false,
+			minDistance: 2,
+			maxDistance: 10
+		},
+		lighting: {
+			ambientIntensity: 0.6,
+			directionalIntensity: 0.8,
+			spotlightIntensity: 1.0
+		},
+		annotations: [
+			{ position: { x: -0.3, y: 0.1, z: 0 }, text: 'Head', info: 'Widest part near the duodenum' },
+			{ position: { x: 0, y: 0.1, z: 0.2 }, text: 'Body', info: 'Central section of the pancreas' },
+			{ position: { x: 0.3, y: 0.1, z: 0 }, text: 'Tail', info: 'Narrow end near the spleen' },
+			{ position: { x: 0, y: -0.2, z: 0.3 }, text: 'Islets of Langerhans', info: 'Insulin-producing cells' }
+		]
+	},
+	spleen: {
+		modelPath: '/models/Spleen/Spleen.glb',
+		scale: { x: 3.0, y: 3.0, z: 3.0 },
+		position: { y: 0 },
+		colors: {
+			primary: '#6c5ce7',
+			secondary: '#5f3dc4',
+			accent: '#a29bfe'
+		},
+		emoji: '🛡️',
+		name: 'Spleen',
+		title: '🛡️ Interactive Spleen Explorer',
+		description: 'Explore your body\'s blood filter and immune system helper! Learn how the spleen cleans your blood and fights infections.',
+		funFacts: [
+			'🛡️ Your spleen filters blood like a coffee filter!',
+			'🩸 It stores red blood cells for emergencies.',
+			'⚔️ Helps fight infections by making antibodies.',
+			'🔄 Filters 5 ounces of blood every minute!'
+		],
+		animationType: 'pulsing',
+		cameraControls: {
+			enableZoom: true,
+			enableRotate: true,
+			enablePan: true,
+			autoRotate: false,
+			minDistance: 2,
+			maxDistance: 10
+		},
+		lighting: {
+			ambientIntensity: 0.6,
+			directionalIntensity: 0.8,
+			spotlightIntensity: 1.0
+		},
+		annotations: [
+			{ position: { x: 0, y: 0.3, z: 0.2 }, text: 'Red Pulp', info: 'Filters old red blood cells' },
+			{ position: { x: 0.2, y: 0, z: 0.3 }, text: 'White Pulp', info: 'Contains immune system cells' },
+			{ position: { x: -0.2, y: 0.2, z: 0 }, text: 'Splenic Artery', info: 'Brings blood to the spleen' },
+			{ position: { x: 0.3, y: -0.2, z: 0 }, text: 'Capsule', info: 'Protective outer covering' }
+		]
+	},
+	diaphragm: {
+		modelPath: '/models/diaphragm/diaphragm.glb',
+		scale: { x: 3.0, y: 3.0, z: 3.0 },
+		position: { y: 0 },
+		colors: {
+			primary: '#00b894',
+			secondary: '#00a085',
+			accent: '#55efc4'
+		},
+		emoji: '💨',
+		name: 'Diaphragm',
+		title: '💨 Interactive Diaphragm Explorer',
+		description: 'Discover your main breathing muscle! Learn how the diaphragm moves up and down to help you breathe automatically.',
+		funFacts: [
+			'💨 Your diaphragm is your most important breathing muscle!',
+			'🔄 It moves up and down 20,000 times per day.',
+			'💪 This dome-shaped muscle separates chest from abdomen.',
+			'⚡ Controlled by the phrenic nerve from your neck!'
+		],
+		animationType: 'breathing',
+		cameraControls: {
+			enableZoom: true,
+			enableRotate: true,
+			enablePan: true,
+			autoRotate: false,
+			minDistance: 2,
+			maxDistance: 10
+		},
+		lighting: {
+			ambientIntensity: 0.6,
+			directionalIntensity: 0.8,
+			spotlightIntensity: 1.0
+		},
+		annotations: [
+			{ position: { x: 0, y: 0.3, z: 0 }, text: 'Central Tendon', info: 'Strong fibrous center of diaphragm' },
+			{ position: { x: 0.3, y: 0, z: 0.2 }, text: 'Muscle Fibers', info: 'Contract to pull diaphragm down' },
+			{ position: { x: -0.2, y: 0.1, z: 0.3 }, text: 'Phrenic Nerve', info: 'Controls diaphragm movement' },
+			{ position: { x: 0, y: -0.2, z: 0 }, text: 'Attachments', info: 'Connected to ribs and spine' }
+		]
+	},
+	bladder: {
+		modelPath: '/models/bladder/bladder.glb',
+		scale: { x: 3.0, y: 3.0, z: 3.0 },
+		position: { y: 0 },
+		colors: {
+			primary: '#f39c12',
+			secondary: '#e67e22',
+			accent: '#f4b942'
+		},
+		emoji: '🫧',
+		name: 'Bladder',
+		title: '🫧 Interactive Bladder Explorer',
+		description: 'Discover your body\'s storage tank! Learn how the bladder stores and releases urine to keep your body clean.',
+		funFacts: [
+			'🫧 Your bladder can hold up to 2 cups of urine!',
+			'💪 It\'s made of stretchy muscle that expands like a balloon.',
+			'⏰ Most people need to empty it every 3-4 hours.',
+			'🧠 Your brain tells you when it\'s time to go!'
+		],
+		animationType: 'pulsing',
+		cameraControls: {
+			enableZoom: true,
+			enableRotate: true,
+			enablePan: true,
+			autoRotate: false,
+			minDistance: 2,
+			maxDistance: 10
+		},
+		lighting: {
+			ambientIntensity: 0.6,
+			directionalIntensity: 0.8,
+			spotlightIntensity: 1.0
+		},
+		annotations: [
+			{ position: { x: 0, y: 0.3, z: 0.2 }, text: 'Dome', info: 'Top part that expands when full' },
+			{ position: { x: 0.2, y: 0, z: 0.3 }, text: 'Detrusor Muscle', info: 'Muscle that contracts to empty bladder' },
+			{ position: { x: 0, y: -0.3, z: 0 }, text: 'Neck', info: 'Opening that controls urine flow' },
+			{ position: { x: -0.2, y: 0.2, z: 0 }, text: 'Ureters', info: 'Tubes bringing urine from kidneys' }
+		]
+	},
+	thyroid: {
+		modelPath: '/models/thyroid-gland/thyroid-gland.glb',
+		scale: { x: 3.0, y: 3.0, z: 3.0 },
+		position: { y: 0 },
+		colors: {
+			primary: '#ff6b9d',
+			secondary: '#e55a87',
+			accent: '#ff7675'
+		},
+		emoji: '🦋',
+		name: 'Thyroid',
+		title: '🦋 Interactive Thyroid Explorer',
+		description: 'Meet your body\'s speed controller! Learn how the thyroid gland controls your energy and growth.',
+		funFacts: [
+			'🦋 Your thyroid is shaped like a butterfly!',
+			'⚡ It controls how fast your body uses energy.',
+			'📏 It helps you grow taller and stronger.',
+			'🧠 It\'s controlled by your brain through special signals!'
+		],
+		animationType: 'pulsing',
+		cameraControls: {
+			enableZoom: true,
+			enableRotate: true,
+			enablePan: true,
+			autoRotate: false,
+			minDistance: 2,
+			maxDistance: 10
+		},
+		lighting: {
+			ambientIntensity: 0.6,
+			directionalIntensity: 0.8,
+			spotlightIntensity: 1.0
+		},
+		annotations: [
+			{ position: { x: 0.2, y: 0.1, z: 0 }, text: 'Right Lobe', info: 'One wing of the butterfly shape' },
+			{ position: { x: -0.2, y: 0.1, z: 0 }, text: 'Left Lobe', info: 'Other wing of the butterfly shape' },
+			{ position: { x: 0, y: 0, z: 0.3 }, text: 'Isthmus', info: 'Bridge connecting the two lobes' },
+			{ position: { x: 0, y: 0.3, z: 0 }, text: 'Follicles', info: 'Tiny factories making thyroid hormones' }
+		]
+	},
+	tongue: {
+		modelPath: '/models/tongue/tongue.glb',
+		scale: { x: 3.0, y: 3.0, z: 3.0 },
+		position: { y: 0 },
+		colors: {
+			primary: '#fd79a8',
+			secondary: '#e84393',
+			accent: '#ff7675'
+		},
+		emoji: '👅',
+		name: 'Tongue',
+		title: '👅 Interactive Tongue Explorer',
+		description: 'Taste the amazing world of flavors! Learn how your tongue helps you taste, eat, and speak.',
+		funFacts: [
+			'👅 Your tongue has about 10,000 taste buds!',
+			'💪 It\'s one of the strongest muscles in your body.',
+			'🗣️ It helps you speak clearly and make sounds.',
+			'🍯 It can taste 5 different flavors: sweet, sour, salty, bitter, and umami!'
+		],
+		animationType: 'pulsing',
+		cameraControls: {
+			enableZoom: true,
+			enableRotate: true,
+			enablePan: true,
+			autoRotate: false,
+			minDistance: 2,
+			maxDistance: 10
+		},
+		lighting: {
+			ambientIntensity: 0.6,
+			directionalIntensity: 0.8,
+			spotlightIntensity: 1.0
+		},
+		annotations: [
+			{ position: { x: 0, y: 0.3, z: 0.2 }, text: 'Tip', info: 'Most sensitive part for tasting' },
+			{ position: { x: 0.2, y: 0, z: 0.3 }, text: 'Taste Buds', info: 'Tiny sensors that detect flavors' },
+			{ position: { x: 0, y: -0.2, z: 0 }, text: 'Root', info: 'Back part attached to throat' },
+			{ position: { x: -0.3, y: 0.1, z: 0 }, text: 'Papillae', info: 'Bumps containing taste buds' }
+		]
+	},
+	pelvis: {
+		modelPath: '/models/pelvis-femur/pelvis-femur.glb',
+		scale: { x: 3.0, y: 3.0, z: 3.0 },
+		position: { y: 0 },
+		colors: {
+			primary: '#a29bfe',
+			secondary: '#6c5ce7',
+			accent: '#74b9ff'
+		},
+		emoji: '🦴',
+		name: 'Pelvis & Femur',
+		title: '🦴 Interactive Pelvis & Femur Explorer',
+		description: 'Discover your body\'s strong foundation! Learn how your pelvis and thigh bones support your entire body.',
+		funFacts: [
+			'🦴 Your femur is the longest and strongest bone in your body!',
+			'🏠 Your pelvis protects important organs inside.',
+			'🚶 These bones help you walk, run, and jump.',
+			'💪 They can support many times your body weight!'
+		],
+		animationType: 'pulsing',
+		cameraControls: {
+			enableZoom: true,
+			enableRotate: true,
+			enablePan: true,
+			autoRotate: false,
+			minDistance: 2,
+			maxDistance: 10
+		},
+		lighting: {
+			ambientIntensity: 0.6,
+			directionalIntensity: 0.8,
+			spotlightIntensity: 1.0
+		},
+		annotations: [
+			{ position: { x: 0, y: 0.4, z: 0 }, text: 'Pelvis', info: 'Hip bones that form a protective bowl' },
+			{ position: { x: 0.3, y: -0.2, z: 0 }, text: 'Femur Head', info: 'Ball that fits into hip socket' },
+			{ position: { x: 0.2, y: -0.5, z: 0 }, text: 'Femur Shaft', info: 'Long strong part of thigh bone' },
+			{ position: { x: 0, y: 0.2, z: 0.3 }, text: 'Hip Joint', info: 'Where pelvis and femur connect' }
+		]
 	}
 };
 
