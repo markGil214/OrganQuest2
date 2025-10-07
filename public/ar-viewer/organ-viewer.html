@@ -2,7 +2,14 @@
 <html>
 
 	<head>
-		<meta name='viewport' content='width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0'>
+		<meta name='viewport' content='width=device-width, user-scalable=no, minimum-scale=1.0, max				// Auto-redirect to interactive view when reaching maximum zoom - TEMPORARILY DISABLED
+				if (currentZoom >= maxZoom) {
+					// Show special transition message
+					showTransitionMessage();
+					// setTimeout(function() {
+					// 	window.location.href = currentOrgan.interactivePage;
+					// }, 1500); // Longer delay for smooth transition
+				}le=1.0'>
 		<script src="vendor/three.101.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/three@0.101.1/examples/js/loaders/GLTFLoader.js"></script>
 		<script src="THREEAR.js"></script>
@@ -44,6 +51,13 @@
 			<button class="zoom-btn" onclick="zoomIn()" title="Zoom In">+</button>
 			<div class="zoom-display" id="zoomDisplay">100%</div>
 			<button class="zoom-btn" onclick="zoomOut()" title="Zoom Out">−</button>
+		</div>
+		
+		<!-- Manual Rotation Controls -->
+		<div class="rotation-panel">
+			<button class="rotation-btn" onclick="rotateLeft()" title="Rotate Left">↻</button>
+			<div class="rotation-display">Rotate</div>
+			<button class="rotation-btn" onclick="rotateRight()" title="Rotate Right">↺</button>
 		</div>
 
 		<script src="./organ-configs.js"></script>
@@ -102,6 +116,10 @@
 			var maxZoom = 3.0;
 			var zoomStep = 0.2;
 			
+			// Manual rotation variables
+			var currentRotation = 0;
+			var rotationStep = 0.1; // Rotation step in radians
+			
 			// Auto-hide instructions after 8 seconds
 			setTimeout(function() {
 				var card = document.getElementById('instructionsCard');
@@ -116,13 +134,13 @@
 					currentZoom += zoomStep;
 					updateZoom();
 					
-					// Auto-redirect to interactive view when reaching maximum zoom
+					// Auto-redirect to interactive view when reaching maximum zoom - TEMPORARILY DISABLED
 					if (currentZoom >= maxZoom) {
 						// Show special transition message
 						showTransitionMessage();
-						setTimeout(function() {
-							window.location.href = currentOrgan.interactivePage;
-						}, 1500); // Longer delay for smooth transition
+						// setTimeout(function() {
+						// 	window.location.href = currentOrgan.interactivePage;
+						// }, 1500); // Longer delay for smooth transition
 					}
 				}
 			}
@@ -152,6 +170,22 @@
 					zoomDisplay.style.color = colors.primary;
 					zoomDisplay.style.borderColor = colors.primary;
 				}
+			}
+			
+			// Manual rotation functions
+			function rotateLeft() {
+				currentRotation -= rotationStep;
+				updateRotation();
+			}
+			
+			function rotateRight() {
+				currentRotation += rotationStep;
+				updateRotation();
+			}
+			
+			function updateRotation() {
+				// Apply rotation to the organ group
+				organGroup.userData.manualRotation = currentRotation;
 			}
 			
 			// Function to show transition message
@@ -250,9 +284,13 @@
 							originalScale.z * animationScale * zoomScale
 						);
 						
-						// Subtle rotation for all organs except kidney (which has fixed rotation)
+						// Apply manual rotation (removed automatic rotation)
+						var manualRotation = organGroup.userData.manualRotation || 0;
 						if (organType !== 'kidney') {
-							organModel.rotation.y += 0.003;
+							organModel.rotation.y = manualRotation;
+						} else {
+							// For kidney, add manual rotation to the fixed rotation
+							organModel.rotation.y = Math.PI / 2 + manualRotation;
 						}
 					}
 					
@@ -387,11 +425,11 @@
 						currentZoom = newZoom;
 						updateZoom();
 						
-						// Auto-redirect to interactive view when reaching maximum zoom via touch
+						// Auto-redirect to interactive view when reaching maximum zoom via touch - TEMPORARILY DISABLED
 						if (currentZoom >= maxZoom) {
-							setTimeout(function() {
-								window.location.href = currentOrgan.interactivePage;
-							}, 500);
+							// setTimeout(function() {
+							// 	window.location.href = currentOrgan.interactivePage;
+							// }, 500);
 						}
 					}
 				});
@@ -404,6 +442,50 @@
 					} else {
 						zoomOut();
 					}
+				});
+				
+				// Keyboard controls for rotation
+				document.addEventListener('keydown', function(e) {
+					if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+						e.preventDefault();
+						rotateLeft();
+					} else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+						e.preventDefault();
+						rotateRight();
+					}
+				});
+				
+				// Swipe controls for rotation on mobile
+				var startX = 0;
+				var isDragging = false;
+				
+				document.addEventListener('touchstart', function(e) {
+					if (e.touches.length === 1) {
+						startX = e.touches[0].clientX;
+						isDragging = true;
+					}
+				});
+				
+				document.addEventListener('touchmove', function(e) {
+					if (e.touches.length === 1 && isDragging) {
+						e.preventDefault();
+						var currentX = e.touches[0].clientX;
+						var deltaX = currentX - startX;
+						
+						// If swipe distance is significant, rotate
+						if (Math.abs(deltaX) > 20) {
+							if (deltaX > 0) {
+								rotateRight();
+							} else {
+								rotateLeft();
+							}
+							startX = currentX; // Reset start position
+						}
+					}
+				});
+				
+				document.addEventListener('touchend', function(e) {
+					isDragging = false;
 				});
 
 			}).catch((error) => {
