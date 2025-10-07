@@ -1,0 +1,191 @@
+/* Interactive Organ Viewer Specific Styles */
+
+/* Header */
+.header {
+	position: absolute;
+	top: 10px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 100;
+	text-align: center;
+	pointer-events: none;
+}
+
+.header h1 {
+	color: white;
+	font-size: clamp(1.2rem, 4vw, 1.8rem);
+	font-weight: 700;
+	text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+	margin-bottom: 0.3rem;
+	background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+}
+
+.header p {
+	color: rgba(255, 255, 255, 0.9);
+	font-size: clamp(0.75rem, 2.5vw, 0.95rem);
+	font-weight: 400;
+	text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+	max-width: 600px;
+	margin: 0 auto;
+	padding: 0 1rem;
+}
+
+/* Controls */
+.controls {
+	position: absolute;
+	bottom: 20px;
+	left: 50%;
+	transform: translateX(-50%);
+	display: flex;
+	gap: 10px;
+	z-index: 100;
+	flex-wrap: wrap;
+	justify-content: center;
+	padding: 0 1rem;
+}
+
+.control-btn {
+	background: rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	color: white;
+	padding: 8px 16px;
+	border-radius: 25px;
+	font-size: 0.85rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	white-space: nowrap;
+}
+
+.control-btn:hover {
+	background: var(--primary-color);
+	border-color: var(--primary-color);
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.control-btn.active {
+	background: var(--primary-color);
+	border-color: var(--primary-color);
+}
+
+/* Info Panel */
+.info-panel {
+	position: absolute;
+	top: 80px;
+	right: 20px;
+	width: 280px;
+	max-width: calc(100vw - 40px);
+	background: rgba(0, 0, 0, 0.8);
+	border-radius: 15px;
+	padding: 20px;
+	color: white;
+	backdrop-filter: blur(15px);
+	-webkit-backdrop-filter: blur(15px);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	z-index: 50;
+	transform: translateX(300px);
+	transition: transform 0.3s ease;
+}
+
+.info-panel.visible {
+	transform: translateX(0);
+}
+
+.info-panel h3 {
+	color: var(--primary-color);
+	margin-bottom: 15px;
+	font-size: 1.1rem;
+	font-weight: 600;
+}
+
+.fun-fact {
+	background: rgba(255, 255, 255, 0.05);
+	padding: 12px;
+	border-radius: 8px;
+	margin-bottom: 10px;
+	font-size: 0.85rem;
+	line-height: 1.4;
+	border-left: 3px solid var(--primary-color);
+}
+
+.fun-fact:last-child {
+	margin-bottom: 0;
+}
+
+/* Annotation */
+.annotation {
+	position: absolute;
+	background: rgba(0, 0, 0, 0.9);
+	color: white;
+	padding: 8px 12px;
+	border-radius: 20px;
+	font-size: 0.8rem;
+	font-weight: 500;
+	pointer-events: none;
+	z-index: 40;
+	border: 1px solid var(--primary-color);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	transform: translate(-50%, -50%);
+	opacity: 0;
+	transition: opacity 0.3s ease;
+	max-width: 200px;
+	text-align: center;
+}
+
+.annotation.visible {
+	opacity: 1;
+}
+
+.annotation::after {
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: -4px;
+	transform: translateY(-50%);
+	width: 8px;
+	height: 8px;
+	background: var(--primary-color);
+	border-radius: 50%;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+	.info-panel {
+		right: 10px;
+		width: 250px;
+		padding: 15px;
+		top: 70px;
+	}
+
+	.controls {
+		bottom: 15px;
+		gap: 8px;
+	}
+
+	.control-btn {
+		padding: 6px 12px;
+		font-size: 0.8rem;
+	}
+
+	.header h1 {
+		font-size: 1.2rem;
+	}
+
+	.header p {
+		font-size: 0.8rem;
+	}
+}
+
+@media (max-width: 480px) {
+	.info-panel {
+		width: calc(100vw - 20px);
+		right: 10px;
+	}
+}
