@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { timedChallengeQuestions } from '../data/timedChallengeQuestions';
 
 const TimedChallengeQuiz = () => {
   // Add Montserrat font
@@ -23,82 +24,7 @@ const TimedChallengeQuiz = () => {
     return shuffled;
   };
 
-  // Quick anatomy questions for timed challenge
-  const baseQuestions = [
-    { question: "Heart pumps?", options: ["Blood", "Air", "Food"], correct: 0, emoji: "❤️" },
-    { question: "Brain controls?", options: ["Nothing", "Thinking", "Flying"], correct: 1, emoji: "🧠" },
-    { question: "Lungs help with?", options: ["Eating", "Breathing", "Walking"], correct: 1, emoji: "🫁" },
-    { question: "How many chambers in heart?", options: ["Two", "Three", "Four"], correct: 2, emoji: "🔢" },
-    { question: "Kidneys filter?", options: ["Blood", "Air", "Sound"], correct: 0, emoji: "🫘" },
-    { question: "Bones give body?", options: ["Color", "Structure", "Taste"], correct: 1, emoji: "🦴" },
-    { question: "Muscles help you?", options: ["Move", "Sleep", "Dream"], correct: 0, emoji: "💪" },
-    { question: "Skull protects?", options: ["Heart", "Brain", "Lungs"], correct: 1, emoji: "💀" },
-    { question: "Liver helps?", options: ["Clean body", "Make noise", "Change color"], correct: 0, emoji: "🫀" },
-    { question: "Stomach breaks down?", options: ["Air", "Food", "Light"], correct: 1, emoji: "🍽️" },
-    { question: "Eyes help you?", options: ["See", "Hear", "Smell"], correct: 0, emoji: "👁️" },
-    { question: "Nose helps you?", options: ["See", "Taste", "Smell"], correct: 2, emoji: "👃" },
-    { question: "Ears help you?", options: ["Hear", "See", "Taste"], correct: 0, emoji: "👂" },
-    { question: "Tongue helps you?", options: ["See", "Taste", "Hear"], correct: 1, emoji: "👅" },
-    { question: "Skin protects your?", options: ["Body", "Nothing", "Dreams"], correct: 0, emoji: "🧴" },
-    
-    // Additional 40 questions without emoticons
-    { question: "Which organ makes bile?", options: ["Heart", "Liver", "Kidney"], correct: 1, emoji: "🔬" },
-    { question: "What carries oxygen in blood?", options: ["Water", "Red cells", "White cells"], correct: 1, emoji: "🔬" },
-    { question: "Smallest bone in body?", options: ["Toe", "Finger", "Ear"], correct: 2, emoji: "🔬" },
-    { question: "How many ribs do humans have?", options: ["20", "24", "28"], correct: 1, emoji: "🔬" },
-    { question: "What connects muscles to bones?", options: ["Tendons", "Veins", "Nerves"], correct: 0, emoji: "🔬" },
-    { question: "Largest organ in body?", options: ["Liver", "Brain", "Skin"], correct: 2, emoji: "🔬" },
-    { question: "What produces insulin?", options: ["Liver", "Pancreas", "Stomach"], correct: 1, emoji: "🔬" },
-    { question: "How many vertebrae in spine?", options: ["31", "33", "35"], correct: 1, emoji: "🔬" },
-    { question: "What makes red blood cells?", options: ["Heart", "Liver", "Bone marrow"], correct: 2, emoji: "🔬" },
-    { question: "Strongest muscle in body?", options: ["Arm", "Jaw", "Leg"], correct: 1, emoji: "🔬" },
-    { question: "What filters lymph?", options: ["Kidneys", "Lymph nodes", "Spleen"], correct: 1, emoji: "🔬" },
-    { question: "How many teeth in adults?", options: ["28", "32", "36"], correct: 1, emoji: "🔬" },
-    { question: "What stores bile?", options: ["Liver", "Gallbladder", "Pancreas"], correct: 1, emoji: "🔬" },
-    { question: "Longest bone in body?", options: ["Arm", "Thighbone", "Shin"], correct: 1, emoji: "🔬" },
-    { question: "What controls balance?", options: ["Brain", "Ear", "Eye"], correct: 1, emoji: "🔬" },
-    { question: "How many chambers in heart?", options: ["Two", "Three", "Four"], correct: 2, emoji: "🔬" },
-    { question: "What produces tears?", options: ["Eyes", "Tear glands", "Nose"], correct: 1, emoji: "🔬" },
-    { question: "Hardest substance in body?", options: ["Bone", "Tooth enamel", "Nail"], correct: 1, emoji: "🔬" },
-    { question: "What controls breathing?", options: ["Heart", "Brain stem", "Lungs"], correct: 1, emoji: "🔬" },
-    { question: "How many pairs of cranial nerves?", options: ["10", "12", "14"], correct: 1, emoji: "🔬" },
-    { question: "What produces saliva?", options: ["Tongue", "Salivary glands", "Teeth"], correct: 1, emoji: "🔬" },
-    { question: "Smallest muscle in body?", options: ["Eye", "Ear", "Finger"], correct: 1, emoji: "🔬" },
-    { question: "What carries blood to heart?", options: ["Arteries", "Veins", "Capillaries"], correct: 1, emoji: "🔬" },
-    { question: "How many lobes does liver have?", options: ["Two", "Three", "Four"], correct: 0, emoji: "🔬" },
-    { question: "What produces hormones?", options: ["Bones", "Glands", "Muscles"], correct: 1, emoji: "🔬" },
-    { question: "Normal body temperature?", options: ["96°F", "98.6°F", "100°F"], correct: 1, emoji: "🔬" },
-    { question: "What connects bones?", options: ["Muscles", "Ligaments", "Tendons"], correct: 1, emoji: "🔬" },
-    { question: "How many kidneys do we have?", options: ["One", "Two", "Three"], correct: 1, emoji: "🔬" },
-    { question: "What makes voice possible?", options: ["Tongue", "Vocal cords", "Teeth"], correct: 1, emoji: "🔬" },
-    { question: "Largest artery in body?", options: ["Carotid", "Aorta", "Pulmonary"], correct: 1, emoji: "🔬" },
-    { question: "What controls reflexes?", options: ["Brain", "Spinal cord", "Nerves"], correct: 1, emoji: "🔬" },
-    { question: "How many bones in skull?", options: ["20", "22", "24"], correct: 1, emoji: "🔬" },
-    { question: "What produces white blood cells?", options: ["Heart", "Bone marrow", "Liver"], correct: 1, emoji: "🔬" },
-    { question: "Normal resting heart rate?", options: ["50-70", "70-100", "100-120"], correct: 1, emoji: "🔬" },
-    { question: "What stores fat?", options: ["Muscles", "Adipose tissue", "Bones"], correct: 1, emoji: "🔬" },
-    { question: "How many taste buds on tongue?", options: ["5,000", "10,000", "15,000"], correct: 1, emoji: "🔬" },
-    { question: "What produces earwax?", options: ["Ear canal", "Eardrum", "Inner ear"], correct: 0, emoji: "🔬" },
-    { question: "Fastest healing part of body?", options: ["Skin", "Mouth", "Bone"], correct: 1, emoji: "🔬" },
-    { question: "What controls sleep cycle?", options: ["Heart", "Pineal gland", "Liver"], correct: 1, emoji: "🔬" },
-    { question: "How many muscles in face?", options: ["30", "43", "50"], correct: 1, emoji: "🔬" },
-    { question: "What produces vitamin D?", options: ["Liver", "Skin", "Kidneys"], correct: 1, emoji: "🔬" },
-    { question: "Normal breathing rate?", options: ["12-20", "20-30", "30-40"], correct: 0, emoji: "🔬" },
-    { question: "What filters air we breathe?", options: ["Lungs", "Nose hairs", "Throat"], correct: 1, emoji: "🔬" },
-    { question: "How many bones at birth?", options: ["206", "270", "300"], correct: 1, emoji: "🔬" },
-    { question: "What controls hunger?", options: ["Stomach", "Hypothalamus", "Liver"], correct: 1, emoji: "🔬" },
-    { question: "Largest vein in body?", options: ["Jugular", "Vena cava", "Portal"], correct: 1, emoji: "🔬" },
-    { question: "What produces melatonin?", options: ["Brain", "Pineal gland", "Pituitary"], correct: 1, emoji: "🔬" },
-    { question: "How long is small intestine?", options: ["10 feet", "20 feet", "30 feet"], correct: 1, emoji: "🔬" },
-    { question: "What controls body temperature?", options: ["Skin", "Hypothalamus", "Blood"], correct: 1, emoji: "🔬" },
-    { question: "How many chambers in brain?", options: ["Two", "Four", "Six"], correct: 1, emoji: "🔬" },
-    { question: "What produces adrenaline?", options: ["Heart", "Adrenal glands", "Brain"], correct: 1, emoji: "🔬" },
-    { question: "Longest nerve in body?", options: ["Spinal", "Sciatic", "Optic"], correct: 1, emoji: "🔬" },
-    { question: "What controls thirst?", options: ["Mouth", "Hypothalamus", "Kidneys"], correct: 1, emoji: "🔬" },
-    { question: "How many layers of skin?", options: ["Two", "Three", "Four"], correct: 1, emoji: "🔬" },
-    { question: "What produces growth hormone?", options: ["Brain", "Pituitary gland", "Thyroid"], correct: 1, emoji: "🔬" },
-    { question: "Normal blood pressure?", options: ["110/70", "120/80", "130/90"], correct: 1, emoji: "🔬" }
-  ];
+  // Use imported timed challenge questions
 
   // Game state
   const [gameState, setGameState] = useState('waiting'); // 'waiting', 'playing', 'finished'
@@ -117,7 +43,7 @@ const TimedChallengeQuiz = () => {
 
   // Initialize shuffled questions
   useEffect(() => {
-    setQuestions(shuffleArray(baseQuestions));
+    setQuestions(shuffleArray(timedChallengeQuestions));
   }, []);
 
   // Timer countdown
@@ -142,7 +68,7 @@ const TimedChallengeQuiz = () => {
     setIsAnswered(false);
     setStreak(0);
     setBestStreak(0);
-    setQuestions(shuffleArray(baseQuestions));
+    setQuestions(shuffleArray(timedChallengeQuestions));
   };
 
   const handleAnswerClick = (answerIndex) => {
@@ -174,7 +100,7 @@ const TimedChallengeQuiz = () => {
         setCurrentQuestion(0);
         setSelectedAnswer(null);
         setIsAnswered(false);
-        setQuestions(shuffleArray(baseQuestions));
+        setQuestions(shuffleArray(timedChallengeQuestions));
       }
     }, 800);
   };
