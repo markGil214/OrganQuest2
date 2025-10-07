@@ -73,6 +73,16 @@ const ARScanner = () => {
         'You have two kidneys, but can live with just one.',
         'They help control your blood pressure.'
       ]
+    },
+    skin: {
+      name: 'Skin',
+      emoji: '🧴',
+      color: '#f39c12',
+      facts: [
+        'Your skin is your body\'s largest organ!',
+        'It completely replaces itself every 28 days!',
+        'It has millions of tiny sensors to feel touch!'
+      ]
     }
   };
 
