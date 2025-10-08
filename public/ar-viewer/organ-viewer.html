@@ -21,23 +21,57 @@
 			
 
 	<body>
-		<!-- Compact Header Bar -->
-		<div class="header-bar">
+		<!-- Loading Screen -->
+		<div id="loadingScreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; font-family: Arial, sans-serif;">
+			<div style="text-align: center; color: white;">
+				<div id="loadingOrganEmoji" style="font-size: 100px; margin-bottom: 20px; animation: pulse 2s infinite;">🫀</div>
+				<h2 style="font-size: 32px; margin: 20px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">Loading AR Experience...</h2>
+				<p id="loadingStatus" style="font-size: 18px; margin: 10px 0; opacity: 0.9;">Preparing assets...</p>
+				
+				<!-- Progress Bar Container -->
+				<div style="width: 300px; height: 20px; background: rgba(255,255,255,0.2); border-radius: 10px; margin: 30px auto; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+					<div id="progressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #00f260, #0575e6); transition: width 0.3s ease; border-radius: 10px; box-shadow: 0 0 10px rgba(0,242,96,0.5);"></div>
+				</div>
+				
+				<div id="loadingPercentage" style="font-size: 24px; font-weight: bold; margin-top: 10px;">0%</div>
+				
+				<!-- Loading Steps -->
+				<div style="margin-top: 30px; font-size: 14px; opacity: 0.8;">
+					<div id="step1" style="margin: 5px 0;">⏳ Loading 3D Model...</div>
+					<div id="step2" style="margin: 5px 0; opacity: 0.5;">⏳ Loading AR Marker...</div>
+					<div id="step3" style="margin: 5px 0; opacity: 0.5;">⏳ Initializing Camera...</div>
+				</div>
+			</div>
+		</div>
+		
+		<style>
+			@keyframes pulse {
+				0%, 100% { transform: scale(1); }
+				50% { transform: scale(1.1); }
+			}
+			
+			.checkmark {
+				color: #00f260;
+			}
+		</style>
+		
+		<!-- Compact Header Bar (hidden initially) -->
+		<div class="header-bar" style="display: none;" id="headerBar">
 			<h1 class="header-title" id="header-title">Organ Explorer</h1>
 			<div class="header-controls">
 				<button class="back-btn" onclick="window.history.back()">← Back</button>
 			</div>
 		</div>
 		
-		<!-- Floating Instructions -->
-		<div class="instructions-card" id="instructionsCard">
+		<!-- Floating Instructions (hidden initially) -->
+		<div class="instructions-card" id="instructionsCard" style="display: none;">
 			<p class="instructions-text" id="instructions-text">
 				<span class="organ-emoji" id="organ-emoji">🫀</span> Point your camera at the AR marker to see the organ! Use zoom controls to explore!
 			</p>
 		</div>
 		
-		<!-- Fun Fact Bubble -->
-		<div class="fact-bubble">
+		<!-- Fun Fact Bubble (hidden initially) -->
+		<div class="fact-bubble" style="display: none;">
 			<p class="fact-text" id="fact-text">Amazing organ facts will appear here!</p>
 		</div>
 		
@@ -46,15 +80,15 @@
 			🔍 Zoom all the way in to explore the organ's details!
 		</div>
 		
-		<!-- Compact Zoom Panel -->
-		<div class="zoom-panel">
+		<!-- Compact Zoom Panel (hidden initially) -->
+		<div class="zoom-panel" style="display: none;">
 			<button class="zoom-btn" onclick="zoomIn()" title="Zoom In">+</button>
 			<div class="zoom-display" id="zoomDisplay">100%</div>
 			<button class="zoom-btn" onclick="zoomOut()" title="Zoom Out">−</button>
 		</div>
 		
-		<!-- Manual Rotation Controls -->
-		<div class="rotation-panel">
+		<!-- Manual Rotation Controls (hidden initially) -->
+		<div class="rotation-panel" style="display: none;">
 			<button class="rotation-btn" onclick="rotateLeft()" title="Rotate Left">↻</button>
 			<div class="rotation-display">Rotate</div>
 			<button class="rotation-btn" onclick="rotateRight()" title="Rotate Right">↺</button>
@@ -62,10 +96,59 @@
 
 		<script src="./organ-configs.js"></script>
 		<script>
+			// Preloading System
+			let totalAssets = 3; // 3D Model, AR Marker Data, Camera
+			let loadedAssets = 0;
+			let modelLoaded = false;
+			let markerLoaded = false;
+			
+			function updateProgress(step, message) {
+				loadedAssets++;
+				const progress = (loadedAssets / totalAssets) * 100;
+				
+				document.getElementById('progressBar').style.width = progress + '%';
+				document.getElementById('loadingPercentage').textContent = Math.round(progress) + '%';
+				document.getElementById('loadingStatus').textContent = message;
+				
+				// Update step checkmarks
+				if (step === 1) {
+					document.getElementById('step1').innerHTML = '✅ 3D Model Loaded';
+					document.getElementById('step1').classList.add('checkmark');
+					document.getElementById('step2').style.opacity = '1';
+				} else if (step === 2) {
+					document.getElementById('step2').innerHTML = '✅ AR Marker Ready';
+					document.getElementById('step2').classList.add('checkmark');
+					document.getElementById('step3').style.opacity = '1';
+				} else if (step === 3) {
+					document.getElementById('step3').innerHTML = '✅ Camera Initialized';
+					document.getElementById('step3').classList.add('checkmark');
+				}
+				
+				// If all assets loaded, hide loading screen
+				if (loadedAssets >= totalAssets) {
+					setTimeout(function() {
+						document.getElementById('loadingScreen').style.opacity = '0';
+						document.getElementById('loadingScreen').style.transition = 'opacity 0.5s';
+						setTimeout(function() {
+							document.getElementById('loadingScreen').style.display = 'none';
+							document.getElementById('headerBar').style.display = 'flex';
+							// Show UI elements
+							document.getElementById('instructionsCard').style.display = 'block';
+							document.querySelector('.fact-bubble').style.display = 'block';
+							document.querySelector('.zoom-panel').style.display = 'flex';
+							document.querySelector('.rotation-panel').style.display = 'flex';
+						}, 500);
+					}, 500);
+				}
+			}
+			
 			// Get organ type from URL parameters
 			const urlParams = new URLSearchParams(window.location.search);
 			const organType = urlParams.get('organ') || 'heart';
 			const currentOrgan = organConfigs[organType];
+			
+			// Update loading screen with organ emoji
+			document.getElementById('loadingOrganEmoji').textContent = currentOrgan.emoji;
 
 			// Apply CSS custom properties for dynamic theming
 			const root = document.documentElement;
@@ -208,15 +291,24 @@
 				}, 4000); // Show hint 4 seconds after organ appears
 			}
 
-			// Initialize THREEAR source
+			// Initialize THREEAR source (Camera initialization)
 			var source = new THREEAR.Source({ renderer, camera });
+			
+			// Update progress - Camera initializing
+			updateProgress(3, 'Camera ready!');
 
 			THREEAR.initialize({ source: source }).then((controller) => {
+				
+				// Update progress - AR Marker loaded
+				updateProgress(2, 'AR Marker pattern loaded!');
 
-				// Load 3D Organ Model
+				// Load 3D Organ Model with progress tracking
 				var loader = new THREE.GLTFLoader();
 				loader.load(currentOrgan.modelPath, function(gltf) {
 					var organModel = gltf.scene;
+					
+					// Update progress - Model loaded
+					updateProgress(1, `${currentOrgan.name} model loaded!`);
 					
 					// Scale the organ model to appropriate size for AR
 					organModel.scale.set(currentOrgan.scale.x, currentOrgan.scale.y, currentOrgan.scale.z);

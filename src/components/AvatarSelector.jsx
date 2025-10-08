@@ -1,5 +1,5 @@
 import React from 'react';
-import './AvatarSelector.css';
+import { cn } from '../lib/utils';
 
 const AvatarSelector = ({ selectedAvatar, onAvatarSelect }) => {
   // Avatar options with actual image paths
@@ -11,20 +11,31 @@ const AvatarSelector = ({ selectedAvatar, onAvatarSelect }) => {
   ];
 
   return (
-    <div className="avatar-selector">
+    <div className="grid grid-cols-4 gap-4">
       {avatars.map(avatar => (
         <button
           key={avatar.id}
           type="button"
-          className={`avatar-option ${selectedAvatar === avatar.id ? 'selected' : ''}`}
           onClick={() => onAvatarSelect(avatar.id)}
           title={avatar.name}
+          className={cn(
+            "relative group rounded-2xl overflow-hidden transition-all duration-300",
+            "border-4 hover:scale-110 active:scale-95 focus:outline-none focus:ring-4 focus:ring-purple-400",
+            selectedAvatar === avatar.id 
+              ? "border-purple-500 shadow-2xl shadow-purple-500/50 scale-105" 
+              : "border-gray-300 hover:border-purple-300 shadow-lg"
+          )}
         >
           <img 
             src={avatar.src} 
             alt={avatar.name}
-            className="avatar-image"
+            className="w-full h-full object-cover"
           />
+          {selectedAvatar === avatar.id && (
+            <div className="absolute inset-0 bg-purple-500/20 flex items-center justify-center">
+              <span className="text-4xl">✓</span>
+            </div>
+          )}
         </button>
       ))}
     </div>

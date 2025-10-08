@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import './ScanExploreMenu.css';
+import { Button } from '../components/ui/Button';
+import { Card } from '../components/ui/Card';
+import { cn } from '../lib/utils';
 
 const ScanExploreMenu = () => {
   const [selectedOrgan, setSelectedOrgan] = useState(null);
@@ -209,30 +211,17 @@ const ScanExploreMenu = () => {
 
   if (isScanning) {
     return (
-      <div className="scan-loading-screen">
-        <div className="scan-animation-container">
-          <div className="cartoon-body">
-            <div className="body-outline">
-              <div className="body-head"></div>
-              <div className="body-torso">
-                <div className="heart-spot"></div>
-                <div className="lungs-spot"></div>
-                <div className="stomach-spot"></div>
-              </div>
-              <div className="body-arms">
-                <div className="arm-left"></div>
-                <div className="arm-right"></div>
-              </div>
-              <div className="body-legs">
-                <div className="leg-left"></div>
-                <div className="leg-right"></div>
-              </div>
+      <div className="min-h-screen bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center p-6">
+        <div className="text-center space-y-8 animate-fade-in">
+          <div className="relative">
+            <div className="text-9xl animate-pulse">🔍</div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-32 h-32 border-4 border-white rounded-full animate-ping"></div>
             </div>
-            <div className="scan-beam"></div>
           </div>
-          <div className="scan-text">
-            <h2>🔍 Scanning Your Body...</h2>
-            <p>Finding all the amazing organs!</p>
+          <div className="space-y-2">
+            <h2 className="text-4xl font-bold text-white drop-shadow-lg">Scanning Your Body...</h2>
+            <p className="text-xl text-white/90">Finding all the amazing organs!</p>
           </div>
         </div>
       </div>
@@ -241,57 +230,85 @@ const ScanExploreMenu = () => {
 
   if (selectedOrgan) {
     return (
-      <div className="organ-detail-screen">
-        <div className="detail-header">
-          <button className="back-btn-small" onClick={handleCloseOrganDetail}>
-            ← Back
-          </button>
-          <h2 className="detail-title">Meet Your {selectedOrgan.name}!</h2>
-        </div>
-
-        <div className="organ-illustration">
-          <div 
-            className="large-organ-icon"
-            style={{ backgroundColor: selectedOrgan.color }}
+      <div className="min-h-screen bg-gradient-to-br from-pink-500 to-purple-600 p-6">
+        <div className="max-w-2xl mx-auto space-y-6">
+          <Button
+            onClick={handleCloseOrganDetail}
+            variant="outline"
+            className="mb-4 bg-white/90 hover:bg-white border-0"
           >
-            <img src={selectedOrgan.icon} alt={selectedOrgan.name} />
-          </div>
-        </div>
+            <span className="mr-2">←</span> Back
+          </Button>
 
-        <div className="organ-info">
-          <p className="organ-description">{selectedOrgan.description}</p>
-          
-          <div className="did-you-know-box">
-            <h3>🤔 Did You Know?</h3>
-            {selectedOrgan.didYouKnow.map((fact, index) => (
-              <p key={index} className="fact-item">• {fact}</p>
-            ))}
-          </div>
-        </div>
+          <Card className="bg-white/95 backdrop-blur-sm border-0 p-8 space-y-6">
+            <h2 className="text-4xl font-bold text-center bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+              Meet Your {selectedOrgan.name}!
+            </h2>
 
-        <button className="big-back-button" onClick={() => window.location.href = `/ar-viewer/organ-viewer.html?organ=${selectedOrgan.id}`}>
-          ✨ Explore {selectedOrgan.name} in AR!
-        </button>
+            <div className="flex justify-center">
+              <div 
+                className="w-48 h-48 rounded-3xl flex items-center justify-center shadow-2xl transform hover:scale-105 transition-transform"
+                style={{ backgroundColor: selectedOrgan.color }}
+              >
+                <img src={selectedOrgan.icon} alt={selectedOrgan.name} className="w-32 h-32 object-contain" />
+              </div>
+            </div>
+
+            <p className="text-lg text-gray-700 text-center font-medium">
+              {selectedOrgan.description}
+            </p>
+
+            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl p-6 border-2 border-orange-200">
+              <h3 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <span>🤔</span> Did You Know?
+              </h3>
+              <div className="space-y-2">
+                {selectedOrgan.didYouKnow.map((fact, index) => (
+                  <p key={index} className="text-gray-700 text-base leading-relaxed">
+                    • {fact}
+                  </p>
+                ))}
+              </div>
+            </div>
+
+            <Button
+              onClick={() => window.location.href = `/ar-viewer/organ-viewer.html?organ=${selectedOrgan.id}`}
+              className="w-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white font-bold text-lg py-6"
+              size="lg"
+            >
+              <span className="mr-2">✨</span>
+              Explore {selectedOrgan.name} in AR!
+            </Button>
+          </Card>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="kids-scan-explore">
+    <div className="min-h-screen bg-gradient-to-br from-teal-400 via-cyan-500 to-blue-600 p-6 relative overflow-hidden">
       {/* Header */}
-      <div className="kids-header">
-        <button className="back-btn" onClick={handleBack}>
-          ← Back
-        </button>
-        <div className="progress-indicator">
-          <span className="progress-text">
+      <div className="max-w-7xl mx-auto mb-8 space-y-4">
+        <Button
+          onClick={handleBack}
+          variant="outline"
+          className="bg-white/90 hover:bg-white border-0"
+        >
+          <span className="mr-2">←</span> Back
+        </Button>
+
+        <div className="text-center bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg">
+          <span className="text-lg font-bold text-gray-800">
             {exploredOrgans.length}/{organs.length} organs explored!
           </span>
-          <div className="progress-stars">
+          <div className="flex justify-center gap-1 mt-2">
             {Array.from({ length: organs.length }, (_, i) => (
               <span 
                 key={i} 
-                className={`star ${exploredOrgans.length > i ? 'filled' : ''}`}
+                className={cn(
+                  "text-2xl transition-all",
+                  exploredOrgans.length > i ? "opacity-100 scale-110" : "opacity-30 scale-90"
+                )}
               >
                 ⭐
               </span>
@@ -301,55 +318,69 @@ const ScanExploreMenu = () => {
       </div>
 
       {/* Title */}
-      <div className="kids-title">
-        <h1>🌟 Pick an Organ! 🌟</h1>
-        <p>Tap to learn about your amazing body!</p>
+      <div className="text-center mb-8 space-y-2">
+        <h1 className="text-5xl md:text-6xl font-bold text-white drop-shadow-2xl">
+          🌟 Pick an Organ! 🌟
+        </h1>
+        <p className="text-2xl text-white/90 font-medium drop-shadow-lg">
+          Tap to learn about your amazing body!
+        </p>
       </div>
 
       {/* Organs Grid */}
-      <div className="kids-organs-grid">
+      <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-20">
         {organs.map((organ) => (
           <button
             key={organ.id}
             data-organ={organ.id}
-            className={`kid-organ-button ${exploredOrgans.includes(organ.id) ? 'explored' : ''}`}
             onClick={() => handleOrganSelect(organ)}
+            className={cn(
+              "relative rounded-3xl p-6 shadow-2xl transform transition-all duration-300",
+              "hover:scale-105 hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)] active:scale-95",
+              "overflow-hidden group"
+            )}
             style={{ backgroundColor: organ.color }}
           >
-            <div className="organ-icon-large">
-              <img src={organ.icon} alt={organ.name} />
+            <div className="relative z-10 space-y-3">
+              <div className="w-24 h-24 mx-auto bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm group-hover:scale-110 transition-transform">
+                <img src={organ.icon} alt={organ.name} className="w-16 h-16 object-contain" />
+              </div>
+              <div className="text-center">
+                <h3 className="text-xl font-bold text-white mb-1">{organ.name}</h3>
+                <p className="text-sm text-white/90">{organ.funFact}</p>
+              </div>
             </div>
-            <div className="organ-content">
-              <h3 className="organ-name">{organ.name}</h3>
-              <p className="organ-fun-fact">{organ.funFact}</p>
-            </div>
+            
             {exploredOrgans.includes(organ.id) && (
-              <div className="explored-badge">✅</div>
+              <div className="absolute top-2 right-2 bg-white rounded-full p-2 shadow-lg animate-scale-in">
+                <span className="text-2xl">✅</span>
+              </div>
             )}
-            <div className="sparkles">
-              <span className="sparkle sparkle-1">✨</span>
-              <span className="sparkle sparkle-2">⭐</span>
-              <span className="sparkle sparkle-3">💫</span>
-            </div>
+            
+            <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors duration-300" />
           </button>
         ))}
       </div>
 
       {/* Achievement Badge */}
       {showBadge && (
-        <div className="achievement-overlay">
-          <div className="achievement-badge">
-            <div className="badge-icon">🏆</div>
-            <h2>Organ Expert!</h2>
-            <p>You explored all the organs!</p>
-            <div className="celebration-confetti">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
+          <Card className="bg-white border-0 p-12 text-center space-y-6 animate-scale-in max-w-md mx-4">
+            <div className="text-8xl">🏆</div>
+            <h2 className="text-4xl font-bold bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
+              Organ Expert!
+            </h2>
+            <p className="text-2xl text-gray-700 font-medium">
+              You explored all the organs!
+            </p>
+            <div className="flex justify-center gap-4 text-5xl animate-float">
               <span>🎉</span>
               <span>🎊</span>
               <span>🌟</span>
               <span>✨</span>
               <span>🎈</span>
             </div>
-          </div>
+          </Card>
         </div>
       )}
     </div>

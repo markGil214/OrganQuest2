@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import './ARScanner.css';
+import { Button } from '../components/ui/Button';
+import { Card } from '../components/ui/Card';
 
 // Global stream storage outside component scope
 let globalCameraStream = null;

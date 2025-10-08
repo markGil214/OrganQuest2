@@ -1,18 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { timedChallengeQuestions } from '../data/timedChallengeQuestions';
+import { Button } from '../components/ui/Button';
+import { cn } from '../lib/utils';
 
 const TimedChallengeQuiz = () => {
-  // Add Montserrat font
-  const addMontserratFont = () => {
-    const link = document.createElement('link');
-    link.href = 'https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap';
-    link.rel = 'stylesheet';
-    document.head.appendChild(link);
-  };
-
-  useEffect(() => {
-    addMontserratFont();
-  }, []);
 
   // Shuffle function
   const shuffleArray = (array) => {

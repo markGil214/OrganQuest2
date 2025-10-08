@@ -1,6 +1,6 @@
 import React from 'react';
 import Organ from '../components/Organ';
-import './Home.css';
+import { Button } from '../components/ui/Button';
 
 // Import organ images
 import heartImg from '../assets/images/heart.svg';
@@ -45,12 +45,11 @@ const Home = () => {
 
   const handleGetStarted = () => {
     console.log('Get Started clicked - navigating to registration');
-    // TODO: Replace with proper routing when React Router is implemented
     window.location.href = '#register';
   };
 
   return (
-    <div className="home-container">
+    <div className="relative min-h-screen bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-600 overflow-hidden">
       {/* Floating organ images */}
       {organs.map((organ, index) => (
         <Organ
@@ -63,12 +62,22 @@ const Home = () => {
       ))}
 
       {/* Main content */}
-      <div className="main-content">
-        <h1 className="title">OrganQuest</h1>
-        <p className="subtitle">The Human Anatomy Explorer</p>
-        <button className="get-started-btn" onClick={handleGetStarted}>
-          Get Started
-        </button>
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen text-center px-6">
+        <div className="animate-scale-in">
+          <h1 className="text-7xl md:text-8xl font-bold text-white drop-shadow-2xl mb-4">
+            OrganQuest
+          </h1>
+          <p className="text-2xl md:text-3xl text-white/90 font-medium mb-12 drop-shadow-lg">
+            The Human Anatomy Explorer
+          </p>
+          <Button
+            onClick={handleGetStarted}
+            size="xl"
+            className="bg-white text-purple-600 hover:bg-gray-100 font-bold text-xl px-12 py-8 shadow-2xl hover:shadow-[0_20px_60px_rgba(255,255,255,0.4)] transform hover:scale-110 transition-all duration-300"
+          >
+            Get Started
+          </Button>
+        </div>
       </div>
     </div>
   );
