@@ -46,6 +46,16 @@ const userSchema = new mongoose.Schema({
     enum: ['english', 'filipino', 'spanish', 'mandarin'],
     default: 'english'
   },
+  role: {
+    type: String,
+    enum: ['student', 'admin', 'superuser'],
+    default: 'student'
+  },
+  assignedGrade: {
+    type: String,
+    enum: ['4th', '5th', '6th', 'all'],
+    default: null // Only for admins
+  },
   stats: {
     totalQuizzesTaken: {
       type: Number,

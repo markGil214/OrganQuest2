@@ -161,6 +161,8 @@ router.post('/login',
             grade: user.grade,
             avatar: user.avatar,
             language: user.language,
+            role: user.role,
+            assignedGrade: user.assignedGrade,
             stats: user.stats,
             createdAt: user.createdAt
           },
