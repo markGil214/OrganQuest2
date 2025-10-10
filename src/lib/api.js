@@ -1,5 +1,6 @@
 // API configuration
-const API_URL = import.meta.env.VITE_API_URL || 'https://organquest2.onrender.com/api';
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://organquest2.onrender.com';
+const API_URL = `${BASE_URL}/api`;
 
 // API helper functions
 export const api = {
