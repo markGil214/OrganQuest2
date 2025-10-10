@@ -151,6 +151,11 @@ router.get('/summary', authMiddleware, async (req, res) => {
       });
     }
 
+    // Calculate average score
+    const averageScore = user.stats.totalQuizzesTaken > 0 
+      ? Math.round((user.stats.totalScore / user.stats.totalQuizzesTaken) * 100) / 100
+      : 0;
+
     const recentQuizzes = user.quizResults
       .sort((a, b) => b.completedAt - a.completedAt)
       .slice(0, 5);
@@ -158,7 +163,14 @@ router.get('/summary', authMiddleware, async (req, res) => {
     res.json({
       success: true,
       data: {
-        stats: user.stats,
+        stats: {
+          organsExplored: user.stats.organsExplored,
+          quizzesTaken: user.stats.totalQuizzesTaken, // Map to expected field name
+          totalQuizzesTaken: user.stats.totalQuizzesTaken,
+          averageScore: averageScore, // Calculate average
+          totalScore: user.stats.totalScore,
+          highScore: user.stats.highScore
+        },
         organProgress: {
           explored: user.stats.organsExplored,
           total: ORGAN_NAMES.length,
