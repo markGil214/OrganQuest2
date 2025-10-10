@@ -29,12 +29,17 @@ app.use(cors({
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.warn(`⚠️  CORS blocked request from: ${origin}`);
-      callback(new Error('Not allowed by CORS'));
+    // Allow any Vercel preview URL
+    if (origin && origin.includes('vercel.app')) {
+      return callback(null, true);
     }
+    
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    console.warn(`⚠️  CORS blocked request from: ${origin}`);
+    callback(new Error('Not allowed by CORS'));
   },
   credentials: true
 }));
