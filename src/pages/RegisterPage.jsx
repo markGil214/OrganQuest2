@@ -51,13 +51,10 @@ const RegisterPage = ({ onRegistrationComplete }) => {
         localStorage.setItem('userData', JSON.stringify(response.data.user));
       }
 
-      // Call the completion callback
+      // Call the completion callback (handles navigation to welcome page)
       if (onRegistrationComplete) {
         onRegistrationComplete(response.data.user);
       }
-      
-      // Navigate to main menu
-      window.location.hash = '#menu';
     } catch (err) {
       console.error('Registration error:', err);
       setError(err.message || 'Registration failed. Please try again.');
