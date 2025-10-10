@@ -318,8 +318,15 @@
 				}, 4000); // Show hint 4 seconds after organ appears
 			}
 
-			// Initialize THREEAR source (Camera initialization)
-			var source = new THREEAR.Source({ renderer, camera });
+			// Initialize THREEAR source with HD camera settings
+			var source = new THREEAR.Source({ 
+				renderer, 
+				camera,
+				sourceWidth: 1920,  // Request 1080p resolution
+				sourceHeight: 1080,
+				displayWidth: window.innerWidth,
+				displayHeight: window.innerHeight
+			});
 			
 			// Update progress - Camera initializing
 			updateProgress(3, 'Camera ready!');
