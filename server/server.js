@@ -18,6 +18,7 @@ const PORT = process.env.PORT || 5000;
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5174',
+  'https://organ-quest1.vercel.app',
   'https://organ-quest2.vercel.app',
   process.env.CLIENT_URL
 ].filter(Boolean); // Remove undefined/null values

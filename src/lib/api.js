@@ -6,6 +6,7 @@ const API_URL = `${BASE_URL}/api`;
 export const api = {
   // User endpoints
   async register(userData) {
+    console.log('Sending registration data:', userData);
     const response = await fetch(`${API_URL}/users/register`, {
       method: 'POST',
       headers: {
@@ -14,8 +15,14 @@ export const api = {
       body: JSON.stringify(userData),
     });
     const data = await response.json();
+    console.log('Registration response:', data);
     
     if (!response.ok) {
+      // Check for validation errors
+      if (data.errors && data.errors.length > 0) {
+        const errorMessages = data.errors.map(err => err.msg).join(', ');
+        throw new Error(errorMessages);
+      }
       throw new Error(data.message || 'Registration failed');
     }
     
