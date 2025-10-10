@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import AvatarSelector from '../components/AvatarSelector';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
+import api from '../lib/api';
 
 const RegisterPage = ({ onRegistrationComplete }) => {
   const [formData, setFormData] = useState({
@@ -10,6 +11,8 @@ const RegisterPage = ({ onRegistrationComplete }) => {
     avatar: null,
     language: 'english'
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -26,14 +29,37 @@ const RegisterPage = ({ onRegistrationComplete }) => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('User Registration Data:', formData);
+    setError(null);
+    setIsLoading(true);
     
-    if (onRegistrationComplete) {
-      onRegistrationComplete(formData);
-    } else {
-      alert(`Welcome, ${formData.username}! Registration data logged to console.`);
+    try {
+      // Send registration data to backend
+      const response = await api.register({
+        username: formData.username,
+        age: parseInt(formData.age),
+        avatar: formData.avatar,
+        language: formData.language
+      });
+
+      console.log('Registration successful:', response);
+      
+      // Store the token in localStorage
+      if (response.data.token) {
+        localStorage.setItem('authToken', response.data.token);
+        localStorage.setItem('userData', JSON.stringify(response.data.user));
+      }
+
+      // Call the completion callback
+      if (onRegistrationComplete) {
+        onRegistrationComplete(response.data.user);
+      }
+    } catch (err) {
+      console.error('Registration error:', err);
+      setError(err.message || 'Registration failed. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -69,6 +95,13 @@ const RegisterPage = ({ onRegistrationComplete }) => {
           <h2 className="text-4xl font-bold text-center bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
             Welcome!
           </h2>
+
+          {/* Error Message */}
+          {error && (
+            <div className="p-4 bg-red-50 border-2 border-red-200 rounded-xl">
+              <p className="text-red-600 text-sm font-medium text-center">{error}</p>
+            </div>
+          )}
 
           {/* Username Input */}
           <div className="space-y-2">
@@ -141,10 +174,21 @@ const RegisterPage = ({ onRegistrationComplete }) => {
           {/* Register Button */}
           <Button 
             type="submit" 
-            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold text-lg py-6 shadow-2xl"
+            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold text-lg py-6 shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
             size="lg"
+            disabled={isLoading || !formData.username || !formData.age || !formData.avatar}
           >
-            Register
+            {isLoading ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                Registering...
+              </span>
+            ) : (
+              'Register'
+            )}
           </Button>
         </form>
       </Card>
