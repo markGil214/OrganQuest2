@@ -55,6 +55,9 @@ const RegisterPage = ({ onRegistrationComplete }) => {
       if (onRegistrationComplete) {
         onRegistrationComplete(response.data.user);
       }
+      
+      // Navigate to main menu
+      window.location.hash = '#menu';
     } catch (err) {
       console.error('Registration error:', err);
       setError(err.message || 'Registration failed. Please try again.');

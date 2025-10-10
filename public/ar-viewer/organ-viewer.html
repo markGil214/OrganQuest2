@@ -75,11 +75,6 @@
 			<p class="fact-text" id="fact-text">Amazing organ facts will appear here!</p>
 		</div>
 		
-		<!-- Zoom Hint Popup -->
-		<div class="zoom-hint" id="zoomHint" style="display: none;">
-			🔍 Zoom all the way in to explore the organ's details!
-		</div>
-		
 		<!-- Compact Zoom Panel (hidden initially) -->
 		<div class="zoom-panel" style="display: none;">
 			<button class="zoom-btn" onclick="zoomIn()" title="Zoom In">+</button>
@@ -176,27 +171,6 @@
 		" id="cameraSettingsBtn">
 			📷
 		</button>
-		
-		<!-- Drag to Rotate Hint -->
-		<div id="dragHint" style="
-			position: fixed;
-			bottom: 120px;
-			left: 50%;
-			transform: translateX(-50%);
-			background: rgba(255, 255, 255, 0.95);
-			padding: 12px 24px;
-			border-radius: 20px;
-			box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-			font-size: 14px;
-			color: #333;
-			font-weight: 600;
-			display: none;
-			z-index: 1000;
-			text-align: center;
-			animation: bounceIn 0.5s ease-out;
-		">
-			👆 Drag anywhere to rotate the model
-		</div>
 
 		<script src="./organ-configs.js"></script>
 		<script>
@@ -323,18 +297,6 @@
 							document.getElementById('instructionsCard').style.display = 'block';
 							document.querySelector('.fact-bubble').style.display = 'block';
 							document.querySelector('.zoom-panel').style.display = 'flex';
-							// Show drag hint after a delay
-							setTimeout(function() {
-								document.getElementById('dragHint').style.display = 'block';
-								// Auto-hide drag hint after 5 seconds
-								setTimeout(function() {
-									var hint = document.getElementById('dragHint');
-									if (hint) {
-										hint.style.opacity = '0';
-										hint.style.transition = 'opacity 0.5s';
-									}
-								}, 5000);
-							}, 2000);
 						}, 500);
 					}, 500);
 				}
@@ -344,6 +306,39 @@
 			const urlParams = new URLSearchParams(window.location.search);
 			const organType = urlParams.get('organ') || 'heart';
 			const currentOrgan = organConfigs[organType];
+			
+			// Track organ exploration (send to backend)
+			function trackOrganView() {
+				try {
+					const token = localStorage.getItem('authToken');
+					if (!token) {
+						console.log('No auth token, skipping organ tracking');
+						return;
+					}
+					
+					const API_URL = 'http://localhost:5000/api';
+					fetch(`${API_URL}/progress/organ`, {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							'Authorization': `Bearer ${token}`
+						},
+						body: JSON.stringify({ organName: organType })
+					})
+					.then(response => response.json())
+					.then(data => {
+						console.log('Organ tracked successfully:', data);
+					})
+					.catch(error => {
+						console.error('Failed to track organ:', error);
+					});
+				} catch (error) {
+					console.error('Error tracking organ:', error);
+				}
+			}
+			
+			// Track organ when page loads
+			trackOrganView();
 			
 			// Update loading screen with organ emoji
 			document.getElementById('loadingOrganEmoji').textContent = currentOrgan.emoji;
@@ -368,7 +363,6 @@
 			document.getElementById('organ-emoji').textContent = currentOrgan.emoji;
 			document.getElementById('instructions-text').innerHTML = `<span class="organ-emoji">${currentOrgan.emoji}</span> ${currentOrgan.instructions}`;
 			document.getElementById('fact-text').textContent = currentOrgan.funFact;
-			document.getElementById('zoomHint').textContent = currentOrgan.hintText;
 
 			// Initialize Three.js renderer with transparency
 			var renderer = new THREE.WebGLRenderer({
@@ -418,11 +412,10 @@
 					
 					// Auto-redirect to interactive view when reaching maximum zoom - TEMPORARILY DISABLED
 					if (currentZoom >= maxZoom) {
-						// Show special transition message
-						showTransitionMessage();
+						// Transition disabled
 						// setTimeout(function() {
 						// 	window.location.href = currentOrgan.interactivePage;
-						// }, 1500); // Longer delay for smooth transition
+						// }, 1500);
 					}
 				}
 			}
@@ -445,8 +438,6 @@
 					zoomDisplay.style.background = colors.hintBg1;
 					zoomDisplay.style.color = 'white';
 					zoomDisplay.style.borderColor = colors.hintBg1;
-					// Hide zoom hint when close to max zoom
-					document.getElementById('zoomHint').style.display = 'none';
 				} else {
 					zoomDisplay.style.background = 'white';
 					zoomDisplay.style.color = colors.primary;
@@ -469,26 +460,6 @@
 				// Apply rotation to the organ group (both X and Y axis)
 				organGroup.userData.manualRotationY = currentRotationY;
 				organGroup.userData.manualRotationX = currentRotationX;
-			}
-			
-			// Function to show transition message
-			function showTransitionMessage() {
-				var hint = document.getElementById('zoomHint');
-				hint.innerHTML = currentOrgan.transitionMessage;
-				hint.style.background = `linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)`;
-				hint.style.display = 'block';
-				hint.style.animation = 'pulse-hint 0.5s infinite';
-			}
-			
-			// Function to show zoom hint
-			function showZoomHint() {
-				setTimeout(function() {
-					document.getElementById('zoomHint').style.display = 'block';
-					// Auto-hide after 6 seconds
-					setTimeout(function() {
-						document.getElementById('zoomHint').style.display = 'none';
-					}, 6000);
-				}, 4000); // Show hint 4 seconds after organ appears
 			}
 
 			// Initialize THREEAR source with HD camera settings
@@ -551,9 +522,6 @@
 					
 					// Initialize zoom scale
 					organGroup.userData.zoomScale = currentZoom;
-					
-					// Show zoom hint to encourage interaction
-					showZoomHint();
 					
 					// Add animation to the model based on organ type
 					var originalScale = currentOrgan.scale;
@@ -644,7 +612,6 @@
 						rightLung.position.set(0.2, 0.5, 0);
 						organGroup.add(rightLung);
 						
-						showZoomHint();
 						return; // Exit early for lungs
 					} else if (organType === 'liver') {
 						organGeometry = new THREE.BoxGeometry(0.4, 0.3, 0.2);
@@ -662,9 +629,6 @@
 					organMesh = new THREE.Mesh(organGeometry, organMaterial);
 					organMesh.position.y = 0.5;
 					organGroup.add(organMesh);
-					
-					// Show zoom hint for fallback organ too
-					showZoomHint();
 				}
 
 				// Add lighting for better organ appearance

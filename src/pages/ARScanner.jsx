@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
+import { trackOrganExploration } from '../lib/organTracker';
 
 // Global stream storage outside component scope
 let globalCameraStream = null;
@@ -120,6 +121,9 @@ const ARScanner = () => {
         console.log('Stream assigned to refs, global variable, and window');
         setHasPermission(true);
         setIsScanning(true);
+        
+        // Track organ exploration when camera starts
+        trackOrganExploration(organId);
       } else {
         console.error('Video ref is null!');
       }

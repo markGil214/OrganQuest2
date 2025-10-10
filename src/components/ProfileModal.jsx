@@ -1,9 +1,47 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/Dialog';
 import { Button } from './ui/Button';
 import { cn } from '../lib/utils';
+import api from '../lib/api';
 
 const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
+  const [stats, setStats] = useState({
+    organsExplored: 0,
+    quizzesTaken: 0,
+    averageScore: 0
+  });
+  const [loading, setLoading] = useState(true);
+
+  // Fetch user stats from backend
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+          console.log('No auth token found');
+          setLoading(false);
+          return;
+        }
+
+        const response = await api.getProgressSummary(token);
+        if (response.success) {
+          const data = response.data;
+          setStats({
+            organsExplored: data.stats.organsExplored || 0,
+            quizzesTaken: data.stats.quizzesTaken || 0,
+            averageScore: data.stats.averageScore || 0
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
   const handleSettingsClick = (setting) => {
     console.log(`Settings clicked: ${setting}`);
     // TODO: Implement settings functionality
@@ -45,17 +83,23 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
           <div className="grid grid-cols-3 gap-4 w-full px-4">
             <div className="flex flex-col items-center gap-1 bg-white/70 rounded-xl p-3 shadow-md">
               <div className="text-2xl">🏆</div>
-              <div className="text-xl font-bold text-gray-800">12</div>
+              <div className="text-xl font-bold text-gray-800">
+                {loading ? '...' : stats.organsExplored}
+              </div>
               <div className="text-xs text-gray-600 text-center">Organs Learned</div>
             </div>
             <div className="flex flex-col items-center gap-1 bg-white/70 rounded-xl p-3 shadow-md">
               <div className="text-2xl">⭐</div>
-              <div className="text-xl font-bold text-gray-800">8</div>
+              <div className="text-xl font-bold text-gray-800">
+                {loading ? '...' : stats.quizzesTaken}
+              </div>
               <div className="text-xs text-gray-600 text-center">Quizzes Done</div>
             </div>
             <div className="flex flex-col items-center gap-1 bg-white/70 rounded-xl p-3 shadow-md">
               <div className="text-2xl">🎯</div>
-              <div className="text-xl font-bold text-gray-800">85%</div>
+              <div className="text-xl font-bold text-gray-800">
+                {loading ? '...' : `${Math.round(stats.averageScore)}%`}
+              </div>
               <div className="text-xs text-gray-600 text-center">Avg Score</div>
             </div>
           </div>

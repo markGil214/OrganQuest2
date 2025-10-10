@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { timedChallengeQuestions } from '../data/timedChallengeQuestions';
 import { Button } from '../components/ui/Button';
 import { cn } from '../lib/utils';
+import api from '../lib/api';
 
 const TimedChallengeQuiz = () => {
 
@@ -46,9 +47,43 @@ const TimedChallengeQuiz = () => {
       }, 1000);
     } else if (timeLeft === 0 && gameState === 'playing') {
       setGameState('finished');
+      // Submit quiz results when time runs out
+      submitTimedQuizToBackend();
     }
     return () => clearTimeout(timer);
   }, [timeLeft, gameState]);
+
+  // Submit timed quiz results to backend
+  const submitTimedQuizToBackend = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        console.log('No auth token found, skipping quiz submission');
+        return;
+      }
+
+      const totalQuestionsAnswered = currentQuestion + 1;
+      const correctAnswers = Math.floor(score / 10); // Approximate based on scoring
+      const percentage = totalQuestionsAnswered > 0 ? Math.round((correctAnswers / totalQuestionsAnswered) * 100) : 0;
+
+      const quizData = {
+        quizType: 'timed-challenge',
+        score: score,
+        totalQuestions: totalQuestionsAnswered,
+        correctAnswers: correctAnswers,
+        wrongAnswers: totalQuestionsAnswered - correctAnswers,
+        percentage: percentage,
+        timeTaken: 60 - timeLeft,
+        bestStreak: bestStreak,
+        answers: [] // Timed quiz doesn't need detailed answers
+      };
+
+      const response = await api.submitQuiz(token, quizData);
+      console.log('Timed quiz submitted successfully:', response);
+    } catch (error) {
+      console.error('Failed to submit timed quiz:', error);
+    }
+  };
 
   const startGame = () => {
     setGameState('playing');

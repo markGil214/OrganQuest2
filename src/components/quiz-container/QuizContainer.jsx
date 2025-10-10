@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { baseQuizQuestions } from '../../data/quizQuestions';
+import api from '../../lib/api';
 
 // Add Montserrat font
 const addMontserratFont = () => {
@@ -91,6 +92,41 @@ const QuizContainer = () => {
       setAnimationClass('');
     } else {
       setQuizCompleted(true);
+      // Submit quiz results to backend
+      submitQuizToBackend();
+    }
+  };
+
+  // Submit quiz results to backend
+  const submitQuizToBackend = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        console.log('No auth token found, skipping quiz submission');
+        return;
+      }
+
+      const quizData = {
+        quizType: 'multiple-choice',
+        score: score,
+        totalQuestions: quizQuestions.length,
+        correctAnswers: score,
+        wrongAnswers: quizQuestions.length - score,
+        percentage: Math.round((score / quizQuestions.length) * 100),
+        timeTaken: 0, // Could track this if needed
+        answers: quizQuestions.map((q, index) => ({
+          question: q.question,
+          selectedAnswer: index <= currentQuestion ? (selectedAnswer !== null ? q.options[selectedAnswer] : null) : null,
+          correctAnswer: q.options[q.correct],
+          isCorrect: index <= currentQuestion ? (selectedAnswer === q.correct) : false
+        }))
+      };
+
+      const response = await api.submitQuiz(token, quizData);
+      console.log('Quiz submitted successfully:', response);
+    } catch (error) {
+      console.error('Failed to submit quiz:', error);
+      // Don't show error to user, just log it
     }
   };
 
