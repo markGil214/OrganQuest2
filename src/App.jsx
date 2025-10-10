@@ -63,7 +63,7 @@ function App() {
         setCurrentPage('register');
       } else if (hash === 'welcome') {
         setCurrentPage('welcome');
-      } else if (hash === 'main-menu') {
+      } else if (hash === 'main-menu' || hash === 'menu') {
         setCurrentPage('main-menu');
       } else if (hash === 'quiz') {
         setCurrentPage('quiz');
