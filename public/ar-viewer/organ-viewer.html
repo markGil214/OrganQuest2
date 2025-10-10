@@ -87,6 +87,96 @@
 			<button class="zoom-btn" onclick="zoomOut()" title="Zoom Out">−</button>
 		</div>
 		
+		<!-- Camera Controls Panel -->
+		<div class="camera-controls-panel" style="
+			position: fixed;
+			top: 80px;
+			right: 20px;
+			background: rgba(255, 255, 255, 0.95);
+			padding: 15px;
+			border-radius: 15px;
+			box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+			display: none;
+			z-index: 1000;
+			min-width: 220px;
+		" id="cameraControlsPanel">
+			<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+				<h3 style="margin: 0; font-size: 16px; color: #333;">📷 Camera Settings</h3>
+				<button onclick="toggleCameraControls()" style="
+					background: none;
+					border: none;
+					font-size: 20px;
+					cursor: pointer;
+					padding: 0;
+					color: #666;
+				">×</button>
+			</div>
+			
+			<!-- Brightness Control -->
+			<div style="margin-bottom: 15px;">
+				<label style="display: block; font-size: 13px; color: #555; margin-bottom: 5px; font-weight: 600;">
+					☀️ Brightness: <span id="brightnessValue">0</span>
+				</label>
+				<input type="range" id="brightnessSlider" min="-3" max="3" step="0.1" value="0" 
+					style="width: 100%;" onchange="updateBrightness(this.value)">
+			</div>
+			
+			<!-- Contrast Control -->
+			<div style="margin-bottom: 15px;">
+				<label style="display: block; font-size: 13px; color: #555; margin-bottom: 5px; font-weight: 600;">
+					◐ Contrast: <span id="contrastValue">1</span>
+				</label>
+				<input type="range" id="contrastSlider" min="0.5" max="2" step="0.1" value="1" 
+					style="width: 100%;" onchange="updateContrast(this.value)">
+			</div>
+			
+			<!-- Exposure Control (if supported) -->
+			<div style="margin-bottom: 15px;">
+				<label style="display: block; font-size: 13px; color: #555; margin-bottom: 5px; font-weight: 600;">
+					💡 Exposure: <span id="exposureValue">Auto</span>
+				</label>
+				<input type="range" id="exposureSlider" min="-3" max="3" step="0.5" value="0" 
+					style="width: 100%;" onchange="updateExposure(this.value)" disabled>
+				<p style="font-size: 11px; color: #999; margin: 5px 0 0 0;">May not work on all devices</p>
+			</div>
+			
+			<!-- Reset Button -->
+			<button onclick="resetCameraSettings()" style="
+				width: 100%;
+				padding: 10px;
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+				color: white;
+				border: none;
+				border-radius: 8px;
+				font-size: 13px;
+				font-weight: 600;
+				cursor: pointer;
+				box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+			">
+				🔄 Reset to Default
+			</button>
+		</div>
+		
+		<!-- Camera Settings Toggle Button -->
+		<button onclick="toggleCameraControls()" class="camera-settings-btn" style="
+			position: fixed;
+			top: 80px;
+			right: 20px;
+			width: 50px;
+			height: 50px;
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			color: white;
+			border: none;
+			border-radius: 50%;
+			font-size: 24px;
+			cursor: pointer;
+			box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+			z-index: 999;
+			display: none;
+		" id="cameraSettingsBtn">
+			📷
+		</button>
+		
 		<!-- Drag to Rotate Hint -->
 		<div id="dragHint" style="
 			position: fixed;
@@ -679,6 +769,112 @@
 						rotateRight();
 					}
 				});
+				
+				// Camera Controls Functions
+				var videoElement = null;
+				var videoTrack = null;
+				var currentBrightness = 0;
+				var currentContrast = 1;
+				
+				// Get video element and track for camera controls
+				setTimeout(function() {
+					// Find the video element created by AR.js
+					videoElement = document.querySelector('video');
+					if (videoElement && videoElement.srcObject) {
+						var stream = videoElement.srcObject;
+						videoTrack = stream.getVideoTracks()[0];
+						
+						// Show camera settings button once video is ready
+						document.getElementById('cameraSettingsBtn').style.display = 'block';
+						
+						// Check if device supports advanced camera controls
+						if (videoTrack.getCapabilities) {
+							var capabilities = videoTrack.getCapabilities();
+							
+							// Enable exposure control if supported
+							if (capabilities.exposureCompensation || capabilities.exposureTime) {
+								document.getElementById('exposureSlider').disabled = false;
+							}
+						}
+					}
+				}, 2000); // Wait for AR.js to initialize video
+				
+				function toggleCameraControls() {
+					var panel = document.getElementById('cameraControlsPanel');
+					var btn = document.getElementById('cameraSettingsBtn');
+					if (panel.style.display === 'none' || panel.style.display === '') {
+						panel.style.display = 'block';
+						btn.style.display = 'none';
+					} else {
+						panel.style.display = 'none';
+						btn.style.display = 'block';
+					}
+				}
+				
+				function updateBrightness(value) {
+					currentBrightness = parseFloat(value);
+					document.getElementById('brightnessValue').textContent = value;
+					applyCameraFilters();
+				}
+				
+				function updateContrast(value) {
+					currentContrast = parseFloat(value);
+					document.getElementById('contrastValue').textContent = value;
+					applyCameraFilters();
+				}
+				
+				function updateExposure(value) {
+					document.getElementById('exposureValue').textContent = value;
+					
+					// Try to apply exposure compensation if supported
+					if (videoTrack && videoTrack.getCapabilities) {
+						var capabilities = videoTrack.getCapabilities();
+						
+						if (capabilities.exposureCompensation) {
+							videoTrack.applyConstraints({
+								advanced: [{ exposureCompensation: parseFloat(value) }]
+							}).catch(err => {
+								console.log('Exposure control not supported:', err);
+							});
+						}
+					}
+				}
+				
+				function applyCameraFilters() {
+					if (videoElement) {
+						// Apply CSS filters to video element for brightness/contrast
+						videoElement.style.filter = `brightness(${1 + currentBrightness/3}) contrast(${currentContrast})`;
+					}
+				}
+				
+				function resetCameraSettings() {
+					// Reset sliders
+					document.getElementById('brightnessSlider').value = 0;
+					document.getElementById('contrastSlider').value = 1;
+					document.getElementById('exposureSlider').value = 0;
+					
+					// Reset values
+					currentBrightness = 0;
+					currentContrast = 1;
+					
+					// Update displays
+					document.getElementById('brightnessValue').textContent = '0';
+					document.getElementById('contrastValue').textContent = '1';
+					document.getElementById('exposureValue').textContent = 'Auto';
+					
+					// Apply reset
+					applyCameraFilters();
+					
+					// Reset exposure if supported
+					if (videoTrack && videoTrack.getCapabilities) {
+						var capabilities = videoTrack.getCapabilities();
+						if (capabilities.exposureMode) {
+							videoTrack.applyConstraints({
+								advanced: [{ exposureMode: 'continuous' }]
+							}).catch(err => console.log('Could not reset exposure'));
+						}
+					}
+				}
 
 			}).catch((error) => {
 				console.error('THREEAR initialization failed:', error);
