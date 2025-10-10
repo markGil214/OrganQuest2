@@ -10,13 +10,23 @@ const router = express.Router();
 // @access  Public
 router.post('/register',
   [
+    body('fullName')
+      .trim()
+      .isLength({ min: 2, max: 100 })
+      .withMessage('Full name must be between 2 and 100 characters'),
     body('username')
       .trim()
       .isLength({ min: 3, max: 30 })
       .withMessage('Username must be between 3 and 30 characters'),
+    body('password')
+      .isLength({ min: 6 })
+      .withMessage('Password must be at least 6 characters'),
     body('age')
       .isInt({ min: 1, max: 120 })
       .withMessage('Age must be between 1 and 120'),
+    body('grade')
+      .isIn(['4th', '5th', '6th'])
+      .withMessage('Grade must be 4th, 5th, or 6th'),
     body('avatar')
       .isInt({ min: 1, max: 4 })
       .withMessage('Avatar must be between 1 and 4'),
@@ -35,7 +45,7 @@ router.post('/register',
         });
       }
 
-      const { username, age, avatar, language } = req.body;
+      const { fullName, username, password, age, grade, avatar, language } = req.body;
 
       // Check if user already exists
       const existingUser = await User.findOne({ username });
@@ -46,10 +56,13 @@ router.post('/register',
         });
       }
 
-      // Create new user
+      // Create new user (password will be hashed automatically by pre-save hook)
       const user = new User({
+        fullName,
         username,
+        password,
         age,
+        grade,
         avatar,
         language,
         organProgress: []
@@ -66,8 +79,10 @@ router.post('/register',
         data: {
           user: {
             id: user._id,
+            fullName: user.fullName,
             username: user.username,
             age: user.age,
+            grade: user.grade,
             avatar: user.avatar,
             language: user.language,
             stats: user.stats,
@@ -81,6 +96,82 @@ router.post('/register',
       res.status(500).json({
         success: false,
         message: 'Server error during registration',
+        error: error.message
+      });
+    }
+  }
+);
+
+// @route   POST /api/users/login
+// @desc    Login user
+// @access  Public
+router.post('/login',
+  [
+    body('username')
+      .trim()
+      .notEmpty()
+      .withMessage('Username is required'),
+    body('password')
+      .notEmpty()
+      .withMessage('Password is required')
+  ],
+  async (req, res) => {
+    try {
+      // Check for validation errors
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          success: false,
+          errors: errors.array()
+        });
+      }
+
+      const { username, password } = req.body;
+
+      // Find user by username
+      const user = await User.findOne({ username });
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid username or password'
+        });
+      }
+
+      // Check password
+      const isPasswordValid = await user.comparePassword(password);
+      if (!isPasswordValid) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid username or password'
+        });
+      }
+
+      // Generate JWT token
+      const token = generateToken(user._id);
+
+      res.json({
+        success: true,
+        message: 'Login successful',
+        data: {
+          user: {
+            id: user._id,
+            fullName: user.fullName,
+            username: user.username,
+            age: user.age,
+            grade: user.grade,
+            avatar: user.avatar,
+            language: user.language,
+            stats: user.stats,
+            createdAt: user.createdAt
+          },
+          token
+        }
+      });
+    } catch (error) {
+      console.error('Login error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server error during login',
         error: error.message
       });
     }

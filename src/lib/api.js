@@ -29,6 +29,25 @@ export const api = {
     return data;
   },
 
+  async login(credentials) {
+    console.log('Attempting login for:', credentials.username);
+    const response = await fetch(`${API_URL}/users/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(credentials),
+    });
+    const data = await response.json();
+    console.log('Login response:', data);
+    
+    if (!response.ok) {
+      throw new Error(data.message || 'Login failed');
+    }
+    
+    return data;
+  },
+
   async getProfile(token) {
     const response = await fetch(`${API_URL}/users/profile`, {
       headers: {

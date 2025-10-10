@@ -1,5 +1,6 @@
 import { useState, useEffect, lazy, Suspense } from 'react'
 import Home from './pages/Home'
+import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import WelcomePage from './pages/WelcomePage'
 import MainMenu from './pages/MainMenu'
@@ -48,8 +49,13 @@ function App() {
     if (existingUserData) {
       setUserData(existingUserData);
       // Auto-redirect to main menu if user exists and no specific hash is present
-      if (!window.location.hash || window.location.hash === '#' || window.location.hash === '#home') {
+      if (!window.location.hash || window.location.hash === '#' || window.location.hash === '#home' || window.location.hash === '#login') {
         window.location.hash = 'main-menu';
+      }
+    } else {
+      // If no user data, redirect to login
+      if (!window.location.hash || window.location.hash === '#' || window.location.hash === '#home') {
+        window.location.hash = 'login';
       }
     }
     setIsCheckingAuth(false);
@@ -59,7 +65,9 @@ function App() {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.slice(1);
-      if (hash === 'register') {
+      if (hash === 'login') {
+        setCurrentPage('login');
+      } else if (hash === 'register') {
         setCurrentPage('register');
       } else if (hash === 'welcome') {
         setCurrentPage('welcome');
@@ -78,7 +86,7 @@ function App() {
       } else if (hash.startsWith('ar-scanner/')) {
         setCurrentPage('ar-scanner');
       } else {
-        setCurrentPage('home');
+        setCurrentPage('login');
       }
     };
 
@@ -98,6 +106,13 @@ function App() {
     // Save user data to cookies for persistent login
     setCookie('organquest_user', formData);
     window.location.href = '#welcome';
+  };
+
+  const handleLoginSuccess = (userData) => {
+    setUserData(userData);
+    // Save user data to cookies for persistent login
+    setCookie('organquest_user', userData);
+    window.location.href = '#main-menu';
   };
 
   const handleLogout = () => {
@@ -127,6 +142,8 @@ function App() {
     }
 
     switch (currentPage) {
+      case 'login':
+        return <LoginPage onLoginSuccess={handleLoginSuccess} />;
       case 'register':
         return <RegisterPage onRegistrationComplete={handleRegistrationComplete} />;
       case 'welcome':
