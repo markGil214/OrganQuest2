@@ -598,7 +598,7 @@
 						currentRotationY += deltaX * dragSensitivity;
 						
 						// Vertical drag = X-axis rotation (up-down)
-						currentRotationX -= deltaY * dragSensitivity; // Negative for natural feel
+						currentRotationX += deltaY * dragSensitivity; // Drag up = rotate up
 						
 						updateRotation();
 						previousMouseX = e.clientX;
@@ -646,7 +646,7 @@
 						currentRotationY += deltaX * dragSensitivity;
 						
 						// Vertical drag = X-axis rotation (up-down)
-						currentRotationX -= deltaY * dragSensitivity; // Negative for natural feel
+						currentRotationX += deltaY * dragSensitivity; // Drag up = rotate up
 						
 						updateRotation();
 						previousTouchX = currentX;
