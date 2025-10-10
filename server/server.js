@@ -50,9 +50,11 @@ app.use(express.urlencoded({ extended: true }));
 console.log('🔍 Checking environment variables...');
 console.log('NODE_ENV:', process.env.NODE_ENV);
 console.log('MONGODB_URI exists:', !!process.env.MONGODB_URI);
+console.log('MONGO_URI exists:', !!process.env.MONGO_URI);
 console.log('MONGODB_URI value:', process.env.MONGODB_URI ? 'mongodb+srv://****' : 'NOT SET');
+console.log('MONGO_URI value:', process.env.MONGO_URI ? 'mongodb+srv://****' : 'NOT SET');
 
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI;
 
 if (!MONGODB_URI) {
   console.error('❌ FATAL: MONGODB_URI environment variable is not set!');
