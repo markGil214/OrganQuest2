@@ -87,11 +87,25 @@
 			<button class="zoom-btn" onclick="zoomOut()" title="Zoom Out">−</button>
 		</div>
 		
-		<!-- Manual Rotation Controls (hidden initially) -->
-		<div class="rotation-panel" style="display: none;">
-			<button class="rotation-btn" onclick="rotateLeft()" title="Rotate Left">↻</button>
-			<div class="rotation-display">Rotate</div>
-			<button class="rotation-btn" onclick="rotateRight()" title="Rotate Right">↺</button>
+		<!-- Drag to Rotate Hint -->
+		<div id="dragHint" style="
+			position: fixed;
+			bottom: 120px;
+			left: 50%;
+			transform: translateX(-50%);
+			background: rgba(255, 255, 255, 0.95);
+			padding: 12px 24px;
+			border-radius: 20px;
+			box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+			font-size: 14px;
+			color: #333;
+			font-weight: 600;
+			display: none;
+			z-index: 1000;
+			text-align: center;
+			animation: bounceIn 0.5s ease-out;
+		">
+			👆 Drag anywhere to rotate the model
 		</div>
 
 		<script src="./organ-configs.js"></script>
@@ -136,7 +150,18 @@
 							document.getElementById('instructionsCard').style.display = 'block';
 							document.querySelector('.fact-bubble').style.display = 'block';
 							document.querySelector('.zoom-panel').style.display = 'flex';
-							document.querySelector('.rotation-panel').style.display = 'flex';
+							// Show drag hint after a delay
+							setTimeout(function() {
+								document.getElementById('dragHint').style.display = 'block';
+								// Auto-hide drag hint after 5 seconds
+								setTimeout(function() {
+									var hint = document.getElementById('dragHint');
+									if (hint) {
+										hint.style.opacity = '0';
+										hint.style.transition = 'opacity 0.5s';
+									}
+								}, 5000);
+							}, 2000);
 						}, 500);
 					}, 500);
 				}
@@ -200,7 +225,8 @@
 			var zoomStep = 0.2;
 			
 			// Manual rotation variables
-			var currentRotation = 0;
+			var currentRotationY = 0; // Horizontal rotation (left-right)
+			var currentRotationX = 0; // Vertical rotation (up-down)
 			var rotationStep = 0.1; // Rotation step in radians
 			
 			// Auto-hide instructions after 8 seconds
@@ -257,18 +283,19 @@
 			
 			// Manual rotation functions
 			function rotateLeft() {
-				currentRotation -= rotationStep;
+				currentRotationY -= rotationStep;
 				updateRotation();
 			}
 			
 			function rotateRight() {
-				currentRotation += rotationStep;
+				currentRotationY += rotationStep;
 				updateRotation();
 			}
 			
 			function updateRotation() {
-				// Apply rotation to the organ group
-				organGroup.userData.manualRotation = currentRotation;
+				// Apply rotation to the organ group (both X and Y axis)
+				organGroup.userData.manualRotationY = currentRotationY;
+				organGroup.userData.manualRotationX = currentRotationX;
 			}
 			
 			// Function to show transition message
@@ -376,13 +403,20 @@
 							originalScale.z * animationScale * zoomScale
 						);
 						
-						// Apply manual rotation (removed automatic rotation)
-						var manualRotation = organGroup.userData.manualRotation || 0;
+						// Apply manual rotation on both X and Y axes
+						var manualRotationY = organGroup.userData.manualRotationY || 0;
+						var manualRotationX = organGroup.userData.manualRotationX || 0;
+						
+						// Clamp X rotation to prevent flipping upside down (limit to -90 to +90 degrees)
+						manualRotationX = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, manualRotationX));
+						
 						if (organType !== 'kidney') {
-							organModel.rotation.y = manualRotation;
+							organModel.rotation.y = manualRotationY;
+							organModel.rotation.x = manualRotationX;
 						} else {
 							// For kidney, add manual rotation to the fixed rotation
-							organModel.rotation.y = Math.PI / 2 + manualRotation;
+							organModel.rotation.y = Math.PI / 2 + manualRotationY;
+							organModel.rotation.x = manualRotationX;
 						}
 					}
 					
@@ -476,7 +510,7 @@
 
 				// Create pattern marker for tracking
 				var patternMarker = new THREEAR.PatternMarker({
-					patternUrl: 'data/pattern-heart.patt',
+					patternUrl: 'data/patt.hiro',
 					markerObject: organGroup
 				});
 
@@ -536,7 +570,99 @@
 					}
 				});
 				
-				// Keyboard controls for rotation
+				// Drag to rotate controls (Mouse + Touch)
+				var isDragging = false;
+				var previousMouseX = 0;
+				var previousMouseY = 0;
+				var previousTouchX = 0;
+				var previousTouchY = 0;
+				var dragSensitivity = 0.005; // Adjust for rotation speed
+				
+				// Mouse drag controls (Desktop)
+				document.addEventListener('mousedown', function(e) {
+					// Only start dragging on left click and not on UI buttons
+					if (e.button === 0 && !e.target.closest('.zoom-btn') && !e.target.closest('button')) {
+						isDragging = true;
+						previousMouseX = e.clientX;
+						previousMouseY = e.clientY;
+						document.body.style.cursor = 'grabbing';
+					}
+				});
+				
+				document.addEventListener('mousemove', function(e) {
+					if (isDragging) {
+						var deltaX = e.clientX - previousMouseX;
+						var deltaY = e.clientY - previousMouseY;
+						
+						// Horizontal drag = Y-axis rotation (left-right)
+						currentRotationY += deltaX * dragSensitivity;
+						
+						// Vertical drag = X-axis rotation (up-down)
+						currentRotationX -= deltaY * dragSensitivity; // Negative for natural feel
+						
+						updateRotation();
+						previousMouseX = e.clientX;
+						previousMouseY = e.clientY;
+					}
+				});
+				
+				document.addEventListener('mouseup', function(e) {
+					if (isDragging) {
+						isDragging = false;
+						document.body.style.cursor = 'default';
+					}
+				});
+				
+				document.addEventListener('mouseleave', function(e) {
+					if (isDragging) {
+						isDragging = false;
+						document.body.style.cursor = 'default';
+					}
+				});
+				
+				// Touch drag controls (Mobile/Tablet)
+				var isTouchDragging = false;
+				
+				document.addEventListener('touchstart', function(e) {
+					if (e.touches.length === 1) {
+						// Check if not touching UI elements
+						if (!e.target.closest('.zoom-btn') && !e.target.closest('button')) {
+							isTouchDragging = true;
+							previousTouchX = e.touches[0].clientX;
+							previousTouchY = e.touches[0].clientY;
+						}
+					}
+				});
+				
+				document.addEventListener('touchmove', function(e) {
+					if (e.touches.length === 1 && isTouchDragging) {
+						e.preventDefault();
+						var currentX = e.touches[0].clientX;
+						var currentY = e.touches[0].clientY;
+						var deltaX = currentX - previousTouchX;
+						var deltaY = currentY - previousTouchY;
+						
+						// Horizontal drag = Y-axis rotation (left-right)
+						currentRotationY += deltaX * dragSensitivity;
+						
+						// Vertical drag = X-axis rotation (up-down)
+						currentRotationX -= deltaY * dragSensitivity; // Negative for natural feel
+						
+						updateRotation();
+						previousTouchX = currentX;
+						previousTouchY = currentY;
+					}
+				});
+				
+				document.addEventListener('touchend', function(e) {
+					isTouchDragging = false;
+				});
+				
+				document.addEventListener('touchcancel', function(e) {
+					isTouchDragging = false;
+				});
+				
+				// Keyboard controls for rotation (Arrow keys / A & D)
 				document.addEventListener('keydown', function(e) {
 					if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
 						e.preventDefault();
@@ -545,39 +671,6 @@
 						e.preventDefault();
 						rotateRight();
 					}
-				});
-				
-				// Swipe controls for rotation on mobile
-				var startX = 0;
-				var isDragging = false;
-				
-				document.addEventListener('touchstart', function(e) {
-					if (e.touches.length === 1) {
-						startX = e.touches[0].clientX;
-						isDragging = true;
-					}
-				});
-				
-				document.addEventListener('touchmove', function(e) {
-					if (e.touches.length === 1 && isDragging) {
-						e.preventDefault();
-						var currentX = e.touches[0].clientX;
-						var deltaX = currentX - startX;
-						
-						// If swipe distance is significant, rotate
-						if (Math.abs(deltaX) > 20) {
-							if (deltaX > 0) {
-								rotateRight();
-							} else {
-								rotateLeft();
-							}
-							startX = currentX; // Reset start position
-						}
-					}
-				});
-				
-				document.addEventListener('touchend', function(e) {
-					isDragging = false;
 				});
 
 			}).catch((error) => {
