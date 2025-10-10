@@ -7,6 +7,8 @@ import MainMenu from './pages/MainMenu'
 import QuizMenu from './pages/QuizMenu'
 import ScanExploreMenu from './pages/ScanExploreMenu'
 import ARScanner from './pages/ARScanner'
+import AdminDashboard from './pages/AdminDashboard'
+import SuperAdminPanel from './pages/SuperAdminPanel'
 import './App.css'
 
 // Lazy load individual quiz pages
@@ -85,6 +87,10 @@ function App() {
         setCurrentPage('scan-explore');
       } else if (hash.startsWith('ar-scanner/')) {
         setCurrentPage('ar-scanner');
+      } else if (hash === 'admin/dashboard') {
+        setCurrentPage('admin-dashboard');
+      } else if (hash === 'admin/manage') {
+        setCurrentPage('admin-manage');
       } else {
         setCurrentPage('login');
       }
@@ -112,7 +118,13 @@ function App() {
     setUserData(userData);
     // Save user data to cookies for persistent login
     setCookie('organquest_user', userData);
-    window.location.href = '#main-menu';
+    
+    // Redirect based on role
+    if (userData.role === 'admin' || userData.role === 'superuser') {
+      window.location.href = '#admin/dashboard';
+    } else {
+      window.location.href = '#main-menu';
+    }
   };
 
   const handleLogout = () => {
@@ -178,7 +190,12 @@ function App() {
             <TimedChallengeQuiz />
           </Suspense>
         );
+      case 'admin-dashboard':
+        return <AdminDashboard userData={userData} onLogout={handleLogout} />;
+      case 'admin-manage':
+        return <SuperAdminPanel onBack={() => window.location.hash = '#admin/dashboard'} />;
       case 'home':
+      case 'login':
       default:
         return <Home />;
     }
