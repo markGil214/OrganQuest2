@@ -151,10 +151,15 @@ router.get('/summary', authMiddleware, async (req, res) => {
       });
     }
 
-    // Calculate average score
-    const averageScore = user.stats.totalQuizzesTaken > 0 
-      ? Math.round((user.stats.totalScore / user.stats.totalQuizzesTaken) * 100) / 100
-      : 0;
+    // Calculate average score as percentage
+    let averageScore = 0;
+    if (user.quizResults.length > 0) {
+      const totalPercentage = user.quizResults.reduce((sum, quiz) => {
+        const percentage = (quiz.score / quiz.totalQuestions) * 100;
+        return sum + percentage;
+      }, 0);
+      averageScore = Math.round(totalPercentage / user.quizResults.length);
+    }
 
     const recentQuizzes = user.quizResults
       .sort((a, b) => b.completedAt - a.completedAt)
