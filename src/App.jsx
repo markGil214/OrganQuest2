@@ -55,10 +55,12 @@ function App() {
         window.location.hash = 'main-menu';
       }
     } else {
-      // If no user data, redirect to login
+      // If no user data, redirect to login (but allow register page)
       if (!window.location.hash || window.location.hash === '#' || window.location.hash === '#home') {
         window.location.hash = 'login';
       }
+      // Allow register route to work
+      // Don't redirect if user is already on register page
     }
     setIsCheckingAuth(false);
   }, []);

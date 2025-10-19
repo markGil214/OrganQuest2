@@ -43,7 +43,7 @@ const userSchema = new mongoose.Schema({
   language: {
     type: String,
     required: [true, 'Language is required'],
-    enum: ['english', 'filipino', 'spanish', 'mandarin'],
+    enum: ['english', 'filipino'],
     default: 'english'
   },
   role: {

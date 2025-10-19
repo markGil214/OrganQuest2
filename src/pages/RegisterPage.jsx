@@ -71,9 +71,7 @@ const RegisterPage = ({ onRegistrationComplete }) => {
 
   const languageOptions = [
     { value: 'english', label: 'English' },
-    { value: 'filipino', label: 'Filipino' },
-    { value: 'spanish', label: 'Spanish' },
-    { value: 'mandarin', label: 'Mandarin' }
+    { value: 'filipino', label: 'Filipino' }
   ];
 
   return (

@@ -1,14 +1,12 @@
+// Example: LoginPage with translation support
 import React, { useState } from 'react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import api from '../lib/api';
 import { useLanguage } from '../contexts/LanguageContext';
 
-const LoginPage = ({ onLoginSuccess }) => {
-  // Language hook for translations
-  const { ts, language, changeLanguage } = useLanguage();
-  const loginText = ts('login');
-  
+const LoginPageTranslated = ({ onLoginSuccess }) => {
+  const { t, ts, language, changeLanguage } = useLanguage();
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -37,19 +35,17 @@ const LoginPage = ({ onLoginSuccess }) => {
 
       console.log('Login successful:', response);
       
-      // Store the token in localStorage
       if (response.data.token) {
         localStorage.setItem('authToken', response.data.token);
         localStorage.setItem('userData', JSON.stringify(response.data.user));
       }
 
-      // Call the success callback
       if (onLoginSuccess) {
         onLoginSuccess(response.data.user);
       }
     } catch (err) {
       console.error('Login error:', err);
-      setError(err.message || loginText.loginFailed);
+      setError(err.message || t('login', 'loginFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -59,9 +55,13 @@ const LoginPage = ({ onLoginSuccess }) => {
     window.location.hash = '#register';
   };
 
+  // Get all login translations
+  const loginText = ts('login');
+  const commonText = ts('common');
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center p-6">
-      {/* Language Toggle Button */}
+      {/* Language Toggle */}
       <div className="absolute top-4 right-4 z-20">
         <button
           onClick={() => changeLanguage(language === 'english' ? 'filipino' : 'english')}
@@ -169,4 +169,4 @@ const LoginPage = ({ onLoginSuccess }) => {
   );
 };
 
-export default LoginPage;
+export default LoginPageTranslated;
