@@ -58,15 +58,15 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
       {/* Header Section */}
       <header className="flex justify-between items-start p-6 relative z-10">
         <div className="space-y-1">
-          <h2 className="text-3xl font-bold text-white drop-shadow-lg">Hello, {username}!</h2>
-          <p className="text-white/90 text-lg">Ready to explore?</p>
+          <h2 className="text-xl font-bold text-white drop-shadow-lg">Hello, {username}!</h2>
+          <p className="text-white/90 text-sm">Ready to explore?</p>
         </div>
         
         <button
           onClick={handleProfileClick}
           className="relative group"
         >
-          <div className="w-16 h-16 rounded-full overflow-hidden border-4 border-white shadow-xl transition-transform duration-300 group-hover:scale-110">
+          <div className="w-12 h-12 rounded-full overflow-hidden border-4 border-white shadow-xl transition-transform duration-300 group-hover:scale-110">
             <img 
               src={userAvatar} 
               alt={`${username}'s avatar`}
@@ -78,11 +78,11 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
       </header>
 
       {/* Logo and Title Section */}
-      <div className="flex flex-col items-center gap-3 py-8 relative z-10">
+      <div className="flex flex-col items-center gap-2 py-6 relative z-10">
         <div className="flex flex-col items-center">
-          <div className="text-7xl animate-float">🫀</div>
-          <h1 className="text-5xl font-bold text-white drop-shadow-2xl mt-4">OrganQuest</h1>
-          <p className="text-white/90 text-lg mt-2">Learn • Explore • Discover</p>
+          <div className="text-5xl animate-float">🫀</div>
+          <h1 className="text-3xl font-bold text-white drop-shadow-2xl mt-3">OrganQuest</h1>
+          <p className="text-white/90 text-sm mt-1">Learn • Explore • Discover</p>
         </div>
       </div>
 
@@ -114,11 +114,11 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
 
       {/* Decorative Elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-20 left-10 text-4xl animate-float opacity-30" style={{ animationDelay: '0s' }}>💖</div>
-        <div className="absolute top-40 right-20 text-5xl animate-float opacity-30" style={{ animationDelay: '1s' }}>🧠</div>
-        <div className="absolute bottom-40 left-20 text-4xl animate-float opacity-30" style={{ animationDelay: '2s' }}>🫁</div>
-        <div className="absolute top-1/2 right-10 text-3xl animate-float opacity-30" style={{ animationDelay: '1.5s' }}>⭐</div>
-        <div className="absolute bottom-20 right-1/3 text-4xl animate-float opacity-30" style={{ animationDelay: '0.5s' }}>✨</div>
+        <div className="absolute top-20 left-10 text-2xl animate-float opacity-30" style={{ animationDelay: '0s' }}>💖</div>
+        <div className="absolute top-40 right-20 text-3xl animate-float opacity-30" style={{ animationDelay: '1s' }}>🧠</div>
+        <div className="absolute bottom-40 left-20 text-2xl animate-float opacity-30" style={{ animationDelay: '2s' }}>🫁</div>
+        <div className="absolute top-1/2 right-10 text-xl animate-float opacity-30" style={{ animationDelay: '1.5s' }}>⭐</div>
+        <div className="absolute bottom-20 right-1/3 text-2xl animate-float opacity-30" style={{ animationDelay: '0.5s' }}>✨</div>
       </div>
     </div>
   );

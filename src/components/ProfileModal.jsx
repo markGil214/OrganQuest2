@@ -68,39 +68,39 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
           {/* Profile Header */}
           <div className="flex flex-col items-center gap-3">
             <div className="relative">
-              <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-xl">
+              <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-xl">
                 <img src={userAvatar} alt={`${username}'s avatar`} className="w-full h-full object-cover" />
               </div>
               <div className="absolute inset-0 rounded-full border-4 border-purple-500/30 animate-pulse" />
             </div>
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-gray-800">{username}</h2>
-              <p className="text-sm text-purple-600 font-medium">Anatomy Explorer</p>
+              <h2 className="text-lg font-bold text-gray-800">{username}</h2>
+              <p className="text-xs text-purple-600 font-medium">Anatomy Explorer</p>
             </div>
           </div>
 
           {/* Stats */}
           <div className="grid grid-cols-3 gap-4 w-full px-4">
             <div className="flex flex-col items-center gap-1 bg-white/70 rounded-xl p-3 shadow-md">
-              <div className="text-2xl">🏆</div>
-              <div className="text-xl font-bold text-gray-800">
+              <div className="text-xl">🏆</div>
+              <div className="text-base font-bold text-gray-800">
                 {loading ? '...' : stats.organsExplored}
               </div>
-              <div className="text-xs text-gray-600 text-center">Organs Learned</div>
+              <div className="text-[10px] text-gray-600 text-center">Organs Learned</div>
             </div>
             <div className="flex flex-col items-center gap-1 bg-white/70 rounded-xl p-3 shadow-md">
-              <div className="text-2xl">⭐</div>
-              <div className="text-xl font-bold text-gray-800">
+              <div className="text-xl">⭐</div>
+              <div className="text-base font-bold text-gray-800">
                 {loading ? '...' : stats.quizzesTaken}
               </div>
-              <div className="text-xs text-gray-600 text-center">Quizzes Done</div>
+              <div className="text-[10px] text-gray-600 text-center">Quizzes Done</div>
             </div>
             <div className="flex flex-col items-center gap-1 bg-white/70 rounded-xl p-3 shadow-md">
-              <div className="text-2xl">🎯</div>
-              <div className="text-xl font-bold text-gray-800">
+              <div className="text-xl">🎯</div>
+              <div className="text-base font-bold text-gray-800">
                 {loading ? '...' : `${Math.round(stats.averageScore)}%`}
               </div>
-              <div className="text-xs text-gray-600 text-center">Avg Score</div>
+              <div className="text-[10px] text-gray-600 text-center">Avg Score</div>
             </div>
           </div>
 
@@ -108,34 +108,34 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
           <div className="flex flex-col gap-2 w-full px-4">
             <button
               onClick={() => handleSettingsClick('avatar')}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/70 hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg"
+              className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white/70 hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg"
             >
-              <span className="text-2xl">👤</span>
-              <span className="font-medium text-gray-800">Change Avatar</span>
+              <span className="text-xl">👤</span>
+              <span className="text-sm font-medium text-gray-800">Change Avatar</span>
             </button>
             
             <button
               onClick={() => handleSettingsClick('language')}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/70 hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg"
+              className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white/70 hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg"
             >
-              <span className="text-2xl">🌐</span>
-              <span className="font-medium text-gray-800">Language</span>
+              <span className="text-xl">🌐</span>
+              <span className="text-sm font-medium text-gray-800">Language</span>
             </button>
             
             <button
               onClick={() => handleSettingsClick('sound')}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/70 hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg"
+              className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white/70 hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg"
             >
-              <span className="text-2xl">🔊</span>
-              <span className="font-medium text-gray-800">Sound Settings</span>
+              <span className="text-xl">🔊</span>
+              <span className="text-sm font-medium text-gray-800">Sound Settings</span>
             </button>
             
             <button
               onClick={() => handleSettingsClick('progress')}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/70 hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg"
+              className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white/70 hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg"
             >
-              <span className="text-2xl">📊</span>
-              <span className="font-medium text-gray-800">View Progress</span>
+              <span className="text-xl">📊</span>
+              <span className="text-sm font-medium text-gray-800">View Progress</span>
             </button>
           </div>
 
@@ -144,9 +144,9 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
             <Button
               onClick={handleLogout}
               variant="destructive"
-              className="w-full text-base font-semibold gap-2"
+              className="w-full text-sm font-semibold gap-2"
             >
-              <span className="text-xl">🚪</span>
+              <span className="text-lg">🚪</span>
               <span>Sign Out</span>
             </Button>
           </div>

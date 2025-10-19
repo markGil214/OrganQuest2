@@ -35,14 +35,14 @@ const MenuButton = ({
       )}
     >
       <div className="relative z-10 flex items-center gap-4">
-        <div className="text-5xl transform group-hover:scale-110 transition-transform duration-300">
+        <div className="text-3xl transform group-hover:scale-110 transition-transform duration-300">
           {icon}
         </div>
         <div className="text-left flex-1">
-          <h3 className="text-xl font-bold text-white mb-1">
+          <h3 className="text-base font-bold text-white mb-0.5">
             {title}
           </h3>
-          <p className="text-sm text-white/90">
+          <p className="text-xs text-white/90">
             {subtitle}
           </p>
         </div>

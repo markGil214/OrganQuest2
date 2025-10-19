@@ -288,7 +288,7 @@ const ScanExploreMenu = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-400 via-cyan-500 to-blue-600 p-6 relative overflow-hidden">
       {/* Header */}
-      <div className="max-w-7xl mx-auto mb-8 space-y-4">
+      <div className="max-w-2xl mx-auto mb-6">
         <Button
           onClick={handleBack}
           variant="outline"
@@ -296,17 +296,20 @@ const ScanExploreMenu = () => {
         >
           <span className="mr-2">←</span> Back
         </Button>
+      </div>
 
-        <div className="text-center bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg">
-          <span className="text-lg font-bold text-gray-800">
+      {/* Progress Card */}
+      <div className="max-w-2xl mx-auto mb-4">
+        <div className="text-center bg-white/90 backdrop-blur-sm rounded-2xl p-3 shadow-lg">
+          <span className="text-sm font-bold text-gray-800">
             {exploredOrgans.length}/{organs.length} organs explored!
           </span>
-          <div className="flex justify-center gap-1 mt-2">
+          <div className="flex justify-center gap-1 mt-1">
             {Array.from({ length: organs.length }, (_, i) => (
               <span 
                 key={i} 
                 className={cn(
-                  "text-2xl transition-all",
+                  "text-lg transition-all",
                   exploredOrgans.length > i ? "opacity-100 scale-110" : "opacity-30 scale-90"
                 )}
               >
@@ -318,46 +321,62 @@ const ScanExploreMenu = () => {
       </div>
 
       {/* Title */}
-      <div className="text-center mb-8 space-y-2">
-        <h1 className="text-5xl md:text-6xl font-bold text-white drop-shadow-2xl">
+      <div className="text-center mb-4 space-y-1">
+        <h1 className="text-2xl md:text-3xl font-bold text-white drop-shadow-2xl">
           🌟 Pick an Organ! 🌟
         </h1>
-        <p className="text-2xl text-white/90 font-medium drop-shadow-lg">
+        <p className="text-base text-white/90 font-medium drop-shadow-lg">
           Tap to learn about your amazing body!
         </p>
       </div>
 
-      {/* Organs Grid */}
-      <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-20">
+      {/* Organs List - Card Style */}
+      <div className="max-w-2xl mx-auto space-y-3 pb-20">
         {organs.map((organ) => (
           <button
             key={organ.id}
             data-organ={organ.id}
             onClick={() => handleOrganSelect(organ)}
             className={cn(
-              "relative rounded-3xl p-6 shadow-2xl transform transition-all duration-300",
-              "hover:scale-105 hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)] active:scale-95",
-              "overflow-hidden group"
+              "w-full rounded-2xl p-4 shadow-lg transform transition-all duration-200",
+              "hover:scale-[1.02] hover:shadow-xl active:scale-[0.98]",
+              "flex items-center gap-4 group relative overflow-hidden"
             )}
             style={{ backgroundColor: organ.color }}
           >
-            <div className="relative z-10 space-y-3">
-              <div className="w-24 h-24 mx-auto bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm group-hover:scale-110 transition-transform">
-                <img src={organ.icon} alt={organ.name} className="w-16 h-16 object-contain" />
-              </div>
-              <div className="text-center">
-                <h3 className="text-xl font-bold text-white mb-1">{organ.name}</h3>
-                <p className="text-sm text-white/90">{organ.funFact}</p>
+            {/* Icon Container */}
+            <div className="w-12 h-12 rounded-xl bg-white/30 backdrop-blur-sm flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+              <img 
+                src={organ.icon} 
+                alt={organ.name} 
+                className="w-9 h-9 object-contain"
+              />
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 text-left">
+              <h3 className="text-base font-bold text-white mb-0.5">
+                {organ.name}
+              </h3>
+              <p className="text-xs text-white/90 line-clamp-1">
+                {organ.funFact}
+              </p>
+            </div>
+
+            {/* Arrow & Checkmark */}
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {exploredOrgans.includes(organ.id) && (
+                <div className="bg-white rounded-full p-1 shadow-lg animate-scale-in">
+                  <span className="text-base">✅</span>
+                </div>
+              )}
+              <div className="text-white text-xl group-hover:translate-x-1 transition-transform">
+                →
               </div>
             </div>
-            
-            {exploredOrgans.includes(organ.id) && (
-              <div className="absolute top-2 right-2 bg-white rounded-full p-2 shadow-lg animate-scale-in">
-                <span className="text-2xl">✅</span>
-              </div>
-            )}
-            
-            <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors duration-300" />
+
+            {/* Hover effect overlay */}
+            <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors duration-300 rounded-2xl" />
           </button>
         ))}
       </div>

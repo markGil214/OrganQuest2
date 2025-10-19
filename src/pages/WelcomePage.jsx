@@ -65,19 +65,19 @@ const WelcomePage = ({ username = 'User' }) => {
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen text-center px-6">
         <div className="animate-scale-in space-y-8">
           {/* Success Animation */}
-          <div className="flex justify-center mb-6">
+          <div className="flex justify-center mb-4">
             <div className="relative">
-              <div className="w-32 h-32 rounded-full bg-white flex items-center justify-center shadow-2xl animate-scale-in">
-                <div className="text-6xl text-green-500 font-bold animate-fade-in">✓</div>
+              <div className="w-24 h-24 rounded-full bg-white flex items-center justify-center shadow-2xl animate-scale-in">
+                <div className="text-4xl text-green-500 font-bold animate-fade-in">✓</div>
               </div>
               <div className="absolute inset-0 rounded-full border-4 border-white animate-ping opacity-50"></div>
             </div>
           </div>
           
-          <h1 className="text-6xl md:text-7xl font-bold text-white drop-shadow-2xl">
+          <h1 className="text-3xl md:text-4xl font-bold text-white drop-shadow-2xl">
             Welcome, {username}!
           </h1>
-          <p className="text-xl md:text-2xl text-white/90 font-medium max-w-2xl mx-auto leading-relaxed drop-shadow-lg">
+          <p className="text-base md:text-lg text-white/90 font-medium max-w-2xl mx-auto leading-relaxed drop-shadow-lg">
             Your account has been created successfully.<br />
             Ready to explore the amazing world of human anatomy?
           </p>
@@ -85,7 +85,7 @@ const WelcomePage = ({ username = 'User' }) => {
           <Button
             onClick={handleContinue}
             size="xl"
-            className="bg-white text-teal-600 hover:bg-gray-100 font-bold text-xl px-12 py-8 shadow-2xl hover:shadow-[0_20px_60px_rgba(255,255,255,0.4)] transform hover:scale-110 transition-all duration-300 mt-8"
+            className="bg-white text-teal-600 hover:bg-gray-100 font-bold text-base px-8 py-6 shadow-2xl hover:shadow-[0_20px_60px_rgba(255,255,255,0.4)] transform hover:scale-110 transition-all duration-300 mt-6"
           >
             Continue to Explorer
           </Button>
