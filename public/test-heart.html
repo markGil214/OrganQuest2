@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Heart Model</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #1a1a2e;
+        }
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-family: Arial, sans-serif;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 5px;
+            max-width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <h3>Heart Model Test</h3>
+        <p>Status: <span id="status">Initializing...</span></p>
+        <p>Model Path: <span id="modelPath"></span></p>
+        <p>Parts Found: <span id="partsCount">0</span></p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    
+    <script>
+        console.log('=== Heart Model Test Started ===');
+        console.log('THREE available:', typeof THREE);
+        console.log('GLTFLoader available:', typeof THREE.GLTFLoader);
+
+        const modelPath = '/models/heartSliced/heart.glb';
+        document.getElementById('modelPath').textContent = modelPath;
+        document.getElementById('status').textContent = 'Loading...';
+
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 5;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x1a1a2e);
+        document.body.appendChild(renderer.domElement);
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(5, 5, 5);
+        scene.add(directionalLight);
+
+        // Controls
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+
+        // Load model
+        const loader = new THREE.GLTFLoader();
+        console.log('Loading model from:', modelPath);
+
+        loader.load(
+            modelPath,
+            (gltf) => {
+                console.log('✅ Model loaded successfully!', gltf);
+                const model = gltf.scene;
+                
+                model.scale.set(3, 3, 3);
+                model.position.set(0, 0, 0);
+
+                let partCount = 0;
+                model.traverse((child) => {
+                    if (child.isMesh) {
+                        partCount++;
+                        console.log('Part found:', child.name || 'unnamed', child);
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
+                });
+
+                scene.add(model);
+                document.getElementById('status').textContent = 'Loaded!';
+                document.getElementById('partsCount').textContent = partCount;
+                console.log('Total parts:', partCount);
+            },
+            (progress) => {
+                const percent = progress.total > 0 
+                    ? (progress.loaded / progress.total * 100).toFixed(2) 
+                    : 'calculating...';
+                console.log('Loading progress:', percent + '%');
+                document.getElementById('status').textContent = `Loading... ${percent}%`;
+            },
+            (error) => {
+                console.error('❌ Error loading model:', error);
+                document.getElementById('status').textContent = 'Error! Check console.';
+                document.getElementById('status').style.color = '#ff4444';
+            }
+        );
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>

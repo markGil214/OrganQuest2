@@ -223,6 +223,202 @@
         border-radius: 50%;
       }
 
+      /* Numbered Labels */
+      .heart-label {
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.95);
+        border: 3px solid #4a90e2;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        font-weight: bold;
+        color: #4a90e2;
+        cursor: pointer;
+        z-index: 50;
+        transform: translate(-50%, -50%);
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+        pointer-events: auto;
+      }
+
+      .heart-label:hover {
+        transform: translate(-50%, -50%) scale(1.15);
+        background: #4a90e2;
+        color: white;
+        box-shadow: 0 6px 20px rgba(74, 144, 226, 0.5);
+      }
+
+      .heart-label.active {
+        background: #4a90e2;
+        color: white;
+        animation: pulse 1.5s infinite;
+      }
+
+      @keyframes pulse {
+        0%, 100% {
+          transform: translate(-50%, -50%) scale(1);
+        }
+        50% {
+          transform: translate(-50%, -50%) scale(1.1);
+        }
+      }
+
+      /* Dev Mode Styles */
+      .heart-label.dev-mode {
+        cursor: move;
+        border-color: #ff9500;
+        box-shadow: 0 4px 20px rgba(255, 149, 0, 0.5);
+      }
+
+      .heart-label.dragging {
+        opacity: 0.8;
+        z-index: 9999;
+      }
+
+      .position-display {
+        position: absolute;
+        top: -45px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.9);
+        color: #4aff4a;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-family: 'Courier New', monospace;
+        white-space: nowrap;
+        pointer-events: none;
+        display: none;
+        border: 1px solid #4aff4a;
+        z-index: 10000;
+      }
+
+      .heart-label.dev-mode .position-display {
+        display: block;
+      }
+
+      /* Modal Styles */
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal-overlay.active {
+        display: flex;
+      }
+
+      .modal-content {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
+        border-radius: 20px;
+        padding: 30px;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        animation: modalSlideIn 0.3s ease-out;
+        position: relative;
+      }
+
+      @keyframes modalSlideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-50px) scale(0.8);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      .modal-close {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: rgba(255, 107, 107, 0.2);
+        border: none;
+        color: #ff6b6b;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        font-size: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .modal-close:hover {
+        background: var(--primary-color);
+        color: white;
+        transform: rotate(90deg);
+      }
+
+      .modal-icon {
+        font-size: 60px;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .modal-title {
+        color: var(--primary-color);
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 15px;
+        text-align: center;
+      }
+
+      .modal-description {
+        color: #333;
+        font-size: 16px;
+        line-height: 1.6;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .modal-facts {
+        background: rgba(255, 107, 107, 0.1);
+        border-radius: 15px;
+        padding: 20px;
+        margin-top: 20px;
+      }
+
+      .modal-facts h4 {
+        color: var(--primary-color);
+        font-size: 18px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .modal-fact-item {
+        color: #555;
+        font-size: 14px;
+        line-height: 1.8;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255, 107, 107, 0.2);
+      }
+
+      .modal-fact-item:last-child {
+        border-bottom: none;
+      }
+
+      /* Clickable Parts Highlight */
+      .clickable-part {
+        cursor: pointer;
+      }
+
       /* Mobile adjustments */
       @media (max-width: 768px) {
         .info-panel {
@@ -271,6 +467,8 @@
 
     <!-- Controls -->
     <div class="controls">
+      <button class="control-btn" id="devModeBtn">🔧 Dev Mode: OFF</button>
+      <button class="control-btn" id="copyPositionsBtn" style="display: none;">📋 Copy Positions</button>
       <button class="control-btn" id="resetBtn">🔄 Reset View</button>
       <button class="control-btn" id="animateBtn">⏸️ Pause</button>
       <button class="control-btn" id="infoBtn">ℹ️ Info</button>
@@ -286,6 +484,20 @@
     </div>
 
     <!-- Annotations will be added dynamically -->
+
+    <!-- Modal for Part Information -->
+    <div class="modal-overlay" id="partModal">
+      <div class="modal-content">
+        <button class="modal-close" onclick="closeModal()">✕</button>
+        <div class="modal-icon" id="modalIcon">❤️</div>
+        <h2 class="modal-title" id="modalTitle">Part Name</h2>
+        <p class="modal-description" id="modalDescription">Description goes here</p>
+        <div class="modal-facts">
+          <h4>✨ Interesting Facts</h4>
+          <div id="modalFacts"></div>
+        </div>
+      </div>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -326,6 +538,17 @@
       let scene, camera, renderer, model, controls;
       let isAnimating = true;
       let animationId;
+      let raycaster, mouse;
+      let clickableParts = [];
+      let heartLabels = [];
+      
+      // Dev mode for label positioning
+      let devMode = false;
+      let draggedLabel = null;
+      let dragOffset = { x: 0, y: 0 };
+
+      // Get labels from config (if available)
+      const labelParts = config.labels || [];
 
       function init() {
         // Scene
@@ -359,6 +582,14 @@
         controls.minDistance = config.cameraControls.minDistance;
         controls.maxDistance = config.cameraControls.maxDistance;
 
+        // Raycaster for clicking
+        raycaster = new THREE.Raycaster();
+        mouse = new THREE.Vector2();
+
+        // Add click event listener
+        renderer.domElement.addEventListener('click', onMouseClick, false);
+        renderer.domElement.addEventListener('mousemove', onMouseMove, false);
+
         // Lighting
         const ambientLight = new THREE.AmbientLight(0xffffff, config.lighting.ambientIntensity);
         scene.add(ambientLight);
@@ -378,8 +609,21 @@
         // Load model
         loadModel();
 
-        // Create annotations
-        createAnnotations();
+        // Create numbered labels
+        createHeartLabels();
+
+        // Setup modal event listeners (close when clicking outside)
+        const partModal = document.getElementById('partModal');
+        if (partModal) {
+          partModal.addEventListener('click', (e) => {
+            if (e.target.id === 'partModal') {
+              closeModal();
+            }
+          });
+        }
+
+        // Setup other UI event listeners
+        setupEventListeners();
 
         // Start animation loop
         animate();
@@ -387,67 +631,118 @@
 
       function loadModel() {
         const loader = new THREE.GLTFLoader();
+        
+        console.log('=== Loading Model ===');
+        console.log('Model path:', config.modelPath);
+        console.log('GLTFLoader:', loader);
+        
         loader.load(
           config.modelPath,
           (gltf) => {
+            console.log('✅ Model loaded successfully!', gltf);
             model = gltf.scene;
             
             // Apply configuration
             model.scale.set(config.scale.x, config.scale.y, config.scale.z);
             model.position.set(0, config.position.y, 0);
 
-            // Enable shadows
+            // Enable shadows and make parts clickable
             model.traverse((child) => {
               if (child.isMesh) {
                 child.castShadow = true;
                 child.receiveShadow = true;
                 
                 if (child.material) {
+                  // Ensure material has proper properties
+                  if (!child.material.color) {
+                    child.material.color = new THREE.Color(0xffffff);
+                  }
                   child.material.metalness = 0.3;
                   child.material.roughness = 0.7;
+                  child.material.needsUpdate = true;
+                  
+                  // Store original material for hover effect
+                  child.userData.originalColor = child.material.color.clone();
                 }
+
+                // Make this part clickable
+                clickableParts.push(child);
+                child.userData.clickable = true;
+                
+                console.log('Clickable part found:', child.name || 'unnamed');
               }
             });
 
             scene.add(model);
+            console.log('✅ Model added to scene. Clickable parts:', clickableParts.length);
           },
           (progress) => {
-            console.log('Loading progress:', (progress.loaded / progress.total * 100) + '%');
+            if (progress.total > 0) {
+              const percent = (progress.loaded / progress.total * 100).toFixed(2);
+              console.log('📦 Loading progress:', percent + '%');
+            }
           },
           (error) => {
-            console.error('Error loading model:', error);
+            console.error('❌ Error loading model:', error);
+            console.error('Model path was:', config.modelPath);
           }
         );
       }
 
-      function createAnnotations() {
-        config.annotations.forEach((annotation, index) => {
-          const annotationElement = document.createElement('div');
-          annotationElement.className = 'annotation';
-          annotationElement.id = `annotation-${index}`;
-          annotationElement.innerHTML = `
-            <strong>${annotation.text}</strong><br>
-            <small>${annotation.info}</small>
-          `;
-          document.body.appendChild(annotationElement);
+      // Create numbered labels for heart parts
+      function createHeartLabels() {
+        if (!labelParts || labelParts.length === 0) {
+          console.log('No labels configured for this organ');
+          return;
+        }
+
+        labelParts.forEach((part) => {
+          const labelElement = document.createElement('div');
+          labelElement.className = 'heart-label';
+          labelElement.id = `label-${part.id}`;
+          labelElement.textContent = part.id;
+          labelElement.dataset.partId = part.id;
+          
+          // Create position display overlay
+          const posDisplay = document.createElement('div');
+          posDisplay.className = 'position-display';
+          posDisplay.id = `pos-${part.id}`;
+          labelElement.appendChild(posDisplay);
+          
+          // Add click handler (only when not in dev mode)
+          labelElement.addEventListener('click', (e) => {
+            if (!devMode) {
+              showModal(part);
+            }
+          });
+          
+          // Add drag handlers for dev mode
+          labelElement.addEventListener('mousedown', handleLabelDragStart);
+          labelElement.addEventListener('touchstart', handleLabelDragStart);
+          
+          document.body.appendChild(labelElement);
+          heartLabels.push({
+            element: labelElement,
+            position: new THREE.Vector3(part.position.x, part.position.y, part.position.z),
+            part: part,
+            posDisplay: posDisplay
+          });
         });
+        
+        // Add global drag handlers
+        document.addEventListener('mousemove', handleLabelDrag);
+        document.addEventListener('mouseup', handleLabelDragEnd);
+        document.addEventListener('touchmove', handleLabelDrag);
+        document.addEventListener('touchend', handleLabelDragEnd);
       }
 
-      function updateAnnotations() {
+      // Update label positions
+      function updateHeartLabels() {
         if (!model) return;
 
-        config.annotations.forEach((annotation, index) => {
-          const annotationElement = document.getElementById(`annotation-${index}`);
-          if (!annotationElement) return;
-
-          // Convert 3D position to screen coordinates
-          const vector = new THREE.Vector3(
-            annotation.position.x,
-            annotation.position.y,
-            annotation.position.z
-          );
-          
-          // Apply model transformation
+        heartLabels.forEach((label) => {
+          // Clone the position and apply model transformation
+          const vector = label.position.clone();
           vector.applyMatrix4(model.matrixWorld);
           vector.project(camera);
 
@@ -455,17 +750,102 @@
           const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
           const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
 
-          // Check if annotation is in view
+          // Check if label is in view
           const isVisible = vector.z < 1 && vector.z > -1;
 
           if (isVisible) {
-            annotationElement.style.left = x + 'px';
-            annotationElement.style.top = y + 'px';
-            annotationElement.classList.add('visible');
+            label.element.style.left = x + 'px';
+            label.element.style.top = y + 'px';
+            label.element.style.display = 'flex';
+            
+            // Adjust opacity based on distance from camera
+            const opacity = Math.max(0.6, 1 - Math.abs(vector.z));
+            label.element.style.opacity = opacity;
+            
+            // Update position display in dev mode
+            if (devMode && label.posDisplay) {
+              label.posDisplay.textContent = `x:${label.position.x.toFixed(2)} y:${label.position.y.toFixed(2)} z:${label.position.z.toFixed(2)}`;
+            }
           } else {
-            annotationElement.classList.remove('visible');
+            label.element.style.display = 'none';
           }
         });
+      }
+
+      // Drag handlers for dev mode
+      function handleLabelDragStart(e) {
+        if (!devMode) return;
+        
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const labelId = parseInt(e.currentTarget.dataset.partId);
+        draggedLabel = heartLabels.find(l => l.part.id === labelId);
+        
+        if (draggedLabel) {
+          draggedLabel.element.classList.add('dragging');
+          
+          const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+          const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+          
+          const rect = draggedLabel.element.getBoundingClientRect();
+          dragOffset.x = clientX - rect.left - rect.width / 2;
+          dragOffset.y = clientY - rect.top - rect.height / 2;
+        }
+      }
+
+      function handleLabelDrag(e) {
+        if (!devMode || !draggedLabel || !model) return;
+        
+        e.preventDefault();
+        
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        
+        // Convert screen position back to 3D space
+        const screenX = clientX - dragOffset.x;
+        const screenY = clientY - dragOffset.y;
+        
+        // Normalize to -1 to 1
+        const ndcX = (screenX / window.innerWidth) * 2 - 1;
+        const ndcY = -(screenY / window.innerHeight) * 2 + 1;
+        
+        // Unproject: keep same distance from camera as current position
+        const vector = new THREE.Vector3(ndcX, ndcY, 0.5);
+        vector.unproject(camera);
+        
+        // Direction from camera to unprojected point
+        const dir = vector.sub(camera.position).normalize();
+        
+        // Calculate distance to keep (use current z-distance)
+        const currentWorldPos = draggedLabel.position.clone();
+        currentWorldPos.applyMatrix4(model.matrixWorld);
+        const distance = camera.position.distanceTo(currentWorldPos);
+        
+        // New world position
+        const newWorldPos = camera.position.clone().add(dir.multiplyScalar(distance));
+        
+        // Convert back to model-local coordinates
+        const newLocalPos = newWorldPos.clone();
+        model.worldToLocal(newLocalPos);
+        
+        // Update the label's position
+        draggedLabel.position.copy(newLocalPos);
+      }
+
+      function handleLabelDragEnd(e) {
+        if (!devMode || !draggedLabel) return;
+        
+        draggedLabel.element.classList.remove('dragging');
+        
+        // Log the final position
+        console.log(`Label ${draggedLabel.part.id} (${draggedLabel.part.name}):`, {
+          x: parseFloat(draggedLabel.position.x.toFixed(2)),
+          y: parseFloat(draggedLabel.position.y.toFixed(2)),
+          z: parseFloat(draggedLabel.position.z.toFixed(2))
+        });
+        
+        draggedLabel = null;
       }
 
       function applyAnimation() {
@@ -500,30 +880,203 @@
 
         controls.update();
         applyAnimation();
-        updateAnnotations();
+        updateHeartLabels(); // Update numbered labels
         
         renderer.render(scene, camera);
       }
 
-      // Event listeners
-      document.getElementById('resetBtn').addEventListener('click', () => {
-        camera.position.set(0, 0, 5);
-        controls.reset();
-      });
+      // Mouse click handler
+      function onMouseClick(event) {
+        // Calculate mouse position in normalized device coordinates
+        const rect = renderer.domElement.getBoundingClientRect();
+        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
-      document.getElementById('animateBtn').addEventListener('click', () => {
-        isAnimating = !isAnimating;
-        document.getElementById('animateBtn').textContent = isAnimating ? '⏸️ Pause' : '▶️ Play';
-      });
+        // Update raycaster
+        raycaster.setFromCamera(mouse, camera);
 
-      document.getElementById('infoBtn').addEventListener('click', () => {
-        const panel = document.getElementById('infoPanel');
-        panel.classList.toggle('visible');
-      });
+        // Check for intersections
+        const intersects = raycaster.intersectObjects(clickableParts, true);
 
-      document.getElementById('backBtn').addEventListener('click', () => {
-        window.history.back();
-      });
+        if (intersects.length > 0) {
+          const clickedObject = intersects[0].object;
+          const partName = clickedObject.name.toLowerCase().replace(/\s+/g, '_');
+          
+          console.log('Clicked 3D part:', clickedObject.name);
+
+          // Find matching part in labelParts array
+          const matchedPart = labelParts.find(part => {
+            const key = part.key.toLowerCase();
+            return partName.includes(key) || key.includes(partName);
+          });
+
+          if (matchedPart) {
+            showModal(matchedPart);
+          } else {
+            console.log('No info found for part:', partName);
+          }
+        }
+      }
+
+      // Mouse move handler for hover effects
+      function onMouseMove(event) {
+        // Calculate mouse position
+        const rect = renderer.domElement.getBoundingClientRect();
+        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+        // Update raycaster
+        raycaster.setFromCamera(mouse, camera);
+
+        // Check for intersections
+        const intersects = raycaster.intersectObjects(clickableParts, true);
+
+        // Reset all parts to original color
+        clickableParts.forEach(part => {
+          if (part.material && part.userData.originalColor) {
+            part.material.color.copy(part.userData.originalColor);
+          }
+        });
+
+        // Highlight hovered part
+        if (intersects.length > 0) {
+          const hoveredObject = intersects[0].object;
+          if (hoveredObject.material) {
+            hoveredObject.material.color.setHex(0xffaa00); // Orange highlight
+          }
+          renderer.domElement.style.cursor = 'pointer';
+        } else {
+          renderer.domElement.style.cursor = 'default';
+        }
+      }
+
+      // Show modal with part information
+      function showModal(partInfo) {
+        const modal = document.getElementById('partModal');
+        const icon = document.getElementById('modalIcon');
+        const title = document.getElementById('modalTitle');
+        const description = document.getElementById('modalDescription');
+        const factsList = document.getElementById('modalFacts');
+
+        if (!icon || !title || !description || !factsList) {
+          console.error('Modal elements not found');
+          return;
+        }
+
+        icon.textContent = partInfo.icon;
+        title.textContent = partInfo.name;
+        description.textContent = partInfo.description;
+
+        // Clear and populate facts
+        factsList.innerHTML = '';
+        partInfo.facts.forEach(fact => {
+          const li = document.createElement('li');
+          li.textContent = fact;
+          factsList.appendChild(li);
+        });
+
+        modal.classList.add('active');
+      }
+
+      // Close modal
+      function closeModal() {
+        const modal = document.getElementById('partModal');
+        if (modal) {
+          modal.classList.remove('active');
+        }
+      }
+
+      // Setup UI event listeners
+      function setupEventListeners() {
+        const devModeBtn = document.getElementById('devModeBtn');
+        const copyPositionsBtn = document.getElementById('copyPositionsBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const animateBtn = document.getElementById('animateBtn');
+        const infoBtn = document.getElementById('infoBtn');
+        const backBtn = document.getElementById('backBtn');
+
+        // Dev Mode toggle
+        if (devModeBtn) {
+          devModeBtn.addEventListener('click', () => {
+            devMode = !devMode;
+            devModeBtn.textContent = devMode ? '🔧 Dev Mode: ON' : '🔧 Dev Mode: OFF';
+            devModeBtn.classList.toggle('active', devMode);
+            
+            // Toggle dev mode class on all labels
+            heartLabels.forEach(label => {
+              if (devMode) {
+                label.element.classList.add('dev-mode');
+              } else {
+                label.element.classList.remove('dev-mode');
+              }
+            });
+            
+            // Show/hide copy button
+            if (copyPositionsBtn) {
+              copyPositionsBtn.style.display = devMode ? 'inline-block' : 'none';
+            }
+            
+            console.log('Dev Mode:', devMode ? 'ON - Drag labels to adjust positions' : 'OFF');
+          });
+        }
+
+        // Copy positions button
+        if (copyPositionsBtn) {
+          copyPositionsBtn.addEventListener('click', () => {
+            const positions = heartLabels.map(label => ({
+              id: label.part.id,
+              name: label.part.name,
+              position: {
+                x: parseFloat(label.position.x.toFixed(2)),
+                y: parseFloat(label.position.y.toFixed(2)),
+                z: parseFloat(label.position.z.toFixed(2))
+              }
+            }));
+            
+            const output = JSON.stringify(positions, null, 2);
+            navigator.clipboard.writeText(output).then(() => {
+              console.log('✅ Positions copied to clipboard!');
+              console.log('All label positions:', positions);
+              copyPositionsBtn.textContent = '✅ Copied!';
+              setTimeout(() => {
+                copyPositionsBtn.textContent = '📋 Copy Positions';
+              }, 2000);
+            }).catch(err => {
+              console.error('Failed to copy:', err);
+              console.log('Label positions:', output);
+            });
+          });
+        }
+
+        if (resetBtn) {
+          resetBtn.addEventListener('click', () => {
+            camera.position.set(0, 0, 5);
+            controls.reset();
+          });
+        }
+
+        if (animateBtn) {
+          animateBtn.addEventListener('click', () => {
+            isAnimating = !isAnimating;
+            animateBtn.textContent = isAnimating ? '⏸️ Pause' : '▶️ Play';
+          });
+        }
+
+        if (infoBtn) {
+          infoBtn.addEventListener('click', () => {
+            const panel = document.getElementById('infoPanel');
+            if (panel) {
+              panel.classList.toggle('visible');
+            }
+          });
+        }
+
+        if (backBtn) {
+          backBtn.addEventListener('click', () => {
+            window.history.back();
+          });
+        }
+      }
 
       // Handle window resize
       window.addEventListener('resize', () => {
@@ -533,6 +1086,10 @@
       });
 
       // Initialize
+      console.log('=== Interactive Viewer Initializing ===');
+      console.log('Organ Type:', organType);
+      console.log('Config:', config);
+      console.log('THREE.GLTFLoader available:', typeof THREE.GLTFLoader);
       init();
     </script>
   </body>

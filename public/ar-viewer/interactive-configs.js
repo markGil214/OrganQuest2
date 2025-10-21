@@ -1,8 +1,8 @@
 // Interactive Organ Configurations - Add new interactive organs here easily!
 const interactiveConfigs = {
 	heart: {
-		modelPath: '/models/heart/scene.gltf',
-		scale: { x: 3.0, y: 3.0, z: 3.0 },
+		modelPath: '/models/heartSliced/heart.glb',
+		scale: { x: 1.6, y: 1.6, z: 1.6 },
 		position: { y: 0 },
 		colors: {
 			primary: '#ff6b6b',
@@ -12,7 +12,7 @@ const interactiveConfigs = {
 		emoji: '❤️',
 		name: 'Heart',
 		title: '❤️ Interactive Heart Explorer',
-		description: 'Explore the amazing human heart up close! Discover its chambers, valves, and learn how it pumps blood throughout your body.',
+		description: 'Explore the amazing human heart up close! Click on different parts to learn more. Discover its chambers, valves, and learn how it pumps blood throughout your body.',
 		funFacts: [
 			'🔴 Your heart beats about 100,000 times every day!',
 			'💪 The heart muscle never gets tired - it works 24/7!',
@@ -21,9 +21,9 @@ const interactiveConfigs = {
 		],
 		animationType: 'beating',
 		cameraControls: {
-			enableZoom: true,
-			enableRotate: true,
-			enablePan: true,
+			enableZoom: false,
+			enableRotate: false,
+			enablePan: false,
 			autoRotate: false,
 			minDistance: 2,
 			maxDistance: 10
@@ -33,6 +33,92 @@ const interactiveConfigs = {
 			directionalIntensity: 0.8,
 			spotlightIntensity: 1.0
 		},
+		labels: [
+			{
+				id: 1,
+				name: 'Aorta',
+				key: 'aorta',
+				icon: '🔴',
+				position: { x: -0.07, y: 0.71, z: -0.07 },
+				description: 'The aorta is the largest artery in the body. It carries oxygen-rich blood from the left ventricle to all parts of the body.',
+				facts: [
+					'The largest artery in the human body',
+					'About 30cm long and 2.5cm in diameter',
+					'Carries oxygenated blood to the entire body',
+					'Can withstand high pressure from the left ventricle'
+				]
+			},
+			{
+				id: 2,
+				name: 'Left Ventricle',
+				key: 'left_ventricle',
+				icon: '💪',
+				position: { x: 0.49, y: -0.42, z: 0.07 },
+				description: 'The left ventricle is the heart\'s main pumping chamber. It receives blood from the left atrium and pumps it through the aorta to supply oxygen-rich blood to the entire body.',
+				facts: [
+					'Has the thickest muscular walls of all chambers',
+					'Pumps blood at high pressure throughout the body',
+					'Can generate pressures up to 120 mmHg',
+					'The most powerful chamber of the heart'
+				]
+			},
+			{
+				id: 3,
+				name: 'Right Ventricle',
+				key: 'right_ventricle',
+				icon: '🫀',
+				position: { x: -0.20, y: -0.55, z: 0.05 },
+				description: 'The right ventricle receives blood from the right atrium and pumps it to the lungs through the pulmonary artery, where it picks up oxygen.',
+				facts: [
+					'Pumps blood to the lungs for oxygenation',
+					'Has thinner walls than the left ventricle',
+					'Works at lower pressure than left ventricle',
+					'Pumps the same volume as the left ventricle'
+				]
+			},
+			{
+				id: 4,
+				name: 'Left Atrium',
+				key: 'left_atrium',
+				icon: '❤️',
+				position: { x: 0.44, y: 0.27, z: -0.16 },
+				description: 'The left atrium receives oxygen-rich blood from the lungs through the pulmonary veins. It then pumps this blood into the left ventricle.',
+				facts: [
+					'Receives oxygenated blood from 4 pulmonary veins',
+					'Has thinner walls than the ventricles',
+					'Contracts to push blood into the left ventricle',
+					'Holds about 85ml of blood when full'
+				]
+			},
+			{
+				id: 5,
+				name: 'Pulmonary Artery',
+				key: 'pulmonary_artery',
+				icon: '💙',
+				position: { x: 0.11, y: 0.39, z: 0.31 },
+				description: 'The pulmonary artery carries oxygen-poor blood from the right ventricle to the lungs, where it picks up oxygen and releases carbon dioxide.',
+				facts: [
+					'Only artery in the body that carries deoxygenated blood',
+					'Splits into left and right branches for each lung',
+					'Works at lower pressure than the aorta',
+					'Critical for gas exchange in the lungs'
+				]
+			},
+			{
+				id: 6,
+				name: 'Right Atrium',
+				key: 'right_atrium',
+				icon: '💙',
+				position: { x: -0.52, y: 0.22, z: -0.50 },
+				description: 'The right atrium receives oxygen-poor blood from the body through the superior and inferior vena cava. It pumps this blood into the right ventricle.',
+				facts: [
+					'Receives deoxygenated blood from the body',
+					'Connected to two large veins (vena cava)',
+					'Contains the sinoatrial (SA) node - the heart\'s natural pacemaker',
+					'Contracts slightly before the right ventricle'
+				]
+			}
+		],
 		annotations: [
 			{ position: { x: 0.5, y: 0.3, z: 0 }, text: 'Right Ventricle', info: 'Pumps blood to the lungs' },
 			{ position: { x: -0.5, y: 0.3, z: 0 }, text: 'Left Ventricle', info: 'Pumps blood to the body' },

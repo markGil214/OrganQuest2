@@ -50,13 +50,15 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
   const handleMenuClick = (route) => {
     console.log(`Navigating to: ${route}`);
     
+    // Check if it's the exit route - do nothing (disabled for now)
+    if (route === '#home' || route === '#exit') {
+      console.log('Exit button clicked - navigation disabled');
+      return;
+    }
+    
     // Check if it's the learn-more route
     if (route === '#learn-more') {
       setShowLearnMoreModal(true);
-    } else if (route === '#home') {
-      // Exit button - no action yet
-      console.log('Exit button clicked - no path set');
-      return;
     } else {
       window.location.href = route;
     }
