@@ -61,11 +61,11 @@ const LoginPage = ({ onLoginSuccess }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center p-6">
-      {/* Language Toggle Button */}
-      <div className="absolute top-4 right-4 z-20">
+      {/* Language Toggle Button - Bottom Right */}
+      <div className="fixed bottom-6 right-6 z-50">
         <button
           onClick={() => changeLanguage(language === 'english' ? 'filipino' : 'english')}
-          className="bg-white/90 hover:bg-white px-4 py-2 rounded-lg shadow-lg text-sm font-semibold text-purple-600 transition-all"
+          className="bg-white/90 hover:bg-white px-4 py-2 rounded-lg shadow-lg text-sm font-semibold text-purple-600 transition-all hover:scale-105"
         >
           {language === 'english' ? '🇵🇭 Filipino' : '🇬🇧 English'}
         </button>
