@@ -267,7 +267,8 @@
         }
       }
 
-      /* Dev Mode Styles */
+      /* Dev Mode Styles - Commented out after completing label positioning */
+      /*
       .heart-label.dev-mode {
         cursor: move;
         border-color: #ff9500;
@@ -300,6 +301,7 @@
       .heart-label.dev-mode .position-display {
         display: block;
       }
+      */
 
       /* Modal Styles */
       .modal-overlay {
@@ -467,8 +469,9 @@
 
     <!-- Controls -->
     <div class="controls">
-      <button class="control-btn" id="devModeBtn">🔧 Dev Mode: OFF</button>
-      <button class="control-btn" id="copyPositionsBtn" style="display: none;">📋 Copy Positions</button>
+      <!-- Dev Mode: Commented out after completing label positioning -->
+      <!-- <button class="control-btn" id="devModeBtn">🔧 Dev Mode: OFF</button> -->
+      <!-- <button class="control-btn" id="copyPositionsBtn" style="display: none;">📋 Copy Positions</button> -->
       <button class="control-btn" id="resetBtn">🔄 Reset View</button>
       <button class="control-btn" id="animateBtn">⏸️ Pause</button>
       <button class="control-btn" id="infoBtn">ℹ️ Info</button>
@@ -542,10 +545,10 @@
       let clickableParts = [];
       let heartLabels = [];
       
-      // Dev mode for label positioning
-      let devMode = false;
-      let draggedLabel = null;
-      let dragOffset = { x: 0, y: 0 };
+      // Dev mode for label positioning - Commented out after completing label positioning
+      // let devMode = false;
+      // let draggedLabel = null;
+      // let dragOffset = { x: 0, y: 0 };
 
       // Get labels from config (if available)
       const labelParts = config.labels || [];
@@ -675,6 +678,16 @@
 
             scene.add(model);
             console.log('✅ Model added to scene. Clickable parts:', clickableParts.length);
+            
+            // Set camera position from config if available
+            if (config.cameraPosition) {
+              camera.position.set(
+                config.cameraPosition.x, 
+                config.cameraPosition.y, 
+                config.cameraPosition.z
+              );
+              console.log('📷 Camera position set to:', config.cameraPosition);
+            }
           },
           (progress) => {
             if (progress.total > 0) {
@@ -703,37 +716,41 @@
           labelElement.textContent = part.id;
           labelElement.dataset.partId = part.id;
           
-          // Create position display overlay
+          // Position display - Commented out after completing label positioning
+          /*
           const posDisplay = document.createElement('div');
           posDisplay.className = 'position-display';
           posDisplay.id = `pos-${part.id}`;
           labelElement.appendChild(posDisplay);
+          */
           
-          // Add click handler (only when not in dev mode)
+          // Add click handler to show modal
           labelElement.addEventListener('click', (e) => {
-            if (!devMode) {
-              showModal(part);
-            }
+            showModal(part);
           });
           
-          // Add drag handlers for dev mode
+          // Drag handlers for dev mode - Commented out after completing label positioning
+          /*
           labelElement.addEventListener('mousedown', handleLabelDragStart);
           labelElement.addEventListener('touchstart', handleLabelDragStart);
+          */
           
           document.body.appendChild(labelElement);
           heartLabels.push({
             element: labelElement,
             position: new THREE.Vector3(part.position.x, part.position.y, part.position.z),
-            part: part,
-            posDisplay: posDisplay
+            part: part
+            // posDisplay: posDisplay  // Commented out
           });
         });
         
-        // Add global drag handlers
+        // Global drag handlers - Commented out after completing label positioning
+        /*
         document.addEventListener('mousemove', handleLabelDrag);
         document.addEventListener('mouseup', handleLabelDragEnd);
         document.addEventListener('touchmove', handleLabelDrag);
         document.addEventListener('touchend', handleLabelDragEnd);
+        */
       }
 
       // Update label positions
@@ -762,17 +779,20 @@
             const opacity = Math.max(0.6, 1 - Math.abs(vector.z));
             label.element.style.opacity = opacity;
             
-            // Update position display in dev mode
+            // Update position display in dev mode - Commented out after completing label positioning
+            /*
             if (devMode && label.posDisplay) {
               label.posDisplay.textContent = `x:${label.position.x.toFixed(2)} y:${label.position.y.toFixed(2)} z:${label.position.z.toFixed(2)}`;
             }
+            */
           } else {
             label.element.style.display = 'none';
           }
         });
       }
 
-      // Drag handlers for dev mode
+      // Drag handlers for dev mode - Commented out after completing label positioning
+      /*
       function handleLabelDragStart(e) {
         if (!devMode) return;
         
@@ -847,6 +867,7 @@
         
         draggedLabel = null;
       }
+      */
 
       function applyAnimation() {
         if (!model || !isAnimating) return;
@@ -988,14 +1009,18 @@
 
       // Setup UI event listeners
       function setupEventListeners() {
+        // Dev Mode - Commented out after completing label positioning
+        /*
         const devModeBtn = document.getElementById('devModeBtn');
         const copyPositionsBtn = document.getElementById('copyPositionsBtn');
+        */
         const resetBtn = document.getElementById('resetBtn');
         const animateBtn = document.getElementById('animateBtn');
         const infoBtn = document.getElementById('infoBtn');
         const backBtn = document.getElementById('backBtn');
 
-        // Dev Mode toggle
+        // Dev Mode toggle - Commented out after completing label positioning
+        /*
         if (devModeBtn) {
           devModeBtn.addEventListener('click', () => {
             devMode = !devMode;
@@ -1047,6 +1072,7 @@
             });
           });
         }
+        */
 
         if (resetBtn) {
           resetBtn.addEventListener('click', () => {
