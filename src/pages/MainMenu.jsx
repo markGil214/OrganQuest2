@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import MenuButton from '../components/MenuButton';
 import ProfileModal from '../components/ProfileModal';
+import LearnMoreModal from '../components/LearnMoreModal';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg', onLogout }) => {
@@ -9,6 +10,7 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
   const menuText = ts('mainMenu');
   
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showLearnMoreModal, setShowLearnMoreModal] = useState(false);
 
   const menuOptions = [
     {
@@ -47,7 +49,17 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
 
   const handleMenuClick = (route) => {
     console.log(`Navigating to: ${route}`);
-    window.location.href = route;
+    
+    // Check if it's the learn-more route
+    if (route === '#learn-more') {
+      setShowLearnMoreModal(true);
+    } else if (route === '#home') {
+      // Exit button - no action yet
+      console.log('Exit button clicked - no path set');
+      return;
+    } else {
+      window.location.href = route;
+    }
   };
 
   const handleProfileClick = () => {
@@ -124,6 +136,14 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
           userAvatar={userAvatar}
           onClose={closeProfileModal}
           onLogout={onLogout}
+        />
+      )}
+
+      {/* Learn More Modal */}
+      {showLearnMoreModal && (
+        <LearnMoreModal
+          isOpen={showLearnMoreModal}
+          onClose={() => setShowLearnMoreModal(false)}
         />
       )}
 
