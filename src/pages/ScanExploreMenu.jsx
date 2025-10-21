@@ -273,11 +273,20 @@ const ScanExploreMenu = () => {
 
             <Button
               onClick={() => window.location.href = `/ar-viewer/organ-viewer.html?organ=${selectedOrgan.id}`}
-              className="w-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white font-bold text-lg py-6"
+              className="w-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white font-bold text-lg py-6 mb-3"
               size="lg"
             >
               <span className="mr-2">✨</span>
               Explore {selectedOrgan.name} in AR!
+            </Button>
+
+            <Button
+              onClick={() => window.location.hash = `interactive/${selectedOrgan.id}`}
+              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold text-lg py-6"
+              size="lg"
+            >
+              <span className="mr-2">🔬</span>
+              Explore Cross Section
             </Button>
           </Card>
         </div>

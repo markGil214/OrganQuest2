@@ -9,6 +9,7 @@ import ScanExploreMenu from './pages/ScanExploreMenu'
 import ARScanner from './pages/ARScanner'
 import AdminDashboard from './pages/AdminDashboard'
 import SuperAdminPanel from './pages/SuperAdminPanel'
+import InteractiveViewer from './pages/InteractiveViewer'
 import './App.css'
 
 // Lazy load individual quiz pages
@@ -48,19 +49,22 @@ function App() {
   // Check for existing user data on app load
   useEffect(() => {
     const existingUserData = getCookie('organquest_user');
+    const currentHash = window.location.hash.slice(1); // Remove the # symbol
+    
     if (existingUserData) {
       setUserData(existingUserData);
       // Auto-redirect to main menu if user exists and no specific hash is present
-      if (!window.location.hash || window.location.hash === '#' || window.location.hash === '#home' || window.location.hash === '#login') {
+      if (!currentHash || currentHash === 'home' || currentHash === 'login') {
         window.location.hash = 'main-menu';
       }
     } else {
-      // If no user data, redirect to login (but allow register page)
-      if (!window.location.hash || window.location.hash === '#' || window.location.hash === '#home') {
+      // If no user data, redirect to login (but allow register page and interactive viewer)
+      const allowedWithoutAuth = currentHash === 'register' || currentHash.startsWith('interactive/');
+      
+      if (!allowedWithoutAuth && (!currentHash || currentHash === 'home')) {
         window.location.hash = 'login';
       }
-      // Allow register route to work
-      // Don't redirect if user is already on register page
+      // Allow register route and interactive viewer to work without authentication
     }
     setIsCheckingAuth(false);
   }, []);
@@ -87,6 +91,8 @@ function App() {
         setCurrentPage('quiz-timed');
       } else if (hash === 'scan-explore') {
         setCurrentPage('scan-explore');
+      } else if (hash.startsWith('interactive/')) {
+        setCurrentPage('interactive-viewer');
       } else if (hash.startsWith('ar-scanner/')) {
         setCurrentPage('ar-scanner');
       } else if (hash === 'admin/dashboard') {
@@ -172,6 +178,8 @@ function App() {
         return <QuizMenu />;
       case 'scan-explore':
         return <ScanExploreMenu />;
+      case 'interactive-viewer':
+        return <InteractiveViewer />;
       case 'ar-scanner':
         return <ARScanner />;
       case 'quiz-mcq':
