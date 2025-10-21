@@ -1,40 +1,45 @@
 import React, { useState } from 'react';
 import MenuButton from '../components/MenuButton';
 import ProfileModal from '../components/ProfileModal';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg', onLogout }) => {
+  // Language hook for translations
+  const { ts, language, changeLanguage } = useLanguage();
+  const menuText = ts('mainMenu');
+  
   const [showProfileModal, setShowProfileModal] = useState(false);
 
   const menuOptions = [
     {
       id: 'scan',
       icon: '🔍',
-      title: 'Scan & Explore',
-      subtitle: 'Discover amazing organs!',
+      title: menuText.scanExplore,
+      subtitle: menuText.scanExploreSubtitle,
       route: '#scan-explore',
       color: '#e67e22'
     },
     {
       id: 'quiz',
       icon: '🧩',
-      title: 'Quiz & Puzzles',
-      subtitle: 'Test your knowledge!',
+      title: menuText.quizPuzzles,
+      subtitle: menuText.quizPuzzlesSubtitle,
       route: '#quiz',
       color: '#9b59b6'
     },
     {
       id: 'learn',
       icon: '📚',
-      title: 'Learn More',
-      subtitle: 'Fun facts & stories!',
+      title: menuText.learnMore,
+      subtitle: menuText.learnMoreSubtitle,
       route: '#learn-more',
       color: '#3498db'
     },
     {
       id: 'exit',
       icon: '🚪',
-      title: 'Exit',
-      subtitle: 'See you next time!',
+      title: menuText.exit,
+      subtitle: menuText.exitSubtitle,
       route: '#home',
       color: '#e74c3c'
     }
@@ -55,11 +60,21 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-500 via-pink-500 to-rose-500 overflow-hidden relative">
+      {/* Language Toggle Button */}
+      <div className="absolute top-4 left-4 z-20">
+        <button
+          onClick={() => changeLanguage(language === 'english' ? 'filipino' : 'english')}
+          className="bg-white/90 hover:bg-white px-4 py-2 rounded-lg shadow-lg text-sm font-semibold text-purple-600 transition-all"
+        >
+          {language === 'english' ? '🇵🇭 Filipino' : '🇬🇧 English'}
+        </button>
+      </div>
+
       {/* Header Section */}
       <header className="flex justify-between items-start p-6 relative z-10">
         <div className="space-y-1">
-          <h2 className="text-xl font-bold text-white drop-shadow-lg">Hello, {username}!</h2>
-          <p className="text-white/90 text-sm">Ready to explore?</p>
+          <h2 className="text-xl font-bold text-white drop-shadow-lg">{menuText.greeting}, {username}!</h2>
+          <p className="text-white/90 text-sm">{menuText.subtitle}</p>
         </div>
         
         <button
@@ -81,8 +96,8 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
       <div className="flex flex-col items-center gap-2 py-6 relative z-10">
         <div className="flex flex-col items-center">
           <div className="text-5xl animate-float">🫀</div>
-          <h1 className="text-3xl font-bold text-white drop-shadow-2xl mt-3">OrganQuest</h1>
-          <p className="text-white/90 text-sm mt-1">Learn • Explore • Discover</p>
+          <h1 className="text-3xl font-bold text-white drop-shadow-2xl mt-3">{menuText.appTitle}</h1>
+          <p className="text-white/90 text-sm mt-1">{menuText.tagline}</p>
         </div>
       </div>
 

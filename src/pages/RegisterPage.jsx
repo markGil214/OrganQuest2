@@ -3,8 +3,13 @@ import AvatarSelector from '../components/AvatarSelector';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import api from '../lib/api';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const RegisterPage = ({ onRegistrationComplete }) => {
+  // Language hook for translations
+  const { ts, language, changeLanguage } = useLanguage();
+  const registerText = ts('register');
+  
   const [formData, setFormData] = useState({
     fullName: '',
     username: '',
@@ -12,13 +17,28 @@ const RegisterPage = ({ onRegistrationComplete }) => {
     age: '',
     grade: '4th',
     avatar: null,
-    language: 'english'
+    language: language // Use current language from context
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Sync formData.language with context language
+  React.useEffect(() => {
+    setFormData(prev => ({
+      ...prev,
+      language: language
+    }));
+  }, [language]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    
+    // If language is changed in the dropdown, update the context as well
+    if (name === 'language') {
+      changeLanguage(value);
+      console.log('Language changed from dropdown:', value);
+    }
+    
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -38,23 +58,35 @@ const RegisterPage = ({ onRegistrationComplete }) => {
     setIsLoading(true);
     
     try {
-      // Send registration data to backend
-      const response = await api.register({
+      // Ensure language is set from context (most up-to-date)
+      const registrationData = {
         fullName: formData.fullName,
         username: formData.username,
         password: formData.password,
         age: parseInt(formData.age),
         grade: formData.grade,
         avatar: formData.avatar,
-        language: formData.language
-      });
+        language: language // Use language from context
+      };
+
+      console.log('Registering with language:', language);
+
+      // Send registration data to backend
+      const response = await api.register(registrationData);
 
       console.log('Registration successful:', response);
       
-      // Store the token in localStorage
+      // Store the token and user data in localStorage
       if (response.data.token) {
         localStorage.setItem('authToken', response.data.token);
-        localStorage.setItem('userData', JSON.stringify(response.data.user));
+        
+        // Ensure user data has the correct language
+        const userData = {
+          ...response.data.user,
+          language: language
+        };
+        localStorage.setItem('userData', JSON.stringify(userData));
+        console.log('User data saved with language:', language);
       }
 
       // Call the completion callback (handles navigation to welcome page)
@@ -63,7 +95,7 @@ const RegisterPage = ({ onRegistrationComplete }) => {
       }
     } catch (err) {
       console.error('Registration error:', err);
-      setError(err.message || 'Registration failed. Please try again.');
+      setError(err.message || registerText.registrationFailed);
     } finally {
       setIsLoading(false);
     }
@@ -76,6 +108,16 @@ const RegisterPage = ({ onRegistrationComplete }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center p-6">
+      {/* Language Toggle Button */}
+      <div className="absolute top-4 right-4 z-20">
+        <button
+          onClick={() => changeLanguage(language === 'english' ? 'filipino' : 'english')}
+          className="bg-white/90 hover:bg-white px-4 py-2 rounded-lg shadow-lg text-sm font-semibold text-purple-600 transition-all"
+        >
+          {language === 'english' ? '🇵🇭 Filipino' : '🇬🇧 English'}
+        </button>
+      </div>
+
       <Card className="w-full max-w-md bg-white/95 backdrop-blur-sm border-0">
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
           {/* Profile Picture */}
@@ -97,7 +139,7 @@ const RegisterPage = ({ onRegistrationComplete }) => {
           </div>
 
           <h2 className="text-2xl font-bold text-center bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            Create Account
+            {registerText.title}
           </h2>
 
           {/* Error Message */}
@@ -110,7 +152,7 @@ const RegisterPage = ({ onRegistrationComplete }) => {
           {/* Full Name Input */}
           <div className="space-y-2">
             <label htmlFor="fullName" className="block text-sm font-semibold text-gray-700">
-              Full Name
+              {registerText.fullName}
             </label>
             <input
               type="text"
@@ -118,7 +160,7 @@ const RegisterPage = ({ onRegistrationComplete }) => {
               name="fullName"
               value={formData.fullName}
               onChange={handleInputChange}
-              placeholder="Enter your full name"
+              placeholder={registerText.fullNamePlaceholder}
               className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all"
               required
             />
@@ -127,7 +169,7 @@ const RegisterPage = ({ onRegistrationComplete }) => {
           {/* Username Input */}
           <div className="space-y-2">
             <label htmlFor="username" className="block text-sm font-semibold text-gray-700">
-              Username
+              {registerText.username}
             </label>
             <input
               type="text"
@@ -135,7 +177,7 @@ const RegisterPage = ({ onRegistrationComplete }) => {
               name="username"
               value={formData.username}
               onChange={handleInputChange}
-              placeholder="Choose a username"
+              placeholder={registerText.usernamePlaceholder}
               className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all"
               required
             />
@@ -144,7 +186,7 @@ const RegisterPage = ({ onRegistrationComplete }) => {
           {/* Password Input */}
           <div className="space-y-2">
             <label htmlFor="password" className="block text-sm font-semibold text-gray-700">
-              Password
+              {registerText.password}
             </label>
             <input
               type="password"
@@ -152,7 +194,7 @@ const RegisterPage = ({ onRegistrationComplete }) => {
               name="password"
               value={formData.password}
               onChange={handleInputChange}
-              placeholder="Create a password"
+              placeholder={registerText.passwordPlaceholder}
               className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all"
               minLength="6"
               required
@@ -164,7 +206,7 @@ const RegisterPage = ({ onRegistrationComplete }) => {
             {/* Age Input */}
             <div className="space-y-2">
               <label htmlFor="age" className="block text-sm font-semibold text-gray-700">
-                Age
+                {registerText.age}
               </label>
               <input
                 type="number"
@@ -172,7 +214,7 @@ const RegisterPage = ({ onRegistrationComplete }) => {
                 name="age"
                 value={formData.age}
                 onChange={handleInputChange}
-                placeholder="Age"
+                placeholder={registerText.agePlaceholder}
                 className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all"
                 min="1"
                 max="120"
@@ -183,7 +225,7 @@ const RegisterPage = ({ onRegistrationComplete }) => {
             {/* Grade Selector */}
             <div className="space-y-2">
               <label htmlFor="grade" className="block text-sm font-semibold text-gray-700">
-                Grade
+                {registerText.grade}
               </label>
               <select
                 id="grade"
@@ -193,9 +235,9 @@ const RegisterPage = ({ onRegistrationComplete }) => {
                 className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all bg-white"
                 required
               >
-                <option value="4th">4th Grade</option>
-                <option value="5th">5th Grade</option>
-                <option value="6th">6th Grade</option>
+                <option value="4th">{registerText.grades['4th']}</option>
+                <option value="5th">{registerText.grades['5th']}</option>
+                <option value="6th">{registerText.grades['6th']}</option>
               </select>
             </div>
           </div>
@@ -203,7 +245,7 @@ const RegisterPage = ({ onRegistrationComplete }) => {
           {/* Avatar Selection */}
           <div className="space-y-2">
             <label className="block text-sm font-semibold text-gray-700">
-              Select your avatar:
+              {registerText.selectAvatar}
             </label>
             <AvatarSelector
               selectedAvatar={formData.avatar}
@@ -214,7 +256,7 @@ const RegisterPage = ({ onRegistrationComplete }) => {
           {/* Language Selector */}
           <div className="space-y-2">
             <label htmlFor="language" className="block text-sm font-semibold text-gray-700">
-              Select language:
+              {registerText.selectLanguage}
             </label>
             <select
               id="language"
@@ -245,10 +287,10 @@ const RegisterPage = ({ onRegistrationComplete }) => {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-                Registering...
+                {registerText.registering}
               </span>
             ) : (
-              'Register'
+              registerText.registerButton
             )}
           </Button>
         </form>

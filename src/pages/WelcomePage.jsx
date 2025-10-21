@@ -1,6 +1,7 @@
 import React from 'react';
 import Organ from '../components/Organ';
 import { Button } from '../components/ui/Button';
+import { useLanguage } from '../contexts/LanguageContext';
 
 // Import organ images
 import heartImg from '../assets/images/heart.svg';
@@ -10,6 +11,10 @@ import liverImg from '../assets/images/liver.svg';
 import kidneyImg from '../assets/images/kidney.svg';
 
 const WelcomePage = ({ username = 'User' }) => {
+  // Language hook for translations
+  const { ts } = useLanguage();
+  const welcomeText = ts('welcome');
+  
   const organs = [
     {
       src: heartImg,
@@ -75,11 +80,11 @@ const WelcomePage = ({ username = 'User' }) => {
           </div>
           
           <h1 className="text-3xl md:text-4xl font-bold text-white drop-shadow-2xl">
-            Welcome, {username}!
+            {welcomeText.greeting}, {username}!
           </h1>
           <p className="text-base md:text-lg text-white/90 font-medium max-w-2xl mx-auto leading-relaxed drop-shadow-lg">
-            Your account has been created successfully.<br />
-            Ready to explore the amazing world of human anatomy?
+            {welcomeText.successMessage}<br />
+            {welcomeText.readyMessage}
           </p>
           
           <Button
@@ -87,7 +92,7 @@ const WelcomePage = ({ username = 'User' }) => {
             size="xl"
             className="bg-white text-teal-600 hover:bg-gray-100 font-bold text-base px-8 py-6 shadow-2xl hover:shadow-[0_20px_60px_rgba(255,255,255,0.4)] transform hover:scale-110 transition-all duration-300 mt-6"
           >
-            Continue to Explorer
+            {welcomeText.continueButton}
           </Button>
         </div>
       </div>

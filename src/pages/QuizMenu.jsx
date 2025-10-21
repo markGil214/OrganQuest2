@@ -1,30 +1,36 @@
 import React from 'react';
 import QuizTypeCard from '../components/QuizTypeCard';
 import { Button } from '../components/ui/Button';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const QuizMenu = () => {
+  // Language hook for translations
+  const { ts } = useLanguage();
+  const quizText = ts('quizMenu');
+  const commonText = ts('common');
+  
   const quizTypes = [
     {
       id: 'mcq',
       icon: '🧠',
-      title: 'Multiple Choice',
-      description: 'Test your knowledge with fun questions about human anatomy!',
+      title: quizText.multipleChoice,
+      description: quizText.multipleChoiceDesc,
       route: 'quiz/mcq',
       color: '#3498db'
     },
     {
       id: 'memory',
       icon: '🧩',
-      title: 'Memory Matching',
-      description: 'Match organ pairs and boost your memory skills!',
+      title: quizText.memoryMatching,
+      description: quizText.memoryMatchingDesc,
       route: 'quiz/memory',
       color: '#e74c3c'
     },
     {
       id: 'timed',
       icon: '⚡',
-      title: 'Timed Challenge',
-      description: 'Race against time to answer as many questions as possible!',
+      title: quizText.timedChallenge,
+      description: quizText.timedChallengeDesc,
       route: 'quiz/timed',
       color: '#f39c12'
     }
@@ -48,13 +54,13 @@ const QuizMenu = () => {
           className="mb-4 bg-white/90 hover:bg-white border-0 text-gray-800 shadow-lg text-sm"
         >
           <span className="text-lg mr-2">←</span>
-          Back
+          {commonText.back}
         </Button>
         
         <div className="text-center space-y-2">
           <div className="text-4xl">🎮</div>
-          <h1 className="text-3xl font-bold text-white drop-shadow-2xl">Quiz & Puzzles</h1>
-          <p className="text-base text-white/90">Choose your favorite game mode!</p>
+          <h1 className="text-3xl font-bold text-white drop-shadow-2xl">{quizText.title}</h1>
+          <p className="text-base text-white/90">{quizText.subtitle}</p>
         </div>
       </div>
 
