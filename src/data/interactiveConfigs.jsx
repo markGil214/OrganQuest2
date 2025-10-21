@@ -137,9 +137,9 @@ export const interactiveConfigs = {
 	},
 	brain: {
 		modelPath: '/models/slicedBrain/sliced_brain.glb',
-		scale: { x: 1.6, y: 1.6, z: 1.6 },
+		scale: { x: 3, y: 3, z: 3 },
 		position: { y: 0 },
-		cameraPosition: { x: 0, y: 0, z: 5 },
+		cameraPosition: { x: 10, y: 0, z: 5 },
 		colors: {
 			primary: '#8e44ad',
 			secondary: '#7a3a96',
@@ -379,9 +379,9 @@ export const interactiveConfigs = {
 	},
 	liver: {
 		modelPath: '/models/slicedLiver/slicedLiver.glb',
-		scale: { x: 1.6, y: 1.6, z: 1.6 },
+		scale: { x: 5, y: 5, z: 5 },
 		position: { y: 0 },
-		cameraPosition: { x: 0, y: 0, z: 5 },
+		cameraPosition: { x: 8, y: 0, z: 5 },
 		colors: {
 			primary: '#ff9f43',
 			secondary: '#e6882d',
@@ -472,9 +472,9 @@ export const interactiveConfigs = {
 	},
 	kidney: {
 		modelPath: '/models/slicedKidney/slicedKidney.glb',
-		scale: { x: 1.6, y: 1.6, z: 1.6 },
+		scale: { x: 6, y: 6, z: 6 },
 		position: { y: 0 },
-		cameraPosition: { x: 0, y: 0, z: 5 },
+		cameraPosition: { x: 8, y: 0, z: 5 },
 		colors: {
 			primary: '#26de81',
 			secondary: '#1dd1a1',

@@ -59,7 +59,7 @@ const InteractiveViewer = () => {
     // Camera
     const camera = new THREE.PerspectiveCamera(
       75,
-      container.clientWidth / container.clientHeight,
+      window.innerWidth / window.innerHeight,
       0.1,
       1000
     );
@@ -72,11 +72,10 @@ const InteractiveViewer = () => {
       alpha: true,
       powerPreference: 'high-performance'
     });
-    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.setClearColor(0x000000, 0);
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
@@ -121,10 +120,10 @@ const InteractiveViewer = () => {
 
     // Handle window resize
     const handleResize = () => {
-      if (!container || !camera || !renderer) return;
-      camera.aspect = container.clientWidth / container.clientHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(container.clientWidth, container.clientHeight);
+      if (!cameraRef.current || !rendererRef.current) return;
+      cameraRef.current.aspect = window.innerWidth / window.innerHeight;
+      cameraRef.current.updateProjectionMatrix();
+      rendererRef.current.setSize(window.innerWidth, window.innerHeight);
     };
     window.addEventListener('resize', handleResize);
 
