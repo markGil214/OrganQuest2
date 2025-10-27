@@ -118,6 +118,44 @@ const InteractiveViewer = () => {
     // Animation loop
     animate();
 
+    // Mobile and low-end device optimizations
+    const isLowMemory = navigator.deviceMemory && navigator.deviceMemory < 4;
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    const isEmulator = /sdk_gphone|Emulator/i.test(navigator.userAgent);
+    const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    if (isLowMemory || isAndroid || isEmulator || isMobile) {
+      console.log('🔧 Mobile/Low-end device detected, applying optimizations...');
+      
+      if (rendererRef.current) {
+        // Reduce pixel ratio for better performance
+        rendererRef.current.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+        
+        // Disable shadows on low-end devices
+        rendererRef.current.shadowMap.enabled = false;
+        
+        console.log('✅ Renderer optimized for mobile');
+      }
+      
+      if (sceneRef.current) {
+        // Reduce light complexity
+        sceneRef.current.children.forEach(child => {
+          if (child.isLight) {
+            if (child.type === 'SpotLight') {
+              child.intensity *= 0.6;
+              child.castShadow = false;
+            }
+            if (child.type === 'DirectionalLight') {
+              child.intensity *= 0.8;
+              child.castShadow = false;
+            }
+          }
+        });
+        
+        console.log('✅ Lighting optimized for performance');
+      }
+    }
+
     // Handle window resize
     const handleResize = () => {
       if (!cameraRef.current || !rendererRef.current) return;
@@ -530,8 +568,8 @@ const InteractiveViewer = () => {
       <style>{`
         .heart-label {
           position: absolute;
-          width: 40px;
-          height: 40px;
+          width: 50px;
+          height: 50px;
           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
           border: 3px solid white;
           border-radius: 50%;
@@ -540,19 +578,38 @@ const InteractiveViewer = () => {
           justify-content: center;
           font-weight: bold;
           color: white;
-          font-size: 16px;
+          font-size: 18px;
           cursor: pointer;
           transform: translate(-50%, -50%);
           transition: all 0.3s ease;
           box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
           z-index: 10;
           pointer-events: auto;
+          user-select: none;
+          -webkit-tap-highlight-color: transparent;
         }
 
-        .heart-label:hover {
+        /* Larger touch targets on mobile */
+        @media (max-width: 768px) {
+          .heart-label {
+            width: 55px;
+            height: 55px;
+            font-size: 20px;
+            border: 4px solid white;
+          }
+        }
+
+        .heart-label:hover,
+        .heart-label:active {
           transform: translate(-50%, -50%) scale(1.2);
           box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
           background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        /* Prevent text selection on touch */
+        .heart-label * {
+          user-select: none;
+          -webkit-user-select: none;
         }
 
         @keyframes fadeIn {
@@ -568,6 +625,18 @@ const InteractiveViewer = () => {
 
         .animate-fadeIn {
           animation: fadeIn 0.3s ease-out;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+          .fixed.inset-0 {
+            padding: 0.5rem;
+          }
+          
+          .max-w-2xl {
+            max-width: 100%;
+            margin: 0.5rem;
+          }
         }
       `}</style>
     </div>
