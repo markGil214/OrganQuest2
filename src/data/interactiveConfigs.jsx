@@ -47,6 +47,12 @@ export const interactiveConfigs = {
 					'About 30cm long and 2.5cm in diameter',
 					'Carries oxygenated blood to the entire body',
 					'Can withstand high pressure from the left ventricle'
+				],
+				diseases: [
+					'Aortic Aneurysm - Bulging or weakening of the aorta wall that can rupture',
+					'Aortic Dissection - Tear in the inner layer causing life-threatening bleeding',
+					'Aortic Stenosis - Narrowing of the aorta that restricts blood flow',
+					'Atherosclerosis - Plaque buildup causing hardening and narrowing'
 				]
 			},
 			{
@@ -61,6 +67,12 @@ export const interactiveConfigs = {
 					'Pumps blood at high pressure throughout the body',
 					'Can generate pressures up to 120 mmHg',
 					'The most powerful chamber of the heart'
+				],
+				diseases: [
+					'Left Ventricular Hypertrophy - Thickening of the heart muscle wall',
+					'Heart Failure - Unable to pump enough blood to meet body needs',
+					'Cardiomyopathy - Disease of the heart muscle causing weakness',
+					'Myocardial Infarction - Heart attack from blocked blood flow'
 				]
 			},
 			{
@@ -75,6 +87,12 @@ export const interactiveConfigs = {
 					'Has thinner walls than the left ventricle',
 					'Works at lower pressure than left ventricle',
 					'Pumps the same volume as the left ventricle'
+				],
+				diseases: [
+					'Right Ventricular Failure - Inability to pump blood to the lungs',
+					'Pulmonary Hypertension - High blood pressure in lung arteries',
+					'Arrhythmogenic RV Cardiomyopathy - Genetic heart muscle disease',
+					'Tricuspid Regurgitation - Leaky valve between right chambers'
 				]
 			},
 			{
@@ -89,6 +107,12 @@ export const interactiveConfigs = {
 					'Has thinner walls than the ventricles',
 					'Contracts to push blood into the left ventricle',
 					'Holds about 85ml of blood when full'
+				],
+				diseases: [
+					'Atrial Fibrillation - Irregular, rapid heartbeat in the atria',
+					'Left Atrial Enlargement - Stretched atrium from high pressure',
+					'Atrial Septal Defect - Hole between left and right atria',
+					'Mitral Valve Disease - Problems with valve between atrium and ventricle'
 				]
 			},
 			{
@@ -103,6 +127,12 @@ export const interactiveConfigs = {
 					'Only artery that carries oxygen-poor blood',
 					'Splits into left and right branches',
 					'About 5cm long and 3cm in diameter'
+				],
+				diseases: [
+					'Pulmonary Embolism - Blood clot blocking the pulmonary artery',
+					'Pulmonary Stenosis - Narrowing that restricts blood flow to lungs',
+					'Pulmonary Hypertension - High blood pressure in lung arteries',
+					'Patent Ductus Arteriosus - Birth defect with abnormal connection'
 				]
 			},
 			{
@@ -117,6 +147,12 @@ export const interactiveConfigs = {
 					'Blood enters from superior and inferior vena cava',
 					'Contains the heart\'s natural pacemaker',
 					'Thinner walls compared to ventricles'
+				],
+				diseases: [
+					'Atrial Fibrillation - Irregular heartbeat starting in the atria',
+					'Right Atrial Enlargement - Stretched from increased pressure',
+					'Sick Sinus Syndrome - Problems with the heart\'s pacemaker',
+					'Atrial Flutter - Rapid but regular abnormal heart rhythm'
 				]
 			},
 			{
@@ -131,9 +167,15 @@ export const interactiveConfigs = {
 					'Prevents mixing of oxygenated and deoxygenated blood',
 					'Thickest in the ventricular region',
 					'Contains part of the heart\'s electrical system'
+				],
+				diseases: [
+					'Ventricular Septal Defect - Hole in the wall between ventricles',
+					'Hypertrophic Cardiomyopathy - Abnormal thickening of septum',
+					'Septal Rupture - Life-threatening tear in the septum',
+					'Bundle Branch Block - Electrical conduction problem'
 				]
 			}
-		]
+		],
 	},
 	brain: {
 		modelPath: '/models/slicedBrain/sliced_brain.glb',
@@ -182,6 +224,12 @@ export const interactiveConfigs = {
 					'Responsible for motor control and speech production',
 					'Manages complex cognitive behaviors',
 					'The last part of the brain to fully develop (around age 25)'
+				],
+				diseases: [
+					'Frontotemporal Dementia - Progressive brain disorder affecting personality and behavior',
+					'Brain Tumors - Abnormal growth in the frontal region',
+					'Traumatic Brain Injury - Damage from accidents affecting judgment',
+					'Frontal Lobe Epilepsy - Seizures originating in frontal region'
 				]
 			},
 			{
@@ -196,6 +244,12 @@ export const interactiveConfigs = {
 					'Integrates touch, temperature, and pain signals',
 					'Helps with spatial awareness and navigation',
 					'Crucial for hand-eye coordination'
+				],
+				diseases: [
+					'Gerstmann Syndrome - Difficulty with writing, math, and finger recognition',
+					'Hemispatial Neglect - Ignoring one side of space after stroke',
+					'Parietal Lobe Lesions - Damage causing sensory and spatial problems',
+					'Apraxia - Difficulty performing learned movements'
 				]
 			},
 			{
@@ -210,6 +264,12 @@ export const interactiveConfigs = {
 					'Critical for memory formation and recall',
 					'Contains the hippocampus (memory center)',
 					'Helps recognize faces and objects'
+				],
+				diseases: [
+					'Temporal Lobe Epilepsy - Most common form of epilepsy in adults',
+					'Alzheimer\'s Disease - Memory loss starting in temporal region',
+					'Wernicke\'s Aphasia - Difficulty understanding language',
+					'Auditory Processing Disorder - Problems processing sounds'
 				]
 			},
 			{
@@ -224,6 +284,12 @@ export const interactiveConfigs = {
 					'Interprets colors, shapes, and movement',
 					'Damage can cause blindness despite healthy eyes',
 					'Processes visual information from both eyes'
+				],
+				diseases: [
+					'Cortical Blindness - Vision loss from occipital damage, not eye problems',
+					'Visual Agnosia - Inability to recognize objects despite seeing them',
+					'Prosopagnosia - Face blindness, inability to recognize faces',
+					'Occipital Lobe Stroke - Loss of vision in parts of visual field'
 				]
 			},
 			{
@@ -238,6 +304,12 @@ export const interactiveConfigs = {
 					'Contains more neurons than the rest of the brain',
 					'Fine-tunes motor movements',
 					'Helps learn and remember motor skills'
+				],
+				diseases: [
+					'Ataxia - Loss of balance and coordination',
+					'Cerebellar Stroke - Damage causing dizziness and movement problems',
+					'Spinocerebellar Degeneration - Progressive loss of coordination',
+					'Cerebellar Hypoplasia - Underdeveloped cerebellum from birth'
 				]
 			},
 			{
@@ -252,6 +324,12 @@ export const interactiveConfigs = {
 					'Regulates heart rate and blood pressure',
 					'Connects brain to spinal cord',
 					'Contains centers for sleep and consciousness'
+				],
+				diseases: [
+					'Brainstem Stroke - Life-threatening damage to vital functions',
+					'Brain Death - Loss of all brainstem functions',
+					'Locked-in Syndrome - Paralysis except for eye movements',
+					'Central Sleep Apnea - Breathing stops during sleep'
 				]
 			},
 			{
@@ -266,6 +344,12 @@ export const interactiveConfigs = {
 					'Contains about 200-250 million nerve fibers',
 					'Enables communication between brain hemispheres',
 					'Allows the two sides of the brain to work together'
+				],
+				diseases: [
+					'Agenesis of Corpus Callosum - Born without this structure',
+					'Multiple Sclerosis - Damage to nerve fibers in corpus callosum',
+					'Marchiafava-Bignami Disease - Degeneration from alcohol abuse',
+					'Corpus Callosum Infarction - Stroke affecting this region'
 				]
 			}
 		]
@@ -317,6 +401,12 @@ export const interactiveConfigs = {
 					'Slightly larger than the left lung',
 					'Handles about 55% of total lung capacity',
 					'Contains about 300 million alveoli'
+				],
+				diseases: [
+					'Right Lower Lobe Pneumonia - Infection causing inflammation and fluid accumulation in the right lower lobe, common bacterial infection',
+					'Right Lung Atelectasis - Partial or complete collapse of the right lung or a section of it, often post-surgery',
+					'Right Pleural Effusion - Excess fluid between pleural layers on the right side, can indicate heart failure or infection',
+					'Right Lung Tumor - Abnormal mass in the right lung, can be benign or malignant, requires medical evaluation'
 				]
 			},
 			{
@@ -331,6 +421,12 @@ export const interactiveConfigs = {
 					'Smaller to accommodate the heart',
 					'Contains a cardiac notch for the heart',
 					'Handles about 45% of total lung capacity'
+				],
+				diseases: [
+					'Left Lung Tuberculosis - Bacterial infection causing granulomas, weight loss, and night sweats, requires long-term antibiotics',
+					'Left Upper Lobe Collapse - Collapse of the left upper lobe, often due to mucus plugging or tumor obstruction',
+					'Left Lung Cancer - Malignant tumor in the left lung, often linked to smoking, requires oncology treatment',
+					'Left Pleural Thickening - Scarring and thickening of the pleural membrane, can restrict lung expansion'
 				]
 			},
 			{
@@ -345,6 +441,12 @@ export const interactiveConfigs = {
 					'Lined with tiny hairs called cilia',
 					'Has C-shaped cartilage rings for support',
 					'Filters and warms air before it reaches lungs'
+				],
+				diseases: [
+					'Tracheal Stenosis - Narrowing of the trachea, can cause breathing difficulty, often from prolonged intubation',
+					'Tracheomalacia - Weakening of tracheal walls causing collapse during breathing, affects infants and adults',
+					'Tracheal Tumor - Benign or malignant growth in the trachea, can obstruct airflow and cause coughing',
+					'Tracheitis - Inflammation of the trachea from bacterial or viral infection, causes cough and difficulty breathing'
 				]
 			},
 			{
@@ -359,6 +461,12 @@ export const interactiveConfigs = {
 					'Divide into smaller and smaller bronchioles',
 					'Like an upside-down tree structure',
 					'Lead to tiny air sacs called alveoli'
+				],
+				diseases: [
+					'Bronchitis - Inflammation of the bronchial tubes causing cough and mucus production, can be acute or chronic',
+					'Bronchiectasis - Permanent widening of the bronchi from repeated infections, causes chronic cough and infections',
+					'Bronchial Asthma - Chronic inflammation causing airway narrowing, wheezing, and difficulty breathing',
+					'Bronchial Obstruction - Blockage of bronchi from tumor, foreign body, or mucus plug, requires immediate treatment'
 				]
 			},
 			{
@@ -373,6 +481,12 @@ export const interactiveConfigs = {
 					'Produces lubricating fluid',
 					'Reduces friction during breathing',
 					'Helps lungs expand and contract smoothly'
+				],
+				diseases: [
+					'Pleurisy - Inflammation of the pleura causing sharp chest pain with breathing, often from viral infection',
+					'Pleural Mesothelioma - Rare cancer of the pleural lining, strongly linked to asbestos exposure',
+					'Pneumothorax - Air in the pleural space causing lung collapse, can be spontaneous or traumatic',
+					'Hemothorax - Blood accumulation in pleural space, usually from trauma or surgery, requires drainage'
 				]
 			}
 		]
@@ -424,6 +538,12 @@ export const interactiveConfigs = {
 					'Has 4 functional segments',
 					'Handles majority of metabolic functions',
 					'Can independently regenerate if damaged'
+				],
+				diseases: [
+					'Right Lobe Hepatoma - Primary liver cancer originating in the right lobe, often in cirrhotic livers',
+					'Right Lobe Abscess - Pus collection in the right lobe from bacterial infection, causes fever and pain',
+					'Right Lobe Fatty Infiltration - Excessive fat accumulation in the right lobe, associated with obesity and diabetes',
+					'Right Lobe Hemangioma - Benign blood vessel tumor in the right lobe, usually asymptomatic and requires monitoring'
 				]
 			},
 			{
@@ -438,6 +558,12 @@ export const interactiveConfigs = {
 					'Has 2 functional segments',
 					'Works in harmony with right lobe',
 					'Also capable of regeneration'
+				],
+				diseases: [
+					'Left Lobe Cirrhosis - Chronic scarring of the left lobe from alcohol, hepatitis, or other liver diseases',
+					'Left Lobe Metastasis - Cancer spread to the left lobe from other organs, common in colon and breast cancer',
+					'Left Lobe Cyst - Fluid-filled sac in the left lobe, usually benign but may require monitoring',
+					'Left Lobe Atrophy - Shrinkage of the left lobe from chronic disease or vascular compromise'
 				]
 			},
 			{
@@ -452,6 +578,12 @@ export const interactiveConfigs = {
 					'About 7-10 cm long',
 					'Can hold up to 50 ml of bile',
 					'Releases bile when you eat fatty foods'
+				],
+				diseases: [
+					'Gallstones - Hard deposits of cholesterol or bilirubin causing pain and inflammation, may require surgery',
+					'Cholecystitis - Inflammation of the gallbladder from gallstone obstruction, causes severe right upper abdominal pain',
+					'Gallbladder Polyps - Small growths on the gallbladder wall, usually benign but may require removal if large',
+					'Gallbladder Cancer - Rare malignant tumor of the gallbladder, often discovered late and has poor prognosis'
 				]
 			},
 			{
@@ -466,6 +598,12 @@ export const interactiveConfigs = {
 					'Common bile duct connects to small intestine',
 					'Bile helps digest fats and oils',
 					'Helps absorb fat-soluble vitamins (A, D, E, K)'
+				],
+				diseases: [
+					'Bile Duct Obstruction - Blockage from gallstones or tumors causing jaundice and pain, requires urgent treatment',
+					'Cholangitis - Bacterial infection of bile ducts causing fever, jaundice, and abdominal pain',
+					'Primary Sclerosing Cholangitis - Chronic inflammation and scarring of bile ducts, associated with ulcerative colitis',
+					'Bile Duct Cancer - Malignant tumor in the bile ducts, difficult to detect early and requires specialized treatment'
 				]
 			}
 		]
@@ -517,6 +655,12 @@ export const interactiveConfigs = {
 					'Contains millions of nephrons (filtering units)',
 					'Receives 20-25% of cardiac output',
 					'First stage of blood filtration occurs here'
+				],
+				diseases: [
+					'Glomerulonephritis - Inflammation of the kidney filters causing blood and protein in urine, can lead to kidney failure',
+					'Cortical Necrosis - Death of cortical tissue from severe blood flow reduction, medical emergency requiring dialysis',
+					'Focal Segmental Glomerulosclerosis - Scarring of some glomeruli causing protein loss and kidney dysfunction',
+					'Membranous Nephropathy - Thickening of glomerular membranes causing nephrotic syndrome with protein loss'
 				]
 			},
 			{
@@ -531,6 +675,12 @@ export const interactiveConfigs = {
 					'Contains renal pyramids',
 					'Concentrates urine as it passes through',
 					'Maintains body\'s salt and water balance'
+				],
+				diseases: [
+					'Medullary Sponge Kidney - Congenital disorder causing cysts in collecting ducts, leads to kidney stones and infections',
+					'Medullary Cystic Kidney Disease - Inherited disorder causing cysts and progressive kidney failure',
+					'Pyelonephritis - Bacterial infection of the kidney causing fever, back pain, and painful urination',
+					'Papillary Necrosis - Death of renal papillae from infection or diabetes, causes blood in urine and kidney dysfunction'
 				]
 			},
 			{
@@ -545,6 +695,12 @@ export const interactiveConfigs = {
 					'Collects urine from the kidney',
 					'Connects to the ureter',
 					'Sends urine to the bladder for storage'
+				],
+				diseases: [
+					'Hydronephrosis - Swelling of the renal pelvis from urine backup due to obstruction, requires urgent treatment',
+					'Renal Pelvis Cancer - Transitional cell carcinoma of the renal pelvis, causes blood in urine',
+					'Pelviureteric Junction Obstruction - Blockage at the junction between pelvis and ureter, often congenital',
+					'Pyelitis - Inflammation of the renal pelvis from infection, causes pain and fever'
 				]
 			},
 			{
@@ -559,6 +715,12 @@ export const interactiveConfigs = {
 					'Carries about 1.2 liters of blood per minute',
 					'Branches into smaller arterioles',
 					'Delivers blood to nephrons for filtering'
+				],
+				diseases: [
+					'Renal Artery Stenosis - Narrowing of the renal artery causing high blood pressure and kidney dysfunction',
+					'Renal Artery Thrombosis - Blood clot blocking the renal artery, causes sudden kidney failure and severe pain',
+					'Fibromuscular Dysplasia - Abnormal artery wall growth causing stenosis, more common in young women',
+					'Renal Artery Aneurysm - Bulging of the artery wall that can rupture, requires monitoring or surgical repair'
 				]
 			},
 			{
@@ -573,6 +735,12 @@ export const interactiveConfigs = {
 					'About 25-30 cm long',
 					'Uses peristaltic waves to move urine',
 					'Can pass about 2 liters of urine daily'
+				],
+				diseases: [
+					'Ureteral Stones - Kidney stones lodged in the ureter causing severe pain and obstruction, requires lithotripsy or surgery',
+					'Ureteral Stricture - Narrowing of the ureter from scarring or injury, causes urine backup and kidney damage',
+					'Ureterocele - Bulging of the ureter into the bladder, congenital defect that may require surgical correction',
+					'Ureteral Cancer - Malignant tumor in the ureter causing blood in urine, requires removal of kidney and ureter'
 				]
 			}
 		]

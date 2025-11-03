@@ -10,7 +10,6 @@ import ARScanner from './pages/ARScanner'
 import AdminDashboard from './pages/AdminDashboard'
 import SuperAdminPanel from './pages/SuperAdminPanel'
 import InteractiveViewer from './pages/InteractiveViewer'
-import PWAInstallPrompt from './components/PWAInstallPrompt'
 import './App.css'
 
 // Lazy load individual quiz pages
@@ -215,7 +214,6 @@ function App() {
   return (
     <>
       {renderPage()}
-      <PWAInstallPrompt />
     </>
   );
 }

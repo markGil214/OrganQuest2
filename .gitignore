@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Android build files and folders
+android/
+android/**
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

@@ -17,8 +17,10 @@ const InteractiveViewer = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAnimating, setIsAnimating] = useState(true);
   const [showInfo, setShowInfo] = useState(false);
+  const [showDiseases, setShowDiseases] = useState(false);
   const [selectedPart, setSelectedPart] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [selectedDisease, setSelectedDisease] = useState(null);
 
   // Three.js refs
   const sceneRef = useRef(null);
@@ -274,6 +276,13 @@ const InteractiveViewer = () => {
 
   const handleLabelClick = (part) => {
     setSelectedPart(part);
+    setSelectedDisease(null);
+    setShowModal(true);
+  };
+
+  const handleDiseaseClick = (disease, partName) => {
+    setSelectedDisease({ disease, partName });
+    setSelectedPart(null);
     setShowModal(true);
   };
 
@@ -434,6 +443,10 @@ const InteractiveViewer = () => {
     setShowInfo(!showInfo);
   };
 
+  const toggleDiseases = () => {
+    setShowDiseases(!showDiseases);
+  };
+
   const handleBack = () => {
     window.location.hash = 'scan-explore';
   };
@@ -441,6 +454,7 @@ const InteractiveViewer = () => {
   const closeModal = () => {
     setShowModal(false);
     setSelectedPart(null);
+    setSelectedDisease(null);
   };
 
   if (!config) {
@@ -462,12 +476,20 @@ const InteractiveViewer = () => {
       {/* Three.js Container */}
       <div ref={containerRef} className="w-full h-full" />
 
+      {/* Back Button - Top Left */}
+      <button
+        onClick={handleBack}
+        className="absolute top-4 left-4 px-4 py-2 bg-red-600/80 hover:bg-red-700 text-white rounded-lg shadow-lg transition-all duration-300 flex items-center gap-2 z-20 backdrop-blur-sm"
+      >
+        ← Back
+      </button>
+
       {/* Header */}
-      <div className="absolute top-0 left-0 right-0 p-6 z-10 bg-gradient-to-b from-black/50 to-transparent">
-        <h1 className="text-3xl font-bold text-white text-center drop-shadow-lg">
+      <div className="absolute top-16 md:top-4 left-0 right-0 px-6 pt-2 z-10">
+        <h1 className="text-2xl md:text-3xl font-bold text-white text-center drop-shadow-lg">
           {config.title}
         </h1>
-        <p className="text-white text-center mt-2 text-sm max-w-2xl mx-auto">
+        <p className="text-white text-center mt-2 text-xs md:text-sm max-w-2xl mx-auto">
           {config.description}
         </p>
       </div>
@@ -475,42 +497,38 @@ const InteractiveViewer = () => {
       {/* Controls */}
       <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-3 z-10">
         <button
-          onClick={handleReset}
-          className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow-lg transition-all duration-300 flex items-center gap-2"
+          onClick={toggleDiseases}
+          className={`px-4 py-2 ${showDiseases ? 'bg-red-700' : 'bg-red-600'} hover:bg-red-700 text-white rounded-lg shadow-lg transition-all duration-300 flex items-center gap-2`}
         >
-          🔄 Reset View
-        </button>
-        <button
-          onClick={toggleAnimation}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg transition-all duration-300 flex items-center gap-2"
-        >
-          {isAnimating ? '⏸️ Pause' : '▶️ Play'}
+          ⚠️ Diseases
         </button>
         <button
           onClick={toggleInfo}
-          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-lg transition-all duration-300 flex items-center gap-2"
+          className={`px-4 py-2 ${showInfo ? 'bg-green-700' : 'bg-green-600'} hover:bg-green-700 text-white rounded-lg shadow-lg transition-all duration-300 flex items-center gap-2`}
         >
           ℹ️ Info
-        </button>
-        <button
-          onClick={handleBack}
-          className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-lg transition-all duration-300 flex items-center gap-2"
-        >
-          ← Back
         </button>
       </div>
 
       {/* Info Panel */}
       {showInfo && (
-        <div className="absolute top-24 right-6 bg-black/80 backdrop-blur-sm text-white p-6 rounded-xl shadow-2xl max-w-sm z-20 animate-fadeIn">
-          <h2 className="text-2xl font-bold mb-3 flex items-center gap-2">
-            {config.emoji} {config.name}
-          </h2>
-          <p className="text-sm mb-4 text-gray-300">{config.description}</p>
+        <div className="absolute top-24 md:top-28 right-4 md:right-6 bg-black/80 backdrop-blur-sm text-white p-4 md:p-6 rounded-xl shadow-2xl max-w-xs md:max-w-sm z-20 animate-fadeIn max-h-[70vh] overflow-y-auto">
+          <div className="flex items-start justify-between mb-3">
+            <h2 className="text-xl md:text-2xl font-bold flex items-center gap-2">
+              {config.emoji} {config.name}
+            </h2>
+            <button
+              onClick={toggleInfo}
+              className="text-white hover:text-red-400 text-xl transition-colors ml-2 flex-shrink-0"
+            >
+              ✕
+            </button>
+          </div>
+          <p className="text-xs md:text-sm mb-4 text-gray-300">{config.description}</p>
           <div className="space-y-2">
-            <h3 className="font-semibold text-lg mb-2">Fun Facts:</h3>
+            <h3 className="font-semibold text-base md:text-lg mb-2">Fun Facts:</h3>
             {config.funFacts.map((fact, index) => (
-              <p key={index} className="text-sm text-gray-300">
+              <p key={index} className="text-xs md:text-sm text-gray-300">
                 {fact}
               </p>
             ))}
@@ -518,8 +536,75 @@ const InteractiveViewer = () => {
         </div>
       )}
 
+      {/* Diseases Panel */}
+      {showDiseases && (
+        <div className="absolute top-24 md:top-28 left-4 md:left-6 bg-black/80 backdrop-blur-sm text-white p-4 md:p-6 rounded-xl shadow-2xl max-w-xs md:max-w-sm z-20 animate-fadeIn border border-red-500/30 max-h-[70vh] overflow-y-auto">
+          <div className="flex items-start justify-between mb-3">
+            <h2 className="text-xl md:text-2xl font-bold flex items-center gap-2 text-red-400">
+              ⚠️ Common Diseases
+            </h2>
+            <button
+              onClick={toggleDiseases}
+              className="text-white hover:text-red-400 text-xl transition-colors ml-2 flex-shrink-0"
+            >
+              ✕
+            </button>
+          </div>
+          <p className="text-xs md:text-sm mb-4 text-gray-300">
+            Click on a disease to learn more about it.
+          </p>
+          <div className="space-y-2">
+            {config.labels && config.labels.length > 0 ? (
+              (() => {
+                // Collect all diseases from all labels
+                const allDiseases = [];
+                config.labels.forEach((label) => {
+                  if (label.diseases && label.diseases.length > 0) {
+                    label.diseases.forEach((disease) => {
+                      allDiseases.push({ disease, partName: label.name });
+                    });
+                  }
+                });
+
+                return allDiseases.length > 0 ? (
+                  allDiseases.map((item, index) => {
+                    const [diseaseName, ...descParts] = item.disease.split(' - ');
+                    const description = descParts.join(' - ');
+                    
+                    return (
+                      <button
+                        key={index}
+                        onClick={() => handleDiseaseClick(item.disease, item.partName)}
+                        className="w-full bg-red-900/20 hover:bg-red-900/40 rounded-lg p-3 border border-red-500/30 text-left transition-all duration-200 cursor-pointer"
+                      >
+                        <p className="font-semibold text-sm md:text-base text-red-400 mb-1">
+                          {diseaseName}
+                        </p>
+                        {description && (
+                          <p className="text-xs text-gray-400">
+                            {description}
+                          </p>
+                        )}
+                      </button>
+                    );
+                  })
+                ) : (
+                  <p className="text-xs md:text-sm text-gray-400 italic">
+                    No disease information available for this organ.
+                  </p>
+                );
+              })()
+            ) : (
+              <p className="text-xs md:text-sm text-gray-400 italic">
+                No disease information available for this organ.
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Modal */}
-      {showModal && selectedPart && (
+      {showModal && (selectedPart || selectedDisease) && (
         <div
           className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn"
           onClick={closeModal}
@@ -529,36 +614,111 @@ const InteractiveViewer = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-6">
-              {/* Header */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <span className="text-4xl">{selectedPart.icon}</span>
-                  <h2 className="text-2xl font-bold text-white">{selectedPart.name}</h2>
-                </div>
-                <button
-                  onClick={closeModal}
-                  className="text-white hover:text-red-400 text-2xl transition-colors"
-                >
-                  ✕
-                </button>
-              </div>
-
-              {/* Description */}
-              <p className="text-gray-200 mb-6 leading-relaxed">{selectedPart.description}</p>
-
-              {/* Facts */}
-              <div className="space-y-3">
-                <h3 className="text-xl font-semibold text-white mb-3">Key Facts:</h3>
-                {selectedPart.facts.map((fact, index) => (
-                  <div
-                    key={index}
-                    className="bg-white/10 backdrop-blur-sm rounded-lg p-3 flex items-start gap-2"
-                  >
-                    <span className="text-purple-400 font-bold">✓</span>
-                    <p className="text-gray-200 text-sm">{fact}</p>
+              {/* Show Disease Info */}
+              {selectedDisease && (
+                <>
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <span className="text-4xl">⚠️</span>
+                      <div>
+                        <h2 className="text-2xl font-bold text-red-400">
+                          {selectedDisease.disease.split(' - ')[0]}
+                        </h2>
+                        <p className="text-sm text-gray-300">Affects: {selectedDisease.partName}</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={closeModal}
+                      className="text-white hover:text-red-400 text-2xl transition-colors"
+                    >
+                      ✕
+                    </button>
                   </div>
-                ))}
-              </div>
+
+                  {/* Description */}
+                  <div className="bg-red-900/20 backdrop-blur-sm rounded-lg p-4 mb-4 border border-red-500/30">
+                    <p className="text-gray-200 leading-relaxed">
+                      {selectedDisease.disease.split(' - ').slice(1).join(' - ') || 'A medical condition affecting this organ part.'}
+                    </p>
+                  </div>
+
+                  {/* Info Box */}
+                  <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                    <h3 className="text-lg font-semibold text-white mb-2 flex items-center gap-2">
+                      ℹ️ Important Information
+                    </h3>
+                    <p className="text-gray-200 text-sm leading-relaxed">
+                      This disease affects the <span className="font-semibold text-red-400">{selectedDisease.partName}</span> of the {config.name.toLowerCase()}. 
+                      If you experience symptoms related to this condition, please consult with a healthcare professional for proper diagnosis and treatment.
+                    </p>
+                  </div>
+                </>
+              )}
+
+              {/* Show Part Info */}
+              {selectedPart && (
+                <>
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <span className="text-4xl">{selectedPart.icon}</span>
+                      <h2 className="text-2xl font-bold text-white">{selectedPart.name}</h2>
+                    </div>
+                    <button
+                      onClick={closeModal}
+                      className="text-white hover:text-red-400 text-2xl transition-colors"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-gray-200 mb-6 leading-relaxed">{selectedPart.description}</p>
+
+                  {/* Facts */}
+                  <div className="space-y-3">
+                    <h3 className="text-xl font-semibold text-white mb-3">Key Facts:</h3>
+                    {selectedPart.facts.map((fact, index) => (
+                      <div
+                        key={index}
+                        className="bg-white/10 backdrop-blur-sm rounded-lg p-3 flex items-start gap-2"
+                      >
+                        <span className="text-purple-400 font-bold">✓</span>
+                        <p className="text-gray-200 text-sm">{fact}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Diseases */}
+                  {selectedPart.diseases && selectedPart.diseases.length > 0 && (
+                    <div className="space-y-3 mt-6">
+                      <h3 className="text-xl font-semibold text-white mb-3 flex items-center gap-2">
+                        ⚠️ Common Diseases:
+                      </h3>
+                      {selectedPart.diseases.map((disease, index) => {
+                        const [diseaseName, ...descParts] = disease.split(' - ');
+                        const description = descParts.join(' - ');
+                        
+                        return (
+                          <div
+                            key={index}
+                            className="bg-red-900/20 backdrop-blur-sm rounded-lg p-3 flex items-start gap-2 border border-red-500/30"
+                          >
+                            <span className="text-red-400 font-bold">⚕️</span>
+                            <div>
+                              <p className="text-red-400 font-semibold text-sm">{diseaseName}</p>
+                              {description && (
+                                <p className="text-gray-300 text-xs mt-1">{description}</p>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -637,6 +797,31 @@ const InteractiveViewer = () => {
             max-width: 100%;
             margin: 0.5rem;
           }
+
+          /* Stack back button above title on mobile */
+          .absolute.top-16 {
+            padding-top: 0.5rem;
+          }
+        }
+
+        /* Smooth scrolling for panels */
+        .overflow-y-auto {
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: thin;
+          scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+        }
+
+        .overflow-y-auto::-webkit-scrollbar {
+          width: 6px;
+        }
+
+        .overflow-y-auto::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        .overflow-y-auto::-webkit-scrollbar-thumb {
+          background-color: rgba(255, 255, 255, 0.3);
+          border-radius: 3px;
         }
       `}</style>
     </div>

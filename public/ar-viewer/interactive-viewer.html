@@ -115,6 +115,14 @@
         padding: 0 1rem;
       }
 
+      /* Back Button - Top Left */
+      .back-btn {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 100;
+      }
+
       .control-btn {
         background: rgba(255, 255, 255, 0.1);
         border: 1px solid rgba(255, 255, 255, 0.2);
@@ -157,8 +165,10 @@
         -webkit-backdrop-filter: blur(15px);
         border: 1px solid rgba(255, 255, 255, 0.1);
         z-index: 50;
-        transform: translateX(300px);
+        transform: translateX(320px);
         transition: transform 0.3s ease;
+        max-height: calc(100vh - 100px);
+        overflow-y: auto;
       }
 
       .info-panel.visible {
@@ -184,6 +194,63 @@
 
       .fun-fact:last-child {
         margin-bottom: 0;
+      }
+
+      /* Diseases Panel */
+      .diseases-panel {
+        position: absolute;
+        top: 80px;
+        left: 20px;
+        width: 280px;
+        max-width: calc(100vw - 40px);
+        background: rgba(0, 0, 0, 0.8);
+        border-radius: 15px;
+        padding: 20px;
+        color: white;
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 107, 107, 0.3);
+        z-index: 50;
+        transform: translateX(-320px);
+        transition: transform 0.3s ease;
+        max-height: calc(100vh - 100px);
+        overflow-y: auto;
+      }
+
+      .diseases-panel.visible {
+        transform: translateX(0);
+      }
+
+      .diseases-panel h3 {
+        color: #ff6b6b;
+        margin-bottom: 15px;
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+
+      .disease-item {
+        background: rgba(255, 107, 107, 0.1);
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        font-size: 0.85rem;
+        line-height: 1.4;
+        border-left: 3px solid #ff6b6b;
+      }
+
+      .disease-item:last-child {
+        margin-bottom: 0;
+      }
+
+      .disease-name {
+        font-weight: 600;
+        color: #ff6b6b;
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .disease-desc {
+        color: rgba(255, 255, 255, 0.9);
       }
 
       /* Annotation */
@@ -467,15 +534,15 @@
     <!-- Three.js Container -->
     <div id="threejs-container"></div>
 
+    <!-- Back Button - Top Left -->
+    <button class="control-btn back-btn" id="backBtn">← Back</button>
+
     <!-- Controls -->
     <div class="controls">
       <!-- Dev Mode: Commented out after completing label positioning -->
       <!-- <button class="control-btn" id="devModeBtn">🔧 Dev Mode: OFF</button> -->
       <!-- <button class="control-btn" id="copyPositionsBtn" style="display: none;">📋 Copy Positions</button> -->
-      <button class="control-btn" id="resetBtn">🔄 Reset View</button>
-      <button class="control-btn" id="animateBtn">⏸️ Pause</button>
       <button class="control-btn" id="infoBtn">ℹ️ Info</button>
-      <button class="control-btn" id="backBtn">← Back</button>
     </div>
 
     <!-- Info Panel -->
@@ -498,6 +565,10 @@
         <div class="modal-facts">
           <h4>✨ Interesting Facts</h4>
           <div id="modalFacts"></div>
+        </div>
+        <div class="modal-facts" id="modalDiseasesSection" style="margin-top: 15px; display: none;">
+          <h4>⚠️ Common Diseases</h4>
+          <div id="modalDiseases"></div>
         </div>
       </div>
     </div>
@@ -978,6 +1049,8 @@
         const title = document.getElementById('modalTitle');
         const description = document.getElementById('modalDescription');
         const factsList = document.getElementById('modalFacts');
+        const diseasesSection = document.getElementById('modalDiseasesSection');
+        const diseasesList = document.getElementById('modalDiseases');
 
         if (!icon || !title || !description || !factsList) {
           console.error('Modal elements not found');
@@ -995,6 +1068,20 @@
           li.textContent = fact;
           factsList.appendChild(li);
         });
+
+        // Handle diseases section
+        if (partInfo.diseases && partInfo.diseases.length > 0 && diseasesList && diseasesSection) {
+          diseasesList.innerHTML = '';
+          partInfo.diseases.forEach(disease => {
+            const div = document.createElement('div');
+            div.className = 'modal-fact-item';
+            div.textContent = disease;
+            diseasesList.appendChild(div);
+          });
+          diseasesSection.style.display = 'block';
+        } else if (diseasesSection) {
+          diseasesSection.style.display = 'none';
+        }
 
         modal.classList.add('active');
       }
@@ -1014,8 +1101,6 @@
         const devModeBtn = document.getElementById('devModeBtn');
         const copyPositionsBtn = document.getElementById('copyPositionsBtn');
         */
-        const resetBtn = document.getElementById('resetBtn');
-        const animateBtn = document.getElementById('animateBtn');
         const infoBtn = document.getElementById('infoBtn');
         const backBtn = document.getElementById('backBtn');
 
@@ -1073,20 +1158,6 @@
           });
         }
         */
-
-        if (resetBtn) {
-          resetBtn.addEventListener('click', () => {
-            camera.position.set(0, 0, 5);
-            controls.reset();
-          });
-        }
-
-        if (animateBtn) {
-          animateBtn.addEventListener('click', () => {
-            isAnimating = !isAnimating;
-            animateBtn.textContent = isAnimating ? '⏸️ Pause' : '▶️ Play';
-          });
-        }
 
         if (infoBtn) {
           infoBtn.addEventListener('click', () => {

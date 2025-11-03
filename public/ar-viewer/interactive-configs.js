@@ -46,6 +46,12 @@ const interactiveConfigs = {
 					'About 30cm long and 2.5cm in diameter',
 					'Carries oxygenated blood to the entire body',
 					'Can withstand high pressure from the left ventricle'
+				],
+				diseases: [
+					'Aortic Aneurysm - Bulging or weakening of the aorta wall that can rupture',
+					'Aortic Dissection - Tear in the inner layer causing life-threatening bleeding',
+					'Aortic Stenosis - Narrowing of the aorta that restricts blood flow',
+					'Atherosclerosis - Plaque buildup causing hardening and narrowing'
 				]
 			},
 			{
@@ -60,6 +66,12 @@ const interactiveConfigs = {
 					'Pumps blood at high pressure throughout the body',
 					'Can generate pressures up to 120 mmHg',
 					'The most powerful chamber of the heart'
+				],
+				diseases: [
+					'Left Ventricular Hypertrophy - Thickening of the heart muscle wall',
+					'Heart Failure - Unable to pump enough blood to meet body needs',
+					'Cardiomyopathy - Disease of the heart muscle causing weakness',
+					'Myocardial Infarction - Heart attack from blocked blood flow'
 				]
 			},
 			{
@@ -74,6 +86,12 @@ const interactiveConfigs = {
 					'Has thinner walls than the left ventricle',
 					'Works at lower pressure than left ventricle',
 					'Pumps the same volume as the left ventricle'
+				],
+				diseases: [
+					'Right Ventricular Failure - Inability to pump blood to the lungs',
+					'Pulmonary Hypertension - High blood pressure in lung arteries',
+					'Arrhythmogenic RV Cardiomyopathy - Genetic heart muscle disease',
+					'Tricuspid Regurgitation - Leaky valve between right chambers'
 				]
 			},
 			{
@@ -88,6 +106,12 @@ const interactiveConfigs = {
 					'Has thinner walls than the ventricles',
 					'Contracts to push blood into the left ventricle',
 					'Holds about 85ml of blood when full'
+				],
+				diseases: [
+					'Atrial Fibrillation - Irregular, rapid heartbeat in the atria',
+					'Left Atrial Enlargement - Stretched atrium from high pressure',
+					'Atrial Septal Defect - Hole between left and right atria',
+					'Mitral Valve Disease - Problems with valve between atrium and ventricle'
 				]
 			},
 			{
@@ -102,6 +126,12 @@ const interactiveConfigs = {
 					'Splits into left and right branches for each lung',
 					'Works at lower pressure than the aorta',
 					'Critical for gas exchange in the lungs'
+				],
+				diseases: [
+					'Pulmonary Embolism - Blood clot blocking the pulmonary artery',
+					'Pulmonary Stenosis - Narrowing that restricts blood flow to lungs',
+					'Pulmonary Hypertension - High blood pressure in lung arteries',
+					'Patent Ductus Arteriosus - Birth defect with abnormal connection'
 				]
 			},
 			{
@@ -116,6 +146,12 @@ const interactiveConfigs = {
 					'Connected to two large veins (vena cava)',
 					'Contains the sinoatrial (SA) node - the heart\'s natural pacemaker',
 					'Contracts slightly before the right ventricle'
+				],
+				diseases: [
+					'Atrial Fibrillation - Irregular heartbeat starting in the atria',
+					'Right Atrial Enlargement - Stretched from increased pressure',
+					'Sick Sinus Syndrome - Problems with the heart\'s pacemaker',
+					'Atrial Flutter - Rapid but regular abnormal heart rhythm'
 				]
 			}
 		],
@@ -173,6 +209,12 @@ const interactiveConfigs = {
 					'Responsible for motor control and speech production',
 					'Manages complex cognitive behaviors',
 					'The last part of the brain to fully develop (around age 25)'
+				],
+				diseases: [
+					'Frontotemporal Dementia - Progressive brain disorder affecting personality and behavior',
+					'Brain Tumors - Abnormal growth in the frontal region',
+					'Traumatic Brain Injury - Damage from accidents affecting judgment',
+					'Frontal Lobe Epilepsy - Seizures originating in frontal region'
 				]
 			},
 			{
@@ -187,6 +229,12 @@ const interactiveConfigs = {
 					'Integrates touch, temperature, and pain signals',
 					'Helps with spatial awareness and navigation',
 					'Crucial for hand-eye coordination'
+				],
+				diseases: [
+					'Gerstmann Syndrome - Difficulty with writing, math, and finger recognition',
+					'Hemispatial Neglect - Ignoring one side of space after stroke',
+					'Parietal Lobe Lesions - Damage causing sensory and spatial problems',
+					'Apraxia - Difficulty performing learned movements'
 				]
 			},
 			{
@@ -201,6 +249,12 @@ const interactiveConfigs = {
 					'Critical for memory formation and recall',
 					'Contains the hippocampus (memory center)',
 					'Helps recognize faces and objects'
+				],
+				diseases: [
+					'Temporal Lobe Epilepsy - Most common form of epilepsy in adults',
+					'Alzheimer\'s Disease - Memory loss starting in temporal region',
+					'Wernicke\'s Aphasia - Difficulty understanding language',
+					'Auditory Processing Disorder - Problems processing sounds'
 				]
 			},
 			{
@@ -215,6 +269,12 @@ const interactiveConfigs = {
 					'Interprets colors, shapes, and movement',
 					'Damage can cause blindness despite healthy eyes',
 					'Processes visual information from both eyes'
+				],
+				diseases: [
+					'Cortical Blindness - Vision loss from occipital damage, not eye problems',
+					'Visual Agnosia - Inability to recognize objects despite seeing them',
+					'Prosopagnosia - Face blindness, inability to recognize faces',
+					'Occipital Lobe Stroke - Loss of vision in parts of visual field'
 				]
 			},
 			{
@@ -229,6 +289,12 @@ const interactiveConfigs = {
 					'Contains more neurons than the rest of the brain',
 					'Fine-tunes motor movements',
 					'Helps learn and remember motor skills'
+				],
+				diseases: [
+					'Ataxia - Loss of balance and coordination',
+					'Cerebellar Stroke - Damage causing dizziness and movement problems',
+					'Spinocerebellar Degeneration - Progressive loss of coordination',
+					'Cerebellar Hypoplasia - Underdeveloped cerebellum from birth'
 				]
 			},
 			{
@@ -243,6 +309,12 @@ const interactiveConfigs = {
 					'Regulates heart rate and blood pressure',
 					'Connects brain to spinal cord',
 					'Contains centers for sleep and consciousness'
+				],
+				diseases: [
+					'Brainstem Stroke - Life-threatening damage to vital functions',
+					'Brain Death - Loss of all brainstem functions',
+					'Locked-in Syndrome - Paralysis except for eye movements',
+					'Central Sleep Apnea - Breathing stops during sleep'
 				]
 			},
 			{
@@ -257,6 +329,12 @@ const interactiveConfigs = {
 					'Contains about 200-250 million nerve fibers',
 					'Enables communication between brain hemispheres',
 					'Allows the two sides of the brain to work together'
+				],
+				diseases: [
+					'Agenesis of Corpus Callosum - Born without this structure',
+					'Multiple Sclerosis - Damage to nerve fibers in corpus callosum',
+					'Marchiafava-Bignami Disease - Degeneration from alcohol abuse',
+					'Corpus Callosum Infarction - Stroke affecting this region'
 				]
 			}
 		]
@@ -308,6 +386,12 @@ const interactiveConfigs = {
 					'Slightly larger than the left lung',
 					'Handles about 55% of total lung capacity',
 					'Contains about 300 million alveoli'
+				],
+				diseases: [
+					'Pneumonia - Infection causing inflammation of air sacs',
+					'Lung Cancer - Uncontrolled cell growth in lung tissue',
+					'Chronic Bronchitis - Long-term inflammation of airways',
+					'Pulmonary Fibrosis - Scarring and stiffening of lung tissue'
 				]
 			},
 			{
@@ -322,6 +406,12 @@ const interactiveConfigs = {
 					'Smaller to accommodate the heart',
 					'Contains a cardiac notch for the heart',
 					'Handles about 45% of total lung capacity'
+				],
+				diseases: [
+					'Pneumothorax - Collapsed lung from air in chest cavity',
+					'Tuberculosis - Bacterial infection primarily in lungs',
+					'Emphysema - Damage to alveoli causing breathing problems',
+					'Pleural Effusion - Fluid buildup around the lung'
 				]
 			},
 			{
@@ -336,6 +426,12 @@ const interactiveConfigs = {
 					'Lined with tiny hairs called cilia',
 					'Has C-shaped cartilage rings for support',
 					'Filters and warms air before it reaches lungs'
+				],
+				diseases: [
+					'Tracheitis - Inflammation of the trachea from infection',
+					'Tracheal Stenosis - Narrowing that restricts breathing',
+					'Tracheomalacia - Weak and floppy tracheal walls',
+					'Tracheal Tumors - Abnormal growths obstructing airway'
 				]
 			},
 			{
@@ -350,6 +446,12 @@ const interactiveConfigs = {
 					'Divide into smaller and smaller bronchioles',
 					'Like an upside-down tree structure',
 					'Lead to tiny air sacs called alveoli'
+				],
+				diseases: [
+					'Bronchitis - Inflammation of bronchial tubes',
+					'Bronchiectasis - Permanent widening and damage',
+					'Asthma - Narrowing and swelling with extra mucus',
+					'Bronchiolitis - Inflammation of small airways'
 				]
 			},
 			{
@@ -364,6 +466,12 @@ const interactiveConfigs = {
 					'Produces lubricating fluid',
 					'Reduces friction during breathing',
 					'Helps lungs expand and contract smoothly'
+				],
+				diseases: [
+					'Pleurisy - Inflammation causing sharp chest pain',
+					'Pleural Mesothelioma - Cancer of pleural lining',
+					'Pleural Effusion - Excess fluid between layers',
+					'Pneumothorax - Air leak causing lung collapse'
 				]
 			}
 		]
@@ -415,6 +523,12 @@ const interactiveConfigs = {
 					'Has 4 functional segments',
 					'Handles majority of metabolic functions',
 					'Can independently regenerate if damaged'
+				],
+				diseases: [
+					'Hepatocellular Carcinoma - Primary liver cancer',
+					'Cirrhosis - Scarring from chronic liver damage',
+					'Fatty Liver Disease - Fat buildup in liver cells',
+					'Hepatitis - Viral inflammation of the liver'
 				]
 			},
 			{
@@ -429,6 +543,12 @@ const interactiveConfigs = {
 					'Has 2 functional segments',
 					'Works in harmony with right lobe',
 					'Also capable of regeneration'
+				],
+				diseases: [
+					'Liver Metastases - Cancer spread from other organs',
+					'Liver Abscess - Pus-filled pocket from infection',
+					'Hemangioma - Benign blood vessel tumor',
+					'Focal Nodular Hyperplasia - Benign growth'
 				]
 			},
 			{
@@ -443,6 +563,12 @@ const interactiveConfigs = {
 					'About 7-10 cm long',
 					'Can hold up to 50 ml of bile',
 					'Releases bile when you eat fatty foods'
+				],
+				diseases: [
+					'Gallstones - Hard deposits blocking bile ducts',
+					'Cholecystitis - Inflammation of gallbladder',
+					'Gallbladder Cancer - Rare malignancy',
+					'Biliary Dyskinesia - Poor gallbladder emptying'
 				]
 			},
 			{
@@ -457,6 +583,12 @@ const interactiveConfigs = {
 					'Common bile duct connects to small intestine',
 					'Bile helps digest fats and oils',
 					'Helps absorb fat-soluble vitamins (A, D, E, K)'
+				],
+				diseases: [
+					'Cholangitis - Infection of bile ducts',
+					'Bile Duct Cancer - Rare but serious cancer',
+					'Primary Sclerosing Cholangitis - Chronic scarring',
+					'Bile Duct Obstruction - Blockage preventing bile flow'
 				]
 			}
 		]
@@ -508,6 +640,12 @@ const interactiveConfigs = {
 					'Contains millions of nephrons (filtering units)',
 					'Receives 20-25% of cardiac output',
 					'First stage of blood filtration occurs here'
+				],
+				diseases: [
+					'Glomerulonephritis - Inflammation of kidney filters',
+					'Acute Tubular Necrosis - Damage to tubule cells',
+					'Cortical Necrosis - Death of cortex tissue',
+					'IgA Nephropathy - Antibody buildup in kidneys'
 				]
 			},
 			{
@@ -522,6 +660,12 @@ const interactiveConfigs = {
 					'Contains renal pyramids',
 					'Concentrates urine as it passes through',
 					'Maintains body\'s salt and water balance'
+				],
+				diseases: [
+					'Medullary Sponge Kidney - Cyst formation in tubules',
+					'Renal Papillary Necrosis - Death of inner kidney tissue',
+					'Pyelonephritis - Kidney infection starting in pelvis',
+					'Renal Tuberculosis - TB infection of kidney'
 				]
 			},
 			{
@@ -536,6 +680,12 @@ const interactiveConfigs = {
 					'Collects urine from the kidney',
 					'Connects to the ureter',
 					'Sends urine to the bladder for storage'
+				],
+				diseases: [
+					'Hydronephrosis - Swelling from urine backup',
+					'Kidney Stones - Hard deposits causing blockage',
+					'Renal Pelvis Cancer - Transitional cell carcinoma',
+					'Ureteropelvic Junction Obstruction - Blockage at ureter connection'
 				]
 			},
 			
@@ -551,6 +701,12 @@ const interactiveConfigs = {
 					'Carries about 1.2 liters of blood per minute',
 					'Branches into smaller arterioles',
 					'Delivers blood to nephrons for filtering'
+				],
+				diseases: [
+					'Renal Artery Stenosis - Narrowing reducing blood flow',
+					'Renal Artery Thrombosis - Blood clot blocking artery',
+					'Fibromuscular Dysplasia - Abnormal cell growth in artery wall',
+					'Renal Artery Aneurysm - Bulging weakened artery'
 				]
 			},
 			{
@@ -565,6 +721,12 @@ const interactiveConfigs = {
 					'About 25-30 cm long',
 					'Uses peristaltic waves to move urine',
 					'Can pass about 2 liters of urine daily'
+				],
+				diseases: [
+					'Ureteral Stricture - Narrowing from scarring',
+					'Ureteritis - Inflammation from infection',
+					'Ureteral Cancer - Rare malignancy of ureter',
+					'Vesicoureteral Reflux - Backward flow of urine'
 				]
 			}
 		]

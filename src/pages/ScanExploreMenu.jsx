@@ -8,6 +8,13 @@ const ScanExploreMenu = () => {
   const [isScanning, setIsScanning] = useState(false);
   const [exploredOrgans, setExploredOrgans] = useState([]);
   const [showBadge, setShowBadge] = useState(false);
+  
+  // 🎯 LAZY LOADING SETTINGS - Customize here!
+  const INITIAL_ORGANS = 3;  // Change this number to start with more/less organs (1-15)
+  const LOAD_MORE_COUNT = 5; // How many organs to load at once when scrolling
+  
+  const [visibleOrgans, setVisibleOrgans] = useState(INITIAL_ORGANS);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const organs = [
     {
@@ -178,6 +185,27 @@ const ScanExploreMenu = () => {
     }
   }, [exploredOrgans, organs.length]);
 
+  // Lazy loading effect - load more organs on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      // Check if user scrolled near bottom (within 300px)
+      const scrollPosition = window.innerHeight + window.scrollY;
+      const bottomPosition = document.documentElement.scrollHeight - 300;
+      
+      if (scrollPosition >= bottomPosition && visibleOrgans < organs.length && !isLoadingMore) {
+        setIsLoadingMore(true);
+        // Simulate loading delay for smooth UX
+        setTimeout(() => {
+          setVisibleOrgans(prev => Math.min(prev + LOAD_MORE_COUNT, organs.length));
+          setIsLoadingMore(false);
+        }, 500);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [visibleOrgans, organs.length, isLoadingMore]);
+
   const handleOrganSelect = (organ) => {
     // Add tap feedback and sound effect
     const button = document.querySelector(`[data-organ="${organ.id}"]`);
@@ -211,17 +239,31 @@ const ScanExploreMenu = () => {
 
   if (isScanning) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center p-6">
-        <div className="text-center space-y-8 animate-fade-in">
+      <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-teal-400 to-blue-500 flex items-center justify-center p-6 relative overflow-hidden">
+        {/* Animated circles */}
+        <div className="absolute inset-0">
+          <div className="absolute top-1/4 left-1/4 w-32 h-32 rounded-full bg-white/10 animate-ping" style={{ animationDuration: '2s' }} />
+          <div className="absolute bottom-1/4 right-1/4 w-40 h-40 rounded-full bg-white/10 animate-ping" style={{ animationDuration: '2.5s' }} />
+        </div>
+        
+        <div className="text-center space-y-8 animate-fade-in relative z-10">
           <div className="relative">
-            <div className="text-9xl animate-pulse">🔍</div>
+            <div className="text-9xl animate-pulse drop-shadow-2xl">🔍</div>
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-32 h-32 border-4 border-white rounded-full animate-ping"></div>
+              <div className="w-40 h-40 border-4 border-white/60 rounded-full animate-ping"></div>
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-32 h-32 border-4 border-white/40 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
             </div>
           </div>
-          <div className="space-y-2">
-            <h2 className="text-4xl font-bold text-white drop-shadow-lg">Scanning Your Body...</h2>
-            <p className="text-xl text-white/90">Finding all the amazing organs!</p>
+          <div className="space-y-3">
+            <h2 className="text-5xl font-black text-white drop-shadow-lg">Scanning Your Body...</h2>
+            <p className="text-2xl text-white/95 font-semibold drop-shadow">Finding all the amazing organs! ✨</p>
+          </div>
+          <div className="flex justify-center gap-3 text-5xl">
+            <span className="animate-bounce" style={{ animationDelay: '0s' }}>🫀</span>
+            <span className="animate-bounce" style={{ animationDelay: '0.1s' }}>🧠</span>
+            <span className="animate-bounce" style={{ animationDelay: '0.2s' }}>🫁</span>
           </div>
         </div>
       </div>
@@ -230,62 +272,78 @@ const ScanExploreMenu = () => {
 
   if (selectedOrgan) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-500 to-purple-600 p-6">
-        <div className="max-w-2xl mx-auto space-y-6">
+      <div className="min-h-screen bg-gradient-to-br from-pink-400 via-purple-400 to-indigo-500 p-6 relative overflow-hidden">
+        {/* Animated background patterns */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute w-full h-full" style={{
+            backgroundImage: `radial-gradient(circle, white 2px, transparent 2px)`,
+            backgroundSize: '60px 60px',
+            animation: 'float 15s ease-in-out infinite'
+          }} />
+        </div>
+        
+        <div className="max-w-2xl mx-auto space-y-6 relative z-10">
           <Button
             onClick={handleCloseOrganDetail}
-            variant="outline"
-            className="mb-4 bg-white/90 hover:bg-white border-0"
+            className="bg-white hover:bg-gray-50 text-gray-800 font-bold border-2 border-white/50 shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95 rounded-2xl"
           >
-            <span className="mr-2">←</span> Back
+            <span className="mr-2 text-xl">←</span> Back
           </Button>
 
-          <Card className="bg-white/95 backdrop-blur-sm border-0 p-8 space-y-6">
-            <h2 className="text-4xl font-bold text-center bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-              Meet Your {selectedOrgan.name}!
-            </h2>
-
+          <Card className="bg-white/95 backdrop-blur-lg border-4 border-white/50 shadow-2xl rounded-3xl p-8 space-y-6">
+            {/* Organ icon with fun animation */}
             <div className="flex justify-center">
               <div 
-                className="w-48 h-48 rounded-3xl flex items-center justify-center shadow-2xl transform hover:scale-105 transition-transform"
+                className="w-52 h-52 rounded-3xl flex items-center justify-center shadow-2xl transform hover:scale-105 hover:rotate-3 transition-all duration-300 border-4 border-white/40"
                 style={{ backgroundColor: selectedOrgan.color }}
               >
-                <img src={selectedOrgan.icon} alt={selectedOrgan.name} className="w-32 h-32 object-contain" />
+                <img 
+                  src={selectedOrgan.icon} 
+                  alt={selectedOrgan.name} 
+                  className="w-40 h-40 object-contain drop-shadow-lg animate-float" 
+                />
               </div>
             </div>
 
-            <p className="text-lg text-gray-700 text-center font-medium">
+            <h2 className="text-4xl md:text-5xl font-black text-center bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent drop-shadow-sm">
+              Meet Your {selectedOrgan.name}! 🎉
+            </h2>
+
+            <p className="text-xl text-gray-800 text-center font-bold leading-relaxed">
               {selectedOrgan.description}
             </p>
 
-            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl p-6 border-2 border-orange-200">
-              <h3 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <span>🤔</span> Did You Know?
+            <div className="bg-gradient-to-br from-yellow-100 via-orange-50 to-yellow-100 rounded-3xl p-6 border-4 border-yellow-300 shadow-lg">
+              <h3 className="text-2xl md:text-3xl font-black text-gray-800 mb-4 flex items-center gap-2">
+                <span className="text-3xl">🤔</span> Did You Know?
               </h3>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {selectedOrgan.didYouKnow.map((fact, index) => (
-                  <p key={index} className="text-gray-700 text-base leading-relaxed">
-                    • {fact}
-                  </p>
+                  <div key={index} className="flex gap-3 items-start">
+                    <span className="text-2xl flex-shrink-0">✨</span>
+                    <p className="text-gray-800 text-base md:text-lg font-medium leading-relaxed">
+                      {fact}
+                    </p>
+                  </div>
                 ))}
               </div>
             </div>
 
             <Button
               onClick={() => window.location.href = `/ar-viewer/organ-viewer.html?organ=${selectedOrgan.id}`}
-              className="w-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white font-bold text-lg py-6 mb-3"
+              className="w-full bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 hover:from-pink-600 hover:via-purple-600 hover:to-indigo-600 text-white font-black text-lg md:text-xl py-7 rounded-2xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-95 border-2 border-white/30"
               size="lg"
             >
-              <span className="mr-2">✨</span>
+              <span className="mr-2 text-2xl">✨</span>
               Explore {selectedOrgan.name} in AR!
             </Button>
 
             <Button
               onClick={() => window.location.hash = `interactive/${selectedOrgan.id}`}
-              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold text-lg py-6"
+              className="w-full bg-gradient-to-r from-blue-500 via-cyan-500 to-teal-500 hover:from-blue-600 hover:via-cyan-600 hover:to-teal-600 text-white font-black text-lg md:text-xl py-7 rounded-2xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-95 border-2 border-white/30"
               size="lg"
             >
-              <span className="mr-2">🔬</span>
+              <span className="mr-2 text-2xl">🔬</span>
               Explore Cross Section
             </Button>
           </Card>
@@ -295,122 +353,232 @@ const ScanExploreMenu = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-400 via-cyan-500 to-blue-600 p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-400 via-cyan-400 to-blue-500 p-6 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute w-full h-full" style={{
+          backgroundImage: `radial-gradient(circle at 25% 25%, white 3px, transparent 3px),
+                           radial-gradient(circle at 75% 75%, white 2px, transparent 2px)`,
+          backgroundSize: '100px 100px, 80px 80px',
+          animation: 'float 20s ease-in-out infinite'
+        }} />
+      </div>
+      
+      {/* Floating decorations */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-20 left-10 text-5xl animate-float opacity-20" style={{ animationDelay: '0s' }}>⭐</div>
+        <div className="absolute top-40 right-16 text-4xl animate-float opacity-20" style={{ animationDelay: '1s' }}>✨</div>
+        <div className="absolute bottom-32 left-20 text-5xl animate-float opacity-20" style={{ animationDelay: '2s' }}>💫</div>
+        <div className="absolute bottom-48 right-24 text-4xl animate-float opacity-20" style={{ animationDelay: '1.5s' }}>🌟</div>
+      </div>
+      
       {/* Header */}
-      <div className="max-w-2xl mx-auto mb-6">
+      <div className="max-w-3xl mx-auto mb-6 relative z-10">
         <Button
           onClick={handleBack}
-          variant="outline"
-          className="bg-white/90 hover:bg-white border-0"
+          className="bg-white hover:bg-gray-50 text-gray-800 font-bold border-2 border-white/50 shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95 rounded-2xl"
         >
-          <span className="mr-2">←</span> Back
+          <span className="mr-2 text-xl">←</span> Back to Menu
         </Button>
       </div>
 
-      {/* Progress Card */}
-      <div className="max-w-2xl mx-auto mb-4">
-        <div className="text-center bg-white/90 backdrop-blur-sm rounded-2xl p-3 shadow-lg">
-          <span className="text-sm font-bold text-gray-800">
-            {exploredOrgans.length}/{organs.length} organs explored!
-          </span>
-          <div className="flex justify-center gap-1 mt-1">
-            {Array.from({ length: organs.length }, (_, i) => (
-              <span 
-                key={i} 
-                className={cn(
-                  "text-lg transition-all",
-                  exploredOrgans.length > i ? "opacity-100 scale-110" : "opacity-30 scale-90"
-                )}
-              >
-                ⭐
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-
       {/* Title */}
-      <div className="text-center mb-4 space-y-1">
-        <h1 className="text-2xl md:text-3xl font-bold text-white drop-shadow-2xl">
-          🌟 Pick an Organ! 🌟
+      <div className="text-center mb-6 space-y-2 relative z-10">
+        <h1 className="text-4xl md:text-5xl font-black text-white drop-shadow-2xl">
+          🌟 Choose Your Organ! 🌟
         </h1>
-        <p className="text-base text-white/90 font-medium drop-shadow-lg">
-          Tap to learn about your amazing body!
+        <p className="text-xl md:text-2xl text-white/95 font-bold drop-shadow-lg">
+          Tap to discover amazing facts!
         </p>
       </div>
 
-      {/* Organs List - Card Style */}
-      <div className="max-w-2xl mx-auto space-y-3 pb-20">
-        {organs.map((organ) => (
+      {/* Organs List - Card Style with Lazy Loading */}
+      <div className="max-w-3xl mx-auto space-y-4 pb-20 relative z-10">
+        {organs.slice(0, visibleOrgans).map((organ, index) => (
           <button
             key={organ.id}
             data-organ={organ.id}
             onClick={() => handleOrganSelect(organ)}
             className={cn(
-              "w-full rounded-2xl p-4 shadow-lg transform transition-all duration-200",
-              "hover:scale-[1.02] hover:shadow-xl active:scale-[0.98]",
-              "flex items-center gap-4 group relative overflow-hidden"
+              "w-full rounded-3xl p-5 md:p-6 shadow-xl transform transition-all duration-300",
+              "hover:scale-[1.03] hover:shadow-2xl active:scale-[0.97]",
+              "flex items-center gap-4 md:gap-5 group relative overflow-hidden",
+              "border-4 border-white/40 hover:border-white/60",
+              "animate-slide-in"
             )}
-            style={{ backgroundColor: organ.color }}
+            style={{ 
+              backgroundColor: organ.color,
+              animationDelay: `${index * 0.05}s`
+            }}
           >
+            {/* Shine effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform -translate-x-full group-hover:translate-x-full" 
+                 style={{ transition: 'transform 0.8s ease-in-out' }} />
+            
             {/* Icon Container */}
-            <div className="w-12 h-12 rounded-xl bg-white/30 backdrop-blur-sm flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-white/30 backdrop-blur-sm flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg border-2 border-white/40">
               <img 
                 src={organ.icon} 
                 alt={organ.name} 
-                className="w-9 h-9 object-contain"
+                className="w-12 h-12 md:w-16 md:h-16 object-contain drop-shadow-lg"
               />
             </div>
 
             {/* Content */}
-            <div className="flex-1 text-left">
-              <h3 className="text-base font-bold text-white mb-0.5">
+            <div className="flex-1 text-left relative z-10">
+              <h3 className="text-xl md:text-2xl font-black text-white mb-1 drop-shadow-lg">
                 {organ.name}
               </h3>
-              <p className="text-xs text-white/90 line-clamp-1">
+              <p className="text-sm md:text-base text-white/95 font-semibold drop-shadow line-clamp-1">
                 {organ.funFact}
               </p>
             </div>
 
             {/* Arrow & Checkmark */}
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-3 flex-shrink-0 relative z-10">
               {exploredOrgans.includes(organ.id) && (
-                <div className="bg-white rounded-full p-1 shadow-lg animate-scale-in">
-                  <span className="text-base">✅</span>
+                <div className="bg-white rounded-full p-2 shadow-xl animate-scale-in border-2 border-white/50">
+                  <span className="text-xl md:text-2xl">✅</span>
                 </div>
               )}
-              <div className="text-white text-xl group-hover:translate-x-1 transition-transform">
+              <div className="text-white text-3xl md:text-4xl font-bold group-hover:translate-x-2 transition-transform duration-300 drop-shadow-lg">
                 →
               </div>
             </div>
 
-            {/* Hover effect overlay */}
-            <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors duration-300 rounded-2xl" />
+            {/* Bottom highlight */}
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/40 rounded-b-3xl" />
           </button>
         ))}
+        
+        {/* Skeleton Loaders while loading more */}
+        {isLoadingMore && (
+          <>
+            {[1, 2, 3].map((skeleton) => (
+              <div
+                key={`skeleton-${skeleton}`}
+                className="w-full rounded-3xl p-5 md:p-6 shadow-xl flex items-center gap-4 md:gap-5 border-4 border-white/40 bg-white/20 backdrop-blur-sm animate-pulse"
+              >
+                {/* Icon Skeleton */}
+                <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-white/30 flex-shrink-0" />
+                
+                {/* Content Skeleton */}
+                <div className="flex-1 space-y-2">
+                  <div className="h-6 bg-white/30 rounded-lg w-3/4" />
+                  <div className="h-4 bg-white/20 rounded-lg w-full" />
+                </div>
+                
+                {/* Arrow Skeleton */}
+                <div className="w-8 h-8 bg-white/30 rounded-full flex-shrink-0" />
+              </div>
+            ))}
+          </>
+        )}
+        
+        {/* Load More indicator */}
+        {visibleOrgans < organs.length && !isLoadingMore && (
+          <div className="text-center py-4">
+            <p className="text-white/80 text-lg font-semibold animate-bounce">
+              ↓ Scroll down to see more organs! ↓
+            </p>
+          </div>
+        )}
+        
+        {/* All loaded indicator */}
+        {visibleOrgans >= organs.length && (
+          <div className="text-center py-6">
+            <div className="bg-white/90 backdrop-blur-lg rounded-3xl p-4 inline-block shadow-xl border-4 border-white/50">
+              <p className="text-gray-800 text-lg font-black flex items-center gap-2">
+                <span className="text-2xl">🎉</span>
+                All organs loaded!
+                <span className="text-2xl">🎉</span>
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Achievement Badge */}
       {showBadge && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
-          <Card className="bg-white border-0 p-12 text-center space-y-6 animate-scale-in max-w-md mx-4">
-            <div className="text-8xl">🏆</div>
-            <h2 className="text-4xl font-bold bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in p-6">
+          <Card className="bg-white border-0 rounded-3xl p-12 text-center space-y-6 animate-scale-in max-w-md mx-4 shadow-2xl">
+            <div className="text-9xl animate-bounce">🏆</div>
+            <h2 className="text-5xl font-black bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 bg-clip-text text-transparent drop-shadow-sm">
               Organ Expert!
             </h2>
-            <p className="text-2xl text-gray-700 font-medium">
+            <p className="text-3xl text-gray-800 font-black leading-relaxed">
               You explored all the organs!
             </p>
-            <div className="flex justify-center gap-4 text-5xl animate-float">
-              <span>🎉</span>
-              <span>🎊</span>
-              <span>🌟</span>
-              <span>✨</span>
-              <span>🎈</span>
+            <div className="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-4 border-4 border-yellow-400">
+              <p className="text-xl font-bold text-gray-800">
+                🌟 Achievement Unlocked! 🌟
+              </p>
+            </div>
+            <div className="flex justify-center gap-4 text-6xl">
+              <span className="animate-bounce" style={{ animationDelay: '0s' }}>🎉</span>
+              <span className="animate-bounce" style={{ animationDelay: '0.1s' }}>🎊</span>
+              <span className="animate-bounce" style={{ animationDelay: '0.2s' }}>🌟</span>
+              <span className="animate-bounce" style={{ animationDelay: '0.3s' }}>✨</span>
+              <span className="animate-bounce" style={{ animationDelay: '0.4s' }}>🎈</span>
             </div>
           </Card>
         </div>
       )}
+
+      <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-15px) rotate(3deg); }
+        }
+        
+        @keyframes scale-in {
+          0% { transform: scale(0.5); opacity: 0; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes fade-in {
+          0% { opacity: 0; }
+          100% { opacity: 1; }
+        }
+        
+        @keyframes slide-in {
+          0% { 
+            transform: translateX(-20px); 
+            opacity: 0; 
+          }
+          100% { 
+            transform: translateX(0); 
+            opacity: 1; 
+          }
+        }
+
+        .animate-float {
+          animation: float 3s ease-in-out infinite;
+        }
+
+        .animate-scale-in {
+          animation: scale-in 0.5s ease-out;
+        }
+        
+        .animate-slide-in {
+          animation: slide-in 0.5s ease-out forwards;
+          opacity: 0;
+        }
+
+        .animate-fade-in {
+          animation: fade-in 0.3s ease-out;
+        }
+
+        .tap-feedback {
+          animation: tap 0.3s ease-out;
+        }
+
+        @keyframes tap {
+          0% { transform: scale(1); }
+          50% { transform: scale(0.95); }
+          100% { transform: scale(1); }
+        }
+      `}</style>
     </div>
   );
 };
