@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import MenuButton from '../components/MenuButton';
 import ProfileModal from '../components/ProfileModal';
 import LearnMoreModal from '../components/LearnMoreModal';
@@ -11,11 +11,6 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
   
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showLearnMoreModal, setShowLearnMoreModal] = useState(false);
-  
-  // 🎯 LAZY LOADING SETTINGS - Load 2 buttons initially, then more on scroll
-  const INITIAL_BUTTONS = 2;  // Show 2 buttons first
-  const [visibleButtons, setVisibleButtons] = useState(INITIAL_BUTTONS);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const menuOptions = [
     {
@@ -51,27 +46,6 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
       color: '#e74c3c'
     }
   ];
-
-  // Load more buttons on scroll
-  useEffect(() => {
-    const handleScroll = () => {
-      // Check if user scrolled near bottom (within 200px)
-      const scrollPosition = window.innerHeight + window.scrollY;
-      const bottomPosition = document.documentElement.scrollHeight - 200;
-      
-      if (scrollPosition >= bottomPosition && visibleButtons < menuOptions.length && !isLoadingMore) {
-        setIsLoadingMore(true);
-        // Simulate loading delay
-        setTimeout(() => {
-          setVisibleButtons(prev => Math.min(prev + 2, menuOptions.length)); // Load 2 more at a time
-          setIsLoadingMore(false);
-        }, 300);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [visibleButtons, menuOptions.length, isLoadingMore]);
 
   const handleMenuClick = (route) => {
     console.log(`Navigating to: ${route}`);
@@ -156,7 +130,7 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
       {/* Menu Buttons Grid */}
       <div className="max-w-5xl mx-auto px-6 md:px-8 pb-12 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-          {menuOptions.slice(0, visibleButtons).map((option, index) => (
+          {menuOptions.map((option, index) => (
             <div
               key={option.id}
               className="animate-slide-in"
@@ -171,59 +145,7 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
               />
             </div>
           ))}
-          
-          {/* Skeleton loaders while loading more */}
-          {isLoadingMore && (
-            <>
-              {[1, 2].map((skeleton) => (
-                <div
-                  key={`skeleton-${skeleton}`}
-                  className="w-full rounded-3xl p-6 md:p-8 bg-white/20 backdrop-blur-sm border-4 border-white/30 animate-pulse"
-                >
-                  <div className="flex items-center gap-4 md:gap-5">
-                    {/* Icon skeleton */}
-                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-white/30" />
-                    
-                    {/* Text skeleton */}
-                    <div className="flex-1 space-y-3">
-                      <div className="h-6 bg-white/30 rounded-lg w-3/4" />
-                      <div className="h-4 bg-white/20 rounded-lg w-full" />
-                    </div>
-                    
-                    {/* Arrow skeleton */}
-                    <div className="w-8 h-8 bg-white/30 rounded-full" />
-                  </div>
-                </div>
-              ))}
-            </>
-          )}
         </div>
-        
-        {/* Scroll down indicator */}
-        {visibleButtons < menuOptions.length && !isLoadingMore && (
-          <div className="text-center mt-8 animate-bounce">
-            <div className="inline-block bg-white/90 backdrop-blur-lg rounded-2xl px-6 py-3 shadow-xl border-2 border-white/50">
-              <p className="text-indigo-600 text-lg font-black flex items-center gap-2">
-                <span className="text-2xl">👇</span>
-                Scroll down to see more options!
-                <span className="text-2xl">👇</span>
-              </p>
-            </div>
-          </div>
-        )}
-        
-        {/* All loaded indicator */}
-        {visibleButtons >= menuOptions.length && visibleButtons > INITIAL_BUTTONS && (
-          <div className="text-center mt-8">
-            <div className="inline-block bg-white/90 backdrop-blur-lg rounded-2xl px-6 py-3 shadow-xl border-2 border-white/50">
-              <p className="text-indigo-600 text-lg font-black flex items-center gap-2">
-                <span className="text-2xl">✨</span>
-                All options loaded!
-                <span className="text-2xl">✨</span>
-              </p>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Profile Modal */}

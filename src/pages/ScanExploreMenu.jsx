@@ -188,9 +188,20 @@ const ScanExploreMenu = () => {
   // Lazy loading effect - load more organs on scroll
   useEffect(() => {
     const handleScroll = () => {
-      // Check if user scrolled near bottom (within 300px)
-      const scrollPosition = window.innerHeight + window.scrollY;
-      const bottomPosition = document.documentElement.scrollHeight - 300;
+      // More robust scroll detection that works on hosted sites
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+      const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+      const documentHeight = Math.max(
+        document.body.scrollHeight,
+        document.documentElement.scrollHeight,
+        document.body.offsetHeight,
+        document.documentElement.offsetHeight,
+        document.body.clientHeight,
+        document.documentElement.clientHeight
+      );
+      
+      const scrollPosition = scrollTop + windowHeight;
+      const bottomPosition = documentHeight - 300;
       
       if (scrollPosition >= bottomPosition && visibleOrgans < organs.length && !isLoadingMore) {
         setIsLoadingMore(true);
@@ -202,9 +213,14 @@ const ScanExploreMenu = () => {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [visibleOrgans, organs.length, isLoadingMore]);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    document.addEventListener('scroll', handleScroll, { passive: true });
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('scroll', handleScroll);
+    };
+  }, [visibleOrgans, organs.length, isLoadingMore, LOAD_MORE_COUNT]);
 
   const handleOrganSelect = (organ) => {
     // Add tap feedback and sound effect
