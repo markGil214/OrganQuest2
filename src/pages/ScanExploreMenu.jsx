@@ -8,13 +8,6 @@ const ScanExploreMenu = () => {
   const [isScanning, setIsScanning] = useState(false);
   const [exploredOrgans, setExploredOrgans] = useState([]);
   const [showBadge, setShowBadge] = useState(false);
-  
-  // 🎯 LAZY LOADING SETTINGS - Customize here!
-  const INITIAL_ORGANS = 3;  // Change this number to start with more/less organs (1-15)
-  const LOAD_MORE_COUNT = 5; // How many organs to load at once when scrolling
-  
-  const [visibleOrgans, setVisibleOrgans] = useState(INITIAL_ORGANS);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const organs = [
     {
@@ -184,43 +177,6 @@ const ScanExploreMenu = () => {
       setTimeout(() => setShowBadge(false), 3000);
     }
   }, [exploredOrgans, organs.length]);
-
-  // Lazy loading effect - load more organs on scroll
-  useEffect(() => {
-    const handleScroll = () => {
-      // More robust scroll detection that works on hosted sites
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
-      const windowHeight = window.innerHeight || document.documentElement.clientHeight;
-      const documentHeight = Math.max(
-        document.body.scrollHeight,
-        document.documentElement.scrollHeight,
-        document.body.offsetHeight,
-        document.documentElement.offsetHeight,
-        document.body.clientHeight,
-        document.documentElement.clientHeight
-      );
-      
-      const scrollPosition = scrollTop + windowHeight;
-      const bottomPosition = documentHeight - 300;
-      
-      if (scrollPosition >= bottomPosition && visibleOrgans < organs.length && !isLoadingMore) {
-        setIsLoadingMore(true);
-        // Simulate loading delay for smooth UX
-        setTimeout(() => {
-          setVisibleOrgans(prev => Math.min(prev + LOAD_MORE_COUNT, organs.length));
-          setIsLoadingMore(false);
-        }, 500);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    document.addEventListener('scroll', handleScroll, { passive: true });
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      document.removeEventListener('scroll', handleScroll);
-    };
-  }, [visibleOrgans, organs.length, isLoadingMore, LOAD_MORE_COUNT]);
 
   const handleOrganSelect = (organ) => {
     // Add tap feedback and sound effect
@@ -408,9 +364,9 @@ const ScanExploreMenu = () => {
         </p>
       </div>
 
-      {/* Organs List - Card Style with Lazy Loading */}
+      {/* Organs List - Card Style */}
       <div className="max-w-3xl mx-auto space-y-4 pb-20 relative z-10">
-        {organs.slice(0, visibleOrgans).map((organ, index) => (
+        {organs.map((organ, index) => (
           <button
             key={organ.id}
             data-organ={organ.id}
@@ -466,52 +422,6 @@ const ScanExploreMenu = () => {
             <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/40 rounded-b-3xl" />
           </button>
         ))}
-        
-        {/* Skeleton Loaders while loading more */}
-        {isLoadingMore && (
-          <>
-            {[1, 2, 3].map((skeleton) => (
-              <div
-                key={`skeleton-${skeleton}`}
-                className="w-full rounded-3xl p-5 md:p-6 shadow-xl flex items-center gap-4 md:gap-5 border-4 border-white/40 bg-white/20 backdrop-blur-sm animate-pulse"
-              >
-                {/* Icon Skeleton */}
-                <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-white/30 flex-shrink-0" />
-                
-                {/* Content Skeleton */}
-                <div className="flex-1 space-y-2">
-                  <div className="h-6 bg-white/30 rounded-lg w-3/4" />
-                  <div className="h-4 bg-white/20 rounded-lg w-full" />
-                </div>
-                
-                {/* Arrow Skeleton */}
-                <div className="w-8 h-8 bg-white/30 rounded-full flex-shrink-0" />
-              </div>
-            ))}
-          </>
-        )}
-        
-        {/* Load More indicator */}
-        {visibleOrgans < organs.length && !isLoadingMore && (
-          <div className="text-center py-4">
-            <p className="text-white/80 text-lg font-semibold animate-bounce">
-              ↓ Scroll down to see more organs! ↓
-            </p>
-          </div>
-        )}
-        
-        {/* All loaded indicator */}
-        {visibleOrgans >= organs.length && (
-          <div className="text-center py-6">
-            <div className="bg-white/90 backdrop-blur-lg rounded-3xl p-4 inline-block shadow-xl border-4 border-white/50">
-              <p className="text-gray-800 text-lg font-black flex items-center gap-2">
-                <span className="text-2xl">🎉</span>
-                All organs loaded!
-                <span className="text-2xl">🎉</span>
-              </p>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Achievement Badge */}
