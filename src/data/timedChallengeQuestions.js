@@ -3,7 +3,7 @@ export const timedChallengeQuestions = [
   {
     id: 1,
     question: "Which organ pumps blood?",
-    options: ["🫀 Heart", "🧠 Brain", "🫁 Lungs", "🍃 Liver"],
+    options: ["🫀 Heart", "Brain", "🫁 Lungs", "🍃 Liver"],
     correct: 0,
     emoji: "❤️",
     explanation: "The heart pumps blood throughout your body!"
@@ -11,7 +11,7 @@ export const timedChallengeQuestions = [
   {
     id: 2,
     question: "What do lungs help you do?",
-    options: ["🍽️ Digest", "🫁 Breathe", "🧠 Think", "👀 See"],
+    options: ["Digest", "Breathe", "Think", "See"],
     correct: 1,
     emoji: "💨",
     explanation: "Lungs help you breathe oxygen!"
@@ -19,7 +19,7 @@ export const timedChallengeQuestions = [
   {
     id: 3,
     question: "Which organ helps you think?",
-    options: ["❤️ Heart", "🧠 Brain", "🦴 Bones", "💪 Muscles"],
+    options: ["Heart", "Brain", "Bones", "Muscles"],
     correct: 1,
     emoji: "🤔",
     explanation: "Your brain controls thinking and memory!"
@@ -27,7 +27,7 @@ export const timedChallengeQuestions = [
   {
     id: 4,
     question: "What protects your brain?",
-    options: ["👂 Ears", "👁️ Eyes", "💀 Skull", "👃 Nose"],
+    options: ["Ears", "Eyes", "Skull", "Nose"],
     correct: 2,
     emoji: "🛡️",
     explanation: "Your skull protects your brain!"
@@ -35,7 +35,7 @@ export const timedChallengeQuestions = [
   {
     id: 5,
     question: "How many heart chambers?",
-    options: ["2️⃣ Two", "3️⃣ Three", "4️⃣ Four", "5️⃣ Five"],
+    options: ["Two", "Three", "Four", "Five"],
     correct: 2,
     emoji: "🔢",
     explanation: "Your heart has 4 chambers!"
@@ -43,7 +43,7 @@ export const timedChallengeQuestions = [
   {
     id: 6,
     question: "What gives body structure?",
-    options: ["🦴 Bones", "💧 Water", "🌬️ Air", "🔥 Fire"],
+    options: ["Bones", "Water", "Air", "Fire"],
     correct: 0,
     emoji: "🏗️",
     explanation: "Bones give your body structure!"
@@ -51,7 +51,7 @@ export const timedChallengeQuestions = [
   {
     id: 7,
     question: "Which organ filters blood?",
-    options: ["🫀 Heart", "🫁 Lungs", "🫘 Kidneys", "🧠 Brain"],
+    options: ["Heart", "Lungs", "Kidneys", "Brain"],
     correct: 2,
     emoji: "🧹",
     explanation: "Kidneys filter waste from blood!"
@@ -59,7 +59,7 @@ export const timedChallengeQuestions = [
   {
     id: 8,
     question: "What connects brain to body?",
-    options: ["🫀 Heart", "🧬 Spinal Cord", "🫁 Lungs", "💪 Muscles"],
+    options: ["🫀 Heart", "Spinal Cord", "🫁 Lungs", "Muscles"],
     correct: 1,
     emoji: "📡",
     explanation: "Spinal cord carries brain messages!"
@@ -67,7 +67,7 @@ export const timedChallengeQuestions = [
   {
     id: 9,
     question: "Largest organ in body?",
-    options: ["🧠 Brain", "🦴 Bones", "🫀 Heart", "🌟 Skin"],
+    options: ["Brain", "Bones", "🫀 Heart", "Skin"],
     correct: 3,
     emoji: "✨",
     explanation: "Skin is your largest organ!"
@@ -75,7 +75,7 @@ export const timedChallengeQuestions = [
   {
     id: 10,
     question: "What breaks down food?",
-    options: ["🧠 Brain", "🫀 Heart", "🍃 Stomach", "👁️ Eyes"],
+    options: ["Brain", "🫀 Heart", "Stomach", "Eyes"],
     correct: 2,
     emoji: "🍽️",
     explanation: "Stomach breaks down food!"
@@ -83,7 +83,7 @@ export const timedChallengeQuestions = [
   {
     id: 11,
     question: "What makes bones strong?",
-    options: ["🥛 Calcium", "🍭 Sugar", "🧂 Salt", "🌈 Colors"],
+    options: ["Calcium", "Sugar", "Salt", "Colors"],
     correct: 0,
     emoji: "🦴",
     explanation: "Calcium makes bones strong!"
@@ -91,7 +91,7 @@ export const timedChallengeQuestions = [
   {
     id: 12,
     question: "What carries oxygen in blood?",
-    options: ["💧 Water", "🔴 Red cells", "🍎 Food", "📱 Messages"],
+    options: ["Water", "Red cells", "Food", "📱 Messages"],
     correct: 1,
     emoji: "🔴",
     explanation: "Red blood cells carry oxygen!"
@@ -99,7 +99,7 @@ export const timedChallengeQuestions = [
   {
     id: 13,
     question: "What protects heart and lungs?",
-    options: ["🦴 Ribs", "💪 Arms", "🧠 Brain", "👂 Ears"],
+    options: ["Ribs", "Arms", "Brain", "Ears"],
     correct: 0,
     emoji: "🛡️",
     explanation: "Rib cage protects vital organs!"
@@ -107,7 +107,7 @@ export const timedChallengeQuestions = [
   {
     id: 14,
     question: "What do white blood cells do?",
-    options: ["🎨 Color", "🛡️ Fight germs", "🎵 Sound", "🏃 Run"],
+    options: ["Color", "Fight germs", "Sound", "Run"],
     correct: 1,
     emoji: "🛡️",
     explanation: "White cells fight infections!"
@@ -115,7 +115,7 @@ export const timedChallengeQuestions = [
   {
     id: 15,
     question: "Which part of eye lets light in?",
-    options: ["👁️ Pupil", "👂 Ear", "👃 Nose", "👄 Mouth"],
+    options: ["Pupil", "Ear", "Nose", "Mouth"],
     correct: 0,
     emoji: "🔍",
     explanation: "Pupil controls light entry!"
@@ -123,7 +123,7 @@ export const timedChallengeQuestions = [
   {
     id: 16,
     question: "What helps you balance?",
-    options: ["👂 Inner ear", "👁️ Eyes", "👃 Nose", "👄 Mouth"],
+    options: ["Inner ear", "Eyes", "Nose", "Mouth"],
     correct: 0,
     emoji: "⚖️",
     explanation: "Inner ear controls balance!"
@@ -131,7 +131,7 @@ export const timedChallengeQuestions = [
   {
     id: 17,
     question: "What makes blood red?",
-    options: ["🍎 Apples", "🔴 Hemoglobin", "🌹 Roses", "🍅 Tomatoes"],
+    options: ["Apples", "Hemoglobin", "Roses", "Tomatoes"],
     correct: 1,
     emoji: "🩸",
     explanation: "Hemoglobin makes blood red!"
@@ -139,7 +139,7 @@ export const timedChallengeQuestions = [
   {
     id: 18,
     question: "What produces insulin?",
-    options: ["🫀 Heart", "🥞 Pancreas", "🧠 Brain", "👁️ Eyes"],
+    options: ["🫀 Heart", "Pancreas", "Brain", "Eyes"],
     correct: 1,
     emoji: "🍯",
     explanation: "Pancreas makes insulin!"
@@ -147,7 +147,7 @@ export const timedChallengeQuestions = [
   {
     id: 19,
     question: "What makes bile?",
-    options: ["🫀 Heart", "🧠 Brain", "🍃 Liver", "🫁 Lungs"],
+    options: ["🫀 Heart", "Brain", "Liver", "🫁 Lungs"],
     correct: 2,
     emoji: "💚",
     explanation: "Liver produces bile!"
@@ -155,7 +155,7 @@ export const timedChallengeQuestions = [
   {
     id: 20,
     question: "How many taste buds?",
-    options: ["💯 100", "🎯 1,000", "🌟 10,000", "🔢 100,000"],
+    options: ["100", "1,000", "10,000", "100,000"],
     correct: 2,
     emoji: "👅",
     explanation: "You have about 10,000 taste buds!"
@@ -163,7 +163,7 @@ export const timedChallengeQuestions = [
   {
     id: 21,
     question: "Smallest bone location?",
-    options: ["🦴 Toe", "👂 Ear", "🤏 Finger", "👃 Nose"],
+    options: ["Toe", "Ear", " Finger", "Nose"],
     correct: 1,
     emoji: "🔍",
     explanation: "Smallest bone is in your ear!"
@@ -171,7 +171,7 @@ export const timedChallengeQuestions = [
   {
     id: 22,
     question: "What removes CO2 from blood?",
-    options: ["🌬️ Lungs", "🍎 Food", "💧 Water", "🎵 Sounds"],
+    options: ["Lungs", "Food", "Water", "Sounds"],
     correct: 0,
     emoji: "💨",
     explanation: "Lungs remove carbon dioxide!"
@@ -179,7 +179,7 @@ export const timedChallengeQuestions = [
   {
     id: 23,
     question: "What stores bile?",
-    options: ["🍃 Gallbladder", "🧠 Brain", "🫀 Heart", "👁️ Eyes"],
+    options: ["Gallbladder", "Brain", "🫀 Heart", "Eyes"],
     correct: 0,
     emoji: "💛",
     explanation: "Gallbladder stores bile!"
@@ -187,7 +187,7 @@ export const timedChallengeQuestions = [
   {
     id: 24,
     question: "Heart beats per minute?",
-    options: ["🔟 10", "🎯 50", "💯 100", "🌟 500"],
+    options: ["10", "50", "100", "500"],
     correct: 2,
     emoji: "💓",
     explanation: "Heart beats about 100 times per minute!"
@@ -195,7 +195,7 @@ export const timedChallengeQuestions = [
   {
     id: 25,
     question: "What needs energy to work?",
-    options: ["💪 Muscles", "🎵 Music", "🎨 Colors", "📚 Books"],
+    options: ["Muscles", "Music", "Colors", "📚 Books"],
     correct: 0,
     emoji: "⚡",
     explanation: "Muscles need energy to move!"
@@ -211,7 +211,7 @@ export const timedChallengeQuestions = [
   {
     id: 27,
     question: "What is the longest bone in your body?",
-    options: ["Arm bone", "🦴 Femur (thigh)", "Spine", "Rib bone"],
+    options: ["Arm bone", "Femur (thigh)", "Spine", "Rib bone"],
     correct: 1,
     emoji: "📏",
     explanation: "The femur (thighbone) is the longest and strongest bone in your body!"
@@ -219,7 +219,7 @@ export const timedChallengeQuestions = [
   {
     id: 28,
     question: "How much of your body weight is water?",
-    options: ["30%", "50%", "💧 60%", "80%"],
+    options: ["30%", "50%", "60%", "80%"],
     correct: 2,
     emoji: "💧",
     explanation: "About 60% of your body is made up of water - stay hydrated!"
@@ -227,7 +227,7 @@ export const timedChallengeQuestions = [
   {
     id: 29,
     question: "What controls your body temperature?",
-    options: ["Heart", "🧠 Hypothalamus", "Lungs", "Stomach"],
+    options: ["Heart", "Hypothalamus", "Lungs", "Stomach"],
     correct: 1,
     emoji: "🌡️",
     explanation: "The hypothalamus in your brain acts like a thermostat for your body!"
@@ -235,7 +235,7 @@ export const timedChallengeQuestions = [
   {
     id: 30,
     question: "How many times does your heart beat per day?",
-    options: ["50,000", "💗 100,000", "200,000", "500,000"],
+    options: ["50,000", "100,000", "200,000", "500,000"],
     correct: 1,
     emoji: "💗",
     explanation: "Your heart beats about 100,000 times every single day!"
@@ -243,7 +243,7 @@ export const timedChallengeQuestions = [
   {
     id: 31,
     question: "What is the hardest substance in your body?",
-    options: ["Bone", "🦷 Tooth enamel", "Nail", "Cartilage"],
+    options: ["Bone", "Tooth enamel", "Nail", "Cartilage"],
     correct: 1,
     emoji: "🦷",
     explanation: "Tooth enamel is harder than steel and protects your teeth!"
@@ -251,7 +251,7 @@ export const timedChallengeQuestions = [
   {
     id: 32,
     question: "How many muscles control each eye?",
-    options: ["2 muscles", "4 muscles", "👁️ 6 muscles", "8 muscles"],
+    options: ["2 muscles", "4 muscles", "6 muscles", "8 muscles"],
     correct: 2,
     emoji: "👁️",
     explanation: "Six muscles work together to move each eye in all directions!"
@@ -259,7 +259,7 @@ export const timedChallengeQuestions = [
   {
     id: 33,
     question: "What produces tears when you cry?",
-    options: ["Eyes directly", "😢 Lacrimal glands", "Nose", "Brain"],
+    options: ["Eyes directly", "Lacrimal glands", "Nose", "Brain"],
     correct: 1,
     emoji: "😢",
     explanation: "Special lacrimal glands above your eyes produce tears to protect and clean them!"
@@ -267,7 +267,7 @@ export const timedChallengeQuestions = [
   {
     id: 34,
     question: "How fast do nerve signals travel?",
-    options: ["10 mph", "100 mph", "⚡ 200 mph", "500 mph"],
+    options: ["10 mph", "100 mph", "200 mph", "500 mph"],
     correct: 2,
     emoji: "⚡",
     explanation: "Nerve signals can travel up to 200 mph - faster than a race car!"
@@ -275,7 +275,7 @@ export const timedChallengeQuestions = [
   {
     id: 35,
     question: "What percentage of your brain do you use?",
-    options: ["10%", "50%", "80%", "🧠 100%"],
+    options: ["10%", "50%", "80%", "100%"],
     correct: 3,
     emoji: "🧠",
     explanation: "You use virtually 100% of your brain, not just 10% like the myth says!"
@@ -283,7 +283,7 @@ export const timedChallengeQuestions = [
   {
     id: 36,
     question: "How many chambers does a bird's heart have?",
-    options: ["2", "3", "🐦 4", "6"],
+    options: ["2", "3", "4", "6"],
     correct: 2,
     emoji: "🐦",
     explanation: "Birds, like humans, have 4-chambered hearts for efficient circulation!"
@@ -291,7 +291,7 @@ export const timedChallengeQuestions = [
   {
     id: 37,
     question: "What makes your stomach growl?",
-    options: ["Hunger only", "🌊 Gas and fluids", "Food digesting", "Acid production"],
+    options: ["Hunger only", "Gas and fluids", "Food digesting", "Acid production"],
     correct: 1,
     emoji: "🌊",
     explanation: "Stomach growling is caused by gas and fluids moving through your digestive system!"
@@ -299,7 +299,7 @@ export const timedChallengeQuestions = [
   {
     id: 38,
     question: "How many sweat glands do you have?",
-    options: ["100,000", "500,000", "💦 2-4 million", "10 million"],
+    options: ["100,000", "500,000", "2-4 million", "10 million"],
     correct: 2,
     emoji: "💦",
     explanation: "You have 2-4 million sweat glands to help cool your body!"
@@ -307,7 +307,7 @@ export const timedChallengeQuestions = [
   {
     id: 39,
     question: "What organ can regenerate itself?",
-    options: ["Heart", "🍃 Liver", "Brain", "Lungs"],
+    options: ["Heart", "Liver", "Brain", "Lungs"],
     correct: 1,
     emoji: "🍃",
     explanation: "Your liver is amazing - it can regenerate up to 75% of itself!"
@@ -315,7 +315,7 @@ export const timedChallengeQuestions = [
   {
     id: 40,
     question: "How many times do you blink per minute?",
-    options: ["5 times", "👁️ 15-20 times", "30 times", "50 times"],
+    options: ["5 times", "15-20 times", "30 times", "50 times"],
     correct: 1,
     emoji: "👁️",
     explanation: "You blink 15-20 times per minute to keep your eyes moist and clean!"
@@ -323,7 +323,7 @@ export const timedChallengeQuestions = [
   {
     id: 41,
     question: "What is your body's largest internal organ?",
-    options: ["🍃 Liver", "Heart", "Lungs", "Brain"],
+    options: ["Liver", "Heart", "Lungs", "Brain"],
     correct: 0,
     emoji: "🍃",
     explanation: "Your liver is your largest internal organ and performs over 500 functions!"
@@ -331,7 +331,7 @@ export const timedChallengeQuestions = [
   {
     id: 42,
     question: "How many ribs do most people have?",
-    options: ["20 ribs", "🦴 24 ribs", "26 ribs", "28 ribs"],
+    options: ["20 ribs", "24 ribs", "26 ribs", "28 ribs"],
     correct: 1,
     emoji: "🦴",
     explanation: "Most people have 24 ribs (12 pairs) protecting their vital organs!"
@@ -339,7 +339,7 @@ export const timedChallengeQuestions = [
   {
     id: 43,
     question: "What controls your sleep-wake cycle?",
-    options: ["Heart", "🌙 Pineal gland", "Stomach", "Muscles"],
+    options: ["Heart", "Pineal gland", "Stomach", "Muscles"],
     correct: 1,
     emoji: "🌙",
     explanation: "The pineal gland produces melatonin to control your sleep cycle!"
@@ -347,7 +347,7 @@ export const timedChallengeQuestions = [
   {
     id: 44,
     question: "How much saliva do you produce daily?",
-    options: ["1 cup", "💧 1-2 liters", "5 liters", "10 liters"],
+    options: ["1 cup", "1-2 liters", "5 liters", "10 liters"],
     correct: 1,
     emoji: "💧",
     explanation: "You produce 1-2 liters of saliva daily to help digest food and protect your teeth!"
@@ -355,7 +355,7 @@ export const timedChallengeQuestions = [
   {
     id: 45,
     question: "What gives your hair its color?",
-    options: ["🎨 Melanin", "Blood", "Sunlight", "Diet"],
+    options: ["Melanin", "Blood", "Sunlight", "Diet"],
     correct: 0,
     emoji: "🎨",
     explanation: "Melanin pigment determines your hair color - less melanin means lighter hair!"
@@ -363,7 +363,7 @@ export const timedChallengeQuestions = [
   {
     id: 46,
     question: "How many vertebrae are in your spine?",
-    options: ["26", "🦴 33", "40", "50"],
+    options: ["26", "33", "40", "50"],
     correct: 1,
     emoji: "🦴",
     explanation: "Your spine has 33 vertebrae that protect your spinal cord!"
@@ -371,7 +371,7 @@ export const timedChallengeQuestions = [
   {
     id: 47,
     question: "What is the smallest muscle in your body?",
-    options: ["👁️ Eye muscle", "👂 Ear muscle", "Finger muscle", "Toe muscle"],
+    options: ["Eye muscle", "Ear muscle", "Finger muscle", "Toe muscle"],
     correct: 1,
     emoji: "👂",
     explanation: "The stapedius muscle in your ear is the smallest muscle in your body!"
@@ -379,7 +379,7 @@ export const timedChallengeQuestions = [
   {
     id: 48,
     question: "How much air do your lungs hold?",
-    options: ["2 liters", "4 liters", "🫁 6 liters", "10 liters"],
+    options: ["2 liters", "4 liters", "6 liters", "10 liters"],
     correct: 2,
     emoji: "🫁",
     explanation: "Your lungs can hold about 6 liters of air when fully inflated!"
@@ -387,7 +387,7 @@ export const timedChallengeQuestions = [
   {
     id: 49,
     question: "What causes goosebumps?",
-    options: ["Cold only", "❄️ Tiny muscles", "Blood flow", "Nerves"],
+    options: ["Cold only", "Tiny muscles", "Blood flow", "Nerves"],
     correct: 1,
     emoji: "❄️",
     explanation: "Tiny muscles at hair follicles contract to make your hair stand up!"
@@ -395,7 +395,7 @@ export const timedChallengeQuestions = [
   {
     id: 50,
     question: "How many taste types can you detect?",
-    options: ["3 types", "👅 5 types", "7 types", "10 types"],
+    options: ["3 types", "5 types", "7 types", "10 types"],
     correct: 1,
     emoji: "👅",
     explanation: "You can taste 5 basic flavors: sweet, sour, salty, bitter, and umami!"
@@ -403,7 +403,7 @@ export const timedChallengeQuestions = [
   {
     id: 51,
     question: "What organ produces bile to digest fats?",
-    options: ["Pancreas", "🍃 Liver", "Gallbladder", "Stomach"],
+    options: ["Pancreas", "Liver", "Gallbladder", "Stomach"],
     correct: 1,
     emoji: "🍃",
     explanation: "Your liver produces bile which helps break down fatty foods!"
@@ -411,7 +411,7 @@ export const timedChallengeQuestions = [
   {
     id: 52,
     question: "How many neurons are in your brain?",
-    options: ["1 million", "100 million", "🧠 86 billion", "1 trillion"],
+    options: ["1 million", "100 million", "86 billion", "1 trillion"],
     correct: 2,
     emoji: "🧠",
     explanation: "Your brain contains about 86 billion neurons working together!"
@@ -419,7 +419,7 @@ export const timedChallengeQuestions = [
   {
     id: 53,
     question: "What is your body's natural painkiller?",
-    options: ["🌟 Endorphins", "Adrenaline", "Insulin", "Melatonin"],
+    options: ["Endorphins", "Adrenaline", "Insulin", "Melatonin"],
     correct: 0,
     emoji: "🌟",
     explanation: "Endorphins are your body's natural painkillers and mood boosters!"
@@ -427,7 +427,7 @@ export const timedChallengeQuestions = [
   {
     id: 54,
     question: "How long does it take blood to circulate?",
-    options: ["30 seconds", "⏱️ 60 seconds", "2 minutes", "5 minutes"],
+    options: ["30 seconds", "60 seconds", "2 minutes", "5 minutes"],
     correct: 1,
     emoji: "⏱️",
     explanation: "Blood takes about 60 seconds to make a complete trip around your body!"
@@ -435,7 +435,7 @@ export const timedChallengeQuestions = [
   {
     id: 55,
     question: "What connects your muscles to bones?",
-    options: ["🔗 Tendons", "Ligaments", "Cartilage", "Nerves"],
+    options: ["Tendons", "Ligaments", "Cartilage", "Nerves"],
     correct: 0,
     emoji: "🔗",
     explanation: "Tendons are strong cords that connect muscles to bones!"
@@ -443,7 +443,7 @@ export const timedChallengeQuestions = [
   {
     id: 56,
     question: "How many chambers does your stomach have?",
-    options: ["🍽️ 1 chamber", "2 chambers", "3 chambers", "4 chambers"],
+    options: ["1 chamber", "2 chambers", "3 chambers", "4 chambers"],
     correct: 0,
     emoji: "🍽️",
     explanation: "Humans have one stomach chamber, unlike cows which have four!"
@@ -451,7 +451,7 @@ export const timedChallengeQuestions = [
   {
     id: 57,
     question: "What makes your voice unique?",
-    options: ["Tongue", "🎵 Vocal cords", "Teeth", "Lungs"],
+    options: ["Tongue", "Vocal cords", "Teeth", "Lungs"],
     correct: 1,
     emoji: "🎵",
     explanation: "Your vocal cords vibrate at different frequencies to create your unique voice!"
@@ -459,7 +459,7 @@ export const timedChallengeQuestions = [
   {
     id: 58,
     question: "How much does your brain weigh?",
-    options: ["1 pound", "🧠 3 pounds", "5 pounds", "8 pounds"],
+    options: ["1 pound", "3 pounds", "5 pounds", "8 pounds"],
     correct: 1,
     emoji: "🧠",
     explanation: "Your brain weighs about 3 pounds but uses 20% of your body's energy!"
@@ -467,7 +467,7 @@ export const timedChallengeQuestions = [
   {
     id: 59,
     question: "What organ stores and concentrates bile?",
-    options: ["Liver", "💛 Gallbladder", "Pancreas", "Spleen"],
+    options: ["Liver", "Gallbladder", "Pancreas", "Spleen"],
     correct: 1,
     emoji: "💛",
     explanation: "Your gallbladder stores and concentrates bile from the liver!"
@@ -475,7 +475,7 @@ export const timedChallengeQuestions = [
   {
     id: 60,
     question: "How many muscles are in your face?",
-    options: ["20", "30", "😊 43", "60"],
+    options: ["20", "30", "43", "60"],
     correct: 2,
     emoji: "😊",
     explanation: "You have 43 muscles in your face that create all your expressions!"
@@ -483,7 +483,7 @@ export const timedChallengeQuestions = [
   {
     id: 61,
     question: "What controls your reflexes?",
-    options: ["Brain", "🧬 Spinal cord", "Muscles", "Heart"],
+    options: ["Brain", "Spinal cord", "Muscles", "Heart"],
     correct: 1,
     emoji: "🧬",
     explanation: "Your spinal cord controls reflexes before signals reach your brain!"
@@ -491,7 +491,7 @@ export const timedChallengeQuestions = [
   {
     id: 62,
     question: "How fast do fingernails grow?",
-    options: ["📏 1mm/week", "5mm/week", "1cm/week", "2cm/week"],
+    options: ["1mm/week", "5mm/week", "1cm/week", "2cm/week"],
     correct: 0,
     emoji: "📏",
     explanation: "Fingernails grow about 1mm per week - faster than toenails!"
@@ -499,7 +499,7 @@ export const timedChallengeQuestions = [
   {
     id: 63,
     question: "What produces red blood cells?",
-    options: ["Heart", "Liver", "🦴 Bone marrow", "Spleen"],
+    options: ["Heart", "Liver", "Bone marrow", "Spleen"],
     correct: 2,
     emoji: "🦴",
     explanation: "Bone marrow inside your bones produces billions of red blood cells!"
@@ -507,7 +507,7 @@ export const timedChallengeQuestions = [
   {
     id: 64,
     question: "How many times stronger is your jaw muscle?",
-    options: ["💪 25x stronger", "50x stronger", "100x stronger", "200x stronger"],
+    options: ["25x stronger", "50x stronger", "100x stronger", "200x stronger"],
     correct: 0,
     emoji: "💪",
     explanation: "Your jaw muscles can exert 25 times more force than arm muscles!"
@@ -515,7 +515,7 @@ export const timedChallengeQuestions = [
   {
     id: 65,
     question: "What gives skin its elasticity?",
-    options: ["🌟 Collagen", "Melanin", "Keratin", "Calcium"],
+    options: ["Collagen", "Melanin", "Keratin", "Calcium"],
     correct: 0,
     emoji: "🌟",
     explanation: "Collagen protein gives your skin its strength and elasticity!"
@@ -523,7 +523,7 @@ export const timedChallengeQuestions = [
   {
     id: 66,
     question: "How many breaths do you take daily?",
-    options: ["5,000", "10,000", "🌬️ 20,000", "50,000"],
+    options: ["5,000", "10,000", "20,000", "50,000"],
     correct: 2,
     emoji: "🌬️",
     explanation: "You take about 20,000 breaths every day automatically!"
@@ -531,7 +531,7 @@ export const timedChallengeQuestions = [
   {
     id: 67,
     question: "What hormone controls blood sugar?",
-    options: ["🍯 Insulin", "Adrenaline", "Melatonin", "Growth hormone"],
+    options: ["Insulin", "Adrenaline", "Melatonin", "Growth hormone"],
     correct: 0,
     emoji: "🍯",
     explanation: "Insulin helps your cells use sugar from food for energy!"
@@ -539,7 +539,7 @@ export const timedChallengeQuestions = [
   {
     id: 68,
     question: "How many lymph nodes do you have?",
-    options: ["50", "200", "🛡️ 600", "1000"],
+    options: ["50", "200", "600", "1000"],
     correct: 2,
     emoji: "🛡️",
     explanation: "You have about 600 lymph nodes that filter harmful substances!"
@@ -547,7 +547,7 @@ export const timedChallengeQuestions = [
   {
     id: 69,
     question: "What is the strongest bone in your body?",
-    options: ["Skull", "Arm bone", "🦴 Femur", "Rib"],
+    options: ["Skull", "Arm bone", "Femur", "Rib"],
     correct: 2,
     emoji: "🦴",
     explanation: "Your femur (thighbone) is stronger than concrete!"
@@ -555,15 +555,15 @@ export const timedChallengeQuestions = [
   {
     id: 70,
     question: "How long is your digestive tract?",
-    options: ["10 feet", "20 feet", "🎢 30 feet", "50 feet"],
+    options: ["10 feet", "20 feet", "30 feet", "50 feet"],
     correct: 2,
-    emoji: "🎢",
+    emoji: "🎰",
     explanation: "Your digestive tract is about 30 feet long from mouth to end!"
   },
   {
     id: 71,
     question: "What controls your body's calcium levels?",
-    options: ["🦴 Parathyroid", "Thyroid", "Pancreas", "Liver"],
+    options: ["Parathyroid", "Thyroid", "Pancreas", "Liver"],
     correct: 0,
     emoji: "🦴",
     explanation: "Parathyroid glands control calcium levels for healthy bones!"
@@ -571,7 +571,7 @@ export const timedChallengeQuestions = [
   {
     id: 72,
     question: "How many miles of blood vessels do you have?",
-    options: ["1,000 miles", "10,000 miles", "🌍 60,000 miles", "100,000 miles"],
+    options: ["1,000 miles", "10,000 miles", "60,000 miles", "100,000 miles"],
     correct: 2,
     emoji: "🌍",
     explanation: "Your blood vessels would stretch 60,000 miles - twice around Earth!"
@@ -579,7 +579,7 @@ export const timedChallengeQuestions = [
   {
     id: 73,
     question: "What makes your muscles sore after exercise?",
-    options: ["Oxygen", "💥 Lactic acid", "Blood", "Water"],
+    options: ["Oxygen", "Lactic acid", "Blood", "Water"],
     correct: 1,
     emoji: "💥",
     explanation: "Lactic acid buildup during intense exercise makes muscles feel sore!"
@@ -587,7 +587,7 @@ export const timedChallengeQuestions = [
   {
     id: 74,
     question: "How many different smells can you detect?",
-    options: ["1,000", "10,000", "👃 1 trillion", "10 trillion"],
+    options: ["1,000", "10,000", "1 trillion", "10 trillion"],
     correct: 2,
     emoji: "👃",
     explanation: "Your nose can distinguish about 1 trillion different scents!"
@@ -595,12 +595,10 @@ export const timedChallengeQuestions = [
   {
     id: 75,
     question: "What organ has the most nerve endings?",
-    options: ["Brain", "👁️ Eyes", "🌟 Skin", "Tongue"],
+    options: ["Brain", "Eyes", "Skin", "Tongue"],
     correct: 2,
     emoji: "🌟",
     explanation: "Your skin has millions of nerve endings making it very sensitive!"
   }
 ];
 
-// You can easily add more timed challenge questions here
-// These are optimized for quick reading and fast answers
