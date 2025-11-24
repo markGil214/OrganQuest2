@@ -15,7 +15,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Allowed origins for CORS
+// Allowed origins for CORS sdsd
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5174',
