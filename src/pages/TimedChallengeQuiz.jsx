@@ -438,8 +438,30 @@ const TimedChallengeQuiz = () => {
         background: 'rgba(0, 0, 0, 0.2)',
         backdropFilter: 'blur(10px)',
         flexWrap: 'wrap',
-        gap: '0.5rem'
+        gap: '0.5rem',
+        position: 'relative'
       }}>
+        <button
+          onClick={handleBackClick}
+          style={{
+            background: 'rgba(255, 255, 255, 0.2)',
+            border: 'none',
+            borderRadius: '20px',
+            padding: 'clamp(0.4rem, 1.5vw, 0.5rem) clamp(0.75rem, 2vw, 1rem)',
+            color: 'white',
+            cursor: 'pointer',
+            fontSize: 'clamp(0.85rem, 2.5vw, 1rem)',
+            fontWeight: '600',
+            transition: 'all 0.3s ease',
+            fontFamily: 'inherit',
+            whiteSpace: 'nowrap'
+          }}
+          onMouseOver={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.3)'}
+          onMouseOut={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.2)'}
+        >
+          ← Menu
+        </button>
+
         <div style={{
           background: 'rgba(255, 255, 255, 0.2)',
           borderRadius: '20px',
