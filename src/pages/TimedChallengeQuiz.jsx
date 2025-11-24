@@ -189,18 +189,20 @@ const TimedChallengeQuiz = () => {
           onClick={handleBackClick}
           style={{
             position: 'absolute',
-            top: '2rem',
-            left: '2rem',
+            top: '1rem',
+            left: '1rem',
             background: 'rgba(255, 255, 255, 0.2)',
             border: 'none',
             borderRadius: '25px',
-            padding: '0.75rem 1.5rem',
+            padding: '0.6rem 1.2rem',
             color: 'white',
             cursor: 'pointer',
-            fontSize: '1.1rem',
+            fontSize: 'clamp(0.85rem, 2.5vw, 1.1rem)',
             fontWeight: '600',
             transition: 'all 0.3s ease',
-            fontFamily: 'inherit'
+            fontFamily: 'inherit',
+            zIndex: 10,
+            whiteSpace: 'nowrap'
           }}
           onMouseOver={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.3)'}
           onMouseOut={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.2)'}
@@ -213,14 +215,15 @@ const TimedChallengeQuiz = () => {
           background: 'rgba(255, 255, 255, 0.1)',
           backdropFilter: 'blur(10px)',
           borderRadius: '30px',
-          padding: '3rem',
+          padding: 'clamp(1.5rem, 5vw, 3rem)',
           maxWidth: '600px',
           width: '90%',
-          boxShadow: '0 20px 40px rgba(0,0,0,0.2)'
+          boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+          marginTop: '4rem'
         }}>
-          <div style={{ fontSize: '5rem', marginBottom: '1rem', animation: 'pulse 2s infinite' }}>⚡</div>
-          <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem', fontWeight: '700' }}>Timed Challenge</h1>
-          <p style={{ fontSize: '1.2rem', opacity: 0.9, marginBottom: '2rem', lineHeight: '1.5' }}>
+          <div style={{ fontSize: 'clamp(3rem, 10vw, 5rem)', marginBottom: '1rem', animation: 'pulse 2s infinite' }}>⚡</div>
+          <h1 style={{ fontSize: 'clamp(1.5rem, 5vw, 2.5rem)', marginBottom: '1rem', fontWeight: '700' }}>Timed Challenge</h1>
+          <p style={{ fontSize: 'clamp(0.9rem, 3vw, 1.2rem)', opacity: 0.9, marginBottom: '2rem', lineHeight: '1.5' }}>
             Race against the clock! Answer as many anatomy questions as possible in 60 seconds. 
             Fast answers get bonus points!
           </p>
@@ -228,11 +231,11 @@ const TimedChallengeQuiz = () => {
           <div style={{
             background: 'rgba(255, 255, 255, 0.2)',
             borderRadius: '15px',
-            padding: '1.5rem',
+            padding: 'clamp(1rem, 3vw, 1.5rem)',
             marginBottom: '2rem'
           }}>
-            <h3 style={{ fontSize: '1.3rem', marginBottom: '1rem', fontWeight: '600' }}>🎯 How to Play:</h3>
-            <div style={{ textAlign: 'left', fontSize: '1rem', lineHeight: '1.6' }}>
+            <h3 style={{ fontSize: 'clamp(1rem, 3vw, 1.3rem)', marginBottom: '1rem', fontWeight: '600' }}>🎯 How to Play:</h3>
+            <div style={{ textAlign: 'left', fontSize: 'clamp(0.85rem, 2.5vw, 1rem)', lineHeight: '1.6' }}>
               <p>• Answer questions as fast as possible</p>
               <p>• Correct answers = 10 points + time bonus</p>
               <p>• Build streaks for extra excitement</p>
@@ -246,9 +249,9 @@ const TimedChallengeQuiz = () => {
               background: 'linear-gradient(135deg, #E74C3C, #C0392B)',
               border: 'none',
               borderRadius: '25px',
-              padding: '1.2rem 2.5rem',
+              padding: 'clamp(0.8rem, 3vw, 1.2rem) clamp(1.5rem, 5vw, 2.5rem)',
               color: 'white',
-              fontSize: '1.4rem',
+              fontSize: 'clamp(1rem, 3.5vw, 1.4rem)',
               fontWeight: '700',
               cursor: 'pointer',
               boxShadow: '0 8px 20px rgba(231, 76, 60, 0.4)',
@@ -299,33 +302,33 @@ const TimedChallengeQuiz = () => {
           background: 'rgba(255, 255, 255, 0.1)',
           backdropFilter: 'blur(10px)',
           borderRadius: '30px',
-          padding: '3rem',
+          padding: 'clamp(1.5rem, 5vw, 3rem)',
           textAlign: 'center',
           maxWidth: '500px',
-          width: '100%',
+          width: '90%',
           boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
           animation: 'celebrationPulse 2s infinite alternate'
         }}>
-          <div style={{ fontSize: '4rem', marginBottom: '1rem', animation: 'bounce 1s infinite' }}>
+          <div style={{ fontSize: 'clamp(2.5rem, 8vw, 4rem)', marginBottom: '1rem', animation: 'bounce 1s infinite' }}>
             {rating.emoji}
           </div>
-          <h1 style={{ fontSize: '2rem', marginBottom: '1rem', fontWeight: '700', color: rating.color }}>
+          <h1 style={{ fontSize: 'clamp(1.3rem, 4vw, 2rem)', marginBottom: '1rem', fontWeight: '700', color: rating.color }}>
             {rating.message}
           </h1>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem', fontWeight: '700' }}>
+          <div style={{ fontSize: 'clamp(2rem, 6vw, 3rem)', marginBottom: '1rem', fontWeight: '700' }}>
             {score} POINTS
           </div>
           
           <div style={{
             background: 'rgba(255, 255, 255, 0.1)',
             borderRadius: '15px',
-            padding: '1.5rem',
+            padding: 'clamp(1rem, 3vw, 1.5rem)',
             marginBottom: '2rem'
           }}>
-            <div style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>
+            <div style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)', marginBottom: '0.5rem' }}>
               Best Streak: {bestStreak} 🔥
             </div>
-            <div style={{ fontSize: '1rem', opacity: 0.8 }}>
+            <div style={{ fontSize: 'clamp(0.85rem, 2.5vw, 1rem)', opacity: 0.8 }}>
               Questions Answered in 60 seconds!
             </div>
           </div>
@@ -337,14 +340,16 @@ const TimedChallengeQuiz = () => {
                 background: 'linear-gradient(135deg, #FF6B6B, #FF8E53)',
                 border: 'none',
                 borderRadius: '20px',
-                padding: '1rem 1.5rem',
+                padding: 'clamp(0.75rem, 2.5vw, 1rem) clamp(1rem, 3vw, 1.5rem)',
                 color: 'white',
-                fontSize: '1.1rem',
+                fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)',
                 fontWeight: '600',
                 cursor: 'pointer',
                 boxShadow: '0 6px 15px rgba(255, 107, 107, 0.3)',
                 transition: 'all 0.3s ease',
-                fontFamily: 'inherit'
+                fontFamily: 'inherit',
+                flex: '1',
+                minWidth: '120px'
               }}
               onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
               onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
@@ -357,14 +362,16 @@ const TimedChallengeQuiz = () => {
                 background: 'linear-gradient(135deg, #4ECDC4, #44A08D)',
                 border: 'none',
                 borderRadius: '20px',
-                padding: '1rem 1.5rem',
+                padding: 'clamp(0.75rem, 2.5vw, 1rem) clamp(1rem, 3vw, 1.5rem)',
                 color: 'white',
-                fontSize: '1.1rem',
+                fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)',
                 fontWeight: '600',
                 cursor: 'pointer',
                 boxShadow: '0 6px 15px rgba(78, 205, 196, 0.3)',
                 transition: 'all 0.3s ease',
-                fontFamily: 'inherit'
+                fontFamily: 'inherit',
+                flex: '1',
+                minWidth: '120px'
               }}
               onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
               onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
@@ -427,15 +434,17 @@ const TimedChallengeQuiz = () => {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: '1rem 2rem',
+        padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.75rem, 3vw, 2rem)',
         background: 'rgba(0, 0, 0, 0.2)',
-        backdropFilter: 'blur(10px)'
+        backdropFilter: 'blur(10px)',
+        flexWrap: 'wrap',
+        gap: '0.5rem'
       }}>
         <div style={{
           background: 'rgba(255, 255, 255, 0.2)',
           borderRadius: '20px',
-          padding: '0.5rem 1rem',
-          fontSize: '1.1rem',
+          padding: 'clamp(0.4rem, 1.5vw, 0.5rem) clamp(0.75rem, 2vw, 1rem)',
+          fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)',
           fontWeight: '600'
         }}>
           Score: {score}
@@ -444,8 +453,8 @@ const TimedChallengeQuiz = () => {
         <div style={{
           background: getTimerColor(),
           borderRadius: '20px',
-          padding: '0.5rem 1rem',
-          fontSize: '1.3rem',
+          padding: 'clamp(0.4rem, 1.5vw, 0.5rem) clamp(0.75rem, 2vw, 1rem)',
+          fontSize: 'clamp(1rem, 3vw, 1.3rem)',
           fontWeight: '700',
           animation: timeLeft <= 10 ? 'urgentFlash 0.5s infinite' : 'none',
           boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
@@ -457,8 +466,8 @@ const TimedChallengeQuiz = () => {
           <div style={{
             background: 'linear-gradient(135deg, #E74C3C, #C0392B)',
             borderRadius: '20px',
-            padding: '0.5rem 1rem',
-            fontSize: '1.1rem',
+            padding: 'clamp(0.4rem, 1.5vw, 0.5rem) clamp(0.75rem, 2vw, 1rem)',
+            fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)',
             fontWeight: '600',
             animation: 'streakGlow 1s infinite alternate'
           }}>
@@ -489,13 +498,13 @@ const TimedChallengeQuiz = () => {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '2rem'
+        padding: 'clamp(1rem, 3vw, 2rem)'
       }}>
         <div style={{
           background: 'rgba(255, 255, 255, 0.1)',
           backdropFilter: 'blur(15px)',
           borderRadius: '25px',
-          padding: '2rem',
+          padding: 'clamp(1.5rem, 4vw, 2rem)',
           textAlign: 'center',
           width: '100%',
           maxWidth: '600px',
@@ -503,13 +512,13 @@ const TimedChallengeQuiz = () => {
           border: '2px solid rgba(255, 255, 255, 0.2)',
           animation: isAnswered ? (selectedAnswer === currentQ.correct ? 'correctPulse 0.6s' : 'wrongShake 0.6s') : 'none'
         }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem', animation: 'pulse 2s infinite' }}>
+          <div style={{ fontSize: 'clamp(2rem, 6vw, 3rem)', marginBottom: '1rem', animation: 'pulse 2s infinite' }}>
             {currentQ.emoji}
           </div>
           
           <h2 style={{ 
-            fontSize: '1.6rem', 
-            marginBottom: '1.5rem', 
+            fontSize: 'clamp(1.1rem, 3.5vw, 1.6rem)', 
+            marginBottom: 'clamp(1rem, 3vw, 1.5rem)', 
             lineHeight: '1.4',
             fontWeight: '600'
           }}>
@@ -538,9 +547,9 @@ const TimedChallengeQuiz = () => {
                     : 'linear-gradient(135deg, #3498DB, #2980B9)',
                   border: 'none',
                   borderRadius: '15px',
-                  padding: '1rem 1.5rem',
+                  padding: 'clamp(0.75rem, 2.5vw, 1rem) clamp(1rem, 3vw, 1.5rem)',
                   color: 'white',
-                  fontSize: '1.1rem',
+                  fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)',
                   fontWeight: '600',
                   cursor: isAnswered ? 'default' : 'pointer',
                   transition: 'all 0.3s ease',
