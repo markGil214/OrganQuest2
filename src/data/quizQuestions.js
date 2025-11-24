@@ -263,17 +263,406 @@ export const baseQuizQuestions = [
     correct: 1,
     emoji: "🩸",
     explanation: "Hemoglobin is a special protein in your red blood cells that carries oxygen and gives your blood its bright red color!"
+  },
+  {
+    id: 34,
+    question: "Which body part helps you see?",
+    options: ["Iye", "Eye", "Eiy", "Eyee"],
+    correct: 1,
+    emoji: "👁️",
+    explanation: "Your eyes let you see the world around you!"
+  },
+  {
+    id: 35,
+    question: "Which organ is used to hear sounds?",
+    options: ["Ear", "Eer", "Air", "Eear"],
+    correct: 0,
+    emoji: "👂",
+    explanation: "Your ears help you hear all kinds of sounds!"
+  },
+  {
+    id: 36,
+    question: "Which part is used to smell?",
+    options: ["Nostril", "Nostral", "Nostrill", "Nostrilz"],
+    correct: 0,
+    emoji: "👃",
+    explanation: "Your nostrils are the openings in your nose that let you smell!"
+  },
+  {
+    id: 37,
+    question: "Which part helps you taste food?",
+    options: ["Tongue", "Tounge", "Tong", "Tongu"],
+    correct: 0,
+    emoji: "👅",
+    explanation: "Your tongue has taste buds that help you taste sweet, sour, salty, and bitter flavors!"
+  },
+  {
+    id: 38,
+    question: "Which protects your brain?",
+    options: ["Skull", "Skul", "Scul", "Scull"],
+    correct: 0,
+    emoji: "💀",
+    explanation: "Your skull is a hard bone that protects your brain like a helmet!"
+  },
+  {
+    id: 39,
+    question: "Which part helps you chew?",
+    options: ["Jaw", "Jow", "Jawe", "Jaa"],
+    correct: 0,
+    emoji: "😬",
+    explanation: "Your jaw moves up and down to help you chew food!"
+  },
+  {
+    id: 40,
+    question: "Which part helps you blink and protect the eye?",
+    options: ["Eyelid", "Eyelidd", "Ielid", "Eyellid"],
+    correct: 0,
+    emoji: "👁️",
+    explanation: "Your eyelids close to protect your eyes and keep them moist!"
+  },
+  {
+    id: 41,
+    question: "Which part allows you to smile or frown?",
+    options: ["Cheek", "Cheak", "Cheeck", "Chik"],
+    correct: 0,
+    emoji: "😊",
+    explanation: "Your cheeks move when you smile and show your emotions!"
+  },
+  {
+    id: 42,
+    question: "Which part is used for speaking and eating?",
+    options: ["Mouth", "Moth", "Mouthh", "Mowth"],
+    correct: 0,
+    emoji: "👄",
+    explanation: "Your mouth helps you eat, speak, and breathe!"
+  },
+  {
+    id: 43,
+    question: "Which part connects the head to the body?",
+    options: ["Neck", "Nack", "Nek", "Necc"],
+    correct: 0,
+    emoji: "🦒",
+    explanation: "Your neck supports your head and lets it move in different directions!"
+  },
+  {
+    id: 44,
+    question: "Which part supports the shoulder joint?",
+    options: ["Clavicle", "Clavical", "Clavickel", "Clavecle"],
+    correct: 0,
+    emoji: "🦴",
+    explanation: "The clavicle, also called the collarbone, connects your arm to your body!"
+  },
+  {
+    id: 45,
+    question: "Which part protects your lungs and heart?",
+    options: ["Ribcage", "Ribkage", "Ribgage", "Ribbkaje"],
+    correct: 0,
+    emoji: "🫁",
+    explanation: "Your ribcage is made of bones that protect your important organs!"
+  },
+  {
+    id: 46,
+    question: "Which body part is your upper arm?",
+    options: ["Humerus", "Humeras", "Humirus", "Hummarous"],
+    correct: 0,
+    emoji: "💪",
+    explanation: "The humerus is the long bone in your upper arm!"
+  },
+  {
+    id: 47,
+    question: "Which joint allows the arm to bend?",
+    options: ["Elbow", "Elbo", "Allbow", "Ellbow"],
+    correct: 0,
+    emoji: "💪",
+    explanation: "Your elbow joint lets you bend and straighten your arm!"
+  },
+  {
+    id: 48,
+    question: "Which joint allows hand to rotate?",
+    options: ["Wrist", "Wrisst", "Wriest", "Wristt"],
+    correct: 0,
+    emoji: "✋",
+    explanation: "Your wrist connects your hand to your arm and lets it move in circles!"
+  },
+  {
+    id: 49,
+    question: "Which part is used to grasp things?",
+    options: ["Fingers", "Finggers", "Fingurs", "Fangers"],
+    correct: 0,
+    emoji: "✋",
+    explanation: "Your fingers help you hold, grab, and touch things!"
+  },
+  {
+    id: 50,
+    question: "Which short, thick finger is important for grip?",
+    options: ["Thumb", "Thumm", "Thomb", "Thumbb"],
+    correct: 0,
+    emoji: "👍",
+    explanation: "Your thumb is special because it can touch all your other fingers!"
+  },
+  {
+    id: 51,
+    question: "Which structure connects shoulder to arm?",
+    options: ["Shoulder", "Sholder", "Shoalder", "Shouldar"],
+    correct: 0,
+    emoji: "💪",
+    explanation: "Your shoulder is the joint where your arm connects to your body!"
+  },
+  {
+    id: 52,
+    question: "Which part covers the palm?",
+    options: ["Skin", "Skinn", "Skeen", "Skein"],
+    correct: 0,
+    emoji: "✋",
+    explanation: "Skin covers your whole body and protects what's inside!"
+  },
+  {
+    id: 53,
+    question: "Which structure includes the backbone?",
+    options: ["Spine", "Spien", "Spinne", "Spienn"],
+    correct: 0,
+    emoji: "🦴",
+    explanation: "Your spine is made of many small bones that protect your spinal cord!"
+  },
+  {
+    id: 54,
+    question: "Which part is the main breathing cavity?",
+    options: ["Chest", "Chst", "Chestt", "Chast"],
+    correct: 0,
+    emoji: "🫁",
+    explanation: "Your chest contains your lungs and heart!"
+  },
+  {
+    id: 55,
+    question: "Which region contains the digestive organs?",
+    options: ["Abdomen", "Abdamin", "Abdoman", "Abdomeen"],
+    correct: 0,
+    emoji: "🍽️",
+    explanation: "Your abdomen is where your stomach and intestines are located!"
+  },
+  {
+    id: 56,
+    question: "Which structure protects the pelvic organs?",
+    options: ["Pelvis", "Pelviz", "Pellvis", "Pelvas"],
+    correct: 0,
+    emoji: "🦴",
+    explanation: "Your pelvis is a bowl-shaped bone structure that supports your lower body!"
+  },
+  {
+    id: 57,
+    question: "Which part connects upper body to legs?",
+    options: ["Hip", "Heep", "Hipp", "Hipe"],
+    correct: 0,
+    emoji: "🦴",
+    explanation: "Your hips are the joints where your legs attach to your body!"
+  },
+  {
+    id: 58,
+    question: "Which area supports sitting posture?",
+    options: ["Buttocks", "Buttoks", "Buttockz", "Buttox"],
+    correct: 0,
+    emoji: "🪑",
+    explanation: "Your buttocks are the muscles you sit on!"
+  },
+  {
+    id: 59,
+    question: "Which part is the upper leg bone?",
+    options: ["Femur", "Femurr", "Phumur", "Fumur"],
+    correct: 0,
+    emoji: "🦴",
+    explanation: "The femur is the longest and strongest bone in your body!"
+  },
+  {
+    id: 60,
+    question: "Which joint lets the leg bend?",
+    options: ["Knee", "Knew", "Kne", "Knea"],
+    correct: 0,
+    emoji: "🦵",
+    explanation: "Your knee is the joint in the middle of your leg that lets it bend!"
+  },
+  {
+    id: 61,
+    question: "Which area is between knee and ankle?",
+    options: ["Shin", "Shinn", "Shen", "Chin"],
+    correct: 0,
+    emoji: "🦵",
+    explanation: "Your shin is the front part of your lower leg!"
+  },
+  {
+    id: 62,
+    question: "Which part is the lower leg bone?",
+    options: ["Tibia", "Tibea", "Tibyah", "Tibea"],
+    correct: 0,
+    emoji: "🦴",
+    explanation: "The tibia is the larger bone in your lower leg, also called the shinbone!"
+  },
+  {
+    id: 63,
+    question: "Which joint connects leg to foot?",
+    options: ["Ankle", "Anckle", "Ankell", "Anckel"],
+    correct: 0,
+    emoji: "👟",
+    explanation: "Your ankle connects your leg to your foot and lets your foot move!"
+  },
+  {
+    id: 64,
+    question: "Which structure supports body weight when standing?",
+    options: ["Heel", "Heal", "Heall", "Heale"],
+    correct: 0,
+    emoji: "👣",
+    explanation: "Your heel is the back part of your foot that helps you stand and walk!"
+  },
+  {
+    id: 65,
+    question: "Which part helps in walking and balance?",
+    options: ["Foot", "Futt", "Fot", "Foott"],
+    correct: 0,
+    emoji: "👣",
+    explanation: "Your feet support your whole body and help you move around!"
+  },
+  {
+    id: 66,
+    question: "Which digits help you balance when walking?",
+    options: ["Toes", "Toess", "Towes", "Tose"],
+    correct: 0,
+    emoji: "👣",
+    explanation: "Your toes help you balance and push off when you walk or run!"
+  },
+  {
+    id: 67,
+    question: "Which part is the arch of the foot?",
+    options: ["Sole", "Soule", "Soul", "Solle"],
+    correct: 0,
+    emoji: "👟",
+    explanation: "The sole is the bottom of your foot that touches the ground!"
+  },
+  {
+    id: 68,
+    question: "Which joint helps in toe movement?",
+    options: ["Phalanges", "Phalengis", "Phallanges", "Phalangis"],
+    correct: 0,
+    emoji: "👣",
+    explanation: "Phalanges are the small bones in your fingers and toes!"
+  },
+  {
+    id: 69,
+    question: "Which part supports the whole body?",
+    options: ["Skeleton", "Skeletun", "Skelaton", "Skeelton"],
+    correct: 0,
+    emoji: "🦴",
+    explanation: "Your skeleton is made of all your bones working together!"
+  },
+  {
+    id: 70,
+    question: "Which system moves the body?",
+    options: ["Muscles", "Mussels", "Muscels", "Musles"],
+    correct: 0,
+    emoji: "💪",
+    explanation: "Your muscles contract and relax to make your body move!"
+  },
+  {
+    id: 71,
+    question: "Which part is used for touch sensation?",
+    options: ["Skin", "Skeen", "Skein", "Skinn"],
+    correct: 0,
+    emoji: "✋",
+    explanation: "Your skin has special sensors that let you feel things!"
+  },
+  {
+    id: 72,
+    question: "Which organ pumps blood?",
+    options: ["Heart", "Heaart", "Harte", "Hart"],
+    correct: 0,
+    emoji: "❤️",
+    explanation: "Your heart pumps blood to every part of your body!"
+  },
+  {
+    id: 73,
+    question: "Which organ helps you breathe?",
+    options: ["Lungs", "Lunges", "Lungsz", "Langs"],
+    correct: 0,
+    emoji: "🫁",
+    explanation: "Your lungs take in oxygen and remove carbon dioxide from your body!"
+  },
+  {
+    id: 74,
+    question: "Smelling organ:",
+    options: ["Nose", "Noze", "Nouse", "Noss"],
+    correct: 0,
+    emoji: "👃",
+    explanation: "Your nose lets you smell and also helps you breathe!"
+  },
+  {
+    id: 75,
+    question: "Moving joint of leg:",
+    options: ["Knee", "Kneee", "Kne", "Nee"],
+    correct: 0,
+    emoji: "🦵",
+    explanation: "Your knee is the hinge joint that lets your leg bend!"
+  },
+  {
+    id: 76,
+    question: "Bending point of arm:",
+    options: ["Elbow", "Elbo", "Elbbo", "Albow"],
+    correct: 0,
+    emoji: "💪",
+    explanation: "Your elbow is where your upper arm and lower arm meet!"
+  },
+  {
+    id: 77,
+    question: "Sensory covering of the body:",
+    options: ["Skin", "Skyn", "Skeen", "Skine"],
+    correct: 0,
+    emoji: "🌟",
+    explanation: "Your skin is your body's largest organ and protects everything inside!"
+  },
+  {
+    id: 78,
+    question: "Finger-like parts of foot:",
+    options: ["Toes", "Tos", "Towes", "Toe's"],
+    correct: 0,
+    emoji: "👣",
+    explanation: "Your toes are like fingers on your feet!"
+  },
+  {
+    id: 79,
+    question: "Lower back curve:",
+    options: ["Spine", "Spyne", "Spien", "Spin"],
+    correct: 0,
+    emoji: "🦴",
+    explanation: "Your spine curves naturally to help you stand upright and move!"
+  },
+  {
+    id: 80,
+    question: "Joint below ribs:",
+    options: ["Waist", "Waiste", "Waistt", "Weist"],
+    correct: 0,
+    emoji: "🏋️",
+    explanation: "Your waist is the narrow part of your body between your ribs and hips!"
+  },
+  {
+    id: 81,
+    question: "Front of the leg below knee:",
+    options: ["Shin", "Chinn", "Shen", "Shenn"],
+    correct: 0,
+    emoji: "🦵",
+    explanation: "Your shin is the front part of your lower leg!"
+  },
+  {
+    id: 82,
+    question: "Muscular organ inside mouth:",
+    options: ["Tongue", "Tounge", "Toung", "Tungg"],
+    correct: 0,
+    emoji: "👅",
+    explanation: "Your tongue helps you taste, swallow, and speak!"
+  },
+  {
+    id: 83,
+    question: "Arm-connecting structure:",
+    options: ["Shoulder", "Shulder", "Shouldar", "Shouldor"],
+    correct: 0,
+    emoji: "💪",
+    explanation: "Your shoulder is where your arm connects to your torso!"
   }
 ];
 
-// You can easily add more quiz categories here
-// Example for future expansion:
-/*
-export const heartQuizQuestions = [
-  // Heart-specific questions
-];
-
-export const brainQuizQuestions = [
-  // Brain-specific questions  
-];
-*/
