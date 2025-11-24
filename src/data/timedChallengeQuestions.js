@@ -3,7 +3,7 @@ export const timedChallengeQuestions = [
   {
     id: 1,
     question: "Which organ pumps blood?",
-    options: ["🫀 Heart", "Brain", "🫁 Lungs", "🍃 Liver"],
+    options: ["🫀 Heart", "Brain", "Lungs", "Liver"],
     correct: 0,
     emoji: "❤️",
     explanation: "The heart pumps blood throughout your body!"
@@ -59,7 +59,7 @@ export const timedChallengeQuestions = [
   {
     id: 8,
     question: "What connects brain to body?",
-    options: ["🫀 Heart", "Spinal Cord", "🫁 Lungs", "Muscles"],
+    options: ["Heart", "Spinal Cord", "Lungs", "Muscles"],
     correct: 1,
     emoji: "📡",
     explanation: "Spinal cord carries brain messages!"
@@ -67,7 +67,7 @@ export const timedChallengeQuestions = [
   {
     id: 9,
     question: "Largest organ in body?",
-    options: ["Brain", "Bones", "🫀 Heart", "Skin"],
+    options: ["Brain", "Bones", "Heart", "Skin"],
     correct: 3,
     emoji: "✨",
     explanation: "Skin is your largest organ!"
@@ -75,7 +75,7 @@ export const timedChallengeQuestions = [
   {
     id: 10,
     question: "What breaks down food?",
-    options: ["Brain", "🫀 Heart", "Stomach", "Eyes"],
+    options: ["Brain", "Heart", "Stomach", "Eyes"],
     correct: 2,
     emoji: "🍽️",
     explanation: "Stomach breaks down food!"
@@ -91,7 +91,7 @@ export const timedChallengeQuestions = [
   {
     id: 12,
     question: "What carries oxygen in blood?",
-    options: ["Water", "Red cells", "Food", "📱 Messages"],
+    options: ["Water", "Red cells", "Food", "Messages"],
     correct: 1,
     emoji: "🔴",
     explanation: "Red blood cells carry oxygen!"
@@ -139,7 +139,7 @@ export const timedChallengeQuestions = [
   {
     id: 18,
     question: "What produces insulin?",
-    options: ["🫀 Heart", "Pancreas", "Brain", "Eyes"],
+    options: ["Heart", "Pancreas", "Brain", "Eyes"],
     correct: 1,
     emoji: "🍯",
     explanation: "Pancreas makes insulin!"
@@ -147,7 +147,7 @@ export const timedChallengeQuestions = [
   {
     id: 19,
     question: "What makes bile?",
-    options: ["🫀 Heart", "Brain", "Liver", "🫁 Lungs"],
+    options: ["Heart", "Brain", "Liver", "Lungs"],
     correct: 2,
     emoji: "💚",
     explanation: "Liver produces bile!"
