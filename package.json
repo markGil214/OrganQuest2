@@ -1,8 +1,12 @@
 {
   "name": "vite-react-app",
-  "private": true,
   "version": "0.0.0",
+  "private": true,
+  "description": "An interactive React application for exploring human anatomy through an engaging and educational interface.",
+  "license": "ISC",
+  "author": "",
   "type": "module",
+  "main": "postcss.config.js",
   "scripts": {
     "dev": "vite",
     "dev:server": "cd server && npm run dev",
