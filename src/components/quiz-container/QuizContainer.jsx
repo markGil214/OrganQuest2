@@ -45,7 +45,7 @@ const QuizContainer = () => {
   // Create shuffled questions with shuffled options (10 questions per session)
   const [quizQuestions, setQuizQuestions] = useState(() => {
     const shuffledQuestions = shuffleArray(baseQuizQuestions);
-    const selectedQuestions = shuffledQuestions.slice(0, 10); // Take only 10 questions
+    const selectedQuestions = shuffledQuestions.slice(0, 20); // Take only 10 questions
     return selectedQuestions.map(question => shuffleOptions(question));
   });
 
