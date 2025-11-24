@@ -206,16 +206,16 @@ const QuizContainer = () => {
           boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
           animation: 'celebrationPulse 2s infinite alternate'
         }}>
-          <div style={{ fontSize: '3rem', marginBottom: '0.8rem', animation: 'bounce 1s infinite' }}>
+          <div style={{ fontSize: 'clamp(2rem, 6vw, 3rem)', marginBottom: '0.8rem', animation: 'bounce 1s infinite' }}>
             {scoreInfo.emoji}
           </div>
-          <h1 style={{ fontSize: '1.8rem', marginBottom: '0.8rem', color: scoreInfo.color }}>
+          <h1 style={{ fontSize: 'clamp(1.3rem, 4vw, 1.8rem)', marginBottom: '0.8rem', color: scoreInfo.color }}>
             Quiz Complete!
           </h1>
-          <div style={{ fontSize: '2rem', margin: '0.8rem 0', fontWeight: 'bold' }}>
+          <div style={{ fontSize: 'clamp(1.5rem, 5vw, 2rem)', margin: '0.8rem 0', fontWeight: 'bold' }}>
             {score}/{quizQuestions.length}
           </div>
-          <p style={{ fontSize: '1rem', marginBottom: '1.5rem', opacity: 0.9 }}>
+          <p style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1rem)', marginBottom: '1.5rem', opacity: 0.9 }}>
             {scoreInfo.message}
           </p>
           
@@ -226,9 +226,9 @@ const QuizContainer = () => {
                 background: 'linear-gradient(135deg, #FF6B6B, #FF8E53)',
                 border: 'none',
                 borderRadius: '20px',
-                padding: '0.8rem 1.5rem',
+                padding: 'clamp(0.6rem, 2vw, 0.8rem) clamp(1rem, 3vw, 1.5rem)',
                 color: 'white',
-                fontSize: '1rem',
+                fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
                 fontWeight: 'bold',
                 cursor: 'pointer',
                 boxShadow: '0 6px 15px rgba(255, 107, 107, 0.3)',
@@ -246,9 +246,9 @@ const QuizContainer = () => {
                 background: 'linear-gradient(135deg, #4ECDC4, #44A08D)',
                 border: 'none',
                 borderRadius: '20px',
-                padding: '0.8rem 1.5rem',
+                padding: 'clamp(0.6rem, 2vw, 0.8rem) clamp(1rem, 3vw, 1.5rem)',
                 color: 'white',
-                fontSize: '1rem',
+                fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
                 fontWeight: 'bold',
                 cursor: 'pointer',
                 boxShadow: '0 6px 15px rgba(78, 205, 196, 0.3)',
@@ -332,10 +332,10 @@ const QuizContainer = () => {
             background: 'rgba(255, 255, 255, 0.2)',
             border: 'none',
             borderRadius: '25px',
-            padding: '0.75rem 1.5rem',
+            padding: 'clamp(0.6rem, 2vw, 0.75rem) clamp(1rem, 3vw, 1.5rem)',
             color: 'white',
             cursor: 'pointer',
-            fontSize: '1.1rem',
+            fontSize: 'clamp(0.85rem, 2.5vw, 1.1rem)',
             fontWeight: '600',
             transition: 'all 0.3s ease',
             fontFamily: 'inherit'
@@ -347,8 +347,8 @@ const QuizContainer = () => {
         </button>
         
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '2.2rem', marginBottom: '0.5rem' }}>🎯</div>
-          <div style={{ fontSize: '1.3rem', fontWeight: '600' }}>
+          <div style={{ fontSize: 'clamp(2rem, 5vw, 2.2rem)', marginBottom: '0.5rem' }}>🎯</div>
+          <div style={{ fontSize: 'clamp(1rem, 3vw, 1.3rem)', fontWeight: '600' }}>
             Question {currentQuestion + 1} of {quizQuestions.length}
           </div>
         </div>
@@ -356,8 +356,8 @@ const QuizContainer = () => {
         <div style={{
           background: 'rgba(255, 255, 255, 0.2)',
           borderRadius: '25px',
-          padding: '0.75rem 1.5rem',
-          fontSize: '1.3rem',
+          padding: 'clamp(0.6rem, 2vw, 0.75rem) clamp(1rem, 3vw, 1.5rem)',
+          fontSize: 'clamp(1rem, 3vw, 1.3rem)',
           fontWeight: '600'
         }}>
           Score: {score}
@@ -407,11 +407,11 @@ const QuizContainer = () => {
           border: '2px solid rgba(255, 255, 255, 0.2)',
           minHeight: 'auto'
         }}>
-          <div style={{ fontSize: '3.5rem', marginBottom: '1.2rem', animation: 'pulse 2s infinite' }}>
+          <div style={{ fontSize: 'clamp(2.5rem, 7vw, 3.5rem)', marginBottom: '1.2rem', animation: 'pulse 2s infinite' }}>
             {currentQ.emoji}
           </div>
           <h2 style={{ 
-            fontSize: '1.8rem', 
+            fontSize: 'clamp(1.2rem, 4vw, 1.8rem)', 
             marginBottom: '1.8rem', 
             lineHeight: '1.4',
             fontWeight: '600'
@@ -440,9 +440,9 @@ const QuizContainer = () => {
                   background: getOptionBackground(index),
                   border: getOptionBorder(index),
                   borderRadius: '15px',
-                  padding: '1.2rem',
+                  padding: 'clamp(0.8rem, 2.5vw, 1.2rem)',
                   color: 'white',
-                  fontSize: '1.1rem',
+                  fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)',
                   fontWeight: '600',
                   cursor: isAnswered ? 'default' : 'pointer',
                   transition: 'all 0.3s ease',
@@ -506,7 +506,7 @@ const QuizContainer = () => {
           }}>
             {/* Feedback Icon and Message */}
             <div style={{ 
-              fontSize: '4rem', 
+              fontSize: 'clamp(2.5rem, 8vw, 4rem)', 
               marginBottom: '1rem',
               animation: selectedAnswer === currentQ.correct ? 'bounce 1s infinite' : 'shake 0.5s ease-out'
             }}>
@@ -514,7 +514,7 @@ const QuizContainer = () => {
             </div>
             
             <h3 style={{ 
-              fontSize: '2rem', 
+              fontSize: 'clamp(1.3rem, 4vw, 2rem)', 
               marginBottom: '1.2rem',
               color: 'white',
               fontWeight: '700'
@@ -524,7 +524,7 @@ const QuizContainer = () => {
             
             {/* Explanation */}
             <p style={{ 
-              fontSize: '1.2rem', 
+              fontSize: 'clamp(1rem, 3vw, 1.2rem)', 
               lineHeight: '1.5', 
               marginBottom: '2rem',
               color: 'white',
@@ -541,9 +541,9 @@ const QuizContainer = () => {
                 background: 'rgba(255, 255, 255, 0.2)',
                 border: '2px solid rgba(255, 255, 255, 0.5)',
                 borderRadius: '25px',
-                padding: '1rem 2rem',
+                padding: 'clamp(0.75rem, 2.5vw, 1rem) clamp(1.5rem, 4vw, 2rem)',
                 color: 'white',
-                fontSize: '1.3rem',
+                fontSize: 'clamp(1rem, 3vw, 1.3rem)',
                 fontWeight: '600',
                 cursor: 'pointer',
                 boxShadow: '0 8px 20px rgba(0,0,0,0.2)',
