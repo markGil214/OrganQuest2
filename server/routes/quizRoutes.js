@@ -129,8 +129,6 @@ router.post('/submit', authMiddleware,
   }
 );
 
-});
-
 // @route   GET /api/quiz/attempts/:quizType
 // @desc    Check remaining attempts for a quiz
 // @access  Private
