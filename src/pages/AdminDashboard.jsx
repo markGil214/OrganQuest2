@@ -737,7 +737,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
                 <div className="flex flex-wrap gap-2">
                   {studentQuizDetails.badges.map((badge, index) => (
                     <span key={index} className="px-3 py-2 bg-yellow-100 text-yellow-800 rounded-lg text-sm font-semibold">
-                      {badge}
+                      {typeof badge === 'string' ? badge : badge.name || badge.badgeId}
                     </span>
                   ))}
                 </div>
