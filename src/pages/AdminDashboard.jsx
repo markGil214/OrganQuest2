@@ -84,10 +84,44 @@ const AdminDashboard = ({ userData, onLogout }) => {
 
       const data = await response.json();
       if (data.success) {
-        setQuizAnalytics(data.data);
+        // Transform the data to match UI expectations
+        const transformed = {
+          ...data.data,
+          quizTypeStats: Object.entries(data.data.quizTypeStats || {}).map(([type, stats]) => ({
+            type: type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
+            totalAttempts: stats.total || 0,
+            avgScore: stats.avgScore || 0,
+            avgTime: stats.avgTime || 0
+          })),
+          questionDifficulty: data.data.questionDifficulty?.hardestQuestions || [],
+          attemptStats: {
+            studentsWithLockedQuizzes: data.data.attemptStats?.lockedStudents || 0
+          },
+          badgeStats: {
+            mostEarned: data.data.badgeStats?.[0]?.name || 'None',
+            leastEarned: data.data.badgeStats?.[data.data.badgeStats.length - 1]?.name || 'None'
+          }
+        };
+        setQuizAnalytics(transformed);
+      } else {
+        console.error('Failed to fetch analytics:', data.message);
+        // Set empty state to stop loading
+        setQuizAnalytics({
+          quizTypeStats: [],
+          questionDifficulty: [],
+          attemptStats: { studentsWithLockedQuizzes: 0 },
+          badgeStats: { mostEarned: 'None', leastEarned: 'None' }
+        });
       }
     } catch (error) {
       console.error('Error fetching quiz analytics:', error);
+      // Set empty state to stop loading
+      setQuizAnalytics({
+        quizTypeStats: [],
+        questionDifficulty: [],
+        attemptStats: { studentsWithLockedQuizzes: 0 },
+        badgeStats: { mostEarned: 'None', leastEarned: 'None' }
+      });
     }
   };
 
