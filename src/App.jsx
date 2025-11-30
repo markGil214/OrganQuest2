@@ -10,7 +10,9 @@ import ARScanner from './pages/ARScanner'
 import AdminDashboard from './pages/AdminDashboard'
 import SuperAdminPanel from './pages/SuperAdminPanel'
 import InteractiveViewer from './pages/InteractiveViewer'
+import soundManager from './lib/soundManager'
 import './App.css'
+import './styles/globalBackground.css'
 
 // Lazy load individual quiz pages
 const MultipleChoiceQuiz = lazy(() => import('./pages/MultipleChoiceQuiz'));
@@ -252,9 +254,9 @@ function App() {
   };
 
   return (
-    <>
+    <div className="app-background-animated">
       {renderPage()}
-    </>
+    </div>
   );
 }
 

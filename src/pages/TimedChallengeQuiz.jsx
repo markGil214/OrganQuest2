@@ -3,6 +3,8 @@ import { timedChallengeQuestions } from '../data/timedChallengeQuestions';
 import { Button } from '../components/ui/Button';
 import { cn } from '../lib/utils';
 import api from '../lib/api';
+import soundManager from '../lib/soundManager';
+import soundManager from '../lib/soundManager';
 
 const TimedChallengeQuiz = () => {
 
@@ -109,12 +111,14 @@ const TimedChallengeQuiz = () => {
     const isCorrect = answerIndex === currentQ.correct;
 
     if (isCorrect) {
+      soundManager.playSuccess();
       const timeBonus = Math.max(1, Math.floor(timeLeft / 10)); // Bonus points for speed
       setScore(score + 10 + timeBonus);
       setStreak(streak + 1);
       setBestStreak(Math.max(bestStreak, streak + 1));
       setCorrectAnswers(correctAnswers + 1);
     } else {
+      soundManager.playError();
       setStreak(0);
       setWrongAnswers(wrongAnswers + 1);
     }

@@ -1,5 +1,6 @@
 import React from 'react';
 import { cn } from '../lib/utils';
+import soundManager from '../lib/soundManager';
 
 const MenuButton = ({ 
   icon, 
@@ -20,9 +21,16 @@ const MenuButton = ({
     return colorMap[hexColor] || 'from-orange-400 via-orange-500 to-orange-600';
   };
 
+  const handleClick = (e) => {
+    soundManager.playClick();
+    if (onClick) {
+      onClick(e);
+    }
+  };
+
   return (
     <button 
-      onClick={onClick}
+      onClick={handleClick}
       disabled={disabled}
       className={cn(
         "relative group w-full overflow-hidden rounded-3xl p-6 md:p-8 transition-all duration-300",

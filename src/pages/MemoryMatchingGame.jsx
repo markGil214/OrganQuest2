@@ -4,6 +4,7 @@ import brainImg from '../assets/images/brain.svg';
 import lungsImg from '../assets/images/lungs.svg';
 import kidneyImg from '../assets/images/kidney.svg';
 import liverImg from '../assets/images/liver.svg';
+import soundManager from '../lib/soundManager';
 
 const MemoryMatchingGame = () => {
   // Add Montserrat font
@@ -84,6 +85,7 @@ const MemoryMatchingGame = () => {
 
       if (card1.matchId === card2.matchId) {
         // Match found!
+        soundManager.playSuccess();
         setTimeout(() => {
           setMatchedPairs([...matchedPairs, newFlippedCards]);
           setFlippedCards([]);
@@ -96,6 +98,7 @@ const MemoryMatchingGame = () => {
         }, 1000);
       } else {
         // No match, flip back
+        soundManager.playError();
         setTimeout(() => {
           setFlippedCards([]);
           setIsChecking(false);

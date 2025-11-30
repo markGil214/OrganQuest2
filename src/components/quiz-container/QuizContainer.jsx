@@ -3,6 +3,7 @@ import { baseQuizQuestions } from '../../data/quizQuestions';
 import api from '../../lib/api';
 import { randomizeQuiz, formatTime, calculatePercentage } from '../../lib/quizUtils';
 import QuizResultsPage from '../QuizResultsPage';
+import soundManager from '../../lib/soundManager';
 
 // Add Montserrat font
 const addMontserratFont = () => {
@@ -138,9 +139,11 @@ const QuizContainer = () => {
     setUserAnswers([...userAnswers, answerData]);
     
     if (isCorrect) {
+      soundManager.playSuccess();
       setScore(score + 1);
       setAnimationClass('correct-answer');
     } else {
+      soundManager.playError();
       setAnimationClass('wrong-answer');
     }
     
