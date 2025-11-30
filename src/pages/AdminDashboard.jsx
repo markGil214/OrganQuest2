@@ -329,15 +329,15 @@ const AdminDashboard = ({ userData, onLogout }) => {
                         <div className="space-y-1 text-sm">
                           <div className="flex justify-between">
                             <span className="text-gray-600">Total Attempts:</span>
-                            <span className="font-semibold">{stat.totalAttempts}</span>
+                            <span className="font-semibold">{stat.totalAttempts || 0}</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-gray-600">Avg Score:</span>
-                            <span className="font-semibold text-green-600">{stat.avgScore.toFixed(1)}%</span>
+                            <span className="font-semibold text-green-600">{(stat.avgScore || 0).toFixed(1)}%</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-gray-600">Avg Time:</span>
-                            <span className="font-semibold">{stat.avgTime.toFixed(0)}s</span>
+                            <span className="font-semibold">{(stat.avgTime || 0).toFixed(0)}s</span>
                           </div>
                         </div>
                       </div>
