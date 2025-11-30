@@ -759,11 +759,11 @@ const AdminDashboard = ({ userData, onLogout }) => {
                       </div>
                       <div className="flex gap-4 items-center">
                         <span className={`font-bold ${
-                          result.percentage >= 80 ? 'text-green-600' :
-                          result.percentage >= 60 ? 'text-yellow-600' :
+                          (result.percentage || 0) >= 80 ? 'text-green-600' :
+                          (result.percentage || 0) >= 60 ? 'text-yellow-600' :
                           'text-red-600'
                         }`}>
-                          {result.percentage.toFixed(0)}%
+                          {(result.percentage || 0).toFixed(0)}%
                         </span>
                         <span className="text-sm text-gray-600">
                           {result.timeTaken ? `${Math.floor(result.timeTaken / 60)}m ${result.timeTaken % 60}s` : 'N/A'}
