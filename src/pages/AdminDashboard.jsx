@@ -17,6 +17,8 @@ const AdminDashboard = ({ userData, onLogout }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState(null);
   const [activeTab, setActiveTab] = useState('students'); // students, analytics
+  const [questionPage, setQuestionPage] = useState(1);
+  const questionsPerPage = 10;
 
   const API_URL = import.meta.env.VITE_API_URL || 'https://organquest2.onrender.com';
 
@@ -347,44 +349,73 @@ const AdminDashboard = ({ userData, onLogout }) => {
                     <p className="text-sm mt-2">Question difficulty analysis will appear after students complete quizzes</p>
                   </div>
                 ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b-2 border-gray-200">
-                          <th className="text-left p-3 font-semibold text-gray-700">Question</th>
-                          <th className="text-left p-3 font-semibold text-gray-700">Success Rate</th>
-                          <th className="text-left p-3 font-semibold text-gray-700">Attempts</th>
-                          <th className="text-left p-3 font-semibold text-gray-700">Difficulty</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {quizAnalytics.questionDifficulty.slice(0, 10).map((q, index) => (
-                        <tr key={index} className="border-b border-gray-100">
-                          <td className="p-3 max-w-md truncate">{q.question}</td>
-                          <td className="p-3">
-                            <span className={`font-semibold ${
-                              q.successRate >= 70 ? 'text-green-600' :
-                              q.successRate >= 40 ? 'text-yellow-600' :
-                              'text-red-600'
-                            }`}>
-                              {q.successRate.toFixed(1)}%
-                            </span>
-                          </td>
-                          <td className="p-3">{q.totalAttempts}</td>
-                          <td className="p-3">
-                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                              q.successRate >= 70 ? 'bg-green-100 text-green-700' :
-                              q.successRate >= 40 ? 'bg-yellow-100 text-yellow-700' :
-                              'bg-red-100 text-red-700'
-                            }`}>
-                              {q.successRate >= 70 ? 'Easy' : q.successRate >= 40 ? 'Medium' : 'Hard'}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                  <>
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b-2 border-gray-200">
+                            <th className="text-left p-3 font-semibold text-gray-700">Question</th>
+                            <th className="text-left p-3 font-semibold text-gray-700">Success Rate</th>
+                            <th className="text-left p-3 font-semibold text-gray-700">Attempts</th>
+                            <th className="text-left p-3 font-semibold text-gray-700">Difficulty</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {quizAnalytics.questionDifficulty
+                            .slice((questionPage - 1) * questionsPerPage, questionPage * questionsPerPage)
+                            .map((q, index) => (
+                          <tr key={index} className="border-b border-gray-100">
+                            <td className="p-3 max-w-md truncate">{q.question}</td>
+                            <td className="p-3">
+                              <span className={`font-semibold ${
+                                q.successRate >= 70 ? 'text-green-600' :
+                                q.successRate >= 40 ? 'text-yellow-600' :
+                                'text-red-600'
+                              }`}>
+                                {q.successRate.toFixed(1)}%
+                              </span>
+                            </td>
+                            <td className="p-3">{q.totalAttempts}</td>
+                            <td className="p-3">
+                              <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                q.successRate >= 70 ? 'bg-green-100 text-green-700' :
+                                q.successRate >= 40 ? 'bg-yellow-100 text-yellow-700' :
+                                'bg-red-100 text-red-700'
+                              }`}>
+                                {q.successRate >= 70 ? 'Easy' : q.successRate >= 40 ? 'Medium' : 'Hard'}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    
+                    {/* Pagination */}
+                    {quizAnalytics.questionDifficulty.length > questionsPerPage && (
+                      <div className="flex justify-center gap-2 mt-6">
+                        <Button
+                          onClick={() => setQuestionPage(p => Math.max(1, p - 1))}
+                          disabled={questionPage === 1}
+                          variant="outline"
+                          size="sm"
+                        >
+                          Previous
+                        </Button>
+                        <span className="px-4 py-2 text-gray-700">
+                          Page {questionPage} of {Math.ceil(quizAnalytics.questionDifficulty.length / questionsPerPage)}
+                        </span>
+                        <Button
+                          onClick={() => setQuestionPage(p => Math.min(Math.ceil(quizAnalytics.questionDifficulty.length / questionsPerPage), p + 1))}
+                          disabled={questionPage === Math.ceil(quizAnalytics.questionDifficulty.length / questionsPerPage)}
+                          variant="outline"
+                          size="sm"
+                        >
+                          Next
+                        </Button>
+                      </div>
+                    )}
+                  </>
                 )}
               </Card>
 
