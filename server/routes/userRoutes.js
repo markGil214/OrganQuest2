@@ -64,8 +64,7 @@ router.post('/register',
         age,
         grade,
         avatar,
-        language,
-        organProgress: []
+        language
       });
 
       await user.save();

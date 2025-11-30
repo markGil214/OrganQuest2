@@ -6,7 +6,6 @@ import mongoose from 'mongoose';
 // Route imports
 import userRoutes from './routes/userRoutes.js';
 import quizRoutes from './routes/quizRoutes.js';
-import progressRoutes from './routes/progressRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 
 // Load environment variables
@@ -81,7 +80,6 @@ mongoose.connect(MONGODB_URI, {
 // Routes
 app.use('/api/users', userRoutes);
 app.use('/api/quiz', quizRoutes);
-app.use('/api/progress', progressRoutes);
 app.use('/api/admin', adminRoutes);
 
 // Health check endpoint

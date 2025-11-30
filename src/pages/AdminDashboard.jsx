@@ -252,7 +252,6 @@ const AdminDashboard = ({ userData, onLogout }) => {
                   <th className="text-left p-3 font-semibold text-gray-700">Age</th>
                   <th className="text-left p-3 font-semibold text-gray-700">Grade</th>
                   <th className="text-left p-3 font-semibold text-gray-700">Quizzes</th>
-                  <th className="text-left p-3 font-semibold text-gray-700">Organs</th>
                   <th className="text-left p-3 font-semibold text-gray-700">Avg Score</th>
                   <th className="text-left p-3 font-semibold text-gray-700">1st Day</th>
                   <th className="text-left p-3 font-semibold text-gray-700">Actions</th>
@@ -270,7 +269,6 @@ const AdminDashboard = ({ userData, onLogout }) => {
                       </span>
                     </td>
                     <td className="p-3">{student.stats.totalQuizzesTaken}</td>
-                    <td className="p-3">{student.stats.organsExplored}</td>
                     <td className="p-3">
                       {student.quizResults.length > 0 ? (
                         <span className="font-semibold text-green-600">
@@ -361,14 +359,10 @@ const AdminDashboard = ({ userData, onLogout }) => {
 
             <div className="mb-6">
               <h3 className="text-xl font-bold mb-3">Statistics</h3>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div className="text-center p-4 bg-blue-50 rounded-lg">
                   <div className="text-2xl font-bold text-blue-600">{selectedStudent.stats.totalQuizzesTaken}</div>
                   <div className="text-sm text-gray-600">Quizzes Taken</div>
-                </div>
-                <div className="text-center p-4 bg-green-50 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600">{selectedStudent.stats.organsExplored}</div>
-                  <div className="text-sm text-gray-600">Organs Explored</div>
                 </div>
                 <div className="text-center p-4 bg-purple-50 rounded-lg">
                   <div className="text-2xl font-bold text-purple-600">{selectedStudent.stats.highScore}</div>
@@ -380,13 +374,9 @@ const AdminDashboard = ({ userData, onLogout }) => {
             <div className="mb-6">
               <h3 className="text-xl font-bold mb-3">First Day Activity</h3>
               <div className="bg-gray-50 p-4 rounded-lg">
-                <div className="flex justify-between items-center mb-2">
+                <div className="flex justify-between items-center">
                   <span className="text-gray-700">Quizzes on First Day:</span>
                   <span className="font-bold text-blue-600">{selectedStudent.firstDayProgress.quizzesTaken}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-700">Organs Explored on First Day:</span>
-                  <span className="font-bold text-green-600">{selectedStudent.firstDayProgress.organsExplored}</span>
                 </div>
               </div>
             </div>

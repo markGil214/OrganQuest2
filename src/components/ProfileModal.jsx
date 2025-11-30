@@ -6,7 +6,6 @@ import api from '../lib/api';
 
 const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
   const [stats, setStats] = useState({
-    organsExplored: 0,
     quizzesTaken: 0,
     averageScore: 0
   });
@@ -23,11 +22,10 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
           return;
         }
 
-        const response = await api.getProgressSummary(token);
+        const response = await api.getStats(token);
         if (response.success) {
           const data = response.data;
           setStats({
-            organsExplored: data.stats.organsExplored || 0,
             quizzesTaken: data.stats.quizzesTaken || 0,
             averageScore: data.stats.averageScore || 0
           });
@@ -80,14 +78,7 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-4 w-full px-4">
-            <div className="flex flex-col items-center gap-1 bg-white/70 rounded-xl p-3 shadow-md">
-              <div className="text-xl">🏆</div>
-              <div className="text-base font-bold text-gray-800">
-                {loading ? '...' : stats.organsExplored}
-              </div>
-              <div className="text-[10px] text-gray-600 text-center">Organs Learned</div>
-            </div>
+          <div className="grid grid-cols-2 gap-4 w-full px-4">
             <div className="flex flex-col items-center gap-1 bg-white/70 rounded-xl p-3 shadow-md">
               <div className="text-xl">⭐</div>
               <div className="text-base font-bold text-gray-800">

@@ -64,7 +64,7 @@ router.get('/students', authMiddleware, adminMiddleware, async (req, res) => {
       return {
         ...student.toObject(),
         firstDayProgress,
-        hasProgress: student.stats.totalQuizzesTaken > 0 || student.stats.organsExplored > 0
+        hasProgress: student.stats.totalQuizzesTaken > 0
       };
     });
 
@@ -151,10 +151,9 @@ router.get('/analytics', authMiddleware, adminMiddleware, async (req, res) => {
 
     // Calculate analytics
     const totalStudents = students.length;
-    const activeStudents = students.filter(s => s.stats.totalQuizzesTaken > 0 || s.stats.organsExplored > 0).length;
+    const activeStudents = students.filter(s => s.stats.totalQuizzesTaken > 0).length;
     
     const totalQuizzes = students.reduce((sum, s) => sum + s.stats.totalQuizzesTaken, 0);
-    const totalOrgansExplored = students.reduce((sum, s) => sum + s.stats.organsExplored, 0);
     
     const studentsWithQuizzes = students.filter(s => s.stats.totalQuizzesTaken > 0);
     const avgQuizzesPerStudent = studentsWithQuizzes.length > 0 
@@ -200,7 +199,6 @@ router.get('/analytics', authMiddleware, adminMiddleware, async (req, res) => {
         inactiveStudents: totalStudents - activeStudents,
         totalQuizzes,
         avgQuizzesPerStudent: Math.round(avgQuizzesPerStudent * 10) / 10,
-        totalOrgansExplored,
         overallAverageScore,
         gradeDistribution,
         firstDayEngagement: {
@@ -421,17 +419,9 @@ function calculateFirstDayProgress(student) {
     return quizDate >= createdDate && quizDate <= endOfFirstDay;
   });
 
-  // Check organs explored on first day
-  const firstDayOrgans = student.organProgress.filter(organ => {
-    if (!organ.exploredAt) return false;
-    const exploreDate = new Date(organ.exploredAt);
-    return exploreDate >= createdDate && exploreDate <= endOfFirstDay;
-  });
-
   return {
     quizzesTaken: firstDayQuizzes.length,
-    organsExplored: firstDayOrgans.length,
-    hasActivity: firstDayQuizzes.length > 0 || firstDayOrgans.length > 0
+    hasActivity: firstDayQuizzes.length > 0
   };
 }
 

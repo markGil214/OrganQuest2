@@ -163,55 +163,6 @@ export const api = {
     return data;
   },
 
-  // Progress endpoints
-  async markOrganExplored(token, organName) {
-    const response = await fetch(`${API_URL}/progress/organ`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify({ organName }),
-    });
-    const data = await response.json();
-    
-    if (!response.ok) {
-      throw new Error(data.message || 'Failed to mark organ as explored');
-    }
-    
-    return data;
-  },
-
-  async getOrganProgress(token) {
-    const response = await fetch(`${API_URL}/progress/organs`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-    });
-    const data = await response.json();
-    
-    if (!response.ok) {
-      throw new Error(data.message || 'Failed to fetch organ progress');
-    }
-    
-    return data;
-  },
-
-  async getProgressSummary(token) {
-    const response = await fetch(`${API_URL}/progress/summary`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-    });
-    const data = await response.json();
-    
-    if (!response.ok) {
-      throw new Error(data.message || 'Failed to fetch progress summary');
-    }
-    
-    return data;
-  },
-
   // Health check
   async healthCheck() {
     const response = await fetch(`${API_URL}/health`);
