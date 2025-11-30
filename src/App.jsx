@@ -67,12 +67,43 @@ function App() {
       // Allow register route and interactive viewer to work without authentication
     }
     setIsCheckingAuth(false);
+    
+    // Handle browser back/forward button to prevent accessing protected pages after logout
+    const handlePopState = () => {
+      const hash = window.location.hash.slice(1);
+      const protectedRoutes = ['main-menu', 'menu', 'quiz', 'scan-explore', 'admin/dashboard', 'admin/manage', 'welcome'];
+      const isProtectedRoute = protectedRoutes.some(route => hash === route || hash.startsWith(route + '/'));
+      
+      // If user is logged out and trying to access protected route via back button
+      if (isProtectedRoute && !getCookie('organquest_user')) {
+        window.history.replaceState(null, '', '#login');
+        window.location.hash = 'login';
+      }
+    };
+    
+    window.addEventListener('popstate', handlePopState);
+    
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
   }, []);
 
   // Simple hash-based routing for now
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.slice(1);
+      
+      // Protected routes that require authentication
+      const protectedRoutes = ['main-menu', 'menu', 'quiz', 'quiz/mcq', 'quiz/memory', 'quiz/timed', 'scan-explore', 'admin/dashboard', 'admin/manage'];
+      const isProtectedRoute = protectedRoutes.some(route => hash === route || hash.startsWith(route + '/'));
+      
+      // If trying to access protected route without auth, redirect to login
+      if (isProtectedRoute && !userData && !getCookie('organquest_user')) {
+        window.history.replaceState(null, '', '#login');
+        setCurrentPage('login');
+        return;
+      }
+      
       if (hash === 'login') {
         setCurrentPage('login');
       } else if (hash === 'register') {
@@ -113,13 +144,16 @@ function App() {
     return () => {
       window.removeEventListener('hashchange', handleHashChange);
     };
-  }, []);
+  }, [userData]); // Add userData as dependency to recheck auth on user changes
 
   const handleRegistrationComplete = (formData) => {
     setUserData(formData);
     // Save user data to cookies for persistent login
     setCookie('organquest_user', formData);
-    window.location.href = '#welcome';
+    
+    // Replace history to prevent back navigation to register page
+    window.history.replaceState(null, '', '#welcome');
+    window.location.hash = 'welcome';
   };
 
   const handleLoginSuccess = (userData) => {
@@ -127,19 +161,25 @@ function App() {
     // Save user data to cookies for persistent login
     setCookie('organquest_user', userData);
     
-    // Redirect based on role
-    if (userData.role === 'admin' || userData.role === 'superuser') {
-      window.location.href = '#admin/dashboard';
-    } else {
-      window.location.href = '#main-menu';
-    }
+    // Redirect based on role and replace history to prevent back navigation
+    const targetHash = (userData.role === 'admin' || userData.role === 'superuser') 
+      ? '#admin/dashboard' 
+      : '#main-menu';
+    
+    window.history.replaceState(null, '', targetHash);
+    window.location.hash = targetHash.slice(1);
   };
 
   const handleLogout = () => {
     // Clear user data and cookies
     setUserData(null);
     document.cookie = 'organquest_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    window.location.href = '#home';
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userData');
+    
+    // Replace current history entry to prevent back button navigation
+    window.history.replaceState(null, '', '#login');
+    window.location.hash = 'login';
   };
 
   const renderPage = () => {
