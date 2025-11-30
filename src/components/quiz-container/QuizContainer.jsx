@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { baseQuizQuestions } from '../../data/quizQuestions';
 import api from '../../lib/api';
+import { randomizeQuiz, formatTime, calculatePercentage } from '../../lib/quizUtils';
+import QuizResultsPage from '../QuizResultsPage';
 
 // Add Montserrat font
 const addMontserratFont = () => {
@@ -42,10 +44,10 @@ const QuizContainer = () => {
     };
   };
 
-  // Create shuffled questions with shuffled options (10 questions per session)
+  // Create shuffled questions with shuffled options (20 questions per session)
   const [quizQuestions, setQuizQuestions] = useState(() => {
     const shuffledQuestions = shuffleArray(baseQuizQuestions);
-    const selectedQuestions = shuffledQuestions.slice(0, 20); // Take only 10 questions
+    const selectedQuestions = shuffledQuestions.slice(0, 20); // Take 20 questions
     return selectedQuestions.map(question => shuffleOptions(question));
   });
 
@@ -57,6 +59,60 @@ const QuizContainer = () => {
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [isAnswered, setIsAnswered] = useState(false);
   const [animationClass, setAnimationClass] = useState('');
+  const [userAnswers, setUserAnswers] = useState([]);
+  const [timeRemaining, setTimeRemaining] = useState(600); // 10 minutes = 600 seconds
+  const [startTime, setStartTime] = useState(Date.now());
+  const [attemptInfo, setAttemptInfo] = useState(null);
+  const [showResults, setShowResults] = useState(false);
+  const [quizResults, setQuizResults] = useState(null);
+
+  // Check attempts on mount
+  useEffect(() => {
+    checkAttempts();
+  }, []);
+
+  // Timer countdown
+  useEffect(() => {
+    if (quizCompleted || showResults) return;
+
+    const timer = setInterval(() => {
+      setTimeRemaining(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          // Auto-submit when time expires
+          handleTimeExpired();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [quizCompleted, showResults]);
+
+  const checkAttempts = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+
+      const response = await api.getQuizAttempts(token, 'multiple-choice');
+      if (response.success) {
+        setAttemptInfo(response.data);
+        if (response.data.isLocked) {
+          // Show locked message
+          alert('Quiz is locked. You have reached maximum attempts. Contact your teacher to reset.');
+          window.location.href = '#quiz';
+        }
+      }
+    } catch (error) {
+      console.error('Failed to check attempts:', error);
+    }
+  };
+
+  const handleTimeExpired = () => {
+    setQuizCompleted(true);
+    submitQuizToBackend();
+  };
 
   const handleBackClick = () => {
     window.location.href = '#quiz';
@@ -70,6 +126,17 @@ const QuizContainer = () => {
     
     // Check if correct
     const isCorrect = optionIndex === quizQuestions[currentQuestion].correct;
+    
+    // Store answer
+    const answerData = {
+      questionIndex: currentQuestion,
+      question: quizQuestions[currentQuestion].question,
+      selectedAnswer: quizQuestions[currentQuestion].options[optionIndex],
+      correctAnswer: quizQuestions[currentQuestion].options[quizQuestions[currentQuestion].correct],
+      isCorrect
+    };
+    setUserAnswers([...userAnswers, answerData]);
+    
     if (isCorrect) {
       setScore(score + 1);
       setAnimationClass('correct-answer');
@@ -103,37 +170,39 @@ const QuizContainer = () => {
       const token = localStorage.getItem('authToken');
       if (!token) {
         console.log('No auth token found, skipping quiz submission');
+        setShowResults(true);
         return;
       }
+
+      const timeTaken = Math.floor((Date.now() - startTime) / 1000);
+      const percentage = calculatePercentage(score, quizQuestions.length);
 
       const quizData = {
         quizType: 'multiple-choice',
         score: score,
         totalQuestions: quizQuestions.length,
-        correctAnswers: score,
-        wrongAnswers: quizQuestions.length - score,
-        percentage: Math.round((score / quizQuestions.length) * 100),
-        timeTaken: 0, // Could track this if needed
-        answers: quizQuestions.map((q, index) => ({
-          question: q.question,
-          selectedAnswer: index <= currentQuestion ? (selectedAnswer !== null ? q.options[selectedAnswer] : null) : null,
-          correctAnswer: q.options[q.correct],
-          isCorrect: index <= currentQuestion ? (selectedAnswer === q.correct) : false
-        }))
+        percentage,
+        timeTaken,
+        answers: userAnswers
       };
 
       const response = await api.submitQuiz(token, quizData);
       console.log('Quiz submitted successfully:', response);
+      
+      if (response.success) {
+        setQuizResults(response.data);
+        setShowResults(true);
+      }
     } catch (error) {
       console.error('Failed to submit quiz:', error);
-      // Don't show error to user, just log it
+      alert(error.message || 'Failed to submit quiz');
     }
   };
 
   const restartQuiz = () => {
-    // Reshuffle questions and options for a new game (10 questions per session)
+    // Reshuffle questions and options for a new game (20 questions per session)
     const shuffledQuestions = shuffleArray(baseQuizQuestions);
-    const selectedQuestions = shuffledQuestions.slice(0, 10); // Take only 10 questions
+    const selectedQuestions = shuffledQuestions.slice(0, 20); // Take 20 questions
     const newQuizQuestions = selectedQuestions.map(question => shuffleOptions(question));
     setQuizQuestions(newQuizQuestions);
     
@@ -145,6 +214,14 @@ const QuizContainer = () => {
     setQuizCompleted(false);
     setIsAnswered(false);
     setAnimationClass('');
+    setUserAnswers([]);
+    setTimeRemaining(600);
+    setStartTime(Date.now());
+    setShowResults(false);
+    setQuizResults(null);
+    
+    // Recheck attempts
+    checkAttempts();
   };
 
   const getScoreMessage = () => {
@@ -278,6 +355,24 @@ const QuizContainer = () => {
     );
   }
 
+  // Show results page if quiz is completed
+  if (showResults && quizResults) {
+    return (
+      <QuizResultsPage
+        score={score}
+        totalQuestions={quizQuestions.length}
+        percentage={quizResults.percentage || calculatePercentage(score, quizQuestions.length)}
+        timeTaken={Math.floor((Date.now() - startTime) / 1000)}
+        answers={userAnswers}
+        attemptNumber={quizResults.attemptNumber || 1}
+        remainingAttempts={quizResults.remainingAttempts || 0}
+        newBadges={quizResults.newBadges || []}
+        onRetry={restartQuiz}
+        onBack={handleBackClick}
+      />
+    );
+  }
+
   const currentQ = quizQuestions[currentQuestion];
 
   return (
@@ -350,6 +445,22 @@ const QuizContainer = () => {
           <div style={{ fontSize: 'clamp(2rem, 5vw, 2.2rem)', marginBottom: '0.5rem' }}>🎯</div>
           <div style={{ fontSize: 'clamp(1rem, 3vw, 1.3rem)', fontWeight: '600' }}>
             Question {currentQuestion + 1} of {quizQuestions.length}
+          </div>
+        </div>
+        
+        <div style={{ 
+          textAlign: 'center',
+          background: timeRemaining < 60 ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255, 255, 255, 0.2)',
+          borderRadius: '15px',
+          padding: '0.75rem 1.5rem'
+        }}>
+          <div style={{ fontSize: '0.85rem', opacity: 0.9, marginBottom: '0.25rem' }}>Time Left</div>
+          <div style={{ 
+            fontSize: 'clamp(1.2rem, 3vw, 1.5rem)', 
+            fontWeight: '700',
+            color: timeRemaining < 60 ? '#FCA5A5' : 'white'
+          }}>
+            ⏱️ {formatTime(timeRemaining)}
           </div>
         </div>
         

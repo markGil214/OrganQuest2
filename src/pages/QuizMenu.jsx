@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import QuizTypeCard from '../components/QuizTypeCard';
 import { Button } from '../components/ui/Button';
+import QuizHistoryModal from '../components/QuizHistoryModal';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const QuizMenu = () => {
@@ -8,6 +9,7 @@ const QuizMenu = () => {
   const { ts } = useLanguage();
   const quizText = ts('quizMenu');
   const commonText = ts('common');
+  const [showHistory, setShowHistory] = useState(false);
   
   const quizTypes = [
     {
@@ -62,6 +64,16 @@ const QuizMenu = () => {
           <h1 className="text-3xl font-bold text-white drop-shadow-2xl">{quizText.title}</h1>
           <p className="text-base text-white/90">{quizText.subtitle}</p>
         </div>
+        
+        <div className="flex justify-center mt-4">
+          <Button
+            onClick={() => setShowHistory(true)}
+            className="bg-white/20 hover:bg-white/30 border-2 border-white text-white shadow-lg"
+          >
+            <span className="text-xl mr-2">📊</span>
+            View Quiz History
+          </Button>
+        </div>
       </div>
 
       {/* Quiz Cards Grid */}
@@ -88,6 +100,9 @@ const QuizMenu = () => {
         <div className="absolute top-1/2 left-20 text-2xl animate-float opacity-20" style={{ animationDelay: '1.5s' }}>⭐</div>
         <div className="absolute bottom-40 right-1/4 text-3xl animate-float opacity-20" style={{ animationDelay: '0.5s' }}>🧠</div>
       </div>
+      
+      {/* Quiz History Modal */}
+      <QuizHistoryModal isOpen={showHistory} onClose={() => setShowHistory(false)} />
     </div>
   );
 };

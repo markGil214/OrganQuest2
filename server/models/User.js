@@ -89,7 +89,47 @@ const userSchema = new mongoose.Schema({
     },
     score: Number,
     totalQuestions: Number,
+    percentage: Number,
+    timeTaken: Number, // in seconds
+    attemptNumber: {
+      type: Number,
+      default: 1
+    },
+    answers: [{
+      questionIndex: Number,
+      question: String,
+      selectedAnswer: String,
+      correctAnswer: String,
+      isCorrect: Boolean
+    }],
     completedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
+  quizAttempts: [{
+    quizType: {
+      type: String,
+      enum: ['multiple-choice', 'timed-challenge', 'memory-matching']
+    },
+    attemptCount: {
+      type: Number,
+      default: 0
+    },
+    lastAttemptDate: Date,
+    maxAttempts: {
+      type: Number,
+      default: 3
+    },
+    isLocked: {
+      type: Boolean,
+      default: false
+    }
+  }],
+  badges: [{
+    badgeId: String,
+    name: String,
+    earnedAt: {
       type: Date,
       default: Date.now
     }

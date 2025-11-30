@@ -120,13 +120,43 @@ export const api = {
 
   // Quiz endpoints
   async submitQuiz(token, quizData) {
-    const response = await fetch(`${API_URL}/quiz/submit`, {
+    const response = await fetchWithTimeout(`${API_URL}/quiz/submit`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify(quizData),
+    });
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to submit quiz');
+    }
+    
+    return data;
+  },
+
+  async getQuizAttempts(token, quizType) {
+    const response = await fetchWithTimeout(`${API_URL}/quiz/attempts/${quizType}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to fetch quiz attempts');
+    }
+    
+    return data;
+  },
+
+  async getQuizHistory(token) {
+    const response = await fetchWithTimeout(`${API_URL}/quiz/history`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
     });
     const data = await response.json();
     

@@ -6,7 +6,7 @@ import { authMiddleware } from '../middleware/auth.js';
 const router = express.Router();
 
 // @route   POST /api/quiz/submit
-// @desc    Submit quiz results
+// @desc    Submit quiz results with detailed tracking
 // @access  Private
 router.post('/submit', authMiddleware,
   [
@@ -18,7 +18,15 @@ router.post('/submit', authMiddleware,
       .withMessage('Score must be a positive number'),
     body('totalQuestions')
       .isInt({ min: 1 })
-      .withMessage('Total questions must be at least 1')
+      .withMessage('Total questions must be at least 1'),
+    body('timeTaken')
+      .optional()
+      .isInt({ min: 0 })
+      .withMessage('Time taken must be a positive number'),
+    body('answers')
+      .optional()
+      .isArray()
+      .withMessage('Answers must be an array')
   ],
   async (req, res) => {
     try {
@@ -30,7 +38,7 @@ router.post('/submit', authMiddleware,
         });
       }
 
-      const { quizType, score, totalQuestions } = req.body;
+      const { quizType, score, totalQuestions, timeTaken = 0, answers = [] } = req.body;
 
       const user = await User.findById(req.userId);
       if (!user) {
@@ -40,11 +48,47 @@ router.post('/submit', authMiddleware,
         });
       }
 
-      // Add quiz result
+      // Check quiz attempt limits
+      let attemptInfo = user.quizAttempts.find(a => a.quizType === quizType);
+      
+      if (!attemptInfo) {
+        attemptInfo = {
+          quizType,
+          attemptCount: 0,
+          maxAttempts: 3,
+          isLocked: false
+        };
+        user.quizAttempts.push(attemptInfo);
+      }
+
+      // Check if quiz is locked
+      if (attemptInfo.isLocked) {
+        return res.status(403).json({
+          success: false,
+          message: 'Quiz is locked. You have reached the maximum attempts. Contact your teacher to reset.'
+        });
+      }
+
+      // Increment attempt count
+      attemptInfo.attemptCount += 1;
+      attemptInfo.lastAttemptDate = new Date();
+
+      // Lock if max attempts reached
+      if (attemptInfo.attemptCount >= attemptInfo.maxAttempts) {
+        attemptInfo.isLocked = true;
+      }
+
+      const percentage = Math.round((score / totalQuestions) * 100);
+
+      // Add detailed quiz result
       user.quizResults.push({
         quizType,
         score,
         totalQuestions,
+        percentage,
+        timeTaken,
+        attemptNumber: attemptInfo.attemptCount,
+        answers,
         completedAt: new Date()
       });
 
@@ -55,6 +99,9 @@ router.post('/submit', authMiddleware,
         user.stats.highScore = score;
       }
 
+      // Check for badges
+      const newBadges = checkAndAwardBadges(user);
+
       await user.save();
 
       res.json({
@@ -62,8 +109,13 @@ router.post('/submit', authMiddleware,
         message: 'Quiz result submitted successfully',
         data: {
           currentScore: score,
+          percentage,
           highScore: user.stats.highScore,
-          totalQuizzesTaken: user.stats.totalQuizzesTaken
+          totalQuizzesTaken: user.stats.totalQuizzesTaken,
+          attemptNumber: attemptInfo.attemptCount,
+          remainingAttempts: attemptInfo.maxAttempts - attemptInfo.attemptCount,
+          isLocked: attemptInfo.isLocked,
+          newBadges
         }
       });
     } catch (error) {
@@ -77,12 +129,64 @@ router.post('/submit', authMiddleware,
   }
 );
 
+});
+
+// @route   GET /api/quiz/attempts/:quizType
+// @desc    Check remaining attempts for a quiz
+// @access  Private
+router.get('/attempts/:quizType', authMiddleware, async (req, res) => {
+  try {
+    const { quizType } = req.params;
+    
+    const user = await User.findById(req.userId).select('quizAttempts');
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    const attemptInfo = user.quizAttempts.find(a => a.quizType === quizType);
+    
+    if (!attemptInfo) {
+      return res.json({
+        success: true,
+        data: {
+          attemptCount: 0,
+          maxAttempts: 3,
+          remainingAttempts: 3,
+          isLocked: false
+        }
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        attemptCount: attemptInfo.attemptCount,
+        maxAttempts: attemptInfo.maxAttempts,
+        remainingAttempts: attemptInfo.maxAttempts - attemptInfo.attemptCount,
+        isLocked: attemptInfo.isLocked,
+        lastAttemptDate: attemptInfo.lastAttemptDate
+      }
+    });
+  } catch (error) {
+    console.error('Get attempts error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error fetching attempts',
+      error: error.message
+    });
+  }
+});
+
 // @route   GET /api/quiz/history
 // @desc    Get user's quiz history
 // @access  Private
 router.get('/history', authMiddleware, async (req, res) => {
   try {
-    const user = await User.findById(req.userId).select('quizResults stats');
+    const user = await User.findById(req.userId).select('quizResults stats quizAttempts badges');
     
     if (!user) {
       return res.status(404).json({
@@ -95,7 +199,9 @@ router.get('/history', authMiddleware, async (req, res) => {
       success: true,
       data: {
         quizResults: user.quizResults.sort((a, b) => b.completedAt - a.completedAt),
-        stats: user.stats
+        stats: user.stats,
+        attempts: user.quizAttempts,
+        badges: user.badges || []
       }
     });
   } catch (error) {
@@ -139,5 +245,72 @@ router.get('/leaderboard', async (req, res) => {
     });
   }
 });
+
+// Helper function to check and award badges
+function checkAndAwardBadges(user) {
+  const newBadges = [];
+  
+  // First Quiz Badge
+  if (user.stats.totalQuizzesTaken === 1 && !user.badges.some(b => b.badgeId === 'first-quiz')) {
+    const badge = {
+      badgeId: 'first-quiz',
+      name: 'First Steps',
+      earnedAt: new Date()
+    };
+    user.badges.push(badge);
+    newBadges.push(badge);
+  }
+  
+  // Perfect Score Badge
+  const latestQuiz = user.quizResults[user.quizResults.length - 1];
+  if (latestQuiz && latestQuiz.score === latestQuiz.totalQuestions && 
+      !user.badges.some(b => b.badgeId === 'perfect-score')) {
+    const badge = {
+      badgeId: 'perfect-score',
+      name: 'Perfect Score',
+      earnedAt: new Date()
+    };
+    user.badges.push(badge);
+    newBadges.push(badge);
+  }
+  
+  // Quiz Master Badge (10 quizzes)
+  if (user.stats.totalQuizzesTaken === 10 && !user.badges.some(b => b.badgeId === 'quiz-master')) {
+    const badge = {
+      badgeId: 'quiz-master',
+      name: 'Quiz Master',
+      earnedAt: new Date()
+    };
+    user.badges.push(badge);
+    newBadges.push(badge);
+  }
+  
+  // Speed Demon Badge (completed in under 2 minutes)
+  if (latestQuiz && latestQuiz.timeTaken && latestQuiz.timeTaken < 120 && 
+      !user.badges.some(b => b.badgeId === 'speed-demon')) {
+    const badge = {
+      badgeId: 'speed-demon',
+      name: 'Speed Demon',
+      earnedAt: new Date()
+    };
+    user.badges.push(badge);
+    newBadges.push(badge);
+  }
+  
+  // All Quiz Types Badge
+  const quizTypes = ['multiple-choice', 'timed-challenge', 'memory-matching'];
+  const completedTypes = [...new Set(user.quizResults.map(q => q.quizType))];
+  if (completedTypes.length === 3 && !user.badges.some(b => b.badgeId === 'all-types')) {
+    const badge = {
+      badgeId: 'all-types',
+      name: 'Well Rounded',
+      earnedAt: new Date()
+    };
+    user.badges.push(badge);
+    newBadges.push(badge);
+  }
+  
+  return newBadges;
+}
 
 export default router;
