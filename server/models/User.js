@@ -106,7 +106,7 @@ userSchema.pre('save', async function(next) {
   }
   
   try {
-    const salt = await bcrypt.genSalt(10);
+    const salt = await bcrypt.genSalt(8);
     this.password = await bcrypt.hash(this.password, salt);
     next();
   } catch (error) {
@@ -119,8 +119,11 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-// Index for faster queries
+// Indexes for faster queries
 userSchema.index({ username: 1 });
+userSchema.index({ 'stats.highScore': -1 }); // For leaderboard queries
+userSchema.index({ role: 1, assignedGrade: 1 }); // For admin queries
+userSchema.index({ createdAt: -1 }); // For sorting by registration date
 
 const User = mongoose.model('User', userSchema);
 

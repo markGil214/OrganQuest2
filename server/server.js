@@ -66,6 +66,11 @@ if (!MONGODB_URI) {
 mongoose.connect(MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  maxPoolSize: 10,
+  minPoolSize: 2,
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+  connectTimeoutMS: 10000,
 })
   .then(() => console.log('✅ MongoDB connected successfully'))
   .catch((err) => {
