@@ -3,7 +3,6 @@ import { timedChallengeQuestions } from '../data/timedChallengeQuestions';
 import { Button } from '../components/ui/Button';
 import { cn } from '../lib/utils';
 import api from '../lib/api';
-import soundManager from '../lib/soundManager';
 
 const TimedChallengeQuiz = () => {
 
@@ -29,9 +28,6 @@ const TimedChallengeQuiz = () => {
   const [isAnswered, setIsAnswered] = useState(false);
   const [streak, setStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
-  const [correctAnswers, setCorrectAnswers] = useState(0);
-  const [wrongAnswers, setWrongAnswers] = useState(0);
-  const [totalAnswered, setTotalAnswered] = useState(0);
 
   const handleBackClick = () => {
     window.location.href = '#quiz';
@@ -66,14 +62,19 @@ const TimedChallengeQuiz = () => {
         return;
       }
 
-      const percentage = totalAnswered > 0 ? Math.round((correctAnswers / totalAnswered) * 100) : 0;
+      const totalQuestionsAnswered = currentQuestion + 1;
+      const correctAnswers = Math.floor(score / 10); // Approximate based on scoring
+      const percentage = totalQuestionsAnswered > 0 ? Math.round((correctAnswers / totalQuestionsAnswered) * 100) : 0;
 
       const quizData = {
         quizType: 'timed-challenge',
-        score: correctAnswers, // Number of correct answers, not points
-        totalQuestions: totalAnswered, // Total questions answered
+        score: score,
+        totalQuestions: totalQuestionsAnswered,
+        correctAnswers: correctAnswers,
+        wrongAnswers: totalQuestionsAnswered - correctAnswers,
         percentage: percentage,
-        timeTaken: 60, // Always 60 seconds for timed challenge
+        timeTaken: 60 - timeLeft,
+        bestStreak: bestStreak,
         answers: [] // Timed quiz doesn't need detailed answers
       };
 
@@ -93,9 +94,6 @@ const TimedChallengeQuiz = () => {
     setIsAnswered(false);
     setStreak(0);
     setBestStreak(0);
-    setCorrectAnswers(0);
-    setWrongAnswers(0);
-    setTotalAnswered(0);
     setQuestions(shuffleArray(timedChallengeQuestions));
   };
 
@@ -104,22 +102,17 @@ const TimedChallengeQuiz = () => {
 
     setSelectedAnswer(answerIndex);
     setIsAnswered(true);
-    setTotalAnswered(totalAnswered + 1);
 
     const currentQ = questions[currentQuestion];
     const isCorrect = answerIndex === currentQ.correct;
 
     if (isCorrect) {
-      soundManager.playSuccess();
       const timeBonus = Math.max(1, Math.floor(timeLeft / 10)); // Bonus points for speed
       setScore(score + 10 + timeBonus);
       setStreak(streak + 1);
       setBestStreak(Math.max(bestStreak, streak + 1));
-      setCorrectAnswers(correctAnswers + 1);
     } else {
-      soundManager.playError();
       setStreak(0);
-      setWrongAnswers(wrongAnswers + 1);
     }
 
     // Move to next question after short delay
@@ -335,14 +328,8 @@ const TimedChallengeQuiz = () => {
             <div style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)', marginBottom: '0.5rem' }}>
               Best Streak: {bestStreak} 🔥
             </div>
-            <div style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)', marginBottom: '0.5rem' }}>
-              Correct: {correctAnswers} ✅ | Wrong: {wrongAnswers} ❌
-            </div>
             <div style={{ fontSize: 'clamp(0.85rem, 2.5vw, 1rem)', opacity: 0.8 }}>
-              Total: {totalAnswered} questions in 60 seconds
-            </div>
-            <div style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)', marginTop: '0.5rem', color: '#FFD700' }}>
-              Accuracy: {totalAnswered > 0 ? Math.round((correctAnswers / totalAnswered) * 100) : 0}%
+              Questions Answered in 60 seconds!
             </div>
           </div>
           

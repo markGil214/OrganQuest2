@@ -407,6 +407,258 @@ router.delete('/admins/:id',
   }
 );
 
+// @route   POST /api/admin/students/:studentId/reset-quiz-attempts
+// @desc    Reset quiz attempts for a student
+// @access  Admin/Superuser
+router.post('/students/:studentId/reset-quiz-attempts', 
+  authMiddleware, 
+  adminMiddleware,
+  [
+    body('quizType')
+      .optional()
+      .isIn(['multiple-choice', 'timed-challenge', 'memory-matching', 'all'])
+      .withMessage('Invalid quiz type')
+  ],
+  async (req, res) => {
+    try {
+      const { studentId } = req.params;
+      const { quizType } = req.body;
+
+      const student = await User.findById(studentId);
+      if (!student || student.role !== 'student') {
+        return res.status(404).json({
+          success: false,
+          message: 'Student not found'
+        });
+      }
+
+      // Reset specific quiz type or all
+      if (quizType && quizType !== 'all') {
+        const attemptIndex = student.quizAttempts.findIndex(a => a.quizType === quizType);
+        if (attemptIndex !== -1) {
+          student.quizAttempts[attemptIndex].attemptCount = 0;
+          student.quizAttempts[attemptIndex].isLocked = false;
+          student.quizAttempts[attemptIndex].lastAttemptDate = null;
+        }
+      } else {
+        // Reset all quiz attempts
+        student.quizAttempts.forEach(attempt => {
+          attempt.attemptCount = 0;
+          attempt.isLocked = false;
+          attempt.lastAttemptDate = null;
+        });
+      }
+
+      await student.save();
+
+      res.json({
+        success: true,
+        message: `Quiz attempts reset successfully for ${student.fullName}`,
+        data: {
+          quizAttempts: student.quizAttempts
+        }
+      });
+    } catch (error) {
+      console.error('Reset quiz attempts error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server error resetting quiz attempts',
+        error: error.message
+      });
+    }
+  }
+);
+
+// @route   GET /api/admin/students/:studentId/quiz-details
+// @desc    Get detailed quiz history for a student
+// @access  Admin/Superuser
+router.get('/students/:studentId/quiz-details', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { studentId } = req.params;
+
+    const student = await User.findById(studentId)
+      .select('fullName username quizResults quizAttempts badges stats');
+
+    if (!student || student.role !== 'student') {
+      return res.status(404).json({
+        success: false,
+        message: 'Student not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        student: {
+          id: student._id,
+          fullName: student.fullName,
+          username: student.username
+        },
+        quizResults: student.quizResults.sort((a, b) => b.completedAt - a.completedAt),
+        quizAttempts: student.quizAttempts,
+        badges: student.badges || [],
+        stats: student.stats
+      }
+    });
+  } catch (error) {
+    console.error('Get quiz details error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error fetching quiz details',
+      error: error.message
+    });
+  }
+});
+
+// @route   GET /api/admin/quiz-analytics
+// @desc    Get quiz analytics and question difficulty analysis
+// @access  Admin/Superuser
+router.get('/quiz-analytics', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const query = { role: 'student' };
+
+    // Filter by assigned grade if admin
+    if (req.userRole === 'admin' && req.assignedGrade && req.assignedGrade !== 'all') {
+      query.grade = req.assignedGrade;
+    }
+
+    const students = await User.find(query).select('quizResults quizAttempts badges');
+
+    // Aggregate quiz data
+    const allQuizResults = students.flatMap(s => s.quizResults || []);
+    
+    // Quiz type breakdown
+    const quizTypeStats = {
+      'multiple-choice': { total: 0, avgScore: 0, avgTime: 0, totalScore: 0, totalTime: 0 },
+      'timed-challenge': { total: 0, avgScore: 0, avgTime: 0, totalScore: 0, totalTime: 0 },
+      'memory-matching': { total: 0, avgScore: 0, avgTime: 0, totalScore: 0, totalTime: 0 }
+    };
+
+    allQuizResults.forEach(quiz => {
+      const type = quiz.quizType;
+      if (quizTypeStats[type]) {
+        quizTypeStats[type].total += 1;
+        quizTypeStats[type].totalScore += (quiz.percentage || 0);
+        quizTypeStats[type].totalTime += (quiz.timeTaken || 0);
+      }
+    });
+
+    // Calculate averages
+    Object.keys(quizTypeStats).forEach(type => {
+      const stat = quizTypeStats[type];
+      stat.avgScore = stat.total > 0 ? Math.round(stat.totalScore / stat.total) : 0;
+      stat.avgTime = stat.total > 0 ? Math.round(stat.totalTime / stat.total) : 0;
+      delete stat.totalScore;
+      delete stat.totalTime;
+    });
+
+    // Question difficulty analysis
+    const questionStats = {};
+    allQuizResults.forEach(quiz => {
+      if (quiz.answers && Array.isArray(quiz.answers)) {
+        quiz.answers.forEach(answer => {
+          const questionKey = answer.question;
+          if (!questionStats[questionKey]) {
+            questionStats[questionKey] = {
+              question: questionKey,
+              totalAttempts: 0,
+              correctAttempts: 0,
+              incorrectAttempts: 0,
+              successRate: 0
+            };
+          }
+          questionStats[questionKey].totalAttempts += 1;
+          if (answer.isCorrect) {
+            questionStats[questionKey].correctAttempts += 1;
+          } else {
+            questionStats[questionKey].incorrectAttempts += 1;
+          }
+        });
+      }
+    });
+
+    // Calculate success rates and sort by difficulty (hardest first)
+    const questionsArray = Object.values(questionStats).map(q => {
+      q.successRate = q.totalAttempts > 0 
+        ? Math.round((q.correctAttempts / q.totalAttempts) * 100) 
+        : 0;
+      return q;
+    }).sort((a, b) => a.successRate - b.successRate);
+
+    // Attempt statistics
+    const attemptStats = {
+      lockedStudents: 0,
+      byQuizType: {}
+    };
+
+    students.forEach(student => {
+      if (student.quizAttempts && Array.isArray(student.quizAttempts)) {
+        student.quizAttempts.forEach(attempt => {
+          if (attempt.isLocked) {
+            attemptStats.lockedStudents += 1;
+          }
+          if (!attemptStats.byQuizType[attempt.quizType]) {
+            attemptStats.byQuizType[attempt.quizType] = {
+              totalAttempts: 0,
+              lockedCount: 0,
+              avgAttemptsUsed: 0
+            };
+          }
+          attemptStats.byQuizType[attempt.quizType].totalAttempts += attempt.attemptCount;
+          if (attempt.isLocked) {
+            attemptStats.byQuizType[attempt.quizType].lockedCount += 1;
+          }
+        });
+      }
+    });
+
+    // Badge statistics
+    const badgeStats = {};
+    students.forEach(student => {
+      if (student.badges && Array.isArray(student.badges)) {
+        student.badges.forEach(badge => {
+          if (!badgeStats[badge.badgeId]) {
+            badgeStats[badge.badgeId] = {
+              badgeId: badge.badgeId,
+              name: badge.name,
+              count: 0
+            };
+          }
+          badgeStats[badge.badgeId].count += 1;
+        });
+      }
+    });
+
+    res.json({
+      success: true,
+      data: {
+        overview: {
+          totalQuizzesTaken: allQuizResults.length,
+          totalStudents: students.length,
+          avgQuizzesPerStudent: students.length > 0 
+            ? Math.round((allQuizResults.length / students.length) * 10) / 10 
+            : 0
+        },
+        quizTypeStats,
+        questionDifficulty: {
+          hardestQuestions: questionsArray.slice(0, 10),
+          easiestQuestions: questionsArray.slice(-10).reverse(),
+          totalQuestionsTracked: questionsArray.length
+        },
+        attemptStats,
+        badgeStats: Object.values(badgeStats).sort((a, b) => b.count - a.count)
+      }
+    });
+  } catch (error) {
+    console.error('Quiz analytics error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error fetching quiz analytics',
+      error: error.message
+    });
+  }
+});
+
 // Helper function to calculate first day progress
 function calculateFirstDayProgress(student) {
   const createdDate = new Date(student.createdAt);

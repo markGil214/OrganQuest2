@@ -5,6 +5,7 @@ import { Button } from '../components/ui/Button';
 const AdminDashboard = ({ userData, onLogout }) => {
   const [students, setStudents] = useState([]);
   const [analytics, setAnalytics] = useState(null);
+  const [quizAnalytics, setQuizAnalytics] = useState(null);
   const [filters, setFilters] = useState({
     search: '',
     grade: '',
@@ -12,14 +13,17 @@ const AdminDashboard = ({ userData, onLogout }) => {
   });
   const [loading, setLoading] = useState(true);
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [studentQuizDetails, setStudentQuizDetails] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState(null);
+  const [activeTab, setActiveTab] = useState('students'); // students, analytics
 
   const API_URL = import.meta.env.VITE_API_URL || 'https://organquest2.onrender.com';
 
   useEffect(() => {
     fetchStudents();
     fetchAnalytics();
+    fetchQuizAnalytics();
   }, [filters, currentPage]);
 
   const fetchStudents = async () => {
@@ -69,6 +73,24 @@ const AdminDashboard = ({ userData, onLogout }) => {
     }
   };
 
+  const fetchQuizAnalytics = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${API_URL}/api/admin/quiz-analytics`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setQuizAnalytics(data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching quiz analytics:', error);
+    }
+  };
+
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters(prev => ({
@@ -81,18 +103,53 @@ const AdminDashboard = ({ userData, onLogout }) => {
   const viewStudentDetails = async (studentId) => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`${API_URL}/api/admin/students/${studentId}`, {
+      const [studentResponse, quizResponse] = await Promise.all([
+        fetch(`${API_URL}/api/admin/students/${studentId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }),
+        fetch(`${API_URL}/api/admin/students/${studentId}/quiz-details`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+      ]);
+
+      const studentData = await studentResponse.json();
+      const quizData = await quizResponse.json();
+      
+      if (studentData.success) {
+        setSelectedStudent(studentData.data.student);
+      }
+      if (quizData.success) {
+        setStudentQuizDetails(quizData.data);
+      }
+    } catch (error) {
+      console.error('Error fetching student details:', error);
+    }
+  };
+
+  const resetQuizAttempts = async (studentId, quizType = 'all') => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${API_URL}/api/admin/students/${studentId}/reset-quiz-attempts`, {
+        method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
-        }
+        },
+        body: JSON.stringify({ quizType })
       });
 
       const data = await response.json();
       if (data.success) {
-        setSelectedStudent(data.data.student);
+        alert(data.message);
+        // Refresh student details
+        viewStudentDetails(studentId);
+        fetchStudents(); // Refresh list
+      } else {
+        alert(data.message || 'Failed to reset attempts');
       }
     } catch (error) {
-      console.error('Error fetching student details:', error);
+      console.error('Error resetting quiz attempts:', error);
+      alert('Error resetting quiz attempts');
     }
   };
 
@@ -137,8 +194,37 @@ const AdminDashboard = ({ userData, onLogout }) => {
         </div>
       </div>
 
+      {/* Tab Navigation */}
+      <div className="max-w-7xl mx-auto mb-6">
+        <div className="flex gap-2 bg-white rounded-lg p-2 shadow-md">
+          <button
+            onClick={() => setActiveTab('students')}
+            className={`flex-1 py-3 px-6 rounded-lg font-semibold transition-all ${
+              activeTab === 'students'
+                ? 'bg-purple-600 text-white shadow-md'
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            👥 Students
+          </button>
+          <button
+            onClick={() => {
+              setActiveTab('analytics');
+              if (!quizAnalytics) fetchQuizAnalytics();
+            }}
+            className={`flex-1 py-3 px-6 rounded-lg font-semibold transition-all ${
+              activeTab === 'analytics'
+                ? 'bg-purple-600 text-white shadow-md'
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            📈 Quiz Analytics
+          </button>
+        </div>
+      </div>
+
       {/* Analytics Cards */}
-      {analytics && (
+      {activeTab === 'students' && analytics && (
         <div className="max-w-7xl mx-auto mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card className="p-6 bg-gradient-to-br from-blue-500 to-blue-600 text-white">
             <div className="text-3xl mb-2">👥</div>
@@ -166,8 +252,126 @@ const AdminDashboard = ({ userData, onLogout }) => {
         </div>
       )}
 
+      {/* Quiz Analytics Tab Content */}
+      {activeTab === 'analytics' && (
+        <div className="max-w-7xl mx-auto">
+          {!quizAnalytics ? (
+            <div className="text-center py-12">
+              <div className="animate-spin w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full mx-auto"></div>
+              <p className="text-gray-600 mt-4">Loading analytics...</p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {/* Quiz Type Performance */}
+              <Card className="p-6">
+                <h3 className="text-2xl font-bold text-gray-800 mb-4">📊 Quiz Type Performance</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {quizAnalytics.quizTypeStats.map((stat) => (
+                    <div key={stat.type} className="p-4 bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg">
+                      <div className="font-semibold text-lg text-gray-800 mb-2">{stat.type}</div>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Total Attempts:</span>
+                          <span className="font-semibold">{stat.totalAttempts}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Avg Score:</span>
+                          <span className="font-semibold text-green-600">{stat.avgScore.toFixed(1)}%</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Avg Time:</span>
+                          <span className="font-semibold">{stat.avgTime.toFixed(0)}s</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+
+              {/* Question Difficulty Analysis */}
+              <Card className="p-6">
+                <h3 className="text-2xl font-bold text-gray-800 mb-4">🎯 Hardest Questions</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b-2 border-gray-200">
+                        <th className="text-left p-3 font-semibold text-gray-700">Question</th>
+                        <th className="text-left p-3 font-semibold text-gray-700">Success Rate</th>
+                        <th className="text-left p-3 font-semibold text-gray-700">Attempts</th>
+                        <th className="text-left p-3 font-semibold text-gray-700">Difficulty</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {quizAnalytics.questionDifficulty.slice(0, 10).map((q, index) => (
+                        <tr key={index} className="border-b border-gray-100">
+                          <td className="p-3 max-w-md truncate">{q.question}</td>
+                          <td className="p-3">
+                            <span className={`font-semibold ${
+                              q.successRate >= 70 ? 'text-green-600' :
+                              q.successRate >= 40 ? 'text-yellow-600' :
+                              'text-red-600'
+                            }`}>
+                              {q.successRate.toFixed(1)}%
+                            </span>
+                          </td>
+                          <td className="p-3">{q.totalAttempts}</td>
+                          <td className="p-3">
+                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                              q.successRate >= 70 ? 'bg-green-100 text-green-700' :
+                              q.successRate >= 40 ? 'bg-yellow-100 text-yellow-700' :
+                              'bg-red-100 text-red-700'
+                            }`}>
+                              {q.successRate >= 70 ? 'Easy' : q.successRate >= 40 ? 'Medium' : 'Hard'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </Card>
+
+              {/* Stats Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Attempt Statistics */}
+                <Card className="p-6">
+                  <h3 className="text-xl font-bold text-gray-800 mb-4">🔒 Attempt Statistics</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center p-3 bg-red-50 rounded-lg">
+                      <span className="text-gray-700">Students with Locked Quizzes:</span>
+                      <span className="text-2xl font-bold text-red-600">
+                        {quizAnalytics.attemptStats.studentsWithLockedQuizzes}
+                      </span>
+                    </div>
+                  </div>
+                </Card>
+
+                {/* Badge Distribution */}
+                <Card className="p-6">
+                  <h3 className="text-xl font-bold text-gray-800 mb-4">🏆 Badge Distribution</h3>
+                  <div className="space-y-2">
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span>Most Earned:</span>
+                        <span className="font-semibold">{quizAnalytics.badgeStats.mostEarned}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm">
+                        <span>Least Earned:</span>
+                        <span className="font-semibold">{quizAnalytics.badgeStats.leastEarned}</span>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Grade Distribution */}
-      {analytics && (
+      {activeTab === 'students' && analytics && (
         <div className="max-w-7xl mx-auto mb-6">
           <Card className="p-6">
             <h3 className="text-xl font-bold text-gray-800 mb-4">Grade Distribution</h3>
@@ -190,6 +394,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
       )}
 
       {/* Filters */}
+      {activeTab === 'students' && (
       <div className="max-w-7xl mx-auto mb-6">
         <Card className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -238,8 +443,10 @@ const AdminDashboard = ({ userData, onLogout }) => {
           </div>
         </Card>
       </div>
+      )}
 
       {/* Students Table */}
+      {activeTab === 'students' && (
       <div className="max-w-7xl mx-auto mb-6">
         <Card className="p-6">
           <h3 className="text-2xl font-bold text-gray-800 mb-4">Students</h3>
@@ -329,11 +536,12 @@ const AdminDashboard = ({ userData, onLogout }) => {
           )}
         </Card>
       </div>
+      )}
 
       {/* Student Detail Modal */}
       {selectedStudent && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-6 z-50" onClick={() => setSelectedStudent(null)}>
-          <Card className="max-w-2xl w-full p-8 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+          <Card className="max-w-4xl w-full p-8 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <h2 className="text-3xl font-bold text-gray-800 mb-6">{selectedStudent.fullName}</h2>
             
             <div className="grid grid-cols-2 gap-4 mb-6">
@@ -371,6 +579,99 @@ const AdminDashboard = ({ userData, onLogout }) => {
               </div>
             </div>
 
+            {/* Quiz Attempt Status */}
+            {studentQuizDetails && (
+              <div className="mb-6">
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="text-xl font-bold">Quiz Attempt Status</h3>
+                  <Button
+                    onClick={() => {
+                      if (confirm('Reset ALL quiz attempts for this student?')) {
+                        resetQuizAttempts(selectedStudent._id, 'all');
+                      }
+                    }}
+                    className="bg-red-600 hover:bg-red-700 text-white text-sm"
+                  >
+                    Reset All Attempts
+                  </Button>
+                </div>
+                <div className="space-y-2">
+                  {studentQuizDetails.quizAttempts.map((attempt) => (
+                    <div key={attempt.quizType} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <span className="font-semibold">{attempt.quizType}</span>
+                        <span className="text-sm text-gray-600 ml-2">
+                          {attempt.attemptCount}/{attempt.maxAttempts} attempts
+                        </span>
+                        {attempt.isLocked && (
+                          <span className="ml-2 px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full">
+                            🔒 Locked
+                          </span>
+                        )}
+                      </div>
+                      <Button
+                        onClick={() => {
+                          if (confirm(`Reset ${attempt.quizType} attempts?`)) {
+                            resetQuizAttempts(selectedStudent._id, attempt.quizType);
+                          }
+                        }}
+                        size="sm"
+                        className="bg-orange-500 hover:bg-orange-600 text-white"
+                        disabled={!attempt.isLocked && attempt.attemptCount === 0}
+                      >
+                        Reset
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Badges */}
+            {studentQuizDetails && studentQuizDetails.badges.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-xl font-bold mb-3">Badges Earned</h3>
+                <div className="flex flex-wrap gap-2">
+                  {studentQuizDetails.badges.map((badge, index) => (
+                    <span key={index} className="px-3 py-2 bg-yellow-100 text-yellow-800 rounded-lg text-sm font-semibold">
+                      {badge}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Quiz History */}
+            {studentQuizDetails && studentQuizDetails.quizResults.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-xl font-bold mb-3">Recent Quiz Results</h3>
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {studentQuizDetails.quizResults.slice(0, 10).map((result, index) => (
+                    <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <span className="font-semibold">{result.quizType}</span>
+                        <span className="text-sm text-gray-600 ml-2">
+                          Attempt {result.attemptNumber}
+                        </span>
+                      </div>
+                      <div className="flex gap-4 items-center">
+                        <span className={`font-bold ${
+                          result.percentage >= 80 ? 'text-green-600' :
+                          result.percentage >= 60 ? 'text-yellow-600' :
+                          'text-red-600'
+                        }`}>
+                          {result.percentage.toFixed(0)}%
+                        </span>
+                        <span className="text-sm text-gray-600">
+                          {result.timeTaken ? `${Math.floor(result.timeTaken / 60)}m ${result.timeTaken % 60}s` : 'N/A'}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="mb-6">
               <h3 className="text-xl font-bold mb-3">First Day Activity</h3>
               <div className="bg-gray-50 p-4 rounded-lg">
@@ -382,7 +683,10 @@ const AdminDashboard = ({ userData, onLogout }) => {
             </div>
 
             <Button
-              onClick={() => setSelectedStudent(null)}
+              onClick={() => {
+                setSelectedStudent(null);
+                setStudentQuizDetails(null);
+              }}
               className="w-full bg-gray-600 hover:bg-gray-700"
             >
               Close
