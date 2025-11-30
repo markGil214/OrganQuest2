@@ -477,7 +477,7 @@ router.get('/students/:studentId/quiz-details', authMiddleware, adminMiddleware,
     const { studentId } = req.params;
 
     const student = await User.findById(studentId)
-      .select('fullName username quizResults quizAttempts badges stats');
+      .select('fullName username role quizResults quizAttempts badges stats');
 
     if (!student || student.role !== 'student') {
       return res.status(404).json({
@@ -495,7 +495,7 @@ router.get('/students/:studentId/quiz-details', authMiddleware, adminMiddleware,
           username: student.username
         },
         quizResults: student.quizResults.sort((a, b) => b.completedAt - a.completedAt),
-        quizAttempts: student.quizAttempts,
+        quizAttempts: student.quizAttempts || [],
         badges: student.badges || [],
         stats: student.stats
       }
