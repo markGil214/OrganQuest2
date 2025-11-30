@@ -342,7 +342,12 @@ const AdminDashboard = ({ userData, onLogout }) => {
 
               {/* Question Difficulty Analysis */}
               <Card className="p-6">
-                <h3 className="text-2xl font-bold text-gray-800 mb-4">🎯 Hardest Questions</h3>
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-2xl font-bold text-gray-800">🎯 Question Difficulty Analysis</h3>
+                  <div className="text-sm text-gray-600">
+                    Sorted by lowest success rate (min. 3 attempts)
+                  </div>
+                </div>
                 {quizAnalytics.questionDifficulty.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
                     <p className="text-lg">No question data available yet</p>
@@ -354,6 +359,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
                       <table className="w-full">
                         <thead>
                           <tr className="border-b-2 border-gray-200">
+                            <th className="text-left p-3 font-semibold text-gray-700">#</th>
                             <th className="text-left p-3 font-semibold text-gray-700">Question</th>
                             <th className="text-left p-3 font-semibold text-gray-700">Success Rate</th>
                             <th className="text-left p-3 font-semibold text-gray-700">Attempts</th>
@@ -365,14 +371,17 @@ const AdminDashboard = ({ userData, onLogout }) => {
                             .slice((questionPage - 1) * questionsPerPage, questionPage * questionsPerPage)
                             .map((q, index) => (
                           <tr key={index} className="border-b border-gray-100">
-                            <td className="p-3 max-w-md truncate">{q.question}</td>
+                            <td className="p-3 text-gray-500 font-medium">
+                              {(questionPage - 1) * questionsPerPage + index + 1}
+                            </td>
+                            <td className="p-3 max-w-md">{q.question}</td>
                             <td className="p-3">
                               <span className={`font-semibold ${
                                 q.successRate >= 70 ? 'text-green-600' :
                                 q.successRate >= 40 ? 'text-yellow-600' :
                                 'text-red-600'
                               }`}>
-                                {q.successRate.toFixed(1)}%
+                                {q.successRate}%
                               </span>
                             </td>
                             <td className="p-3">{q.totalAttempts}</td>

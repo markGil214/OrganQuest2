@@ -578,12 +578,15 @@ router.get('/quiz-analytics', authMiddleware, adminMiddleware, async (req, res) 
     });
 
     // Calculate success rates and sort by difficulty (hardest first)
-    const questionsArray = Object.values(questionStats).map(q => {
-      q.successRate = q.totalAttempts > 0 
-        ? Math.round((q.correctAttempts / q.totalAttempts) * 100) 
-        : 0;
-      return q;
-    }).sort((a, b) => a.successRate - b.successRate);
+    const questionsArray = Object.values(questionStats)
+      .map(q => {
+        q.successRate = q.totalAttempts > 0 
+          ? Math.round((q.correctAttempts / q.totalAttempts) * 100) 
+          : 0;
+        return q;
+      })
+      .filter(q => q.totalAttempts >= 3) // Only include questions with at least 3 attempts for statistical significance
+      .sort((a, b) => a.successRate - b.successRate);
 
     // Attempt statistics
     const attemptStats = {
