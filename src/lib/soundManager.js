@@ -4,28 +4,66 @@ class SoundManager {
     this.sounds = {};
     this.enabled = true;
     this.volume = 0.3;
+    this.bgMusicVolume = 0.2;
+    this.bgMusic = null;
+    this.initializeSounds();
+    this.initializeBackgroundMusic();
   }
 
-  // Create a simple click sound using Web Audio API
-  createClickSound() {
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-
-    oscillator.frequency.value = 800;
-    oscillator.type = 'sine';
-
-    gainNode.gain.setValueAtTime(this.volume, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.1);
+  // Initialize sound files
+  initializeSounds() {
+    // Preload click sound
+    this.sounds.click = new Audio('/sounds/pop.mp3');
+    this.sounds.click.volume = this.volume;
   }
 
-  // Create a success sound
+  // Initialize background music
+  initializeBackgroundMusic() {
+    this.bgMusic = new Audio('/sounds/bg music loop.mp3');
+    this.bgMusic.loop = true;
+    this.bgMusic.volume = this.bgMusicVolume;
+  }
+
+  // Start background music
+  startBackgroundMusic() {
+    if (this.bgMusic && this.enabled) {
+      this.bgMusic.play().catch(err => {
+        console.log('Background music autoplay prevented:', err);
+      });
+    }
+  }
+
+  // Stop background music
+  stopBackgroundMusic() {
+    if (this.bgMusic) {
+      this.bgMusic.pause();
+      this.bgMusic.currentTime = 0;
+    }
+  }
+
+  // Toggle background music
+  toggleBackgroundMusic() {
+    if (this.bgMusic) {
+      if (this.bgMusic.paused) {
+        this.startBackgroundMusic();
+        return true;
+      } else {
+        this.stopBackgroundMusic();
+        return false;
+      }
+    }
+    return false;
+  }
+
+  // Set background music volume
+  setBackgroundMusicVolume(vol) {
+    this.bgMusicVolume = Math.max(0, Math.min(1, vol));
+    if (this.bgMusic) {
+      this.bgMusic.volume = this.bgMusicVolume;
+    }
+  }
+
+  // Create a success sound using Web Audio API
   createSuccessSound() {
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     const oscillator = audioContext.createOscillator();
@@ -58,7 +96,7 @@ class SoundManager {
     }, 100);
   }
 
-  // Create an error/wrong sound
+  // Create an error/wrong sound using Web Audio API
   createErrorSound() {
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     const oscillator = audioContext.createOscillator();
@@ -79,9 +117,12 @@ class SoundManager {
 
   // Play click sound
   playClick() {
-    if (this.enabled) {
+    if (this.enabled && this.sounds.click) {
       try {
-        this.createClickSound();
+        // Clone the audio to allow multiple simultaneous plays
+        const clickSound = this.sounds.click.cloneNode();
+        clickSound.volume = this.volume;
+        clickSound.play().catch(err => console.log('Click sound failed:', err));
       } catch (error) {
         console.log('Sound playback failed:', error);
       }
@@ -113,12 +154,20 @@ class SoundManager {
   // Toggle sound on/off
   toggle() {
     this.enabled = !this.enabled;
+    if (!this.enabled) {
+      this.stopBackgroundMusic();
+    } else {
+      this.startBackgroundMusic();
+    }
     return this.enabled;
   }
 
   // Set volume (0 to 1)
   setVolume(vol) {
     this.volume = Math.max(0, Math.min(1, vol));
+    if (this.sounds.click) {
+      this.sounds.click.volume = this.volume;
+    }
   }
 }
 

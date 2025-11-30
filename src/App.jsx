@@ -53,6 +53,18 @@ function App() {
     const existingUserData = getCookie('organquest_user');
     const currentHash = window.location.hash.slice(1); // Remove the # symbol
     
+    // Start background music on user interaction
+    const startMusicOnInteraction = () => {
+      soundManager.startBackgroundMusic();
+      // Remove listeners after first interaction
+      document.removeEventListener('click', startMusicOnInteraction);
+      document.removeEventListener('keydown', startMusicOnInteraction);
+    };
+    
+    // Add event listeners for user interaction (required for autoplay)
+    document.addEventListener('click', startMusicOnInteraction);
+    document.addEventListener('keydown', startMusicOnInteraction);
+    
     if (existingUserData) {
       setUserData(existingUserData);
       // Auto-redirect to main menu if user exists and no specific hash is present
