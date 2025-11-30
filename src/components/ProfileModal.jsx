@@ -77,24 +77,6 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
             </div>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 gap-4 w-full px-4">
-            <div className="flex flex-col items-center gap-1 bg-white/70 rounded-xl p-3 shadow-md">
-              <div className="text-xl">⭐</div>
-              <div className="text-base font-bold text-gray-800">
-                {loading ? '...' : stats.quizzesTaken}
-              </div>
-              <div className="text-[10px] text-gray-600 text-center">Quizzes Done</div>
-            </div>
-            <div className="flex flex-col items-center gap-1 bg-white/70 rounded-xl p-3 shadow-md">
-              <div className="text-xl">🎯</div>
-              <div className="text-base font-bold text-gray-800">
-                {loading ? '...' : `${Math.round(stats.averageScore)}%`}
-              </div>
-              <div className="text-[10px] text-gray-600 text-center">Avg Score</div>
-            </div>
-          </div>
-
           {/* Menu */}
           <div className="flex flex-col gap-2 w-full px-4">
             <button
