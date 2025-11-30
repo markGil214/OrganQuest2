@@ -4,7 +4,6 @@ import { Button } from '../components/ui/Button';
 import { cn } from '../lib/utils';
 import api from '../lib/api';
 import soundManager from '../lib/soundManager';
-import soundManager from '../lib/soundManager';
 
 const TimedChallengeQuiz = () => {
 
