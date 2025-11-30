@@ -2,8 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { cn } from '../lib/utils';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const ScanExploreMenu = () => {
+  // Language hook for translations
+  const { ts } = useLanguage();
+  const scanText = ts('scanExplore');
+  const commonText = ts('common');
+  
   const [selectedOrgan, setSelectedOrgan] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
   const [exploredOrgans, setExploredOrgans] = useState([]);
@@ -229,8 +235,8 @@ const ScanExploreMenu = () => {
             </div>
           </div>
           <div className="space-y-3">
-            <h2 className="text-5xl font-black text-white drop-shadow-lg">Scanning Your Body...</h2>
-            <p className="text-2xl text-white/95 font-semibold drop-shadow">Finding all the amazing organs! ✨</p>
+            <h2 className="text-5xl font-black text-white drop-shadow-lg">{scanText.scanningBody}</h2>
+            <p className="text-2xl text-white/95 font-semibold drop-shadow">{scanText.findingOrgans} ✨</p>
           </div>
           <div className="flex justify-center gap-3 text-5xl">
             <span className="animate-bounce" style={{ animationDelay: '0s' }}>🫀</span>
@@ -259,7 +265,7 @@ const ScanExploreMenu = () => {
             onClick={handleCloseOrganDetail}
             className="bg-white hover:bg-gray-50 text-gray-800 font-bold border-2 border-white/50 shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95 rounded-2xl"
           >
-            <span className="mr-2 text-xl">←</span> Back
+            <span className="mr-2 text-xl">←</span> {commonText.back}
           </Button>
 
           <Card className="bg-white/95 backdrop-blur-lg border-4 border-white/50 shadow-2xl rounded-3xl p-8 space-y-6">
@@ -278,7 +284,7 @@ const ScanExploreMenu = () => {
             </div>
 
             <h2 className="text-4xl md:text-5xl font-black text-center bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent drop-shadow-sm">
-              Meet Your {selectedOrgan.name}! 🎉
+              {scanText.meetYour} {selectedOrgan.name}! 🎉
             </h2>
 
             <p className="text-xl text-gray-800 text-center font-bold leading-relaxed">
@@ -287,7 +293,7 @@ const ScanExploreMenu = () => {
 
             <div className="bg-gradient-to-br from-yellow-100 via-orange-50 to-yellow-100 rounded-3xl p-6 border-4 border-yellow-300 shadow-lg">
               <h3 className="text-2xl md:text-3xl font-black text-gray-800 mb-4 flex items-center gap-2">
-                <span className="text-3xl">🤔</span> Did You Know?
+                <span className="text-3xl">🤔</span> {scanText.didYouKnow}
               </h3>
               <div className="space-y-3">
                 {selectedOrgan.didYouKnow.map((fact, index) => (
@@ -307,7 +313,7 @@ const ScanExploreMenu = () => {
               size="lg"
             >
               <span className="mr-2 text-2xl">✨</span>
-              Explore {selectedOrgan.name} in AR!
+              {scanText.exploreInAR} {selectedOrgan.name} in AR!
             </Button>
 
             <Button
@@ -316,7 +322,7 @@ const ScanExploreMenu = () => {
               size="lg"
             >
               <span className="mr-2 text-2xl">🔬</span>
-              Explore Cross Section
+              {scanText.exploreCrossSection}
             </Button>
           </Card>
         </div>
@@ -350,17 +356,17 @@ const ScanExploreMenu = () => {
           onClick={handleBack}
           className="bg-white hover:bg-gray-50 text-gray-800 font-bold border-2 border-white/50 shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95 rounded-2xl"
         >
-          <span className="mr-2 text-xl">←</span> Back to Menu
+          <span className="mr-2 text-xl">←</span> {scanText.backToMenu}
         </Button>
       </div>
 
       {/* Title */}
       <div className="text-center mb-6 space-y-2 relative z-10">
         <h1 className="text-4xl md:text-5xl font-black text-white drop-shadow-2xl">
-          🌟 Choose Your Organ! 🌟
+          🌟 {scanText.chooseOrgan} 🌟
         </h1>
         <p className="text-xl md:text-2xl text-white/95 font-bold drop-shadow-lg">
-          Tap to discover amazing facts!
+          {scanText.tapDiscover}
         </p>
       </div>
 
@@ -430,14 +436,14 @@ const ScanExploreMenu = () => {
           <Card className="bg-white border-0 rounded-3xl p-12 text-center space-y-6 animate-scale-in max-w-md mx-4 shadow-2xl">
             <div className="text-9xl animate-bounce">🏆</div>
             <h2 className="text-5xl font-black bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 bg-clip-text text-transparent drop-shadow-sm">
-              Organ Expert!
+              {scanText.organExpert}
             </h2>
             <p className="text-3xl text-gray-800 font-black leading-relaxed">
-              You explored all the organs!
+              {scanText.exploredAll}
             </p>
             <div className="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-4 border-4 border-yellow-400">
               <p className="text-xl font-bold text-gray-800">
-                🌟 Achievement Unlocked! 🌟
+                🌟 {scanText.achievementUnlocked} 🌟
               </p>
             </div>
             <div className="flex justify-center gap-4 text-6xl">
