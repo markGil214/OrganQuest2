@@ -61,11 +61,11 @@ router.post('/submit', authMiddleware,
         user.quizAttempts.push(attemptInfo);
       }
 
-      // Check if quiz is locked
-      if (attemptInfo.isLocked) {
+      // Check if quiz is locked OR max attempts already reached
+      if (attemptInfo.isLocked || attemptInfo.attemptCount >= attemptInfo.maxAttempts) {
         return res.status(403).json({
           success: false,
-          message: 'Quiz is locked. You have reached the maximum attempts. Contact your teacher to reset.'
+          message: 'Quiz is locked. You have reached the maximum attempts (3). Contact your teacher to reset.'
         });
       }
 
@@ -73,7 +73,7 @@ router.post('/submit', authMiddleware,
       attemptInfo.attemptCount += 1;
       attemptInfo.lastAttemptDate = new Date();
 
-      // Lock if max attempts reached
+      // Lock if max attempts reached after this submission
       if (attemptInfo.attemptCount >= attemptInfo.maxAttempts) {
         attemptInfo.isLocked = true;
       }
