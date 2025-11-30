@@ -65,6 +65,8 @@ const QuizContainer = () => {
   const [attemptInfo, setAttemptInfo] = useState(null);
   const [showResults, setShowResults] = useState(false);
   const [quizResults, setQuizResults] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isBlocked, setIsBlocked] = useState(false);
 
   // Check attempts on mount
   useEffect(() => {
@@ -73,7 +75,7 @@ const QuizContainer = () => {
 
   // Timer countdown
   useEffect(() => {
-    if (quizCompleted || showResults) return;
+    if (quizCompleted || showResults || isLoading) return;
 
     const timer = setInterval(() => {
       setTimeRemaining(prev => {
@@ -88,24 +90,30 @@ const QuizContainer = () => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [quizCompleted, showResults]);
+  }, [quizCompleted, showResults, isLoading]);
 
   const checkAttempts = async () => {
     try {
       const token = localStorage.getItem('authToken');
-      if (!token) return;
+      if (!token) {
+        setIsLoading(false);
+        return;
+      }
 
       const response = await api.getQuizAttempts(token, 'multiple-choice');
       if (response.success) {
         setAttemptInfo(response.data);
-        if (response.data.isLocked) {
-          // Show locked message
-          alert('Quiz is locked. You have reached maximum attempts. Contact your teacher to reset.');
+        // Block if locked OR if already at max attempts
+        if (response.data.isLocked || response.data.attemptCount >= response.data.maxAttempts) {
+          setIsBlocked(true);
+          alert(`Quiz is locked. You have used all ${response.data.maxAttempts} attempts. Contact your teacher to reset.`);
           window.location.href = '#quiz';
         }
       }
+      setIsLoading(false);
     } catch (error) {
       console.error('Failed to check attempts:', error);
+      setIsLoading(false);
     }
   };
 
@@ -256,6 +264,78 @@ const QuizContainer = () => {
       return '3px solid #FF6B6B';
     }
     return '2px solid rgba(255, 255, 255, 0.2)';
+  }
+
+  // Show loading while checking attempts
+  if (isLoading) {
+    return (
+      <div style={{ 
+        minHeight: '100vh', 
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center'
+      }}>
+        <div style={{ textAlign: 'center', color: 'white' }}>
+          <div style={{
+            width: '64px',
+            height: '64px',
+            border: '4px solid rgba(255, 255, 255, 0.3)',
+            borderTop: '4px solid white',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 1rem'
+          }}></div>
+          <p style={{ fontSize: '1.125rem' }}>Checking quiz availability...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Block quiz if locked
+  if (isBlocked) {
+    return (
+      <div style={{ 
+        minHeight: '100vh', 
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        padding: '2rem'
+      }}>
+        <div style={{
+          background: 'white',
+          padding: '3rem',
+          borderRadius: '1.5rem',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+          maxWidth: '28rem',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🔒</div>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#DC2626', marginBottom: '1rem' }}>
+            Quiz Locked
+          </h2>
+          <p style={{ color: '#6B7280', marginBottom: '1.5rem' }}>
+            You have used all your attempts for this quiz. Please contact your teacher to reset your attempts.
+          </p>
+          <button
+            onClick={() => window.location.href = '#quiz'}
+            style={{
+              padding: '0.75rem 1.5rem',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
+              borderRadius: '0.5rem',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '1rem',
+              fontWeight: '600'
+            }}
+          >
+            Back to Quiz Menu
+          </button>
+        </div>
+      </div>
+    );
   }
 
   if (quizCompleted) {

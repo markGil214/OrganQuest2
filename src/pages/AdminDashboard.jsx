@@ -83,8 +83,9 @@ const AdminDashboard = ({ userData, onLogout }) => {
       });
 
       const data = await response.json();
-      if (data.success) {
+      if (data.success && data.data) {
         // Transform the data to match UI expectations
+        const badgeStatsArray = data.data.badgeStats || [];
         const transformed = {
           ...data.data,
           quizTypeStats: Object.entries(data.data.quizTypeStats || {}).map(([type, stats]) => ({
@@ -98,8 +99,8 @@ const AdminDashboard = ({ userData, onLogout }) => {
             studentsWithLockedQuizzes: data.data.attemptStats?.lockedStudents || 0
           },
           badgeStats: {
-            mostEarned: data.data.badgeStats?.[0]?.name || 'None',
-            leastEarned: data.data.badgeStats?.[data.data.badgeStats.length - 1]?.name || 'None'
+            mostEarned: badgeStatsArray.length > 0 ? badgeStatsArray[0].name : 'None',
+            leastEarned: badgeStatsArray.length > 0 ? badgeStatsArray[badgeStatsArray.length - 1].name : 'None'
           }
         };
         setQuizAnalytics(transformed);
@@ -299,44 +300,57 @@ const AdminDashboard = ({ userData, onLogout }) => {
               {/* Quiz Type Performance */}
               <Card className="p-6">
                 <h3 className="text-2xl font-bold text-gray-800 mb-4">📊 Quiz Type Performance</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {quizAnalytics.quizTypeStats.map((stat) => (
-                    <div key={stat.type} className="p-4 bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg">
-                      <div className="font-semibold text-lg text-gray-800 mb-2">{stat.type}</div>
-                      <div className="space-y-1 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Total Attempts:</span>
-                          <span className="font-semibold">{stat.totalAttempts}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Avg Score:</span>
-                          <span className="font-semibold text-green-600">{stat.avgScore.toFixed(1)}%</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Avg Time:</span>
-                          <span className="font-semibold">{stat.avgTime.toFixed(0)}s</span>
+                {quizAnalytics.quizTypeStats.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <p className="text-lg">No quiz data available yet</p>
+                    <p className="text-sm mt-2">Students need to take quizzes first</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {quizAnalytics.quizTypeStats.map((stat) => (
+                      <div key={stat.type} className="p-4 bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg">
+                        <div className="font-semibold text-lg text-gray-800 mb-2">{stat.type}</div>
+                        <div className="space-y-1 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Total Attempts:</span>
+                            <span className="font-semibold">{stat.totalAttempts}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Avg Score:</span>
+                            <span className="font-semibold text-green-600">{stat.avgScore.toFixed(1)}%</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Avg Time:</span>
+                            <span className="font-semibold">{stat.avgTime.toFixed(0)}s</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </Card>
 
               {/* Question Difficulty Analysis */}
               <Card className="p-6">
                 <h3 className="text-2xl font-bold text-gray-800 mb-4">🎯 Hardest Questions</h3>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b-2 border-gray-200">
-                        <th className="text-left p-3 font-semibold text-gray-700">Question</th>
-                        <th className="text-left p-3 font-semibold text-gray-700">Success Rate</th>
-                        <th className="text-left p-3 font-semibold text-gray-700">Attempts</th>
-                        <th className="text-left p-3 font-semibold text-gray-700">Difficulty</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {quizAnalytics.questionDifficulty.slice(0, 10).map((q, index) => (
+                {quizAnalytics.questionDifficulty.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <p className="text-lg">No question data available yet</p>
+                    <p className="text-sm mt-2">Question difficulty analysis will appear after students complete quizzes</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b-2 border-gray-200">
+                          <th className="text-left p-3 font-semibold text-gray-700">Question</th>
+                          <th className="text-left p-3 font-semibold text-gray-700">Success Rate</th>
+                          <th className="text-left p-3 font-semibold text-gray-700">Attempts</th>
+                          <th className="text-left p-3 font-semibold text-gray-700">Difficulty</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {quizAnalytics.questionDifficulty.slice(0, 10).map((q, index) => (
                         <tr key={index} className="border-b border-gray-100">
                           <td className="p-3 max-w-md truncate">{q.question}</td>
                           <td className="p-3">
@@ -363,6 +377,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
                     </tbody>
                   </table>
                 </div>
+                )}
               </Card>
 
               {/* Stats Grid */}
