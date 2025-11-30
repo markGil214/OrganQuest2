@@ -160,11 +160,17 @@ const AdminDashboard = ({ userData, onLogout }) => {
       const studentData = await studentResponse.json();
       const quizData = await quizResponse.json();
       
+      console.log('Student Data:', studentData);
+      console.log('Quiz Details Data:', quizData);
+      
       if (studentData.success) {
         setSelectedStudent(studentData.data.student);
       }
       if (quizData.success) {
         setStudentQuizDetails(quizData.data);
+        console.log('Quiz attempts:', quizData.data.quizAttempts);
+      } else {
+        console.error('Failed to fetch quiz details:', quizData.message);
       }
     } catch (error) {
       console.error('Error fetching student details:', error);
