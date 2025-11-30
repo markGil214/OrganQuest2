@@ -83,17 +83,25 @@ const AdminDashboard = ({ userData, onLogout }) => {
       });
 
       const data = await response.json();
+      console.log('Quiz Analytics Response:', data);
+      
       if (data.success && data.data) {
         // Transform the data to match UI expectations
         const badgeStatsArray = data.data.badgeStats || [];
-        const transformed = {
-          ...data.data,
-          quizTypeStats: Object.entries(data.data.quizTypeStats || {}).map(([type, stats]) => ({
+        const quizTypeStatsArray = Object.entries(data.data.quizTypeStats || {})
+          .map(([type, stats]) => ({
             type: type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
             totalAttempts: stats.total || 0,
             avgScore: stats.avgScore || 0,
             avgTime: stats.avgTime || 0
-          })),
+          }))
+          .filter(stat => stat.totalAttempts > 0); // Only show quiz types with data
+        
+        console.log('Transformed Quiz Type Stats:', quizTypeStatsArray);
+        
+        const transformed = {
+          ...data.data,
+          quizTypeStats: quizTypeStatsArray,
           questionDifficulty: data.data.questionDifficulty?.hardestQuestions || [],
           attemptStats: {
             studentsWithLockedQuizzes: data.data.attemptStats?.lockedStudents || 0
