@@ -30,11 +30,14 @@ const SuperAdminPanel = ({ onBack }) => {
       });
 
       const data = await response.json();
-      if (data.success) {
+      if (data.success && data.data && Array.isArray(data.data.admins)) {
         setAdmins(data.data.admins);
+      } else {
+        setAdmins([]);
       }
     } catch (error) {
       console.error('Error fetching admins:', error);
+      setAdmins([]);
     }
   };
 
@@ -231,7 +234,13 @@ const SuperAdminPanel = ({ onBack }) => {
         <Card className="p-6">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Admin Accounts</h2>
           <div className="space-y-4">
-            {admins.map((admin) => (
+            {!admins || admins.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <p className="text-lg">No admin accounts found</p>
+                <p className="text-sm mt-2">Create a new admin account to get started</p>
+              </div>
+            ) : (
+              admins.map((admin) => (
               <div
                 key={admin._id}
                 className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
@@ -267,14 +276,9 @@ const SuperAdminPanel = ({ onBack }) => {
                   )}
                 </div>
               </div>
-            ))}
+              ))
+            )}
           </div>
-
-          {admins.length === 0 && (
-            <div className="text-center py-12 text-gray-500">
-              No admin accounts found
-            </div>
-          )}
         </Card>
       </div>
     </div>
