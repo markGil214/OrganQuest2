@@ -143,7 +143,7 @@ router.get('/analytics', authMiddleware, teacherMiddleware, async (req, res) => 
     const query = { role: 'student' };
 
     // Filter by assigned grade if teacher
-    if (req.userRole === 'admin' && req.assignedGrade && req.assignedGrade !== 'all') {
+    if (req.userRole === 'teacher' && req.assignedGrade && req.assignedGrade !== 'all') {
       query.grade = req.assignedGrade;
     }
 
@@ -550,7 +550,7 @@ router.get('/quiz-analytics', authMiddleware, teacherMiddleware, async (req, res
     const query = { role: 'student' };
 
     // Filter by assigned grade if teacher
-    if (req.userRole === 'admin' && req.assignedGrade && req.assignedGrade !== 'all') {
+    if (req.userRole === 'teacher' && req.assignedGrade && req.assignedGrade !== 'all') {
       query.grade = req.assignedGrade;
     }
 
