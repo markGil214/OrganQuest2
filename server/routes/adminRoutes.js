@@ -265,6 +265,8 @@ router.post('/create-admin',
 
       const { fullName, username, password, assignedGrade } = req.body;
 
+      console.log('Creating teacher with data:', { fullName, username, assignedGrade });
+
       // Check if username exists
       const existingUser = await User.findOne({ username });
       if (existingUser) {
@@ -310,6 +312,13 @@ router.post('/create-admin',
       });
 
       await teacher.save();
+
+      console.log('Teacher created successfully:', {
+        id: teacher._id,
+        role: teacher.role,
+        teacherCode: teacher.teacherCode,
+        assignedGrade: teacher.assignedGrade
+      });
 
       res.status(201).json({
         success: true,
