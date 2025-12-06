@@ -252,6 +252,11 @@ const SuperAdminPanel = ({ onBack }) => {
                   <div>
                     <div className="font-bold text-gray-800">{admin.fullName}</div>
                     <div className="text-sm text-gray-600">@{admin.username}</div>
+                    {admin.teacherCode && (
+                      <div className="text-xs text-purple-600 font-mono mt-1">
+                        Code: {admin.teacherCode}
+                      </div>
+                    )}
                   </div>
                 </div>
 

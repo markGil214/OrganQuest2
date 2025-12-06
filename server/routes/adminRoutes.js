@@ -229,7 +229,7 @@ router.get('/admins', authMiddleware, superuserMiddleware, async (req, res) => {
 
     res.json({
       success: true,
-      data: { teachers }
+      data: { admins: teachers }
     });
   } catch (error) {
     console.error('Get teachers error:', error);
@@ -274,6 +274,27 @@ router.post('/create-admin',
         });
       }
 
+      // Generate unique teacher code
+      const generateTeacherCode = async () => {
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let code;
+        let exists = true;
+        
+        while (exists) {
+          code = 'T-';
+          for (let i = 0; i < 6; i++) {
+            code += characters.charAt(Math.floor(Math.random() * characters.length));
+          }
+          
+          const existingTeacher = await User.findOne({ teacherCode: code });
+          exists = !!existingTeacher;
+        }
+        
+        return code;
+      };
+
+      const teacherCode = await generateTeacherCode();
+
       // Create teacher user
       const teacher = new User({
         fullName,
@@ -281,6 +302,7 @@ router.post('/create-admin',
         password,
         role: 'teacher',
         assignedGrade,
+        teacherCode,
         age: 30, // Default for teacher
         grade: '4th', // Required but not used for teachers
         avatar: 1,
@@ -299,6 +321,7 @@ router.post('/create-admin',
             username: teacher.username,
             role: teacher.role,
             assignedGrade: teacher.assignedGrade,
+            teacherCode: teacher.teacherCode,
             createdAt: teacher.createdAt
           }
         }
