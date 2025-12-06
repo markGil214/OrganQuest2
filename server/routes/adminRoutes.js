@@ -407,7 +407,7 @@ router.delete('/admins/:id',
     try {
       const teacher = await User.findById(req.params.id);
 
-      if (!admin || teacher.role !== 'teacher') {
+      if (!teacher || (teacher.role !== 'teacher' && teacher.role !== 'superuser')) {
         return res.status(404).json({
           success: false,
           message: 'Teacher not found'
