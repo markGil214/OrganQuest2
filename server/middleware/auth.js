@@ -55,12 +55,6 @@ export const teacherMiddleware = async (req, res, next) => {
     });
   }
 };
-    res.status(500).json({
-      success: false,
-      message: 'Server error checking admin privileges'
-    });
-  }
-};
 
 // Superuser middleware - requires superuser role only
 export const superuserMiddleware = async (req, res, next) => {
