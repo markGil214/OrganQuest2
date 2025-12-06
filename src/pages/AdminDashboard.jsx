@@ -222,7 +222,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
             <p className="text-gray-600 mt-2">
               Welcome, {userData?.fullName} 
               {userData?.role === 'superuser' && ' (Superuser)'}
-              {userData?.role === 'admin' && ` - ${userData.assignedGrade} Grade`}
+              {userData?.role === 'teacher' && ` - ${userData.assignedGrade} Grade`}
             </p>
           </div>
           <div className="flex gap-3">

@@ -162,7 +162,7 @@ function App() {
     setCookie('organquest_user', userData);
     
     // Redirect based on role and replace history to prevent back navigation
-    const targetHash = (userData.role === 'admin' || userData.role === 'superuser') 
+    const targetHash = (userData.role === 'teacher' || userData.role === 'superuser') 
       ? '#admin/dashboard' 
       : '#main-menu';
     
