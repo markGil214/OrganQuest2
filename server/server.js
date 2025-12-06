@@ -7,6 +7,7 @@ import mongoose from 'mongoose';
 import userRoutes from './routes/userRoutes.js';
 import quizRoutes from './routes/quizRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import teacherQuizRoutes from './routes/teacherQuizRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -81,6 +82,7 @@ mongoose.connect(MONGODB_URI, {
 app.use('/api/users', userRoutes);
 app.use('/api/quiz', quizRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/teacher/quiz', teacherQuizRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

@@ -1,0 +1,253 @@
+.quiz-mode-selector {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.mode-selector-container {
+  max-width: 1000px;
+  width: 100%;
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.back-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: #f0f0f0;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s;
+}
+
+.back-btn:hover {
+  background: #e0e0e0;
+  transform: translateX(-5px);
+}
+
+.mode-title {
+  text-align: center;
+  font-size: 32px;
+  color: #333;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.mode-subtitle {
+  text-align: center;
+  color: #666;
+  font-size: 18px;
+  margin-bottom: 40px;
+}
+
+.mode-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+.mode-card {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 15px;
+  padding: 30px;
+  text-align: center;
+  transition: all 0.3s;
+  border: 3px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.mode-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  transform: scaleX(0);
+  transition: transform 0.3s;
+}
+
+.mode-card:hover::before {
+  transform: scaleX(1);
+}
+
+.solo-mode {
+  cursor: pointer;
+}
+
+.solo-mode:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+  border-color: #667eea;
+}
+
+.teacher-mode {
+  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+}
+
+.mode-icon {
+  font-size: 60px;
+  margin-bottom: 15px;
+}
+
+.mode-card h3 {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.mode-card > p {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.code-input-section {
+  margin: 20px 0;
+}
+
+.code-input-section label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #333;
+  font-size: 14px;
+}
+
+.quiz-code-input {
+  width: 100%;
+  padding: 15px;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  font-size: 18px;
+  text-align: center;
+  font-weight: bold;
+  letter-spacing: 2px;
+  transition: all 0.3s;
+}
+
+.quiz-code-input:focus {
+  outline: none;
+  border-color: #fc8181;
+  box-shadow: 0 0 0 3px rgba(252, 129, 129, 0.1);
+}
+
+.quiz-code-input:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.error-message {
+  background: #fee;
+  color: #c33;
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 10px;
+  font-size: 14px;
+  text-align: left;
+}
+
+.mode-features {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+  text-align: left;
+}
+
+.mode-features li {
+  padding: 8px 0;
+  color: #555;
+  font-size: 14px;
+}
+
+.mode-btn {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 10px;
+}
+
+.solo-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.solo-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+.teacher-btn {
+  background: linear-gradient(135deg, #fc8181 0%, #f56565 100%);
+  color: white;
+}
+
+.teacher-btn:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 5px 20px rgba(252, 129, 129, 0.4);
+}
+
+.teacher-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mode-info {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.mode-info p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.mode-info strong {
+  color: #333;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .mode-selector-container {
+    padding: 20px;
+  }
+
+  .mode-title {
+    font-size: 24px;
+  }
+
+  .mode-subtitle {
+    font-size: 16px;
+  }
+
+  .mode-cards {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .back-btn {
+    position: static;
+    margin-bottom: 20px;
+  }
+}

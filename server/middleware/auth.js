@@ -25,8 +25,8 @@ export const authMiddleware = async (req, res, next) => {
   }
 };
 
-// Admin middleware - requires admin or superuser role
-export const adminMiddleware = async (req, res, next) => {
+// Teacher middleware - requires teacher or superuser role
+export const teacherMiddleware = async (req, res, next) => {
   try {
     const user = await User.findById(req.userId);
     
@@ -37,17 +37,24 @@ export const adminMiddleware = async (req, res, next) => {
       });
     }
 
-    if (user.role !== 'admin' && user.role !== 'superuser') {
+    if (user.role !== 'teacher' && user.role !== 'superuser') {
       return res.status(403).json({
         success: false,
-        message: 'Access denied. Admin privileges required.'
+        message: 'Access denied. Teacher privileges required.'
       });
     }
 
     req.userRole = user.role;
     req.assignedGrade = user.assignedGrade;
+    req.teacherCode = user.teacherCode;
     next();
   } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Server error in teacher authentication'
+    });
+  }
+};
     res.status(500).json({
       success: false,
       message: 'Server error checking admin privileges'

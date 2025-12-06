@@ -48,13 +48,18 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['student', 'admin', 'superuser'],
+    enum: ['student', 'teacher', 'superuser'],
     default: 'student'
   },
   assignedGrade: {
     type: String,
     enum: ['4th', '5th', '6th', 'all'],
-    default: null // Only for admins
+    default: null // Only for teachers
+  },
+  teacherCode: {
+    type: String,
+    unique: true,
+    sparse: true // Only for teachers
   },
   stats: {
     totalQuizzesTaken: {

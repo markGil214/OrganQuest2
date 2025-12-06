@@ -1,14 +1,14 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
 import User from '../models/User.js';
-import { authMiddleware, adminMiddleware, superuserMiddleware } from '../middleware/auth.js';
+import { authMiddleware, teacherMiddleware, superuserMiddleware } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// @route   GET /api/admin/students
+// @route   GET /api/Teacher/students
 // @desc    Get all students with filters
-// @access  Admin/Superuser
-router.get('/students', authMiddleware, adminMiddleware, async (req, res) => {
+// @access  Teacher/Superuser
+router.get('/students', authMiddleware, teacherMiddleware, async (req, res) => {
   try {
     const { 
       search, // Search by name or username
@@ -23,8 +23,8 @@ router.get('/students', authMiddleware, adminMiddleware, async (req, res) => {
     // Build query
     const query = { role: 'student' };
 
-    // Filter by assigned grade if admin (not superuser)
-    if (req.userRole === 'admin' && req.assignedGrade && req.assignedGrade !== 'all') {
+    // Filter by assigned grade if teacher (not superuser)
+    if (req.userRole === 'teacher' && req.assignedGrade && req.assignedGrade !== 'all') {
       query.grade = req.assignedGrade;
     }
 
@@ -90,10 +90,10 @@ router.get('/students', authMiddleware, adminMiddleware, async (req, res) => {
   }
 });
 
-// @route   GET /api/admin/students/:id
+// @route   GET /api/Teacher/students/:id
 // @desc    Get detailed student info
-// @access  Admin/Superuser
-router.get('/students/:id', authMiddleware, adminMiddleware, async (req, res) => {
+// @access  Teacher/Superuser
+router.get('/students/:id', authMiddleware, teacherMiddleware, async (req, res) => {
   try {
     const student = await User.findById(req.params.id).select('-password -__v');
 
@@ -104,7 +104,7 @@ router.get('/students/:id', authMiddleware, adminMiddleware, async (req, res) =>
       });
     }
 
-    // Check if admin has access to this student's grade
+    // Check if teacher has access to this student's grade
     if (req.userRole === 'admin' && req.assignedGrade && req.assignedGrade !== 'all') {
       if (student.grade !== req.assignedGrade) {
         return res.status(403).json({
@@ -135,14 +135,14 @@ router.get('/students/:id', authMiddleware, adminMiddleware, async (req, res) =>
   }
 });
 
-// @route   GET /api/admin/analytics
+// @route   GET /api/Teacher/analytics
 // @desc    Get analytics for assigned students
-// @access  Admin/Superuser
-router.get('/analytics', authMiddleware, adminMiddleware, async (req, res) => {
+// @access  Teacher/Superuser
+router.get('/analytics', authMiddleware, teacherMiddleware, async (req, res) => {
   try {
     const query = { role: 'student' };
 
-    // Filter by assigned grade if admin
+    // Filter by assigned grade if teacher
     if (req.userRole === 'admin' && req.assignedGrade && req.assignedGrade !== 'all') {
       query.grade = req.assignedGrade;
     }
@@ -218,21 +218,21 @@ router.get('/analytics', authMiddleware, adminMiddleware, async (req, res) => {
   }
 });
 
-// @route   GET /api/admin/admins
+// @route   GET /api/Teacher/admins
 // @desc    Get all admins (Superuser only)
 // @access  Superuser
 router.get('/admins', authMiddleware, superuserMiddleware, async (req, res) => {
   try {
-    const admins = await User.find({ role: { $in: ['admin', 'superuser'] } })
+    const teachers = await User.find({ role: { $in: ['teacher', 'superuser'] } })
       .select('-password -__v')
       .sort({ createdAt: -1 });
 
     res.json({
       success: true,
-      data: { admins }
+      data: { teachers }
     });
   } catch (error) {
-    console.error('Get admins error:', error);
+    console.error('Get teachers error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error fetching admins',
@@ -241,7 +241,7 @@ router.get('/admins', authMiddleware, superuserMiddleware, async (req, res) => {
   }
 });
 
-// @route   POST /api/admin/create-admin
+// @route   POST /api/Teacher/create-admin
 // @desc    Create a new admin (Superuser only)
 // @access  Superuser
 router.post('/create-admin', 
@@ -274,37 +274,37 @@ router.post('/create-admin',
         });
       }
 
-      // Create admin user
-      const admin = new User({
+      // Create teacher user
+      const teacher = new User({
         fullName,
         username,
         password,
-        role: 'admin',
+        role: 'teacher',
         assignedGrade,
-        age: 30, // Default for admin
-        grade: '4th', // Required but not used for admins
+        age: 30, // Default for teacher
+        grade: '4th', // Required but not used for teachers
         avatar: 1,
         language: 'english'
       });
 
-      await admin.save();
+      await teacher.save();
 
       res.status(201).json({
         success: true,
-        message: 'Admin created successfully',
+        message: 'Teacher created successfully',
         data: {
-          admin: {
-            id: admin._id,
-            fullName: admin.fullName,
-            username: admin.username,
-            role: admin.role,
-            assignedGrade: admin.assignedGrade,
-            createdAt: admin.createdAt
+          teacher: {
+            id: teacher._id,
+            fullName: teacher.fullName,
+            username: teacher.username,
+            role: teacher.role,
+            assignedGrade: teacher.assignedGrade,
+            createdAt: teacher.createdAt
           }
         }
       });
     } catch (error) {
-      console.error('Create admin error:', error);
+      console.error('Create teacher error:', error);
       res.status(500).json({
         success: false,
         message: 'Server error creating admin',
@@ -314,8 +314,8 @@ router.post('/create-admin',
   }
 );
 
-// @route   PUT /api/admin/admins/:id
-// @desc    Update admin (Superuser only)
+// @route   PUT /api/Teacher/admins/:id
+// @desc    Update teacher (Superuser only)
 // @access  Superuser
 router.put('/admins/:id',
   authMiddleware,
@@ -323,39 +323,39 @@ router.put('/admins/:id',
   async (req, res) => {
     try {
       const { assignedGrade, password } = req.body;
-      const admin = await User.findById(req.params.id);
+      const teacher = await User.findById(req.params.id);
 
-      if (!admin || (admin.role !== 'admin' && admin.role !== 'superuser')) {
+      if (!admin || (teacher.role !== 'teacher' && teacher.role !== 'superuser')) {
         return res.status(404).json({
           success: false,
-          message: 'Admin not found'
+          message: 'Teacher not found'
         });
       }
 
       if (assignedGrade) {
-        admin.assignedGrade = assignedGrade;
+        teacher.assignedGrade = assignedGrade;
       }
 
       if (password) {
-        admin.password = password; // Will be hashed by pre-save hook
+        teacher.password = password; // Will be hashed by pre-save hook
       }
 
-      await admin.save();
+      await teacher.save();
 
       res.json({
         success: true,
-        message: 'Admin updated successfully',
+        message: 'Teacher updated successfully',
         data: {
-          admin: {
-            id: admin._id,
-            fullName: admin.fullName,
-            username: admin.username,
-            assignedGrade: admin.assignedGrade
+          teacher: {
+            id: teacher._id,
+            fullName: teacher.fullName,
+            username: teacher.username,
+            assignedGrade: teacher.assignedGrade
           }
         }
       });
     } catch (error) {
-      console.error('Update admin error:', error);
+      console.error('Update teacher error:', error);
       res.status(500).json({
         success: false,
         message: 'Server error updating admin',
@@ -365,7 +365,7 @@ router.put('/admins/:id',
   }
 );
 
-// @route   DELETE /api/admin/admins/:id
+// @route   DELETE /api/Teacher/admins/:id
 // @desc    Delete admin (Superuser only)
 // @access  Superuser
 router.delete('/admins/:id',
@@ -373,17 +373,17 @@ router.delete('/admins/:id',
   superuserMiddleware,
   async (req, res) => {
     try {
-      const admin = await User.findById(req.params.id);
+      const teacher = await User.findById(req.params.id);
 
-      if (!admin || admin.role !== 'admin') {
+      if (!admin || teacher.role !== 'teacher') {
         return res.status(404).json({
           success: false,
-          message: 'Admin not found'
+          message: 'Teacher not found'
         });
       }
 
       // Prevent deleting superuser
-      if (admin.role === 'superuser') {
+      if (teacher.role === 'superuser') {
         return res.status(403).json({
           success: false,
           message: 'Cannot delete superuser'
@@ -394,7 +394,7 @@ router.delete('/admins/:id',
 
       res.json({
         success: true,
-        message: 'Admin deleted successfully'
+        message: 'Teacher deleted successfully'
       });
     } catch (error) {
       console.error('Delete admin error:', error);
@@ -407,12 +407,12 @@ router.delete('/admins/:id',
   }
 );
 
-// @route   POST /api/admin/students/:studentId/reset-quiz-attempts
+// @route   POST /api/Teacher/students/:studentId/reset-quiz-attempts
 // @desc    Reset quiz attempts for a student
-// @access  Admin/Superuser
+// @access  Teacher/Superuser
 router.post('/students/:studentId/reset-quiz-attempts', 
   authMiddleware, 
-  adminMiddleware,
+  teacherMiddleware,
   [
     body('quizType')
       .optional()
@@ -469,10 +469,10 @@ router.post('/students/:studentId/reset-quiz-attempts',
   }
 );
 
-// @route   GET /api/admin/students/:studentId/quiz-details
+// @route   GET /api/Teacher/students/:studentId/quiz-details
 // @desc    Get detailed quiz history for a student
-// @access  Admin/Superuser
-router.get('/students/:studentId/quiz-details', authMiddleware, adminMiddleware, async (req, res) => {
+// @access  Teacher/Superuser
+router.get('/students/:studentId/quiz-details', authMiddleware, teacherMiddleware, async (req, res) => {
   try {
     const { studentId } = req.params;
 
@@ -510,14 +510,14 @@ router.get('/students/:studentId/quiz-details', authMiddleware, adminMiddleware,
   }
 });
 
-// @route   GET /api/admin/quiz-analytics
+// @route   GET /api/Teacher/quiz-analytics
 // @desc    Get quiz analytics and question difficulty analysis
-// @access  Admin/Superuser
-router.get('/quiz-analytics', authMiddleware, adminMiddleware, async (req, res) => {
+// @access  Teacher/Superuser
+router.get('/quiz-analytics', authMiddleware, teacherMiddleware, async (req, res) => {
   try {
     const query = { role: 'student' };
 
-    // Filter by assigned grade if admin
+    // Filter by assigned grade if teacher
     if (req.userRole === 'admin' && req.assignedGrade && req.assignedGrade !== 'all') {
       query.grade = req.assignedGrade;
     }
