@@ -26,12 +26,12 @@ router.get('/students', authMiddleware, teacherMiddleware, async (req, res) => {
     // Filter by assigned grade if teacher (not superuser)
     if (req.userRole === 'teacher' && req.assignedGrade && req.assignedGrade !== 'all') {
       query.grade = req.assignedGrade;
-    }
-
-    // Apply filters
-    if (grade) {
+    } else if (grade) {
+      // Only apply grade filter from query params if superuser or teacher with 'all' grades
       query.grade = grade;
     }
+
+    // Apply other filters
 
     if (age) {
       query.age = parseInt(age);
