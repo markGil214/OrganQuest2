@@ -316,7 +316,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
               {/* Quiz Type Performance */}
               <Card className="p-6">
                 <h3 className="text-2xl font-bold text-gray-800 mb-4">📊 Quiz Type Performance</h3>
-                {quizAnalytics.quizTypeStats.length === 0 ? (
+                {!quizAnalytics.quizTypeStats || quizAnalytics.quizTypeStats.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
                     <p className="text-lg">No quiz data available yet</p>
                     <p className="text-sm mt-2">Students need to take quizzes first</p>
@@ -354,7 +354,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
                     Sorted by lowest success rate (min. 3 attempts)
                   </div>
                 </div>
-                {quizAnalytics.questionDifficulty.length === 0 ? (
+                {!quizAnalytics.questionDifficulty || quizAnalytics.questionDifficulty.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
                     <p className="text-lg">No question data available yet</p>
                     <p className="text-sm mt-2">Question difficulty analysis will appear after students complete quizzes</p>
@@ -407,7 +407,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
                     </div>
                     
                     {/* Pagination */}
-                    {quizAnalytics.questionDifficulty.length > questionsPerPage && (
+                    {quizAnalytics.questionDifficulty && quizAnalytics.questionDifficulty.length > questionsPerPage && (
                       <div className="flex justify-center gap-2 mt-6">
                         <Button
                           onClick={() => setQuestionPage(p => Math.max(1, p - 1))}
