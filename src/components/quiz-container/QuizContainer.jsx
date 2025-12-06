@@ -18,6 +18,15 @@ const QuizContainer = () => {
     addMontserratFont();
   }, []);
 
+  // Get assignment ID from URL if in teacher mode
+  const getAssignmentId = () => {
+    const params = new URLSearchParams(window.location.hash.split('?')[1]);
+    return params.get('assignment');
+  };
+
+  const [assignmentId, setAssignmentId] = useState(getAssignmentId());
+  const [assignmentData, setAssignmentData] = useState(null);
+
   // Shuffle function
   const shuffleArray = (array) => {
     const shuffled = [...array];
@@ -194,12 +203,41 @@ const QuizContainer = () => {
         answers: userAnswers
       };
 
-      const response = await api.submitQuiz(token, quizData);
-      console.log('Quiz submitted successfully:', response);
-      
-      if (response.success) {
-        setQuizResults(response.data);
-        setShowResults(true);
+      // Check if this is teacher mode (has assignment ID)
+      if (assignmentId) {
+        // Submit to teacher quiz assignment
+        const API_URL = import.meta.env.VITE_API_URL || 'https://organquest2.onrender.com';
+        const response = await fetch(`${API_URL}/api/teacher/quiz/submit/${assignmentId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            score: score,
+            totalQuestions: quizQuestions.length,
+            percentage,
+            timeTaken,
+            answers: userAnswers
+          })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          setQuizResults({ ...data.data, isTeacherMode: true });
+          setShowResults(true);
+        } else {
+          alert(data.message || 'Failed to submit quiz to teacher');
+        }
+      } else {
+        // Solo mode - submit to regular endpoint
+        const response = await api.submitQuiz(token, quizData);
+        console.log('Quiz submitted successfully:', response);
+        
+        if (response.success) {
+          setQuizResults({ ...response.data, isTeacherMode: false });
+          setShowResults(true);
+        }
       }
     } catch (error) {
       console.error('Failed to submit quiz:', error);
@@ -447,6 +485,8 @@ const QuizContainer = () => {
         attemptNumber={quizResults.attemptNumber || 1}
         remainingAttempts={quizResults.remainingAttempts || 0}
         newBadges={quizResults.newBadges || []}
+        isTeacherMode={quizResults.isTeacherMode || false}
+        teacherName={quizResults.teacherName}
         onRetry={restartQuiz}
         onBack={handleBackClick}
       />

@@ -12,6 +12,8 @@ const QuizResultsPage = ({
   attemptNumber,
   remainingAttempts,
   newBadges = [],
+  isTeacherMode = false,
+  teacherName,
   onRetry, 
   onBack 
 }) => {
@@ -27,6 +29,18 @@ const QuizResultsPage = ({
           <p className={`text-2xl font-semibold mb-6 ${performanceMsg.color}`}>
             {performanceMsg.message}
           </p>
+
+          {/* Teacher Mode Notification */}
+          {isTeacherMode && (
+            <div className="bg-blue-50 p-4 rounded-xl mb-6 border-2 border-blue-200">
+              <div className="text-lg font-semibold text-blue-800">
+                ✅ Score submitted to {teacherName || 'your teacher'}
+              </div>
+              <div className="text-sm text-blue-600 mt-1">
+                Your teacher can now see your results
+              </div>
+            </div>
+          )}
           
           {/* Score Display */}
           <div className="grid grid-cols-3 gap-4 mb-6">

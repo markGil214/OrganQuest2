@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import QuizTypeCard from '../components/QuizTypeCard';
 import { Button } from '../components/ui/Button';
 import QuizHistoryModal from '../components/QuizHistoryModal';
+import QuizModeSelector from '../components/QuizModeSelector';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const QuizMenu = () => {
@@ -10,6 +11,8 @@ const QuizMenu = () => {
   const quizText = ts('quizMenu');
   const commonText = ts('common');
   const [showHistory, setShowHistory] = useState(false);
+  const [showModeSelector, setShowModeSelector] = useState(false);
+  const [selectedQuizType, setSelectedQuizType] = useState(null);
   
   const quizTypes = [
     {
@@ -38,13 +41,35 @@ const QuizMenu = () => {
     }
   ];
 
-  const handleCardClick = (route) => {
-    window.location.href = `#${route}`;
+  const handleCardClick = (quizType) => {
+    setSelectedQuizType(quizType);
+    setShowModeSelector(true);
+  };
+
+  const handleModeSelect = (mode, quizData) => {
+    if (mode === 'solo') {
+      // Solo mode - go directly to quiz
+      window.location.href = `#${selectedQuizType.route}`;
+    } else {
+      // Teacher mode - include assignment ID in URL
+      window.location.href = `#${selectedQuizType.route}?assignment=${quizData._id}`;
+    }
   };
 
   const handleBackClick = () => {
     window.location.href = '#main-menu';
   };
+
+  // Show mode selector if quiz type is selected
+  if (showModeSelector && selectedQuizType) {
+    return (
+      <QuizModeSelector
+        quizType={selectedQuizType.id}
+        onModeSelect={handleModeSelect}
+        onBack={() => setShowModeSelector(false)}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 overflow-hidden relative">
@@ -86,7 +111,7 @@ const QuizMenu = () => {
               title={quiz.title}
               description={quiz.description}
               color={quiz.color}
-              onClick={() => handleCardClick(quiz.route)}
+              onClick={() => handleCardClick(quiz)}
             />
           ))}
         </div>

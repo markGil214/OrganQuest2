@@ -152,9 +152,9 @@ router.get('/by-code/:code', authMiddleware, async (req, res) => {
 router.post('/submit/:assignmentId', authMiddleware, async (req, res) => {
   try {
     const { assignmentId } = req.params;
-    const { score, percentage, timeTaken, answers } = req.body;
+    const { score, percentage, timeTaken, answers, totalQuestions } = req.body;
     
-    const assignment = await QuizAssignment.findById(assignmentId);
+    const assignment = await QuizAssignment.findById(assignmentId).populate('teacherId', 'fullName');
     
     if (!assignment) {
       return res.status(404).json({
@@ -196,9 +196,12 @@ router.post('/submit/:assignmentId', authMiddleware, async (req, res) => {
       message: 'Quiz submitted successfully',
       data: {
         score,
+        totalQuestions,
         percentage,
         attemptNumber: previousAttempts.length + 1,
-        attemptsRemaining: assignment.maxAttempts - (previousAttempts.length + 1)
+        remainingAttempts: assignment.maxAttempts - (previousAttempts.length + 1),
+        isTeacherMode: true,
+        teacherName: assignment.teacherId.fullName
       }
     });
   } catch (error) {
