@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
+import TeacherQuizAssignment from '../components/TeacherQuizAssignment';
 
 const AdminDashboard = ({ userData, onLogout }) => {
   const [students, setStudents] = useState([]);
@@ -16,7 +17,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
   const [studentQuizDetails, setStudentQuizDetails] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState(null);
-  const [activeTab, setActiveTab] = useState('students'); // students, analytics
+  const [activeTab, setActiveTab] = useState('students'); // students, analytics, quiz-assignments
   const [questionPage, setQuestionPage] = useState(1);
   const questionsPerPage = 10;
 
@@ -270,6 +271,16 @@ const AdminDashboard = ({ userData, onLogout }) => {
             }`}
           >
             📈 Quiz Analytics
+          </button>
+          <button
+            onClick={() => setActiveTab('quiz-assignments')}
+            className={`flex-1 py-3 px-6 rounded-lg font-semibold transition-all ${
+              activeTab === 'quiz-assignments'
+                ? 'bg-purple-600 text-white shadow-md'
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            📝 Quiz Assignments
           </button>
         </div>
       </div>
@@ -795,6 +806,13 @@ const AdminDashboard = ({ userData, onLogout }) => {
               Close
             </Button>
           </Card>
+        </div>
+      )}
+
+      {/* Quiz Assignments Tab Content */}
+      {activeTab === 'quiz-assignments' && (
+        <div className="max-w-7xl mx-auto">
+          <TeacherQuizAssignment userData={userData} />
         </div>
       )}
     </div>
