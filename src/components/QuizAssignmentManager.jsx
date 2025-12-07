@@ -37,6 +37,11 @@ const QuizAssignmentManager = () => {
   const [editingQuestion, setEditingQuestion] = useState(null);
   const [questionStats, setQuestionStats] = useState(null);
 
+  // Submissions View State
+  const [viewingSubmissions, setViewingSubmissions] = useState(null);
+  const [submissions, setSubmissions] = useState([]);
+  const [loadingSubmissions, setLoadingSubmissions] = useState(false);
+
   // Filter State
   const [filters, setFilters] = useState({
     category: 'all',
@@ -45,6 +50,30 @@ const QuizAssignmentManager = () => {
   });
 
   const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+  // Fetch submissions for an assignment
+  const fetchSubmissions = async (assignmentId) => {
+    setLoadingSubmissions(true);
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${API_BASE_URL}/api/teacher/quiz/submissions/${assignmentId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) throw new Error('Failed to fetch submissions');
+      const data = await response.json();
+      setSubmissions(data.data.submissions || []);
+      setViewingSubmissions(data.data.quiz);
+    } catch (error) {
+      console.error('Error fetching submissions:', error);
+      alert('Error loading submissions');
+    } finally {
+      setLoadingSubmissions(false);
+    }
+  };
 
   // Fetch assignments
   const fetchAssignments = async () => {
@@ -622,6 +651,12 @@ const QuizAssignmentManager = () => {
                       </div>
 
                       <div className="assignment-actions">
+                        <button 
+                          className="btn-view"
+                          onClick={() => fetchSubmissions(assignment._id)}
+                        >
+                          📊 View Results
+                        </button>
                         <button 
                           className="btn-toggle"
                           onClick={() => handleToggleAssignment(assignment._id)}
@@ -1252,6 +1287,113 @@ const QuizAssignmentManager = () => {
                       </div>
                     </div>
                   ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Submissions Modal */}
+      {viewingSubmissions && (
+        <div className="modal-overlay" onClick={() => setViewingSubmissions(null)}>
+          <div className="modal-content submissions-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>📊 Quiz Results: {viewingSubmissions.title}</h2>
+              <button className="modal-close" onClick={() => setViewingSubmissions(null)}>×</button>
+            </div>
+
+            <div className="quiz-info-bar">
+              <span><strong>Code:</strong> {viewingSubmissions.quizCode}</span>
+              <span><strong>Type:</strong> {viewingSubmissions.quizType}</span>
+              <span><strong>Grade:</strong> {viewingSubmissions.assignedGrade}</span>
+            </div>
+
+            <div className="modal-body">
+              {loadingSubmissions ? (
+                <div className="loading-state">Loading submissions...</div>
+              ) : submissions.length === 0 ? (
+                <div className="empty-state">
+                  <p>No submissions yet</p>
+                  <p className="text-muted">Students haven't taken this quiz yet</p>
+                </div>
+              ) : (
+                <div className="submissions-table-container">
+                  <table className="submissions-table">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Student Name</th>
+                        <th>Score</th>
+                        <th>Percentage</th>
+                        <th>Time Taken</th>
+                        <th>Attempt</th>
+                        <th>Submitted At</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {submissions.map((submission, index) => (
+                        <tr key={submission._id || index}>
+                          <td>{index + 1}</td>
+                          <td>{submission.studentName || 'Anonymous'}</td>
+                          <td className="score-cell">
+                            <span className="score-display">{submission.score}/{submission.answers?.length || 0}</span>
+                          </td>
+                          <td>
+                            <div className="percentage-bar-container">
+                              <div 
+                                className="percentage-bar"
+                                style={{
+                                  width: `${submission.percentage}%`,
+                                  backgroundColor: submission.percentage >= 80 ? '#22c55e' : 
+                                                   submission.percentage >= 60 ? '#eab308' : 
+                                                   submission.percentage >= 40 ? '#f97316' : '#ef4444'
+                                }}
+                              ></div>
+                              <span className="percentage-text">{submission.percentage?.toFixed(0)}%</span>
+                            </div>
+                          </td>
+                          <td>{submission.timeTaken ? `${Math.floor(submission.timeTaken / 60)}m ${submission.timeTaken % 60}s` : 'N/A'}</td>
+                          <td>
+                            <span className="attempt-badge">Attempt {submission.attemptNumber || 1}</span>
+                          </td>
+                          <td>{new Date(submission.submittedAt).toLocaleString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
+                  {/* Summary Stats */}
+                  <div className="submissions-summary">
+                    <div className="summary-card">
+                      <span className="summary-label">Total Submissions</span>
+                      <span className="summary-value">{submissions.length}</span>
+                    </div>
+                    <div className="summary-card">
+                      <span className="summary-label">Unique Students</span>
+                      <span className="summary-value">
+                        {new Set(submissions.map(s => s.studentId?.toString())).size}
+                      </span>
+                    </div>
+                    <div className="summary-card">
+                      <span className="summary-label">Average Score</span>
+                      <span className="summary-value">
+                        {(submissions.reduce((sum, s) => sum + (s.percentage || 0), 0) / submissions.length).toFixed(1)}%
+                      </span>
+                    </div>
+                    <div className="summary-card">
+                      <span className="summary-label">Highest Score</span>
+                      <span className="summary-value">
+                        {Math.max(...submissions.map(s => s.percentage || 0)).toFixed(0)}%
+                      </span>
+                    </div>
+                    <div className="summary-card">
+                      <span className="summary-label">Lowest Score</span>
+                      <span className="summary-value">
+                        {Math.min(...submissions.map(s => s.percentage || 0)).toFixed(0)}%
+                      </span>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
