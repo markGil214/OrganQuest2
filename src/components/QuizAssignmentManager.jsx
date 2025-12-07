@@ -2,24 +2,27 @@ import React, { useState, useEffect } from 'react';
 import '../styles/QuizAssignmentManager.css';
 
 const QuizAssignmentManager = () => {
-  const [activeTab, setActiveTab] = useState('createQuiz'); // createQuiz, createQuestions, myAssignments, myQuestions
+  const [activeTab, setActiveTab] = useState('assignments'); // assignments, questionBank
+  const [creationStep, setCreationStep] = useState(0); // 0=list, 1=assignment info, 2=build quiz, 3=finalize, 4=deployed
   
   // Quiz Assignment State
   const [assignments, setAssignments] = useState([]);
   const [loadingAssignments, setLoadingAssignments] = useState(false);
-  const [quizForm, setQuizForm] = useState({
+  const [currentAssignment, setCurrentAssignment] = useState({
     quizType: 'multiple-choice',
     title: '',
     description: '',
     assignedGrade: '',
     dueDate: '',
     maxAttempts: 3,
-    timeLimit: 600,
-    useCustomQuestions: false,
-    selectedQuestions: []
+    timeLimit: 600
   });
 
-  // Custom Question State
+  // Quiz Building State
+  const [quizQuestions, setQuizQuestions] = useState([]); // Questions added to current assignment
+  const [selectedQuestionIds, setSelectedQuestionIds] = useState([]);
+  
+  // Custom Question State (Question Bank)
   const [questions, setQuestions] = useState([]);
   const [loadingQuestions, setLoadingQuestions] = useState(false);
   const [questionForm, setQuestionForm] = useState({
@@ -142,23 +145,132 @@ const QuizAssignmentManager = () => {
   };
 
   useEffect(() => {
-    if (activeTab === 'myAssignments') {
+    if (activeTab === 'assignments' && creationStep === 0) {
       fetchAssignments();
-    } else if (activeTab === 'myQuestions' || activeTab === 'createQuiz') {
+    } else if (activeTab === 'questionBank') {
       fetchQuestions();
       fetchQuestionStats();
     }
   }, [activeTab, filters]);
 
-  // Create quiz assignment
-  const handleCreateAssignment = async (e) => {
+  useEffect(() => {
+    if (creationStep === 2) {
+      fetchQuestions();
+    }
+  }, [creationStep]);
+
+  // STEP 1: Start creating new assignment
+  const startNewAssignment = () => {
+    setCurrentAssignment({
+      quizType: 'multiple-choice',
+      title: '',
+      description: '',
+      assignedGrade: '',
+      dueDate: '',
+      maxAttempts: 3,
+      timeLimit: 600
+    });
+    setQuizQuestions([]);
+    setSelectedQuestionIds([]);
+    setCreationStep(1);
+  };
+
+  // STEP 2: Save assignment info and move to quiz builder
+  const handleAssignmentInfoSubmit = (e) => {
     e.preventDefault();
     
-    if (!quizForm.title.trim()) {
+    if (!currentAssignment.title.trim()) {
       alert('Please enter a quiz title');
       return;
     }
+    
+    if (!currentAssignment.assignedGrade) {
+      alert('Please select a grade level');
+      return;
+    }
 
+    setCreationStep(2); // Move to quiz builder
+  };
+
+  // STEP 2: Create new question inline
+  const handleCreateQuestionInline = async (e) => {
+    e.preventDefault();
+    
+    if (!questionForm.questionText.trim()) {
+      alert('Please enter a question');
+      return;
+    }
+
+    if (questionForm.options.some(opt => !opt.trim())) {
+      alert('Please fill in all options');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}/api/teacher/questions/create`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ...questionForm,
+          grade: currentAssignment.assignedGrade
+        })
+      });
+
+      if (!response.ok) throw new Error('Failed to create question');
+      const data = await response.json();
+      
+      // Add to quiz questions
+      setQuizQuestions([...quizQuestions, data.question]);
+      setSelectedQuestionIds([...selectedQuestionIds, data.question._id]);
+      
+      // Reset form
+      setQuestionForm({
+        questionText: '',
+        options: ['', '', '', ''],
+        correctAnswer: 0,
+        explanation: '',
+        category: 'heart',
+        difficulty: 'medium',
+        grade: ''
+      });
+      
+      // Refresh question bank
+      fetchQuestions();
+      alert('Question created and added to quiz!');
+    } catch (error) {
+      console.error('Error creating question:', error);
+      alert('Failed to create question');
+    }
+  };
+
+  // STEP 2: Toggle question selection from bank
+  const toggleQuestionSelection = (question) => {
+    const isSelected = selectedQuestionIds.includes(question._id);
+    
+    if (isSelected) {
+      setSelectedQuestionIds(selectedQuestionIds.filter(id => id !== question._id));
+      setQuizQuestions(quizQuestions.filter(q => q._id !== question._id));
+    } else {
+      setSelectedQuestionIds([...selectedQuestionIds, question._id]);
+      setQuizQuestions([...quizQuestions, question]);
+    }
+  };
+
+  // STEP 3: Move to finalize
+  const proceedToFinalize = () => {
+    if (quizQuestions.length === 0) {
+      alert('Please add at least one question to the quiz');
+      return;
+    }
+    setCreationStep(3);
+  };
+
+  // STEP 4: Deploy assignment
+  const handleDeployAssignment = async () => {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(`${API_BASE_URL}/api/teacher/quiz/assign-quiz`, {
@@ -168,36 +280,44 @@ const QuizAssignmentManager = () => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          ...quizForm,
-          customQuestions: quizForm.useCustomQuestions ? quizForm.selectedQuestions : []
+          ...currentAssignment,
+          customQuestions: selectedQuestionIds
         })
       });
 
-      if (!response.ok) throw new Error('Failed to create assignment');
+      if (!response.ok) throw new Error('Failed to deploy assignment');
       const data = await response.json();
       
-      alert(`Quiz assigned successfully! Quiz Code: ${data.assignment.quizCode}`);
-      setQuizForm({
+      setCreationStep(4); // Show success
+      setTimeout(() => {
+        setCreationStep(0);
+        fetchAssignments();
+      }, 3000);
+    } catch (error) {
+      console.error('Error deploying assignment:', error);
+      alert('Failed to deploy quiz assignment');
+    }
+  };
+
+  // Cancel creation
+  const cancelCreation = () => {
+    if (confirm('Are you sure you want to cancel? All progress will be lost.')) {
+      setCreationStep(0);
+      setCurrentAssignment({
         quizType: 'multiple-choice',
         title: '',
         description: '',
         assignedGrade: '',
         dueDate: '',
         maxAttempts: 3,
-        timeLimit: 600,
-        useCustomQuestions: false,
-        selectedQuestions: []
+        timeLimit: 600
       });
-      
-      setActiveTab('myAssignments');
-      fetchAssignments();
-    } catch (error) {
-      console.error('Error creating assignment:', error);
-      alert('Failed to create quiz assignment');
+      setQuizQuestions([]);
+      setSelectedQuestionIds([]);
     }
   };
 
-  // Create custom question
+  // Question Bank: Create custom question
   const handleCreateQuestion = async (e) => {
     e.preventDefault();
     
@@ -350,17 +470,6 @@ const QuizAssignmentManager = () => {
       grade: question.grade
     });
     setEditingQuestion(question);
-    setActiveTab('createQuestions');
-  };
-
-  // Toggle question selection for quiz
-  const toggleQuestionSelection = (questionId) => {
-    setQuizForm(prev => ({
-      ...prev,
-      selectedQuestions: prev.selectedQuestions.includes(questionId)
-        ? prev.selectedQuestions.filter(id => id !== questionId)
-        : [...prev.selectedQuestions, questionId]
-    }));
   };
 
   const categories = [
@@ -379,162 +488,374 @@ const QuizAssignmentManager = () => {
     return cat ? cat.icon : '📚';
   };
 
+  const getStepTitle = () => {
+    switch(creationStep) {
+      case 1: return 'Step 1: Assignment Information';
+      case 2: return 'Step 2: Build Quiz';
+      case 3: return 'Step 3: Finalize';
+      case 4: return 'Assignment Deployed!';
+      default: return 'My Assignments';
+    }
+  };
+
   return (
     <div className="quiz-assignment-manager">
+      {/* Main Tabs */}
       <div className="manager-tabs">
         <button 
-          className={activeTab === 'createQuiz' ? 'active' : ''}
-          onClick={() => setActiveTab('createQuiz')}
-        >
-          📝 Create Quiz Assignment
-        </button>
-        <button 
-          className={activeTab === 'createQuestions' ? 'active' : ''}
-          onClick={() => setActiveTab('createQuestions')}
-        >
-          ✏️ Create Questions
-        </button>
-        <button 
-          className={activeTab === 'myAssignments' ? 'active' : ''}
-          onClick={() => setActiveTab('myAssignments')}
+          className={activeTab === 'assignments' && creationStep === 0 ? 'active' : ''}
+          onClick={() => {
+            setActiveTab('assignments');
+            setCreationStep(0);
+          }}
+          disabled={creationStep > 0}
         >
           📋 My Assignments
         </button>
         <button 
-          className={activeTab === 'myQuestions' ? 'active' : ''}
-          onClick={() => setActiveTab('myQuestions')}
+          className={activeTab === 'questionBank' ? 'active' : ''}
+          onClick={() => setActiveTab('questionBank')}
+          disabled={creationStep > 0}
         >
           📚 Question Bank
         </button>
       </div>
 
-      {/* CREATE QUIZ ASSIGNMENT TAB */}
-      {activeTab === 'createQuiz' && (
-        <div className="tab-content">
-          <h2>Create Quiz Assignment</h2>
-          <form onSubmit={handleCreateAssignment} className="quiz-form">
-            <div className="form-section">
-              <h3>Basic Information</h3>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Quiz Type *</label>
-                  <select 
-                    value={quizForm.quizType}
-                    onChange={(e) => setQuizForm({...quizForm, quizType: e.target.value})}
-                  >
-                    <option value="multiple-choice">Multiple Choice</option>
-                    <option value="timed-challenge">Timed Challenge</option>
-                    <option value="memory-matching">Memory Matching</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label>Grade Level *</label>
-                  <select 
-                    value={quizForm.assignedGrade}
-                    onChange={(e) => setQuizForm({...quizForm, assignedGrade: e.target.value})}
-                    required
-                  >
-                    <option value="">Select Grade</option>
-                    <option value="7">Grade 7</option>
-                    <option value="8">Grade 8</option>
-                    <option value="9">Grade 9</option>
-                    <option value="10">Grade 10</option>
-                  </select>
-                </div>
+      {/* ASSIGNMENTS TAB */}
+      {activeTab === 'assignments' && (
+        <>
+          {/* Step 0: Assignment List */}
+          {creationStep === 0 && (
+            <div className="tab-content">
+              <div className="content-header">
+                <h2>My Quiz Assignments</h2>
+                <button className="btn-primary" onClick={startNewAssignment}>
+                  ✨ Create New Assignment
+                </button>
               </div>
 
-              <div className="form-group">
-                <label>Quiz Title *</label>
-                <input 
-                  type="text"
-                  value={quizForm.title}
-                  onChange={(e) => setQuizForm({...quizForm, title: e.target.value})}
-                  placeholder="e.g., Cardiovascular System Quiz"
-                  required
-                />
-              </div>
+              {loadingAssignments ? (
+                <p>Loading assignments...</p>
+              ) : assignments.length === 0 ? (
+                <div className="empty-state">
+                  <p>No quiz assignments yet. Create your first assignment!</p>
+                </div>
+              ) : (
+                <div className="assignments-grid">
+                  {assignments.map(assignment => (
+                    <div key={assignment._id} className="assignment-card">
+                      <div className="assignment-header">
+                        <h3>{assignment.title}</h3>
+                        <span className={`status-badge ${assignment.isActive ? 'active' : 'inactive'}`}>
+                          {assignment.isActive ? '✓ Active' : '✕ Inactive'}
+                        </span>
+                      </div>
+                      
+                      <div className="assignment-info">
+                        <div className="info-row">
+                          <span className="label">Quiz Code:</span>
+                          <span className="code-display">{assignment.quizCode}</span>
+                        </div>
+                        <div className="info-row">
+                          <span className="label">Type:</span>
+                          <span>{assignment.quizType}</span>
+                        </div>
+                        <div className="info-row">
+                          <span className="label">Grade:</span>
+                          <span>Grade {assignment.assignedGrade}</span>
+                        </div>
+                        {assignment.dueDate && (
+                          <div className="info-row">
+                            <span className="label">Due:</span>
+                            <span>{new Date(assignment.dueDate).toLocaleDateString()}</span>
+                          </div>
+                        )}
+                      </div>
 
-              <div className="form-group">
-                <label>Description</label>
-                <textarea 
-                  value={quizForm.description}
-                  onChange={(e) => setQuizForm({...quizForm, description: e.target.value})}
-                  placeholder="Brief description of the quiz topic..."
-                  rows="3"
-                />
-              </div>
+                      <div className="assignment-stats">
+                        <div className="stat">
+                          <span className="stat-number">{assignment.submissions || 0}</span>
+                          <span className="stat-label">Submissions</span>
+                        </div>
+                        <div className="stat">
+                          <span className="stat-number">{assignment.uniqueStudents || 0}</span>
+                          <span className="stat-label">Students</span>
+                        </div>
+                        <div className="stat">
+                          <span className="stat-number">
+                            {assignment.averageScore ? `${assignment.averageScore.toFixed(0)}%` : 'N/A'}
+                          </span>
+                          <span className="stat-label">Avg Score</span>
+                        </div>
+                      </div>
+
+                      <div className="assignment-actions">
+                        <button 
+                          className="btn-toggle"
+                          onClick={() => handleToggleAssignment(assignment._id)}
+                        >
+                          {assignment.isActive ? 'Deactivate' : 'Activate'}
+                        </button>
+                        <button 
+                          className="btn-delete"
+                          onClick={() => handleDeleteAssignment(assignment._id)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
+          )}
 
-            <div className="form-section">
-              <h3>Quiz Settings</h3>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Due Date</label>
-                  <input 
-                    type="datetime-local"
-                    value={quizForm.dueDate}
-                    onChange={(e) => setQuizForm({...quizForm, dueDate: e.target.value})}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Max Attempts</label>
-                  <input 
-                    type="number"
-                    value={quizForm.maxAttempts}
-                    onChange={(e) => setQuizForm({...quizForm, maxAttempts: parseInt(e.target.value)})}
-                    min="1"
-                    max="10"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Time Limit (seconds)</label>
-                  <input 
-                    type="number"
-                    value={quizForm.timeLimit}
-                    onChange={(e) => setQuizForm({...quizForm, timeLimit: parseInt(e.target.value)})}
-                    min="60"
-                    step="60"
-                  />
-                </div>
+          {/* Step 1: Assignment Information */}
+          {creationStep === 1 && (
+            <div className="tab-content">
+              <div className="creation-progress">
+                <div className="progress-step active">1. Assignment Info</div>
+                <div className="progress-step">2. Build Quiz</div>
+                <div className="progress-step">3. Finalize</div>
+                <div className="progress-step">4. Deploy</div>
               </div>
+
+              <h2>{getStepTitle()}</h2>
+              <form onSubmit={handleAssignmentInfoSubmit} className="assignment-form">
+                <div className="form-section">
+                  <h3>Basic Information</h3>
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Quiz Type *</label>
+                      <select 
+                        value={currentAssignment.quizType}
+                        onChange={(e) => setCurrentAssignment({...currentAssignment, quizType: e.target.value})}
+                        required
+                      >
+                        <option value="multiple-choice">Multiple Choice</option>
+                        <option value="timed-challenge">Timed Challenge</option>
+                        <option value="memory-matching">Memory Matching</option>
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label>Grade Level *</label>
+                      <select 
+                        value={currentAssignment.assignedGrade}
+                        onChange={(e) => setCurrentAssignment({...currentAssignment, assignedGrade: e.target.value})}
+                        required
+                      >
+                        <option value="">Select Grade</option>
+                        <option value="7">Grade 7</option>
+                        <option value="8">Grade 8</option>
+                        <option value="9">Grade 9</option>
+                        <option value="10">Grade 10</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Quiz Title *</label>
+                    <input 
+                      type="text"
+                      value={currentAssignment.title}
+                      onChange={(e) => setCurrentAssignment({...currentAssignment, title: e.target.value})}
+                      placeholder="e.g., Cardiovascular System Quiz"
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Description</label>
+                    <textarea 
+                      value={currentAssignment.description}
+                      onChange={(e) => setCurrentAssignment({...currentAssignment, description: e.target.value})}
+                      placeholder="Brief description of the quiz topic..."
+                      rows="3"
+                    />
+                  </div>
+                </div>
+
+                <div className="form-section">
+                  <h3>Quiz Settings</h3>
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Due Date</label>
+                      <input 
+                        type="datetime-local"
+                        value={currentAssignment.dueDate}
+                        onChange={(e) => setCurrentAssignment({...currentAssignment, dueDate: e.target.value})}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Max Attempts</label>
+                      <input 
+                        type="number"
+                        value={currentAssignment.maxAttempts}
+                        onChange={(e) => setCurrentAssignment({...currentAssignment, maxAttempts: parseInt(e.target.value)})}
+                        min="1"
+                        max="10"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Time Limit (seconds)</label>
+                      <input 
+                        type="number"
+                        value={currentAssignment.timeLimit}
+                        onChange={(e) => setCurrentAssignment({...currentAssignment, timeLimit: parseInt(e.target.value)})}
+                        min="60"
+                        step="60"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="form-actions">
+                  <button type="button" className="btn-secondary" onClick={cancelCreation}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn-primary">
+                    Next: Build Quiz →
+                  </button>
+                </div>
+              </form>
             </div>
+          )}
 
-            <div className="form-section">
-              <h3>Custom Questions</h3>
-              <div className="custom-questions-toggle">
-                <label className="checkbox-label">
-                  <input 
-                    type="checkbox"
-                    checked={quizForm.useCustomQuestions}
-                    onChange={(e) => setQuizForm({...quizForm, useCustomQuestions: e.target.checked})}
-                  />
-                  Use custom questions from my question bank
-                </label>
+          {/* Step 2: Build Quiz */}
+          {creationStep === 2 && (
+            <div className="tab-content">
+              <div className="creation-progress">
+                <div className="progress-step completed">✓ Assignment Info</div>
+                <div className="progress-step active">2. Build Quiz</div>
+                <div className="progress-step">3. Finalize</div>
+                <div className="progress-step">4. Deploy</div>
               </div>
 
-              {quizForm.useCustomQuestions && (
-                <div className="question-selector">
+              <h2>{getStepTitle()}</h2>
+              <p className="step-description">
+                Add questions to your quiz by creating new ones or selecting from your question bank.
+              </p>
+
+              <div className="quiz-builder">
+                {/* Current Quiz Questions */}
+                <div className="current-quiz-section">
+                  <h3>Quiz Questions ({quizQuestions.length})</h3>
+                  {quizQuestions.length === 0 ? (
+                    <p className="empty-message">No questions added yet. Create or select questions below.</p>
+                  ) : (
+                    <div className="quiz-questions-list">
+                      {quizQuestions.map((q, index) => (
+                        <div key={q._id} className="quiz-question-item">
+                          <span className="question-number">{index + 1}.</span>
+                          <span className="question-text">{q.questionText}</span>
+                          <span className="category-icon">{getCategoryIcon(q.category)}</span>
+                          <span className={`difficulty-badge ${q.difficulty}`}>{q.difficulty}</span>
+                          <button 
+                            className="btn-remove"
+                            onClick={() => toggleQuestionSelection(q)}
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Create New Question */}
+                <div className="create-question-section">
+                  <h3>Create New Question</h3>
+                  <form onSubmit={handleCreateQuestionInline} className="inline-question-form">
+                    <div className="form-group">
+                      <label>Question Text *</label>
+                      <input 
+                        type="text"
+                        value={questionForm.questionText}
+                        onChange={(e) => setQuestionForm({...questionForm, questionText: e.target.value})}
+                        placeholder="Enter your question..."
+                        required
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label>Options *</label>
+                      {questionForm.options.map((option, index) => (
+                        <div key={index} className="option-input">
+                          <input 
+                            type="radio"
+                            name="correctAnswer"
+                            checked={questionForm.correctAnswer === index}
+                            onChange={() => setQuestionForm({...questionForm, correctAnswer: index})}
+                          />
+                          <input 
+                            type="text"
+                            value={option}
+                            onChange={(e) => {
+                              const newOptions = [...questionForm.options];
+                              newOptions[index] = e.target.value;
+                              setQuestionForm({...questionForm, options: newOptions});
+                            }}
+                            placeholder={`Option ${index + 1}`}
+                            required
+                          />
+                          {questionForm.correctAnswer === index && (
+                            <span className="correct-badge">✓</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>Category</label>
+                        <select 
+                          value={questionForm.category}
+                          onChange={(e) => setQuestionForm({...questionForm, category: e.target.value})}
+                        >
+                          {categories.map(cat => (
+                            <option key={cat.value} value={cat.value}>{cat.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="form-group">
+                        <label>Difficulty</label>
+                        <select 
+                          value={questionForm.difficulty}
+                          onChange={(e) => setQuestionForm({...questionForm, difficulty: e.target.value})}
+                        >
+                          <option value="easy">Easy</option>
+                          <option value="medium">Medium</option>
+                          <option value="hard">Hard</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <button type="submit" className="btn-create-question">
+                      + Add Question to Quiz
+                    </button>
+                  </form>
+                </div>
+
+                {/* Select from Question Bank */}
+                <div className="question-bank-section">
+                  <h3>Select from Question Bank</h3>
                   {loadingQuestions ? (
                     <p>Loading questions...</p>
                   ) : questions.length === 0 ? (
-                    <p className="no-questions">
-                      No questions available. Create some questions first in the "Create Questions" tab.
-                    </p>
+                    <p className="empty-message">No questions in your bank yet.</p>
                   ) : (
-                    <>
-                      <p className="selection-info">
-                        Selected: {quizForm.selectedQuestions.length} / {questions.length} questions
-                      </p>
-                      <div className="question-list-compact">
-                        {questions.map(q => (
+                    <div className="bank-questions-list">
+                      {questions.map(q => {
+                        const isSelected = selectedQuestionIds.includes(q._id);
+                        return (
                           <div 
                             key={q._id} 
-                            className={`question-item-compact ${quizForm.selectedQuestions.includes(q._id) ? 'selected' : ''}`}
-                            onClick={() => toggleQuestionSelection(q._id)}
+                            className={`bank-question-item ${isSelected ? 'selected' : ''}`}
+                            onClick={() => toggleQuestionSelection(q)}
                           >
                             <input 
                               type="checkbox"
-                              checked={quizForm.selectedQuestions.includes(q._id)}
+                              checked={isSelected}
                               readOnly
                             />
                             <div className="question-preview">
@@ -543,27 +864,131 @@ const QuizAssignmentManager = () => {
                               <span className={`difficulty-badge ${q.difficulty}`}>{q.difficulty}</span>
                             </div>
                           </div>
-                        ))}
-                      </div>
-                    </>
+                        );
+                      })}
+                    </div>
                   )}
                 </div>
-              )}
-            </div>
+              </div>
 
-            <div className="form-actions">
-              <button type="submit" className="btn-primary">
-                🎯 Create Quiz Assignment
-              </button>
+              <div className="form-actions">
+                <button className="btn-secondary" onClick={() => setCreationStep(1)}>
+                  ← Back
+                </button>
+                <button className="btn-primary" onClick={proceedToFinalize}>
+                  Next: Review & Finalize →
+                </button>
+              </div>
             </div>
-          </form>
-        </div>
+          )}
+
+          {/* Step 3: Finalize */}
+          {creationStep === 3 && (
+            <div className="tab-content">
+              <div className="creation-progress">
+                <div className="progress-step completed">✓ Assignment Info</div>
+                <div className="progress-step completed">✓ Build Quiz</div>
+                <div className="progress-step active">3. Finalize</div>
+                <div className="progress-step">4. Deploy</div>
+              </div>
+
+              <h2>{getStepTitle()}</h2>
+              <p className="step-description">Review your quiz assignment before deploying.</p>
+
+              <div className="finalize-review">
+                <div className="review-section">
+                  <h3>Assignment Details</h3>
+                  <div className="review-grid">
+                    <div className="review-item">
+                      <span className="review-label">Title:</span>
+                      <span className="review-value">{currentAssignment.title}</span>
+                    </div>
+                    <div className="review-item">
+                      <span className="review-label">Type:</span>
+                      <span className="review-value">{currentAssignment.quizType}</span>
+                    </div>
+                    <div className="review-item">
+                      <span className="review-label">Grade:</span>
+                      <span className="review-value">Grade {currentAssignment.assignedGrade}</span>
+                    </div>
+                    <div className="review-item">
+                      <span className="review-label">Max Attempts:</span>
+                      <span className="review-value">{currentAssignment.maxAttempts}</span>
+                    </div>
+                    <div className="review-item">
+                      <span className="review-label">Time Limit:</span>
+                      <span className="review-value">{currentAssignment.timeLimit} seconds</span>
+                    </div>
+                    {currentAssignment.dueDate && (
+                      <div className="review-item">
+                        <span className="review-label">Due Date:</span>
+                        <span className="review-value">
+                          {new Date(currentAssignment.dueDate).toLocaleString()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  {currentAssignment.description && (
+                    <div className="review-description">
+                      <span className="review-label">Description:</span>
+                      <p>{currentAssignment.description}</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="review-section">
+                  <h3>Quiz Questions ({quizQuestions.length})</h3>
+                  <div className="review-questions">
+                    {quizQuestions.map((q, index) => (
+                      <div key={q._id} className="review-question">
+                        <div className="review-question-header">
+                          <span className="question-number">{index + 1}.</span>
+                          <span className="question-text">{q.questionText}</span>
+                          <span className={`difficulty-badge ${q.difficulty}`}>{q.difficulty}</span>
+                        </div>
+                        <div className="review-options">
+                          {q.options.map((opt, i) => (
+                            <div key={i} className={`review-option ${i === q.correctAnswer ? 'correct' : ''}`}>
+                              {String.fromCharCode(65 + i)}. {opt}
+                              {i === q.correctAnswer && <span className="correct-indicator"> ✓</span>}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-actions">
+                <button className="btn-secondary" onClick={() => setCreationStep(2)}>
+                  ← Back to Edit
+                </button>
+                <button className="btn-deploy" onClick={handleDeployAssignment}>
+                  🚀 Deploy Assignment
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 4: Success */}
+          {creationStep === 4 && (
+            <div className="tab-content">
+              <div className="success-screen">
+                <div className="success-icon">✅</div>
+                <h2>Assignment Deployed Successfully!</h2>
+                <p>Your quiz assignment has been created and is now active.</p>
+                <p className="redirect-message">Redirecting to assignments list...</p>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
-      {/* CREATE QUESTIONS TAB */}
-      {activeTab === 'createQuestions' && (
+      {/* QUESTION BANK TAB */}
+      {activeTab === 'questionBank' && (
         <div className="tab-content">
-          <h2>{editingQuestion ? 'Edit Question' : 'Create Custom Question'}</h2>
+          <h2>Question Bank</h2>
           
           {questionStats && (
             <div className="stats-bar">
@@ -582,87 +1007,154 @@ const QuizAssignmentManager = () => {
             </div>
           )}
 
-          <form onSubmit={handleCreateQuestion} className="question-form">
-            <div className="form-group">
-              <label>Question Text *</label>
-              <textarea 
-                value={questionForm.questionText}
-                onChange={(e) => setQuestionForm({...questionForm, questionText: e.target.value})}
-                placeholder="Enter your question here..."
-                rows="3"
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Options *</label>
-              {questionForm.options.map((option, index) => (
-                <div key={index} className="option-input">
-                  <input 
-                    type="radio"
-                    name="correctAnswer"
-                    checked={questionForm.correctAnswer === index}
-                    onChange={() => setQuestionForm({...questionForm, correctAnswer: index})}
-                  />
-                  <input 
-                    type="text"
-                    value={option}
-                    onChange={(e) => {
-                      const newOptions = [...questionForm.options];
-                      newOptions[index] = e.target.value;
-                      setQuestionForm({...questionForm, options: newOptions});
-                    }}
-                    placeholder={`Option ${index + 1}`}
+          <div className="question-bank-content">
+            {/* Create Question Form */}
+            <div className="create-question-panel">
+              <h3>{editingQuestion ? 'Edit Question' : 'Create New Question'}</h3>
+              <form onSubmit={handleCreateQuestion} className="question-form">
+                <div className="form-group">
+                  <label>Question Text *</label>
+                  <textarea 
+                    value={questionForm.questionText}
+                    onChange={(e) => setQuestionForm({...questionForm, questionText: e.target.value})}
+                    placeholder="Enter your question here..."
+                    rows="3"
                     required
                   />
-                  {questionForm.correctAnswer === index && (
-                    <span className="correct-badge">✓ Correct</span>
+                </div>
+
+                <div className="form-group">
+                  <label>Options *</label>
+                  {questionForm.options.map((option, index) => (
+                    <div key={index} className="option-input">
+                      <input 
+                        type="radio"
+                        name="correctAnswer"
+                        checked={questionForm.correctAnswer === index}
+                        onChange={() => setQuestionForm({...questionForm, correctAnswer: index})}
+                      />
+                      <input 
+                        type="text"
+                        value={option}
+                        onChange={(e) => {
+                          const newOptions = [...questionForm.options];
+                          newOptions[index] = e.target.value;
+                          setQuestionForm({...questionForm, options: newOptions});
+                        }}
+                        placeholder={`Option ${index + 1}`}
+                        required
+                      />
+                      {questionForm.correctAnswer === index && (
+                        <span className="correct-badge">✓ Correct</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="form-group">
+                  <label>Explanation (Optional)</label>
+                  <textarea 
+                    value={questionForm.explanation}
+                    onChange={(e) => setQuestionForm({...questionForm, explanation: e.target.value})}
+                    placeholder="Explain why this is the correct answer..."
+                    rows="2"
+                  />
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Category *</label>
+                    <select 
+                      value={questionForm.category}
+                      onChange={(e) => setQuestionForm({...questionForm, category: e.target.value})}
+                      required
+                    >
+                      {categories.map(cat => (
+                        <option key={cat.value} value={cat.value}>{cat.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>Difficulty *</label>
+                    <select 
+                      value={questionForm.difficulty}
+                      onChange={(e) => setQuestionForm({...questionForm, difficulty: e.target.value})}
+                      required
+                    >
+                      <option value="easy">Easy</option>
+                      <option value="medium">Medium</option>
+                      <option value="hard">Hard</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>Grade Level</label>
+                    <select 
+                      value={questionForm.grade}
+                      onChange={(e) => setQuestionForm({...questionForm, grade: e.target.value})}
+                    >
+                      <option value="">All Grades</option>
+                      <option value="7">Grade 7</option>
+                      <option value="8">Grade 8</option>
+                      <option value="9">Grade 9</option>
+                      <option value="10">Grade 10</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="form-actions">
+                  <button type="submit" className="btn-primary">
+                    {editingQuestion ? '💾 Update Question' : '✨ Create Question'}
+                  </button>
+                  {editingQuestion && (
+                    <button 
+                      type="button" 
+                      className="btn-secondary"
+                      onClick={() => {
+                        setEditingQuestion(null);
+                        setQuestionForm({
+                          questionText: '',
+                          options: ['', '', '', ''],
+                          correctAnswer: 0,
+                          explanation: '',
+                          category: 'heart',
+                          difficulty: 'medium',
+                          grade: ''
+                        });
+                      }}
+                    >
+                      Cancel
+                    </button>
                   )}
                 </div>
-              ))}
-              <p className="hint">Click the radio button to select the correct answer</p>
+              </form>
             </div>
 
-            <div className="form-group">
-              <label>Explanation (Optional)</label>
-              <textarea 
-                value={questionForm.explanation}
-                onChange={(e) => setQuestionForm({...questionForm, explanation: e.target.value})}
-                placeholder="Explain why this is the correct answer..."
-                rows="2"
-              />
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label>Category *</label>
+            {/* Question List */}
+            <div className="questions-list-panel">
+              <h3>All Questions</h3>
+              
+              <div className="filters-bar">
                 <select 
-                  value={questionForm.category}
-                  onChange={(e) => setQuestionForm({...questionForm, category: e.target.value})}
-                  required
+                  value={filters.category}
+                  onChange={(e) => setFilters({...filters, category: e.target.value})}
                 >
+                  <option value="all">All Categories</option>
                   {categories.map(cat => (
                     <option key={cat.value} value={cat.value}>{cat.label}</option>
                   ))}
                 </select>
-              </div>
-              <div className="form-group">
-                <label>Difficulty *</label>
                 <select 
-                  value={questionForm.difficulty}
-                  onChange={(e) => setQuestionForm({...questionForm, difficulty: e.target.value})}
-                  required
+                  value={filters.difficulty}
+                  onChange={(e) => setFilters({...filters, difficulty: e.target.value})}
                 >
+                  <option value="all">All Difficulties</option>
                   <option value="easy">Easy</option>
                   <option value="medium">Medium</option>
                   <option value="hard">Hard</option>
                 </select>
-              </div>
-              <div className="form-group">
-                <label>Grade Level</label>
                 <select 
-                  value={questionForm.grade}
-                  onChange={(e) => setQuestionForm({...questionForm, grade: e.target.value})}
+                  value={filters.grade}
+                  onChange={(e) => setFilters({...filters, grade: e.target.value})}
                 >
                   <option value="">All Grades</option>
                   <option value="7">Grade 7</option>
@@ -671,226 +1163,68 @@ const QuizAssignmentManager = () => {
                   <option value="10">Grade 10</option>
                 </select>
               </div>
-            </div>
 
-            <div className="form-actions">
-              <button type="submit" className="btn-primary">
-                {editingQuestion ? '💾 Update Question' : '✨ Create Question'}
-              </button>
-              {editingQuestion && (
-                <button 
-                  type="button" 
-                  className="btn-secondary"
-                  onClick={() => {
-                    setEditingQuestion(null);
-                    setQuestionForm({
-                      questionText: '',
-                      options: ['', '', '', ''],
-                      correctAnswer: 0,
-                      explanation: '',
-                      category: 'heart',
-                      difficulty: 'medium',
-                      grade: ''
-                    });
-                  }}
-                >
-                  Cancel
-                </button>
+              {loadingQuestions ? (
+                <p>Loading questions...</p>
+              ) : questions.length === 0 ? (
+                <p className="empty-message">No questions found.</p>
+              ) : (
+                <div className="questions-list">
+                  {questions.map(question => (
+                    <div key={question._id} className="question-card">
+                      <div className="question-header">
+                        <div className="question-meta">
+                          <span className="category-icon">{getCategoryIcon(question.category)}</span>
+                          <span className={`difficulty-badge ${question.difficulty}`}>
+                            {question.difficulty}
+                          </span>
+                          {question.grade && (
+                            <span className="grade-badge">Grade {question.grade}</span>
+                          )}
+                          <span className={`status-badge ${question.isActive ? 'active' : 'inactive'}`}>
+                            {question.isActive ? 'Active' : 'Inactive'}
+                          </span>
+                        </div>
+                        <div className="question-actions">
+                          <button onClick={() => handleEditQuestion(question)}>✏️ Edit</button>
+                          <button onClick={() => handleToggleQuestion(question._id)}>
+                            {question.isActive ? '🔒 Disable' : '🔓 Enable'}
+                          </button>
+                          <button onClick={() => handleDeleteQuestion(question._id)}>🗑️ Delete</button>
+                        </div>
+                      </div>
+                      
+                      <div className="question-content">
+                        <p className="question-text">{question.questionText}</p>
+                        <div className="options-list">
+                          {question.options.map((option, index) => (
+                            <div 
+                              key={index} 
+                              className={`option ${index === question.correctAnswer ? 'correct' : ''}`}
+                            >
+                              <span className="option-letter">{String.fromCharCode(65 + index)}.</span>
+                              <span className="option-text">{option}</span>
+                              {index === question.correctAnswer && (
+                                <span className="correct-indicator">✓</span>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                        {question.explanation && (
+                          <div className="explanation">
+                            <strong>Explanation:</strong> {question.explanation}
+                          </div>
+                        )}
+                        <div className="question-stats-mini">
+                          <span>Used {question.usageCount || 0} times</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
-          </form>
-        </div>
-      )}
-
-      {/* MY ASSIGNMENTS TAB */}
-      {activeTab === 'myAssignments' && (
-        <div className="tab-content">
-          <h2>My Quiz Assignments</h2>
-          {loadingAssignments ? (
-            <p>Loading assignments...</p>
-          ) : assignments.length === 0 ? (
-            <div className="empty-state">
-              <p>No quiz assignments yet. Create your first assignment!</p>
-              <button 
-                className="btn-primary"
-                onClick={() => setActiveTab('createQuiz')}
-              >
-                Create Assignment
-              </button>
-            </div>
-          ) : (
-            <div className="assignments-grid">
-              {assignments.map(assignment => (
-                <div key={assignment._id} className="assignment-card">
-                  <div className="assignment-header">
-                    <h3>{assignment.title}</h3>
-                    <span className={`status-badge ${assignment.isActive ? 'active' : 'inactive'}`}>
-                      {assignment.isActive ? '✓ Active' : '✕ Inactive'}
-                    </span>
-                  </div>
-                  
-                  <div className="assignment-info">
-                    <div className="info-row">
-                      <span className="label">Quiz Code:</span>
-                      <span className="code-display">{assignment.quizCode}</span>
-                    </div>
-                    <div className="info-row">
-                      <span className="label">Type:</span>
-                      <span>{assignment.quizType}</span>
-                    </div>
-                    <div className="info-row">
-                      <span className="label">Grade:</span>
-                      <span>Grade {assignment.assignedGrade}</span>
-                    </div>
-                    {assignment.dueDate && (
-                      <div className="info-row">
-                        <span className="label">Due:</span>
-                        <span>{new Date(assignment.dueDate).toLocaleDateString()}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="assignment-stats">
-                    <div className="stat">
-                      <span className="stat-number">{assignment.submissions || 0}</span>
-                      <span className="stat-label">Submissions</span>
-                    </div>
-                    <div className="stat">
-                      <span className="stat-number">{assignment.uniqueStudents || 0}</span>
-                      <span className="stat-label">Students</span>
-                    </div>
-                    <div className="stat">
-                      <span className="stat-number">
-                        {assignment.averageScore ? `${assignment.averageScore.toFixed(0)}%` : 'N/A'}
-                      </span>
-                      <span className="stat-label">Avg Score</span>
-                    </div>
-                  </div>
-
-                  <div className="assignment-actions">
-                    <button 
-                      className="btn-toggle"
-                      onClick={() => handleToggleAssignment(assignment._id)}
-                    >
-                      {assignment.isActive ? 'Deactivate' : 'Activate'}
-                    </button>
-                    <button 
-                      className="btn-delete"
-                      onClick={() => handleDeleteAssignment(assignment._id)}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* MY QUESTIONS TAB */}
-      {activeTab === 'myQuestions' && (
-        <div className="tab-content">
-          <h2>Question Bank</h2>
-          
-          <div className="filters-bar">
-            <select 
-              value={filters.category}
-              onChange={(e) => setFilters({...filters, category: e.target.value})}
-            >
-              <option value="all">All Categories</option>
-              {categories.map(cat => (
-                <option key={cat.value} value={cat.value}>{cat.label}</option>
-              ))}
-            </select>
-            <select 
-              value={filters.difficulty}
-              onChange={(e) => setFilters({...filters, difficulty: e.target.value})}
-            >
-              <option value="all">All Difficulties</option>
-              <option value="easy">Easy</option>
-              <option value="medium">Medium</option>
-              <option value="hard">Hard</option>
-            </select>
-            <select 
-              value={filters.grade}
-              onChange={(e) => setFilters({...filters, grade: e.target.value})}
-            >
-              <option value="">All Grades</option>
-              <option value="7">Grade 7</option>
-              <option value="8">Grade 8</option>
-              <option value="9">Grade 9</option>
-              <option value="10">Grade 10</option>
-            </select>
           </div>
-
-          {loadingQuestions ? (
-            <p>Loading questions...</p>
-          ) : questions.length === 0 ? (
-            <div className="empty-state">
-              <p>No questions yet. Create your first custom question!</p>
-              <button 
-                className="btn-primary"
-                onClick={() => setActiveTab('createQuestions')}
-              >
-                Create Question
-              </button>
-            </div>
-          ) : (
-            <div className="questions-list">
-              {questions.map(question => (
-                <div key={question._id} className="question-card">
-                  <div className="question-header">
-                    <div className="question-meta">
-                      <span className="category-icon">{getCategoryIcon(question.category)}</span>
-                      <span className={`difficulty-badge ${question.difficulty}`}>
-                        {question.difficulty}
-                      </span>
-                      {question.grade && (
-                        <span className="grade-badge">Grade {question.grade}</span>
-                      )}
-                      <span className={`status-badge ${question.isActive ? 'active' : 'inactive'}`}>
-                        {question.isActive ? 'Active' : 'Inactive'}
-                      </span>
-                    </div>
-                    <div className="question-actions">
-                      <button onClick={() => handleEditQuestion(question)}>✏️ Edit</button>
-                      <button onClick={() => handleToggleQuestion(question._id)}>
-                        {question.isActive ? '🔒 Disable' : '🔓 Enable'}
-                      </button>
-                      <button onClick={() => handleDeleteQuestion(question._id)}>🗑️ Delete</button>
-                    </div>
-                  </div>
-                  
-                  <div className="question-content">
-                    <p className="question-text">{question.questionText}</p>
-                    <div className="options-list">
-                      {question.options.map((option, index) => (
-                        <div 
-                          key={index} 
-                          className={`option ${index === question.correctAnswer ? 'correct' : ''}`}
-                        >
-                          <span className="option-letter">{String.fromCharCode(65 + index)}.</span>
-                          <span className="option-text">{option}</span>
-                          {index === question.correctAnswer && (
-                            <span className="correct-indicator">✓</span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                    {question.explanation && (
-                      <div className="explanation">
-                        <strong>Explanation:</strong> {question.explanation}
-                      </div>
-                    )}
-                    <div className="question-stats-mini">
-                      <span>Used {question.usageCount || 0} times</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       )}
     </div>
