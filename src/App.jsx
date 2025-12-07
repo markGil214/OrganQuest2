@@ -244,8 +244,6 @@ function App() {
         return <AdminDashboard userData={userData} onLogout={handleLogout} />;
       case 'admin-manage':
         return <SuperAdminPanel onBack={() => window.location.hash = '#admin/dashboard'} />;
-      case 'home':
-      case 'login':
       default:
         return <Home />;
     }

@@ -807,7 +807,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
             </Button>
           </Card>
         </div>
-      }
+      )}
 
       {/* Quiz Management Tab Content */}
       {activeTab === 'quiz-management' && (
