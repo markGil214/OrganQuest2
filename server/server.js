@@ -8,6 +8,7 @@ import userRoutes from './routes/userRoutes.js';
 import quizRoutes from './routes/quizRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import teacherQuizRoutes from './routes/teacherQuizRoutes.js';
+import customQuestionRoutes from './routes/customQuestionRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -83,6 +84,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/quiz', quizRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/teacher/quiz', teacherQuizRoutes);
+app.use('/api/teacher/questions', customQuestionRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

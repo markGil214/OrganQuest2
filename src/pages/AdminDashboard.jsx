@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import TeacherQuizAssignment from '../components/TeacherQuizAssignment';
+import QuizMaker from '../components/QuizMaker';
 
 const AdminDashboard = ({ userData, onLogout }) => {
   const [students, setStudents] = useState([]);
@@ -17,7 +18,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
   const [studentQuizDetails, setStudentQuizDetails] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState(null);
-  const [activeTab, setActiveTab] = useState('students'); // students, analytics, quiz-assignments
+  const [activeTab, setActiveTab] = useState('students'); // students, analytics, quiz-assignments, quiz-maker
   const [questionPage, setQuestionPage] = useState(1);
   const questionsPerPage = 10;
 
@@ -281,6 +282,16 @@ const AdminDashboard = ({ userData, onLogout }) => {
             }`}
           >
             📝 Quiz Assignments
+          </button>
+          <button
+            onClick={() => setActiveTab('quiz-maker')}
+            className={`flex-1 py-3 px-6 rounded-lg font-semibold transition-all ${
+              activeTab === 'quiz-maker'
+                ? 'bg-purple-600 text-white shadow-md'
+                : 'text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            🧩 Quiz Maker
           </button>
         </div>
       </div>
@@ -813,6 +824,13 @@ const AdminDashboard = ({ userData, onLogout }) => {
       {activeTab === 'quiz-assignments' && (
         <div className="max-w-7xl mx-auto">
           <TeacherQuizAssignment userData={userData} />
+        </div>
+      )}
+
+      {/* Quiz Maker Tab Content */}
+      {activeTab === 'quiz-maker' && (
+        <div className="max-w-7xl mx-auto">
+          <QuizMaker userData={userData} />
         </div>
       )}
     </div>
