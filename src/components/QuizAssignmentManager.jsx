@@ -814,8 +814,6 @@ const QuizAssignmentManager = () => {
                         <div key={q._id} className="quiz-question-item">
                           <span className="question-number">{index + 1}.</span>
                           <span className="question-text">{q.questionText}</span>
-                          <span className="category-icon">{getCategoryIcon(q.category)}</span>
-                          <span className={`difficulty-badge ${q.difficulty}`}>{q.difficulty}</span>
                           <button 
                             className="btn-remove"
                             onClick={() => toggleQuestionSelection(q)}
@@ -871,31 +869,6 @@ const QuizAssignmentManager = () => {
                       ))}
                     </div>
 
-                    <div className="form-row">
-                      <div className="form-group">
-                        <label>Category</label>
-                        <select 
-                          value={questionForm.category}
-                          onChange={(e) => setQuestionForm({...questionForm, category: e.target.value})}
-                        >
-                          {categories.map(cat => (
-                            <option key={cat.value} value={cat.value}>{cat.label}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <div className="form-group">
-                        <label>Difficulty</label>
-                        <select 
-                          value={questionForm.difficulty}
-                          onChange={(e) => setQuestionForm({...questionForm, difficulty: e.target.value})}
-                        >
-                          <option value="easy">Easy</option>
-                          <option value="medium">Medium</option>
-                          <option value="hard">Hard</option>
-                        </select>
-                      </div>
-                    </div>
-
                     <button type="submit" className="btn-create-question">
                       + Add Question to Quiz
                     </button>
@@ -925,9 +898,7 @@ const QuizAssignmentManager = () => {
                               readOnly
                             />
                             <div className="question-preview">
-                              <span className="category-icon">{getCategoryIcon(q.category)}</span>
                               <span className="question-text">{q.questionText}</span>
-                              <span className={`difficulty-badge ${q.difficulty}`}>{q.difficulty}</span>
                             </div>
                           </div>
                         );
@@ -1129,30 +1100,6 @@ const QuizAssignmentManager = () => {
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label>Category *</label>
-                    <select 
-                      value={questionForm.category}
-                      onChange={(e) => setQuestionForm({...questionForm, category: e.target.value})}
-                      required
-                    >
-                      {categories.map(cat => (
-                        <option key={cat.value} value={cat.value}>{cat.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label>Difficulty *</label>
-                    <select 
-                      value={questionForm.difficulty}
-                      onChange={(e) => setQuestionForm({...questionForm, difficulty: e.target.value})}
-                      required
-                    >
-                      <option value="easy">Easy</option>
-                      <option value="medium">Medium</option>
-                      <option value="hard">Hard</option>
-                    </select>
-                  </div>
-                  <div className="form-group">
                     <label>Grade Level</label>
                     <select 
                       value={questionForm.grade}
@@ -1201,24 +1148,6 @@ const QuizAssignmentManager = () => {
               
               <div className="filters-bar">
                 <select 
-                  value={filters.category}
-                  onChange={(e) => setFilters({...filters, category: e.target.value})}
-                >
-                  <option value="all">All Categories</option>
-                  {categories.map(cat => (
-                    <option key={cat.value} value={cat.value}>{cat.label}</option>
-                  ))}
-                </select>
-                <select 
-                  value={filters.difficulty}
-                  onChange={(e) => setFilters({...filters, difficulty: e.target.value})}
-                >
-                  <option value="all">All Difficulties</option>
-                  <option value="easy">Easy</option>
-                  <option value="medium">Medium</option>
-                  <option value="hard">Hard</option>
-                </select>
-                <select 
                   value={filters.grade}
                   onChange={(e) => setFilters({...filters, grade: e.target.value})}
                 >
@@ -1240,10 +1169,6 @@ const QuizAssignmentManager = () => {
                     <div key={question._id} className="question-card">
                       <div className="question-header">
                         <div className="question-meta">
-                          <span className="category-icon">{getCategoryIcon(question.category)}</span>
-                          <span className={`difficulty-badge ${question.difficulty}`}>
-                            {question.difficulty}
-                          </span>
                           {question.grade && (
                             <span className="grade-badge">Grade {question.grade}</span>
                           )}
