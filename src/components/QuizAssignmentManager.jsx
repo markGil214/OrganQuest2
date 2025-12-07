@@ -208,6 +208,11 @@ const QuizAssignmentManager = () => {
 
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Authentication required. Please log in again.');
+        return;
+      }
+
       const response = await fetch(`${API_BASE_URL}/api/teacher/questions/create`, {
         method: 'POST',
         headers: {
@@ -220,7 +225,16 @@ const QuizAssignmentManager = () => {
         })
       });
 
-      if (!response.ok) throw new Error('Failed to create question');
+      if (response.status === 401) {
+        alert('Unauthorized. Please log in as a teacher.');
+        return;
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create question');
+      }
+      
       const data = await response.json();
       
       // Add to quiz questions
@@ -243,7 +257,7 @@ const QuizAssignmentManager = () => {
       alert('Question created and added to quiz!');
     } catch (error) {
       console.error('Error creating question:', error);
-      alert('Failed to create question');
+      alert(`Failed to create question: ${error.message}`);
     }
   };
 
@@ -333,6 +347,11 @@ const QuizAssignmentManager = () => {
 
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Authentication required. Please log in again.');
+        return;
+      }
+
       const url = editingQuestion 
         ? `${API_BASE_URL}/api/teacher/questions/${editingQuestion._id}`
         : `${API_BASE_URL}/api/teacher/questions/create`;
@@ -348,7 +367,15 @@ const QuizAssignmentManager = () => {
         body: JSON.stringify(questionForm)
       });
 
-      if (!response.ok) throw new Error('Failed to save question');
+      if (response.status === 401) {
+        alert('Unauthorized. Please log in as a teacher.');
+        return;
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to save question');
+      }
       
       alert(editingQuestion ? 'Question updated successfully!' : 'Question created successfully!');
       
@@ -366,7 +393,7 @@ const QuizAssignmentManager = () => {
       fetchQuestionStats();
     } catch (error) {
       console.error('Error saving question:', error);
-      alert('Failed to save question');
+      alert(`Failed to save question: ${error.message}`);
     }
   };
 
