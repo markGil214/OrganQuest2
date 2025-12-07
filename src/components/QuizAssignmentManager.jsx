@@ -52,7 +52,7 @@ const QuizAssignmentManager = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        console.warn('No authentication token found');
+        setLoadingAssignments(false);
         return;
       }
 
@@ -84,7 +84,7 @@ const QuizAssignmentManager = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        console.warn('No authentication token found');
+        setLoadingQuestions(false);
         return;
       }
 
@@ -120,7 +120,6 @@ const QuizAssignmentManager = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        console.warn('No authentication token found');
         return;
       }
 
@@ -145,6 +144,9 @@ const QuizAssignmentManager = () => {
   };
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return; // Don't fetch if not authenticated
+    
     if (activeTab === 'assignments' && creationStep === 0) {
       fetchAssignments();
     } else if (activeTab === 'questionBank') {
@@ -154,6 +156,9 @@ const QuizAssignmentManager = () => {
   }, [activeTab, filters]);
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return; // Don't fetch if not authenticated
+    
     if (creationStep === 2) {
       fetchQuestions();
     }
