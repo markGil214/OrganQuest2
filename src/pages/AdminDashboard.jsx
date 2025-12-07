@@ -533,7 +533,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
               <div className="grid grid-cols-3 gap-4">
                 <div className="bg-green-50 p-3 rounded-lg border border-green-200">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700">Mastered (>80%)</span>
+                    <span className="text-sm font-medium text-gray-700">Mastered (&gt;80%)</span>
                     <span className="text-lg font-bold text-green-600">{analytics.masteredTopics || 0}</span>
                   </div>
                   <div className="text-xs text-gray-500 mt-1">Students excelling</div>
@@ -547,7 +547,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
                 </div>
                 <div className="bg-orange-50 p-3 rounded-lg border border-orange-200">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700">Struggling (<50%)</span>
+                    <span className="text-sm font-medium text-gray-700">Struggling (&lt;50%)</span>
                     <span className="text-lg font-bold text-orange-600">{analytics.strugglingTopics || 0}</span>
                   </div>
                   <div className="text-xs text-gray-500 mt-1">Need support</div>
@@ -579,10 +579,10 @@ const AdminDashboard = ({ userData, onLogout }) => {
               className="px-4 py-2 rounded-lg border-2 border-gray-200 focus:border-purple-500 outline-none"
             >
               <option value="">All Performance Levels</option>
-              <option value="excellent">Excellent (>80%)</option>
+              <option value="excellent">Excellent (&gt;80%)</option>
               <option value="good">Good (60-80%)</option>
               <option value="average">Average (40-60%)</option>
-              <option value="needs-improvement">Needs Improvement (<40%)</option>
+              <option value="needs-improvement">Needs Improvement (&lt;40%)</option>
             </select>
 
             <select
@@ -593,7 +593,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
             >
               <option value="">All Activity Levels</option>
               <option value="active">Active (This week)</option>
-              <option value="inactive">Inactive (>7 days)</option>
+              <option value="inactive">Inactive (&gt;7 days)</option>
               <option value="at-risk">At Risk</option>
             </select>
 
@@ -726,9 +726,6 @@ const AdminDashboard = ({ userData, onLogout }) => {
                   </tr>
                   );
                 })}
-                    </td>
-                  </tr>
-                ))}
               </tbody>
             </table>
           </div>
