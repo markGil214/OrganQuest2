@@ -13,8 +13,7 @@ router.post('/create',
   [
     body('questionText').trim().notEmpty().withMessage('Question text is required'),
     body('options').isArray({ min: 4, max: 4 }).withMessage('Must have exactly 4 options'),
-    body('correctAnswer').isInt({ min: 0, max: 3 }).withMessage('Correct answer must be 0-3'),
-    body('grade').isIn(['4th', '5th', '6th', 'all']).withMessage('Invalid grade')
+    body('correctAnswer').isInt({ min: 0, max: 3 }).withMessage('Correct answer must be 0-3')
   ],
   async (req, res) => {
     try {
@@ -47,7 +46,7 @@ router.post('/create',
       res.status(201).json({
         success: true,
         message: 'Question created successfully',
-        data: question
+        question: question
       });
     } catch (error) {
       console.error('Error creating question:', error);

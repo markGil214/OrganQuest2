@@ -41,8 +41,8 @@ const customQuestionSchema = new mongoose.Schema({
   },
   grade: {
     type: String,
-    enum: ['4th', '5th', '6th', 'all'],
-    required: true
+    enum: ['7', '8', '9', '10', 'all'],
+    default: 'all'
   },
   isActive: {
     type: Boolean,
