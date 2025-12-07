@@ -48,6 +48,11 @@ const QuizAssignmentManager = () => {
     setLoadingAssignments(true);
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        console.warn('No authentication token found');
+        return;
+      }
+
       const response = await fetch(`${API_BASE_URL}/api/teacher/quiz/my-assignments`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -55,12 +60,16 @@ const QuizAssignmentManager = () => {
         }
       });
 
+      if (response.status === 401) {
+        console.error('Unauthorized: Please log in as a teacher');
+        return;
+      }
+
       if (!response.ok) throw new Error('Failed to fetch assignments');
       const data = await response.json();
       setAssignments(data.assignments || []);
     } catch (error) {
       console.error('Error fetching assignments:', error);
-      alert('Failed to load quiz assignments');
     } finally {
       setLoadingAssignments(false);
     }
@@ -71,6 +80,11 @@ const QuizAssignmentManager = () => {
     setLoadingQuestions(true);
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        console.warn('No authentication token found');
+        return;
+      }
+
       const queryParams = new URLSearchParams();
       if (filters.category !== 'all') queryParams.append('category', filters.category);
       if (filters.difficulty !== 'all') queryParams.append('difficulty', filters.difficulty);
@@ -83,12 +97,16 @@ const QuizAssignmentManager = () => {
         }
       });
 
+      if (response.status === 401) {
+        console.error('Unauthorized: Please log in as a teacher');
+        return;
+      }
+
       if (!response.ok) throw new Error('Failed to fetch questions');
       const data = await response.json();
       setQuestions(data.questions || []);
     } catch (error) {
       console.error('Error fetching questions:', error);
-      alert('Failed to load custom questions');
     } finally {
       setLoadingQuestions(false);
     }
@@ -98,12 +116,22 @@ const QuizAssignmentManager = () => {
   const fetchQuestionStats = async () => {
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        console.warn('No authentication token found');
+        return;
+      }
+
       const response = await fetch(`${API_BASE_URL}/api/teacher/questions/stats/summary`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
+
+      if (response.status === 401) {
+        console.error('Unauthorized: Please log in as a teacher');
+        return;
+      }
 
       if (!response.ok) throw new Error('Failed to fetch stats');
       const data = await response.json();
