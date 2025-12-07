@@ -12,6 +12,17 @@ router.post('/assign-quiz', authMiddleware, teacherMiddleware, async (req, res) 
     
     const teacher = await User.findById(req.userId);
     
+    // Validate required fields
+    if (!title || !title.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Quiz title is required'
+      });
+    }
+
+    // Ensure assignedGrade is valid
+    const validGrade = assignedGrade && assignedGrade.trim() ? assignedGrade : (teacher.assignedGrade || 'all');
+    
     // Generate unique quiz code
     const quizCode = await QuizAssignment.generateQuizCode();
     
@@ -22,7 +33,7 @@ router.post('/assign-quiz', authMiddleware, teacherMiddleware, async (req, res) 
       quizType,
       title,
       description,
-      assignedGrade: assignedGrade || teacher.assignedGrade || 'all',
+      assignedGrade: validGrade,
       dueDate: dueDate ? new Date(dueDate) : null,
       maxAttempts: maxAttempts || 3,
       timeLimit: timeLimit || null,
