@@ -30,15 +30,30 @@ const QuizModeSelector = ({ quizType, onModeSelect, onBack }) => {
 
     try {
       const token = localStorage.getItem('authToken');
+      
+      if (!token) {
+        setError('Please log in to take this quiz');
+        setLoading(false);
+        return;
+      }
+
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/teacher/quiz/by-code/${teacherCode.trim()}`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       });
 
       const data = await response.json();
 
       if (!response.ok) {
+        if (response.status === 401) {
+          setError('Session expired. Please log in again.');
+          setTimeout(() => {
+            window.location.href = '#login';
+          }, 2000);
+          return;
+        }
         throw new Error(data.message || 'Invalid quiz code');
       }
 
