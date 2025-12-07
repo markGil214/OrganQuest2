@@ -45,7 +45,14 @@ const QuizModeSelector = ({ quizType, onModeSelect, onBack }) => {
       // Check if quiz type matches
       const expectedType = quizTypeMap[quizType] || quizType;
       if (data.data.quizType !== expectedType) {
-        throw new Error(`This code is for ${data.data.quizType} quiz, not ${expectedType}`);
+        const quizTypeNames = {
+          'multiple-choice': 'Multiple Choice',
+          'memory-matching': 'Memory Matching',
+          'timed-challenge': 'Timed Challenge'
+        };
+        const currentQuizName = quizTypeNames[data.data.quizType] || data.data.quizType;
+        const expectedQuizName = quizTypeNames[expectedType] || expectedType;
+        throw new Error(`This code is for ${currentQuizName} quiz. Please select ${currentQuizName} from the quiz menu.`);
       }
 
       onModeSelect('teacher', data.data);
