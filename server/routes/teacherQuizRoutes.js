@@ -8,7 +8,7 @@ const router = express.Router();
 // CREATE: Assign a new quiz with code
 router.post('/assign-quiz', authMiddleware, teacherMiddleware, async (req, res) => {
   try {
-    const { quizType, title, description, assignedGrade, dueDate, maxAttempts, timeLimit } = req.body;
+    const { quizType, title, description, assignedGrade, dueDate, maxAttempts, timeLimit, customQuestions } = req.body;
     
     const teacher = await User.findById(req.userId);
     
@@ -25,7 +25,8 @@ router.post('/assign-quiz', authMiddleware, teacherMiddleware, async (req, res) 
       assignedGrade: assignedGrade || teacher.assignedGrade || 'all',
       dueDate: dueDate ? new Date(dueDate) : null,
       maxAttempts: maxAttempts || 3,
-      timeLimit: timeLimit || null
+      timeLimit: timeLimit || null,
+      customQuestions: customQuestions || []
     });
     
     await quizAssignment.save();
@@ -33,7 +34,7 @@ router.post('/assign-quiz', authMiddleware, teacherMiddleware, async (req, res) 
     res.status(201).json({
       success: true,
       message: 'Quiz assigned successfully',
-      data: quizAssignment
+      assignment: quizAssignment
     });
   } catch (error) {
     console.error('Error assigning quiz:', error);
@@ -60,18 +61,27 @@ router.get('/my-assignments', authMiddleware, teacherMiddleware, async (req, res
         : 0;
       
       return {
-        ...assignment.toObject(),
-        stats: {
-          totalSubmissions,
-          uniqueStudents,
-          averageScore: avgScore.toFixed(2)
-        }
+        _id: assignment._id,
+        quizCode: assignment.quizCode,
+        quizType: assignment.quizType,
+        title: assignment.title,
+        description: assignment.description,
+        assignedGrade: assignment.assignedGrade,
+        dueDate: assignment.dueDate,
+        maxAttempts: assignment.maxAttempts,
+        timeLimit: assignment.timeLimit,
+        isActive: assignment.isActive,
+        customQuestions: assignment.customQuestions,
+        createdAt: assignment.createdAt,
+        submissions: totalSubmissions,
+        uniqueStudents,
+        averageScore: avgScore
       };
     });
     
     res.json({
       success: true,
-      data: assignmentsWithStats
+      assignments: assignmentsWithStats
     });
   } catch (error) {
     console.error('Error fetching assignments:', error);

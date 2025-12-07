@@ -52,6 +52,10 @@ const quizAssignmentSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
+  customQuestions: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'CustomQuestion'
+  }],
   studentSubmissions: [{
     studentId: {
       type: mongoose.Schema.Types.ObjectId,
