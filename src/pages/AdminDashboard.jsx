@@ -11,7 +11,8 @@ const AdminDashboard = ({ userData, onLogout }) => {
   const [filters, setFilters] = useState({
     search: '',
     performanceLevel: '',
-    activityLevel: ''
+    activityLevel: '',
+    grade: ''
   });
   const [loading, setLoading] = useState(true);
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -643,7 +644,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
       {activeTab === 'students' && (
       <div className="max-w-7xl mx-auto mb-6">
         <Card className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <input
               type="text"
               name="search"
@@ -653,9 +654,21 @@ const AdminDashboard = ({ userData, onLogout }) => {
               className="px-4 py-2 rounded-lg border-2 border-gray-200 focus:border-purple-500 outline-none"
             />
 
+            <select
+              name="grade"
+              value={filters.grade || ''}
+              onChange={handleFilterChange}
+              className="px-4 py-2 rounded-lg border-2 border-gray-200 focus:border-purple-500 outline-none"
+            >
+              <option value="">All Grades</option>
+              <option value="4th">4th Grade</option>
+              <option value="5th">5th Grade</option>
+              <option value="6th">6th Grade</option>
+            </select>
+
             <Button
               onClick={() => {
-                setFilters({ search: '', performanceLevel: '', activityLevel: '' });
+                setFilters({ search: '', performanceLevel: '', activityLevel: '', grade: '' });
                 setCurrentPage(1);
               }}
               variant="outline"
@@ -678,6 +691,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
               <thead>
                 <tr className="border-b-2 border-gray-200 bg-gray-50">
                   <th className="text-left p-3 font-semibold text-gray-700">Student</th>
+                  <th className="text-left p-3 font-semibold text-gray-700">Grade Level</th>
                   <th className="text-left p-3 font-semibold text-gray-700">Quiz Progress</th>
                   <th className="text-left p-3 font-semibold text-gray-700">Avg Score</th>
                   <th className="text-left p-3 font-semibold text-gray-700">Actions</th>
@@ -705,6 +719,11 @@ const AdminDashboard = ({ userData, onLogout }) => {
                         <div className="font-medium text-gray-900">{student.fullName}</div>
                         <div className="text-sm text-gray-500">@{student.username}</div>
                       </div>
+                    </td>
+                    <td className="p-3">
+                      <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
+                        {student.grade === '4th' ? '4th Grade' : student.grade === '5th' ? '5th Grade' : student.grade === '6th' ? '6th Grade' : student.grade || 'N/A'}
+                      </span>
                     </td>
                     <td className="p-3">
                       <div className="flex items-center gap-2">

@@ -14,6 +14,7 @@ router.get('/students', authMiddleware, teacherMiddleware, async (req, res) => {
       search, // Search by name or username
       performanceLevel,
       activityLevel,
+      grade, // Grade filter
       sortBy = 'createdAt', 
       sortOrder = 'desc',
       page = 1,
@@ -26,6 +27,11 @@ router.get('/students', authMiddleware, teacherMiddleware, async (req, res) => {
     // Filter by assigned grade if teacher (not superuser)
     if (req.userRole === 'teacher' && req.assignedGrade && req.assignedGrade !== 'all') {
       query.grade = req.assignedGrade;
+    }
+
+    // Apply explicit grade filter if provided
+    if (grade) {
+      query.grade = grade;
     }
 
     if (search) {
