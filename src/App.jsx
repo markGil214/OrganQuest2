@@ -63,6 +63,10 @@ function App() {
       
       if (!allowedWithoutAuth && (!currentHash || currentHash === 'home')) {
         window.location.hash = 'login';
+      } else if (!allowedWithoutAuth && currentHash && currentHash !== 'login' && currentHash !== 'register') {
+        // Store the intended destination and redirect to login
+        sessionStorage.setItem('redirectAfterLogin', currentHash);
+        window.location.hash = 'login';
       }
       // Allow register route and interactive viewer to work without authentication
     }
