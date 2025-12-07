@@ -33,7 +33,7 @@ const quizAssignmentSchema = new mongoose.Schema({
   },
   assignedGrade: {
     type: String,
-    enum: ['4th', '5th', '6th', 'all'],
+    enum: ['7', '8', '9', '10', 'all'],
     required: true
   },
   dueDate: {
