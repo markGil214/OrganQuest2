@@ -161,10 +161,20 @@ function App() {
     // Save user data to cookies for persistent login
     setCookie('organquest_user', userData);
     
-    // Redirect based on role and replace history to prevent back navigation
-    const targetHash = (userData.role === 'teacher' || userData.role === 'superuser') 
-      ? '#admin/dashboard' 
-      : '#main-menu';
+    // Check if there's a stored redirect URL
+    const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
+    sessionStorage.removeItem('redirectAfterLogin');
+    
+    let targetHash;
+    if (redirectUrl) {
+      // Use the stored redirect URL
+      targetHash = `#${redirectUrl}`;
+    } else {
+      // Redirect based on role and replace history to prevent back navigation
+      targetHash = (userData.role === 'teacher' || userData.role === 'superuser') 
+        ? '#admin/dashboard' 
+        : '#main-menu';
+    }
     
     window.history.replaceState(null, '', targetHash);
     window.location.hash = targetHash.slice(1);
