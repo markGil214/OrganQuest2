@@ -30,6 +30,7 @@ const QuizModeSelector = ({ quizType, onModeSelect, onBack }) => {
 
     try {
       const token = localStorage.getItem('authToken');
+      console.log('Token found:', token ? 'Yes' : 'No');
       
       if (!token) {
         setError('Please log in to take this quiz');
@@ -37,28 +38,31 @@ const QuizModeSelector = ({ quizType, onModeSelect, onBack }) => {
         return;
       }
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/teacher/quiz/by-code/${teacherCode.trim()}`, {
+      const apiUrl = `${import.meta.env.VITE_API_URL}/api/teacher/quiz/by-code/${teacherCode.trim()}`;
+      console.log('Fetching quiz from:', apiUrl);
+
+      const response = await fetch(apiUrl, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
 
+      console.log('Response status:', response.status);
       const data = await response.json();
+      console.log('Response data:', data);
 
       if (!response.ok) {
         if (response.status === 401) {
-          setError('Session expired. Please log in again.');
-          setTimeout(() => {
-            window.location.href = '#login';
-          }, 2000);
-          return;
+          throw new Error('Session expired. Please log out and log in again.');
         }
         throw new Error(data.message || 'Invalid quiz code');
       }
 
       // Check if quiz type matches
       const expectedType = quizTypeMap[quizType] || quizType;
+      console.log('Expected type:', expectedType, 'Actual type:', data.data.quizType);
+      
       if (data.data.quizType !== expectedType) {
         const quizTypeNames = {
           'multiple-choice': 'Multiple Choice',
@@ -70,8 +74,10 @@ const QuizModeSelector = ({ quizType, onModeSelect, onBack }) => {
         throw new Error(`This code is for ${currentQuizName} quiz. Please select ${currentQuizName} from the quiz menu.`);
       }
 
+      console.log('Calling onModeSelect with:', data.data);
       onModeSelect('teacher', data.data);
     } catch (err) {
+      console.error('Error in handleTeacherMode:', err);
       setError(err.message);
     } finally {
       setLoading(false);
