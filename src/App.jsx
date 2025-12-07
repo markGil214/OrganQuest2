@@ -49,10 +49,20 @@ function App() {
   // Check for existing user data on app load
   useEffect(() => {
     const existingUserData = getCookie('organquest_user');
+    const localStorageUserData = localStorage.getItem('userData');
+    const authToken = localStorage.getItem('authToken');
     const currentHash = window.location.hash.slice(1); // Remove the # symbol
     
-    if (existingUserData) {
-      setUserData(existingUserData);
+    // Check if user is authenticated via cookie OR localStorage
+    const isAuthenticated = existingUserData || (localStorageUserData && authToken);
+    const userData = existingUserData || (localStorageUserData ? JSON.parse(localStorageUserData) : null);
+    
+    if (isAuthenticated && userData) {
+      setUserData(userData);
+      // Sync cookie if missing but localStorage has data
+      if (!existingUserData && localStorageUserData) {
+        setCookie('organquest_user', userData);
+      }
       // Auto-redirect to main menu if user exists and no specific hash is present
       if (!currentHash || currentHash === 'home' || currentHash === 'login') {
         window.location.hash = 'main-menu';
