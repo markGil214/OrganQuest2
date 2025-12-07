@@ -634,6 +634,52 @@ router.get('/quiz-analytics', authMiddleware, teacherMiddleware, async (req, res
       delete stat.totalTime;
     });
 
+    // Performance trends over time (for graphs)
+    const performanceTrends = {
+      'multiple-choice': [],
+      'timed-challenge': [],
+      'memory-matching': []
+    };
+
+    // Group quiz results by type and date
+    allQuizResults.forEach(quiz => {
+      const type = quiz.quizType;
+      if (performanceTrends[type]) {
+        performanceTrends[type].push({
+          date: quiz.completedAt,
+          score: quiz.percentage || 0,
+          timeTaken: quiz.timeTaken || 0
+        });
+      }
+    });
+
+    // Sort by date and calculate rolling averages
+    Object.keys(performanceTrends).forEach(type => {
+      performanceTrends[type].sort((a, b) => new Date(a.date) - new Date(b.date));
+      
+      // Group by day and calculate daily averages
+      const dailyAverages = {};
+      performanceTrends[type].forEach(result => {
+        const dateKey = new Date(result.date).toISOString().split('T')[0];
+        if (!dailyAverages[dateKey]) {
+          dailyAverages[dateKey] = { scores: [], times: [] };
+        }
+        dailyAverages[dateKey].scores.push(result.score);
+        dailyAverages[dateKey].times.push(result.timeTaken);
+      });
+
+      // Convert to array format for graphing
+      performanceTrends[type] = Object.entries(dailyAverages)
+        .map(([date, data]) => ({
+          date,
+          avgScore: Math.round(data.scores.reduce((a, b) => a + b, 0) / data.scores.length),
+          avgTime: Math.round(data.times.reduce((a, b) => a + b, 0) / data.times.length),
+          attempts: data.scores.length
+        }))
+        .sort((a, b) => new Date(a.date) - new Date(b.date))
+        .slice(-30); // Last 30 days
+    });
+
     // Question difficulty analysis
     const questionStats = {};
     allQuizResults.forEach(quiz => {
@@ -725,6 +771,7 @@ router.get('/quiz-analytics', authMiddleware, teacherMiddleware, async (req, res
             : 0
         },
         quizTypeStats,
+        performanceTrends,
         questionDifficulty: {
           hardestQuestions: questionsArray.slice(0, 10),
           easiestQuestions: questionsArray.slice(-10).reverse(),

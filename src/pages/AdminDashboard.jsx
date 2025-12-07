@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import QuizAssignmentManager from '../components/QuizAssignmentManager';
 
 const AdminDashboard = ({ userData, onLogout }) => {
@@ -324,35 +325,150 @@ const AdminDashboard = ({ userData, onLogout }) => {
             </div>
           ) : (
             <div className="space-y-6">
-              {/* Quiz Type Performance */}
+              {/* Quiz Performance Graphs */}
               <Card className="p-6">
-                <h3 className="text-2xl font-bold text-gray-800 mb-4">📊 Quiz Type Performance</h3>
-                {!quizAnalytics.quizTypeStats || quizAnalytics.quizTypeStats.length === 0 ? (
+                <h3 className="text-2xl font-bold text-gray-800 mb-6">📈 Quiz Performance Over Time</h3>
+                {!quizAnalytics.performanceTrends || Object.values(quizAnalytics.performanceTrends).every(arr => arr.length === 0) ? (
                   <div className="text-center py-8 text-gray-500">
-                    <p className="text-lg">No quiz data available yet</p>
-                    <p className="text-sm mt-2">Students need to take quizzes first</p>
+                    <p className="text-lg">No performance data available yet</p>
+                    <p className="text-sm mt-2">Students need to take quizzes to see performance trends</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {quizAnalytics.quizTypeStats.map((stat) => (
-                      <div key={stat.type} className="p-4 bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg">
-                        <div className="font-semibold text-lg text-gray-800 mb-2">{stat.type}</div>
-                        <div className="space-y-1 text-sm">
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Total Attempts:</span>
-                            <span className="font-semibold">{stat.totalAttempts || 0}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Avg Score:</span>
-                            <span className="font-semibold text-green-600">{(stat.avgScore || 0).toFixed(1)}%</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Avg Time:</span>
-                            <span className="font-semibold">{(stat.avgTime || 0).toFixed(0)}s</span>
-                          </div>
+                  <div className="space-y-8">
+                    {/* Multiple Choice Graph */}
+                    {quizAnalytics.performanceTrends['multiple-choice']?.length > 0 && (
+                      <div className="border-2 border-blue-100 rounded-lg p-4 bg-gradient-to-br from-blue-50 to-white">
+                        <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                          <span className="w-3 h-3 bg-blue-500 rounded-full"></span>
+                          Multiple Choice Quiz Performance
+                        </h4>
+                        <ResponsiveContainer width="100%" height={300}>
+                          <LineChart data={quizAnalytics.performanceTrends['multiple-choice']}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                            <XAxis 
+                              dataKey="date" 
+                              tickFormatter={(date) => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              stroke="#6b7280"
+                            />
+                            <YAxis 
+                              domain={[0, 100]} 
+                              label={{ value: 'Score (%)', angle: -90, position: 'insideLeft' }}
+                              stroke="#6b7280"
+                            />
+                            <Tooltip 
+                              labelFormatter={(date) => new Date(date).toLocaleDateString()}
+                              formatter={(value, name) => [
+                                name === 'avgScore' ? `${value}%` : `${value}s`,
+                                name === 'avgScore' ? 'Avg Score' : 'Avg Time'
+                              ]}
+                            />
+                            <Legend />
+                            <Line 
+                              type="monotone" 
+                              dataKey="avgScore" 
+                              stroke="#3b82f6" 
+                              strokeWidth={3}
+                              dot={{ fill: '#3b82f6', r: 4 }}
+                              name="Average Score"
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                        <div className="mt-3 text-sm text-gray-600 flex justify-between items-center px-2">
+                          <span>📊 Total Attempts: {quizAnalytics.quizTypeStats['multiple-choice']?.total || 0}</span>
+                          <span>⭐ Overall Avg: {quizAnalytics.quizTypeStats['multiple-choice']?.avgScore || 0}%</span>
                         </div>
                       </div>
-                    ))}
+                    )}
+
+                    {/* Memory Matching Graph */}
+                    {quizAnalytics.performanceTrends['memory-matching']?.length > 0 && (
+                      <div className="border-2 border-purple-100 rounded-lg p-4 bg-gradient-to-br from-purple-50 to-white">
+                        <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                          <span className="w-3 h-3 bg-purple-500 rounded-full"></span>
+                          Memory Matching Quiz Performance
+                        </h4>
+                        <ResponsiveContainer width="100%" height={300}>
+                          <LineChart data={quizAnalytics.performanceTrends['memory-matching']}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                            <XAxis 
+                              dataKey="date" 
+                              tickFormatter={(date) => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              stroke="#6b7280"
+                            />
+                            <YAxis 
+                              domain={[0, 100]} 
+                              label={{ value: 'Score (%)', angle: -90, position: 'insideLeft' }}
+                              stroke="#6b7280"
+                            />
+                            <Tooltip 
+                              labelFormatter={(date) => new Date(date).toLocaleDateString()}
+                              formatter={(value, name) => [
+                                name === 'avgScore' ? `${value}%` : `${value}s`,
+                                name === 'avgScore' ? 'Avg Score' : 'Avg Time'
+                              ]}
+                            />
+                            <Legend />
+                            <Line 
+                              type="monotone" 
+                              dataKey="avgScore" 
+                              stroke="#a855f7" 
+                              strokeWidth={3}
+                              dot={{ fill: '#a855f7', r: 4 }}
+                              name="Average Score"
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                        <div className="mt-3 text-sm text-gray-600 flex justify-between items-center px-2">
+                          <span>📊 Total Attempts: {quizAnalytics.quizTypeStats['memory-matching']?.total || 0}</span>
+                          <span>⭐ Overall Avg: {quizAnalytics.quizTypeStats['memory-matching']?.avgScore || 0}%</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Timed Challenge Graph */}
+                    {quizAnalytics.performanceTrends['timed-challenge']?.length > 0 && (
+                      <div className="border-2 border-green-100 rounded-lg p-4 bg-gradient-to-br from-green-50 to-white">
+                        <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                          <span className="w-3 h-3 bg-green-500 rounded-full"></span>
+                          Timed Challenge Quiz Performance
+                        </h4>
+                        <ResponsiveContainer width="100%" height={300}>
+                          <LineChart data={quizAnalytics.performanceTrends['timed-challenge']}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                            <XAxis 
+                              dataKey="date" 
+                              tickFormatter={(date) => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              stroke="#6b7280"
+                            />
+                            <YAxis 
+                              domain={[0, 100]} 
+                              label={{ value: 'Score (%)', angle: -90, position: 'insideLeft' }}
+                              stroke="#6b7280"
+                            />
+                            <Tooltip 
+                              labelFormatter={(date) => new Date(date).toLocaleDateString()}
+                              formatter={(value, name) => [
+                                name === 'avgScore' ? `${value}%` : `${value}s`,
+                                name === 'avgScore' ? 'Avg Score' : 'Avg Time'
+                              ]}
+                            />
+                            <Legend />
+                            <Line 
+                              type="monotone" 
+                              dataKey="avgScore" 
+                              stroke="#22c55e" 
+                              strokeWidth={3}
+                              dot={{ fill: '#22c55e', r: 4 }}
+                              name="Average Score"
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                        <div className="mt-3 text-sm text-gray-600 flex justify-between items-center px-2">
+                          <span>📊 Total Attempts: {quizAnalytics.quizTypeStats['timed-challenge']?.total || 0}</span>
+                          <span>⭐ Overall Avg: {quizAnalytics.quizTypeStats['timed-challenge']?.avgScore || 0}%</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </Card>
