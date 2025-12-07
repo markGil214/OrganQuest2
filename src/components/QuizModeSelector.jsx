@@ -8,6 +8,13 @@ const QuizModeSelector = ({ quizType, onModeSelect, onBack }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Map frontend quiz type to backend quiz type
+  const quizTypeMap = {
+    'mcq': 'multiple-choice',
+    'memory': 'memory-matching',
+    'timed': 'timed-challenge'
+  };
+
   const handleSoloMode = () => {
     onModeSelect('solo', null);
   };
@@ -36,8 +43,9 @@ const QuizModeSelector = ({ quizType, onModeSelect, onBack }) => {
       }
 
       // Check if quiz type matches
-      if (data.data.quizType !== quizType) {
-        throw new Error(`This code is for ${data.data.quizType} quiz, not ${quizType}`);
+      const expectedType = quizTypeMap[quizType] || quizType;
+      if (data.data.quizType !== expectedType) {
+        throw new Error(`This code is for ${data.data.quizType} quiz, not ${expectedType}`);
       }
 
       onModeSelect('teacher', data.data);

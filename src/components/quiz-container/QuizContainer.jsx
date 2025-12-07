@@ -79,8 +79,49 @@ const QuizContainer = () => {
 
   // Check attempts on mount
   useEffect(() => {
-    checkAttempts();
-  }, []);
+    if (assignmentId) {
+      fetchAssignmentData();
+    } else {
+      checkAttempts();
+    }
+  }, [assignmentId]);
+
+  // Fetch assignment data if in teacher mode
+  const fetchAssignmentData = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/teacher/quiz/${assignmentId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        setAssignmentData(data.data);
+        // Set custom questions if available
+        if (data.data.customQuestions && data.data.customQuestions.length > 0) {
+          const formattedQuestions = data.data.customQuestions.map(q => ({
+            question: q.questionText,
+            options: q.options,
+            correct: q.correctAnswer,
+            explanation: q.explanation || 'No explanation provided'
+          }));
+          setQuizQuestions(formattedQuestions.map(q => shuffleOptions(q)));
+        }
+        setTimeRemaining(data.data.timeLimit || 600);
+        setIsLoading(false);
+      } else {
+        alert(data.message || 'Failed to load assignment');
+        window.location.href = '#quiz';
+      }
+    } catch (error) {
+      console.error('Failed to fetch assignment:', error);
+      alert('Failed to load quiz assignment');
+      window.location.href = '#quiz';
+    }
+  };
 
   // Timer countdown
   useEffect(() => {
