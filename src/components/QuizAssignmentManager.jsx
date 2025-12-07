@@ -738,13 +738,16 @@ const QuizAssignmentManager = () => {
                       <select 
                         value={currentAssignment.assignedGrade}
                         onChange={(e) => setCurrentAssignment({...currentAssignment, assignedGrade: e.target.value})}
+                        disabled
                         required
+                        className="grade-disabled"
                       >
                         <option value="">Select Grade</option>
                         <option value="4th">4th Grade</option>
                         <option value="5th">5th Grade</option>
                         <option value="6th">6th Grade</option>
                       </select>
+                      <small className="field-hint">Auto-detected from your teacher profile</small>
                     </div>
                   </div>
 
@@ -1133,13 +1136,15 @@ const QuizAssignmentManager = () => {
                     <select 
                       value={questionForm.grade}
                       onChange={(e) => setQuestionForm({...questionForm, grade: e.target.value})}
+                      disabled
+                      className="grade-disabled"
                     >
                       <option value="">All Grades</option>
-                      <option value="7">Grade 7</option>
-                      <option value="8">Grade 8</option>
-                      <option value="9">Grade 9</option>
-                      <option value="10">Grade 10</option>
+                      <option value="4th">4th Grade</option>
+                      <option value="5th">5th Grade</option>
+                      <option value="6th">6th Grade</option>
                     </select>
+                    <small className="field-hint">Auto-detected from your teacher profile</small>
                   </div>
                 </div>
 
@@ -1179,12 +1184,13 @@ const QuizAssignmentManager = () => {
                 <select 
                   value={filters.grade}
                   onChange={(e) => setFilters({...filters, grade: e.target.value})}
+                  disabled
+                  className="grade-disabled"
                 >
                   <option value="">All Grades</option>
-                  <option value="7">Grade 7</option>
-                  <option value="8">Grade 8</option>
-                  <option value="9">Grade 9</option>
-                  <option value="10">Grade 10</option>
+                  <option value="4th">4th Grade</option>
+                  <option value="5th">5th Grade</option>
+                  <option value="6th">6th Grade</option>
                 </select>
               </div>
 

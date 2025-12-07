@@ -150,6 +150,21 @@
   font-family: inherit;
 }
 
+/* Disabled Grade Field */
+.grade-disabled {
+  background-color: #f5f5f5 !important;
+  color: #666 !important;
+  cursor: not-allowed !important;
+  opacity: 0.8;
+}
+
+.field-hint {
+  color: #666;
+  font-size: 12px;
+  font-style: italic;
+  margin-top: 4px;
+}
+
 /* Custom Questions Toggle */
 .custom-questions-toggle {
   margin-bottom: 15px;
