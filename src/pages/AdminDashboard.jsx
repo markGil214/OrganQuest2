@@ -25,6 +25,13 @@ const AdminDashboard = ({ userData, onLogout }) => {
 
   const API_URL = import.meta.env.VITE_API_URL || 'https://organquest2.onrender.com';
 
+  // Auto-populate grade filter for teachers on mount
+  useEffect(() => {
+    if (userData?.role === 'teacher' && userData?.assignedGrade) {
+      setFilters(prev => ({ ...prev, grade: userData.assignedGrade }));
+    }
+  }, [userData]);
+
   useEffect(() => {
     fetchStudents();
     fetchAnalytics();
@@ -658,7 +665,10 @@ const AdminDashboard = ({ userData, onLogout }) => {
               name="grade"
               value={filters.grade || ''}
               onChange={handleFilterChange}
-              className="px-4 py-2 rounded-lg border-2 border-gray-200 focus:border-purple-500 outline-none"
+              disabled={userData?.role === 'teacher'}
+              className={`px-4 py-2 rounded-lg border-2 border-gray-200 focus:border-purple-500 outline-none ${
+                userData?.role === 'teacher' ? 'bg-gray-100 cursor-not-allowed opacity-70' : ''
+              }`}
             >
               <option value="">All Grades</option>
               <option value="4th">4th Grade</option>
