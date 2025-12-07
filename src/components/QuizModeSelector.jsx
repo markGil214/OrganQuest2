@@ -22,7 +22,7 @@ const QuizModeSelector = ({ quizType, onModeSelect, onBack }) => {
     setError('');
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/teacher/quiz/by-code/${teacherCode.trim()}`, {
         headers: {
           'Authorization': `Bearer ${token}`
