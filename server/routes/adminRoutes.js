@@ -12,8 +12,8 @@ router.get('/students', authMiddleware, teacherMiddleware, async (req, res) => {
   try {
     const { 
       search, // Search by name or username
-      grade, 
-      age, 
+      performanceLevel,
+      activityLevel,
       sortBy = 'createdAt', 
       sortOrder = 'desc',
       page = 1,
@@ -26,15 +26,6 @@ router.get('/students', authMiddleware, teacherMiddleware, async (req, res) => {
     // Filter by assigned grade if teacher (not superuser)
     if (req.userRole === 'teacher' && req.assignedGrade && req.assignedGrade !== 'all') {
       query.grade = req.assignedGrade;
-    } else if (grade) {
-      // Only apply grade filter from query params if superuser or teacher with 'all' grades
-      query.grade = grade;
-    }
-
-    // Apply other filters
-
-    if (age) {
-      query.age = parseInt(age);
     }
 
     if (search) {
@@ -48,13 +39,47 @@ router.get('/students', authMiddleware, teacherMiddleware, async (req, res) => {
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
     // Get students
-    const students = await User.find(query)
+    let students = await User.find(query)
       .select('-password -__v')
       .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 })
       .skip(skip)
       .limit(parseInt(limit));
 
-    // Get total count
+    // Apply performance and activity filters after fetching
+    if (performanceLevel || activityLevel) {
+      students = students.filter(student => {
+        // Performance level filter
+        if (performanceLevel) {
+          if (student.quizResults.length === 0) return false;
+          
+          const avgScore = student.quizResults.reduce((sum, q) => sum + (q.score / q.totalQuestions * 100), 0) / student.quizResults.length;
+          
+          if (performanceLevel === 'excellent' && avgScore <= 80) return false;
+          if (performanceLevel === 'good' && (avgScore < 60 || avgScore > 80)) return false;
+          if (performanceLevel === 'average' && (avgScore < 40 || avgScore > 60)) return false;
+          if (performanceLevel === 'needs-improvement' && avgScore >= 40) return false;
+        }
+
+        // Activity level filter
+        if (activityLevel) {
+          const lastActive = student.stats?.lastActive ? new Date(student.stats.lastActive) : null;
+          const daysInactive = lastActive ? Math.floor((Date.now() - lastActive) / (1000 * 60 * 60 * 24)) : 999;
+          
+          if (activityLevel === 'active' && daysInactive > 7) return false;
+          if (activityLevel === 'inactive' && daysInactive <= 7) return false;
+          if (activityLevel === 'at-risk') {
+            const avgScore = student.quizResults.length > 0
+              ? student.quizResults.reduce((sum, q) => sum + (q.score / q.totalQuestions * 100), 0) / student.quizResults.length
+              : 0;
+            if (avgScore >= 40 && daysInactive <= 14) return false;
+          }
+        }
+
+        return true;
+      });
+    }
+
+    // Get total count (note: filters are applied in memory, so this is approximate)
     const total = await User.countDocuments(query);
 
     // Calculate additional metrics for each student
@@ -136,7 +161,7 @@ router.get('/students/:id', authMiddleware, teacherMiddleware, async (req, res) 
 });
 
 // @route   GET /api/Teacher/analytics
-// @desc    Get analytics for assigned students
+// @desc    Get learning progress analytics for assigned students
 // @access  Teacher/Superuser
 router.get('/analytics', authMiddleware, teacherMiddleware, async (req, res) => {
   try {
@@ -149,63 +174,88 @@ router.get('/analytics', authMiddleware, teacherMiddleware, async (req, res) => 
 
     const students = await User.find(query).select('-password -__v');
 
-    // Calculate analytics
+    // Calculate learning progress analytics
     const totalStudents = students.length;
-    const activeStudents = students.filter(s => s.stats.totalQuizzesTaken > 0).length;
+    const now = new Date();
+    const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
     
-    const totalQuizzes = students.reduce((sum, s) => sum + s.stats.totalQuizzesTaken, 0);
-    
+    // Active learners (activity in last 7 days)
+    const activeLearners = students.filter(s => {
+      if (!s.stats?.lastActive) return false;
+      return new Date(s.stats.lastActive) >= weekAgo;
+    }).length;
+
+    // Quiz completion rate
     const studentsWithQuizzes = students.filter(s => s.stats.totalQuizzesTaken > 0);
-    const avgQuizzesPerStudent = studentsWithQuizzes.length > 0 
-      ? totalQuizzes / studentsWithQuizzes.length 
+    const expectedQuizzes = 10; // Target number of quizzes
+    const totalCompletedQuizzes = students.reduce((sum, s) => sum + Math.min(s.stats.totalQuizzesTaken, expectedQuizzes), 0);
+    const quizCompletionRate = totalStudents > 0
+      ? Math.round((totalCompletedQuizzes / (totalStudents * expectedQuizzes)) * 100)
       : 0;
 
-    // Calculate overall average score
-    let totalScorePercentage = 0;
-    let studentsWithScores = 0;
+    // Average improvement calculation
+    let totalImprovement = 0;
+    let studentsWithImprovement = 0;
     
     students.forEach(student => {
-      if (student.quizResults.length > 0) {
-        const studentAvg = student.quizResults.reduce((sum, quiz) => {
-          return sum + (quiz.score / quiz.totalQuestions * 100);
-        }, 0) / student.quizResults.length;
-        totalScorePercentage += studentAvg;
-        studentsWithScores++;
+      if (student.quizResults.length >= 2) {
+        const firstScore = (student.quizResults[0].score / student.quizResults[0].totalQuestions) * 100;
+        const lastScore = (student.quizResults[student.quizResults.length - 1].score / student.quizResults[student.quizResults.length - 1].totalQuestions) * 100;
+        totalImprovement += (lastScore - firstScore);
+        studentsWithImprovement++;
       }
     });
 
-    const overallAverageScore = studentsWithScores > 0 
-      ? Math.round(totalScorePercentage / studentsWithScores) 
+    const averageImprovement = studentsWithImprovement > 0
+      ? Math.round(totalImprovement / studentsWithImprovement)
       : 0;
 
-    // Grade distribution
-    const gradeDistribution = {
-      '4th': students.filter(s => s.grade === '4th').length,
-      '5th': students.filter(s => s.grade === '5th').length,
-      '6th': students.filter(s => s.grade === '6th').length
-    };
-
-    // First day progress
-    const studentsWithFirstDayProgress = students.filter(student => {
-      const progress = calculateFirstDayProgress(student);
-      return progress.hasActivity;
+    // At-risk students (low scores or inactive)
+    const atRiskStudents = students.filter(student => {
+      if (student.quizResults.length === 0) return false;
+      
+      const avgScore = student.quizResults.reduce((sum, q) => sum + (q.score / q.totalQuestions * 100), 0) / student.quizResults.length;
+      const isLowScore = avgScore < 40;
+      
+      const lastActive = student.stats?.lastActive ? new Date(student.stats.lastActive) : null;
+      const daysInactive = lastActive ? Math.floor((now - lastActive) / (1000 * 60 * 60 * 24)) : 999;
+      const isInactive = daysInactive > 14;
+      
+      return isLowScore || isInactive;
     }).length;
+
+    // Topic mastery levels
+    let masteredTopics = 0;
+    let learningTopics = 0;
+    let strugglingTopics = 0;
+
+    students.forEach(student => {
+      if (student.quizResults.length === 0) return;
+      
+      const avgScore = student.quizResults.reduce((sum, q) => sum + (q.score / q.totalQuestions * 100), 0) / student.quizResults.length;
+      
+      if (avgScore > 80) {
+        masteredTopics++;
+      } else if (avgScore >= 50) {
+        learningTopics++;
+      } else {
+        strugglingTopics++;
+      }
+    });
 
     res.json({
       success: true,
       data: {
         totalStudents,
-        activeStudents,
-        inactiveStudents: totalStudents - activeStudents,
-        totalQuizzes,
-        avgQuizzesPerStudent: Math.round(avgQuizzesPerStudent * 10) / 10,
-        overallAverageScore,
-        gradeDistribution,
-        firstDayEngagement: {
-          total: totalStudents,
-          active: studentsWithFirstDayProgress,
-          percentage: totalStudents > 0 ? Math.round((studentsWithFirstDayProgress / totalStudents) * 100) : 0
-        }
+        activeLearners,
+        quizCompletionRate,
+        averageImprovement,
+        atRiskStudents,
+        masteredTopics,
+        learningTopics,
+        strugglingTopics,
+        activeStudents: studentsWithQuizzes.length,
+        inactiveStudents: totalStudents - studentsWithQuizzes.length
       }
     });
   } catch (error) {

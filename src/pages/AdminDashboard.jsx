@@ -9,8 +9,8 @@ const AdminDashboard = ({ userData, onLogout }) => {
   const [quizAnalytics, setQuizAnalytics] = useState(null);
   const [filters, setFilters] = useState({
     search: '',
-    grade: '',
-    age: ''
+    performanceLevel: '',
+    activityLevel: ''
   });
   const [loading, setLoading] = useState(true);
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -484,23 +484,74 @@ const AdminDashboard = ({ userData, onLogout }) => {
         </div>
       )}
 
-      {/* Grade Distribution */}
+      {/* Learning Progress Overview */}
       {activeTab === 'students' && analytics && (
         <div className="max-w-7xl mx-auto mb-6">
           <Card className="p-6">
-            <h3 className="text-xl font-bold text-gray-800 mb-4">Grade Distribution</h3>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">{analytics.gradeDistribution['4th']}</div>
-                <div className="text-sm text-gray-600">4th Grade</div>
+            <h3 className="text-xl font-bold text-gray-800 mb-4">📊 Learning Progress Overview</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {/* Quiz Completion Rate */}
+              <div className="text-center p-4 bg-blue-50 rounded-lg border-2 border-blue-100">
+                <div className="text-3xl font-bold text-blue-600">
+                  {analytics.quizCompletionRate || 0}%
+                </div>
+                <div className="text-sm text-gray-600 mt-1">Quiz Completion</div>
+                <div className="text-xs text-gray-500 mt-1">Average across all students</div>
               </div>
-              <div className="text-center p-4 bg-purple-50 rounded-lg">
-                <div className="text-2xl font-bold text-purple-600">{analytics.gradeDistribution['5th']}</div>
-                <div className="text-sm text-gray-600">5th Grade</div>
+              
+              {/* Average Improvement */}
+              <div className="text-center p-4 bg-green-50 rounded-lg border-2 border-green-100">
+                <div className="text-3xl font-bold text-green-600">
+                  {analytics.averageImprovement >= 0 ? '+' : ''}{analytics.averageImprovement || 0}%
+                </div>
+                <div className="text-sm text-gray-600 mt-1">Avg Improvement</div>
+                <div className="text-xs text-gray-500 mt-1">First vs last attempt</div>
               </div>
-              <div className="text-center p-4 bg-pink-50 rounded-lg">
-                <div className="text-2xl font-bold text-pink-600">{analytics.gradeDistribution['6th']}</div>
-                <div className="text-sm text-gray-600">6th Grade</div>
+              
+              {/* Active Learners */}
+              <div className="text-center p-4 bg-purple-50 rounded-lg border-2 border-purple-100">
+                <div className="text-3xl font-bold text-purple-600">
+                  {analytics.activeLearners || 0}
+                </div>
+                <div className="text-sm text-gray-600 mt-1">Active This Week</div>
+                <div className="text-xs text-gray-500 mt-1">Students with activity</div>
+              </div>
+              
+              {/* At-Risk Students */}
+              <div className="text-center p-4 bg-red-50 rounded-lg border-2 border-red-100">
+                <div className="text-3xl font-bold text-red-600">
+                  {analytics.atRiskStudents || 0}
+                </div>
+                <div className="text-sm text-gray-600 mt-1">Need Attention</div>
+                <div className="text-xs text-gray-500 mt-1">Low scores or inactive</div>
+              </div>
+            </div>
+            
+            {/* Topic Mastery Distribution */}
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <h4 className="text-lg font-semibold text-gray-700 mb-3">📚 Topic Mastery Levels</h4>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="bg-green-50 p-3 rounded-lg border border-green-200">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-700">Mastered (>80%)</span>
+                    <span className="text-lg font-bold text-green-600">{analytics.masteredTopics || 0}</span>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">Students excelling</div>
+                </div>
+                <div className="bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-700">Learning (50-80%)</span>
+                    <span className="text-lg font-bold text-yellow-600">{analytics.learningTopics || 0}</span>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">Making progress</div>
+                </div>
+                <div className="bg-orange-50 p-3 rounded-lg border border-orange-200">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-700">Struggling (<50%)</span>
+                    <span className="text-lg font-bold text-orange-600">{analytics.strugglingTopics || 0}</span>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">Need support</div>
+                </div>
               </div>
             </div>
           </Card>
@@ -522,31 +573,33 @@ const AdminDashboard = ({ userData, onLogout }) => {
             />
             
             <select
-              name="grade"
-              value={filters.grade}
+              name="performanceLevel"
+              value={filters.performanceLevel || ''}
               onChange={handleFilterChange}
               className="px-4 py-2 rounded-lg border-2 border-gray-200 focus:border-purple-500 outline-none"
             >
-              <option value="">All Grades</option>
-              <option value="4th">4th Grade</option>
-              <option value="5th">5th Grade</option>
-              <option value="6th">6th Grade</option>
+              <option value="">All Performance Levels</option>
+              <option value="excellent">Excellent (>80%)</option>
+              <option value="good">Good (60-80%)</option>
+              <option value="average">Average (40-60%)</option>
+              <option value="needs-improvement">Needs Improvement (<40%)</option>
             </select>
 
-            <input
-              type="number"
-              name="age"
-              placeholder="Filter by age..."
-              value={filters.age}
+            <select
+              name="activityLevel"
+              value={filters.activityLevel || ''}
               onChange={handleFilterChange}
               className="px-4 py-2 rounded-lg border-2 border-gray-200 focus:border-purple-500 outline-none"
-              min="1"
-              max="120"
-            />
+            >
+              <option value="">All Activity Levels</option>
+              <option value="active">Active (This week)</option>
+              <option value="inactive">Inactive (>7 days)</option>
+              <option value="at-risk">At Risk</option>
+            </select>
 
             <Button
               onClick={() => {
-                setFilters({ search: '', grade: '', age: '' });
+                setFilters({ search: '', performanceLevel: '', activityLevel: '' });
                 setCurrentPage(1);
               }}
               variant="outline"
@@ -563,52 +616,102 @@ const AdminDashboard = ({ userData, onLogout }) => {
       {activeTab === 'students' && (
       <div className="max-w-7xl mx-auto mb-6">
         <Card className="p-6">
-          <h3 className="text-2xl font-bold text-gray-800 mb-4">Students</h3>
+          <h3 className="text-2xl font-bold text-gray-800 mb-4">📋 Student Learning Progress</h3>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b-2 border-gray-200">
-                  <th className="text-left p-3 font-semibold text-gray-700">Full Name</th>
-                  <th className="text-left p-3 font-semibold text-gray-700">Username</th>
-                  <th className="text-left p-3 font-semibold text-gray-700">Age</th>
-                  <th className="text-left p-3 font-semibold text-gray-700">Grade</th>
-                  <th className="text-left p-3 font-semibold text-gray-700">Quizzes</th>
+                <tr className="border-b-2 border-gray-200 bg-gray-50">
+                  <th className="text-left p-3 font-semibold text-gray-700">Student</th>
+                  <th className="text-left p-3 font-semibold text-gray-700">Quiz Progress</th>
                   <th className="text-left p-3 font-semibold text-gray-700">Avg Score</th>
-                  <th className="text-left p-3 font-semibold text-gray-700">1st Day</th>
+                  <th className="text-left p-3 font-semibold text-gray-700">Improvement</th>
+                  <th className="text-left p-3 font-semibold text-gray-700">Activity</th>
+                  <th className="text-left p-3 font-semibold text-gray-700">Status</th>
                   <th className="text-left p-3 font-semibold text-gray-700">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {students.map((student) => (
+                {students.map((student) => {
+                  const avgScore = student.quizResults.length > 0 
+                    ? Math.round(student.quizResults.reduce((sum, q) => sum + (q.score / q.totalQuestions * 100), 0) / student.quizResults.length)
+                    : 0;
+                  
+                  const improvement = student.quizResults.length >= 2
+                    ? Math.round((student.quizResults[student.quizResults.length - 1].score / student.quizResults[student.quizResults.length - 1].totalQuestions * 100) - (student.quizResults[0].score / student.quizResults[0].totalQuestions * 100))
+                    : 0;
+                  
+                  const lastActive = student.stats?.lastActive ? new Date(student.stats.lastActive) : null;
+                  const daysInactive = lastActive ? Math.floor((Date.now() - lastActive) / (1000 * 60 * 60 * 24)) : 999;
+                  const isActive = daysInactive <= 7;
+                  const isAtRisk = avgScore < 40 || daysInactive > 14;
+                  
+                  return (
                   <tr key={student._id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="p-3">{student.fullName}</td>
-                    <td className="p-3 text-gray-600">{student.username}</td>
-                    <td className="p-3">{student.age}</td>
                     <td className="p-3">
-                      <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
-                        {student.grade}
-                      </span>
+                      <div>
+                        <div className="font-medium text-gray-900">{student.fullName}</div>
+                        <div className="text-sm text-gray-500">@{student.username}</div>
+                      </div>
                     </td>
-                    <td className="p-3">{student.stats.totalQuizzesTaken}</td>
+                    <td className="p-3">
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 bg-gray-200 rounded-full h-2 w-24">
+                          <div 
+                            className="bg-blue-500 h-2 rounded-full"
+                            style={{ width: `${Math.min((student.stats.totalQuizzesTaken / 10) * 100, 100)}%` }}
+                          ></div>
+                        </div>
+                        <span className="text-sm font-medium text-gray-700">{student.stats.totalQuizzesTaken}/10</span>
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">Quizzes completed</div>
+                    </td>
                     <td className="p-3">
                       {student.quizResults.length > 0 ? (
-                        <span className="font-semibold text-green-600">
-                          {Math.round(
-                            student.quizResults.reduce((sum, q) => sum + (q.score / q.totalQuestions * 100), 0) / 
-                            student.quizResults.length
-                          )}%
-                        </span>
+                        <div>
+                          <span className={`text-2xl font-bold ${avgScore >= 80 ? 'text-green-600' : avgScore >= 60 ? 'text-yellow-600' : 'text-red-600'}`}>
+                            {avgScore}%
+                          </span>
+                          <div className="text-xs text-gray-500">{student.quizResults.length} attempts</div>
+                        </div>
                       ) : (
-                        <span className="text-gray-400">N/A</span>
+                        <span className="text-gray-400 text-sm">No data</span>
                       )}
                     </td>
                     <td className="p-3">
-                      {student.firstDayProgress.hasActivity ? (
-                        <span className="text-green-600 font-semibold">
-                          ✓ Active
+                      {student.quizResults.length >= 2 ? (
+                        <div className={`font-semibold ${improvement >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {improvement >= 0 ? '↑' : '↓'} {Math.abs(improvement)}%
+                          <div className="text-xs text-gray-500 font-normal">vs first attempt</div>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 text-sm">-</span>
+                      )}
+                    </td>
+                    <td className="p-3">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-3 h-3 rounded-full ${isActive ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+                        <span className="text-sm text-gray-600">
+                          {daysInactive === 0 ? 'Today' : daysInactive === 1 ? 'Yesterday' : daysInactive < 7 ? `${daysInactive}d ago` : daysInactive < 30 ? `${Math.floor(daysInactive/7)}w ago` : 'Inactive'}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="p-3">
+                      {isAtRisk ? (
+                        <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium">
+                          ⚠️ At Risk
+                        </span>
+                      ) : avgScore >= 80 ? (
+                        <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                          ⭐ Excellent
+                        </span>
+                      ) : avgScore >= 60 ? (
+                        <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                          👍 Good
                         </span>
                       ) : (
-                        <span className="text-gray-400">No activity</span>
+                        <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium">
+                          📚 Learning
+                        </span>
                       )}
                     </td>
                     <td className="p-3">
@@ -617,8 +720,12 @@ const AdminDashboard = ({ userData, onLogout }) => {
                         onClick={() => viewStudentDetails(student._id)}
                         className="bg-blue-500 hover:bg-blue-600 text-white"
                       >
-                        View
+                        📊 Details
                       </Button>
+                    </td>
+                  </tr>
+                  );
+                })}
                     </td>
                   </tr>
                 ))}
