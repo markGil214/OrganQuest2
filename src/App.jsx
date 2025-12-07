@@ -111,8 +111,11 @@ function App() {
       const protectedRoutes = ['main-menu', 'menu', 'quiz', 'quiz/mcq', 'quiz/memory', 'quiz/timed', 'scan-explore', 'admin/dashboard', 'admin/manage'];
       const isProtectedRoute = protectedRoutes.some(route => hash === route || hash.startsWith(route + '/'));
       
+      // Check authentication from both cookie and localStorage
+      const hasAuth = userData || getCookie('organquest_user') || (localStorage.getItem('authToken') && localStorage.getItem('userData'));
+      
       // If trying to access protected route without auth, redirect to login
-      if (isProtectedRoute && !userData && !getCookie('organquest_user')) {
+      if (isProtectedRoute && !hasAuth) {
         window.history.replaceState(null, '', '#login');
         setCurrentPage('login');
         return;
@@ -128,11 +131,11 @@ function App() {
         setCurrentPage('main-menu');
       } else if (hash === 'quiz') {
         setCurrentPage('quiz');
-      } else if (hash === 'quiz/mcq') {
+      } else if (hash === 'quiz/mcq' || hash.startsWith('quiz/mcq?')) {
         setCurrentPage('quiz-mcq');
-      } else if (hash === 'quiz/memory') {
+      } else if (hash === 'quiz/memory' || hash.startsWith('quiz/memory?')) {
         setCurrentPage('quiz-memory');
-      } else if (hash === 'quiz/timed') {
+      } else if (hash === 'quiz/timed' || hash.startsWith('quiz/timed?')) {
         setCurrentPage('quiz-timed');
       } else if (hash === 'scan-explore') {
         setCurrentPage('scan-explore');
