@@ -560,41 +560,6 @@ const AdminDashboard = ({ userData, onLogout }) => {
                   </>
                 )}
               </Card>
-
-              {/* Stats Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Attempt Statistics */}
-                <Card className="p-6">
-                  <h3 className="text-xl font-bold text-gray-800 mb-4">🔒 Attempt Statistics</h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center p-3 bg-red-50 rounded-lg">
-                      <span className="text-gray-700">Students with Locked Quizzes:</span>
-                      <span className="text-2xl font-bold text-red-600">
-                        {quizAnalytics.attemptStats.studentsWithLockedQuizzes}
-                      </span>
-                    </div>
-                  </div>
-                </Card>
-
-                {/* Badge Distribution */}
-                <Card className="p-6">
-                  <h3 className="text-xl font-bold text-gray-800 mb-4">🏆 Badge Distribution</h3>
-                  <div className="space-y-2">
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>Most Earned:</span>
-                        <span className="font-semibold">{quizAnalytics.badgeStats.mostEarned}</span>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-sm">
-                        <span>Least Earned:</span>
-                        <span className="font-semibold">{quizAnalytics.badgeStats.leastEarned}</span>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              </div>
             </div>
           )}
         </div>
@@ -678,7 +643,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
       {activeTab === 'students' && (
       <div className="max-w-7xl mx-auto mb-6">
         <Card className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <input
               type="text"
               name="search"
@@ -687,31 +652,6 @@ const AdminDashboard = ({ userData, onLogout }) => {
               onChange={handleFilterChange}
               className="px-4 py-2 rounded-lg border-2 border-gray-200 focus:border-purple-500 outline-none"
             />
-            
-            <select
-              name="performanceLevel"
-              value={filters.performanceLevel || ''}
-              onChange={handleFilterChange}
-              className="px-4 py-2 rounded-lg border-2 border-gray-200 focus:border-purple-500 outline-none"
-            >
-              <option value="">All Performance Levels</option>
-              <option value="excellent">Excellent (&gt;80%)</option>
-              <option value="good">Good (60-80%)</option>
-              <option value="average">Average (40-60%)</option>
-              <option value="needs-improvement">Needs Improvement (&lt;40%)</option>
-            </select>
-
-            <select
-              name="activityLevel"
-              value={filters.activityLevel || ''}
-              onChange={handleFilterChange}
-              className="px-4 py-2 rounded-lg border-2 border-gray-200 focus:border-purple-500 outline-none"
-            >
-              <option value="">All Activity Levels</option>
-              <option value="active">Active (This week)</option>
-              <option value="inactive">Inactive (&gt;7 days)</option>
-              <option value="at-risk">At Risk</option>
-            </select>
 
             <Button
               onClick={() => {
@@ -740,9 +680,6 @@ const AdminDashboard = ({ userData, onLogout }) => {
                   <th className="text-left p-3 font-semibold text-gray-700">Student</th>
                   <th className="text-left p-3 font-semibold text-gray-700">Quiz Progress</th>
                   <th className="text-left p-3 font-semibold text-gray-700">Avg Score</th>
-                  <th className="text-left p-3 font-semibold text-gray-700">Improvement</th>
-                  <th className="text-left p-3 font-semibold text-gray-700">Activity</th>
-                  <th className="text-left p-3 font-semibold text-gray-700">Status</th>
                   <th className="text-left p-3 font-semibold text-gray-700">Actions</th>
                 </tr>
               </thead>
@@ -791,43 +728,6 @@ const AdminDashboard = ({ userData, onLogout }) => {
                         </div>
                       ) : (
                         <span className="text-gray-400 text-sm">No data</span>
-                      )}
-                    </td>
-                    <td className="p-3">
-                      {student.quizResults.length >= 2 ? (
-                        <div className={`font-semibold ${improvement >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          {improvement >= 0 ? '↑' : '↓'} {Math.abs(improvement)}%
-                          <div className="text-xs text-gray-500 font-normal">vs first attempt</div>
-                        </div>
-                      ) : (
-                        <span className="text-gray-400 text-sm">-</span>
-                      )}
-                    </td>
-                    <td className="p-3">
-                      <div className="flex items-center gap-2">
-                        <div className={`w-3 h-3 rounded-full ${isActive ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                        <span className="text-sm text-gray-600">
-                          {daysInactive === 0 ? 'Today' : daysInactive === 1 ? 'Yesterday' : daysInactive < 7 ? `${daysInactive}d ago` : daysInactive < 30 ? `${Math.floor(daysInactive/7)}w ago` : 'Inactive'}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="p-3">
-                      {isAtRisk ? (
-                        <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium">
-                          ⚠️ At Risk
-                        </span>
-                      ) : avgScore >= 80 ? (
-                        <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
-                          ⭐ Excellent
-                        </span>
-                      ) : avgScore >= 60 ? (
-                        <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
-                          👍 Good
-                        </span>
-                      ) : (
-                        <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium">
-                          📚 Learning
-                        </span>
                       )}
                     </td>
                     <td className="p-3">
