@@ -51,6 +51,23 @@ const QuizAssignmentManager = () => {
 
   const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
+  // Auto-populate teacher's grade on component mount
+  useEffect(() => {
+    const userDataStr = localStorage.getItem('userData');
+    if (userDataStr) {
+      try {
+        const userData = JSON.parse(userDataStr);
+        const teacherGrade = userData.assignedGrade || '';
+        if (teacherGrade) {
+          setQuestionForm(prev => ({ ...prev, grade: teacherGrade }));
+          setFilters(prev => ({ ...prev, grade: teacherGrade }));
+        }
+      } catch (error) {
+        console.error('Error parsing userData:', error);
+      }
+    }
+  }, []);
+
   // Fetch submissions for an assignment
   const fetchSubmissions = async (assignmentId) => {
     setLoadingSubmissions(true);
@@ -195,11 +212,23 @@ const QuizAssignmentManager = () => {
 
   // STEP 1: Start creating new assignment
   const startNewAssignment = () => {
+    // Get teacher's assigned grade from localStorage
+    const userDataStr = localStorage.getItem('userData');
+    let teacherGrade = '';
+    if (userDataStr) {
+      try {
+        const userData = JSON.parse(userDataStr);
+        teacherGrade = userData.assignedGrade || '';
+      } catch (error) {
+        console.error('Error parsing userData:', error);
+      }
+    }
+
     setCurrentAssignment({
       quizType: 'multiple-choice',
       title: '',
       description: '',
-      assignedGrade: '',
+      assignedGrade: teacherGrade, // Auto-populate with teacher's grade
       dueDate: '',
       maxAttempts: 3,
       timeLimit: 600
