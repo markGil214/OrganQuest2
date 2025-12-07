@@ -50,7 +50,7 @@ const QuizAssignmentManager = () => {
   const fetchAssignments = async () => {
     setLoadingAssignments(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       if (!token) {
         setLoadingAssignments(false);
         return;
@@ -82,7 +82,7 @@ const QuizAssignmentManager = () => {
   const fetchQuestions = async () => {
     setLoadingQuestions(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       if (!token) {
         setLoadingQuestions(false);
         return;
@@ -118,7 +118,7 @@ const QuizAssignmentManager = () => {
   // Fetch question statistics
   const fetchQuestionStats = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       if (!token) {
         return;
       }
@@ -144,7 +144,7 @@ const QuizAssignmentManager = () => {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('authToken');
     if (!token) return; // Don't fetch if not authenticated
     
     if (activeTab === 'assignments' && creationStep === 0) {
@@ -156,7 +156,7 @@ const QuizAssignmentManager = () => {
   }, [activeTab, filters]);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('authToken');
     if (!token) return; // Don't fetch if not authenticated
     
     if (creationStep === 2) {
@@ -212,7 +212,7 @@ const QuizAssignmentManager = () => {
     }
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       if (!token) {
         alert('Authentication required. Please log in again.');
         return;
@@ -291,7 +291,7 @@ const QuizAssignmentManager = () => {
   // STEP 4: Deploy assignment
   const handleDeployAssignment = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       const response = await fetch(`${API_BASE_URL}/api/teacher/quiz/assign-quiz`, {
         method: 'POST',
         headers: {
@@ -351,7 +351,7 @@ const QuizAssignmentManager = () => {
     }
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       if (!token) {
         alert('Authentication required. Please log in again.');
         return;
@@ -407,7 +407,7 @@ const QuizAssignmentManager = () => {
     if (!confirm('Are you sure you want to delete this assignment?')) return;
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       const response = await fetch(`${API_BASE_URL}/api/teacher/quiz/delete/${assignmentId}`, {
         method: 'DELETE',
         headers: {
@@ -428,7 +428,7 @@ const QuizAssignmentManager = () => {
   // Toggle assignment active status
   const handleToggleAssignment = async (assignmentId) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       const response = await fetch(`${API_BASE_URL}/api/teacher/quiz/toggle-active/${assignmentId}`, {
         method: 'PATCH',
         headers: {
@@ -450,7 +450,7 @@ const QuizAssignmentManager = () => {
     if (!confirm('Are you sure you want to delete this question?')) return;
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       const response = await fetch(`${API_BASE_URL}/api/teacher/questions/${questionId}`, {
         method: 'DELETE',
         headers: {
@@ -472,7 +472,7 @@ const QuizAssignmentManager = () => {
   // Toggle question active status
   const handleToggleQuestion = async (questionId) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       const response = await fetch(`${API_BASE_URL}/api/teacher/questions/toggle-active/${questionId}`, {
         method: 'PATCH',
         headers: {
