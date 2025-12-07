@@ -112,7 +112,7 @@ router.get('/by-code/:code', authMiddleware, async (req, res) => {
     const assignment = await QuizAssignment.findOne({ 
       quizCode: code.toUpperCase(),
       isActive: true 
-    }).populate('teacherId', 'fullName');
+    }).populate('teacherId', 'fullName').populate('customQuestions');
     
     if (!assignment) {
       return res.status(404).json({
@@ -156,7 +156,8 @@ router.get('/by-code/:code', authMiddleware, async (req, res) => {
         maxAttempts: assignment.maxAttempts,
         timeLimit: assignment.timeLimit,
         attemptsMade: studentAttempts,
-        attemptsRemaining: assignment.maxAttempts - studentAttempts
+        attemptsRemaining: assignment.maxAttempts - studentAttempts,
+        customQuestions: assignment.customQuestions
       }
     });
   } catch (error) {
@@ -164,6 +165,70 @@ router.get('/by-code/:code', authMiddleware, async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error fetching quiz',
+      error: error.message
+    });
+  }
+});
+
+// READ: Get single assignment by ID (for students taking quiz)
+router.get('/:assignmentId', authMiddleware, async (req, res) => {
+  try {
+    const { assignmentId } = req.params;
+    
+    const assignment = await QuizAssignment.findById(assignmentId)
+      .populate('teacherId', 'fullName')
+      .populate('customQuestions');
+    
+    if (!assignment) {
+      return res.status(404).json({
+        success: false,
+        message: 'Quiz assignment not found'
+      });
+    }
+    
+    // Check if student matches assigned grade
+    const student = await User.findById(req.userId);
+    if (assignment.assignedGrade !== 'all' && assignment.assignedGrade !== student.grade) {
+      return res.status(403).json({
+        success: false,
+        message: `This quiz is only for ${assignment.assignedGrade} grade students`
+      });
+    }
+    
+    // Check if student has attempts left
+    const studentAttempts = assignment.studentSubmissions.filter(
+      s => s.studentId.toString() === req.userId.toString()
+    ).length;
+    
+    if (studentAttempts >= assignment.maxAttempts) {
+      return res.status(403).json({
+        success: false,
+        message: `You have reached the maximum number of attempts (${assignment.maxAttempts})`
+      });
+    }
+    
+    res.json({
+      success: true,
+      data: {
+        _id: assignment._id,
+        quizCode: assignment.quizCode,
+        quizType: assignment.quizType,
+        title: assignment.title,
+        description: assignment.description,
+        teacherName: assignment.teacherName,
+        dueDate: assignment.dueDate,
+        maxAttempts: assignment.maxAttempts,
+        timeLimit: assignment.timeLimit,
+        attemptsMade: studentAttempts,
+        attemptsRemaining: assignment.maxAttempts - studentAttempts,
+        customQuestions: assignment.customQuestions
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching assignment:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching assignment',
       error: error.message
     });
   }
