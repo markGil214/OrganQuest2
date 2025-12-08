@@ -815,31 +815,4 @@ function calculateFirstDayProgress(student) {
   };
 }
 
-// @route   POST /api/admin/reset-all-students
-// @desc    Reset all student accounts (delete all students and their data)
-// @access  Superuser only
-router.post('/reset-all-students', authMiddleware, superuserMiddleware, async (req, res) => {
-  try {
-    // Delete all users with role 'student'
-    const result = await User.deleteMany({ role: 'student' });
-
-    console.log(`Deleted ${result.deletedCount} student accounts`);
-
-    res.json({
-      success: true,
-      message: `Successfully deleted ${result.deletedCount} student accounts`,
-      data: {
-        deletedCount: result.deletedCount
-      }
-    });
-  } catch (error) {
-    console.error('Reset all students error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error resetting student data',
-      error: error.message
-    });
-  }
-});
-
 export default router;
