@@ -136,6 +136,42 @@ const QuizHistoryModal = ({ isOpen, onClose }) => {
               })}
             </div>
 
+            {/* Quiz Performance Over Time */}
+            <div className="bg-white p-6 rounded-xl shadow-md">
+              <h3 className="text-xl font-bold text-gray-800 mb-4">📈 Quiz Performance Over Time</h3>
+              <div className="grid grid-cols-3 gap-4">
+                {['multiple-choice', 'timed-challenge', 'memory-matching'].map(type => {
+                  const typeInfo = getQuizTypeDisplay(type);
+                  const quizzesOfType = history?.quizResults?.filter(q => q.quizType === type) || [];
+                  const totalAttempts = quizzesOfType.length;
+                  const avgScore = totalAttempts > 0
+                    ? (quizzesOfType.reduce((sum, q) => sum + (q.percentage || 0), 0) / totalAttempts).toFixed(1)
+                    : 0;
+                  
+                  return (
+                    <div key={type} className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 rounded-lg border-2 border-purple-200">
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className={`${typeInfo.color} text-white w-8 h-8 rounded-full flex items-center justify-center text-lg`}>
+                          {typeInfo.icon}
+                        </span>
+                        <span className="font-bold text-gray-800 text-sm">{typeInfo.name}</span>
+                      </div>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">📊 Total Attempts:</span>
+                          <span className="font-bold text-gray-800">{totalAttempts}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">⭐ Overall Avg:</span>
+                          <span className="font-bold text-purple-600">{avgScore}%</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* Quiz Results List */}
             <div className="space-y-3">
               <h3 className="text-xl font-bold text-gray-800">Recent Attempts</h3>
