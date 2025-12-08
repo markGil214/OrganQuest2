@@ -211,6 +211,56 @@ const AdminDashboard = ({ userData, onLogout }) => {
     }
   };
 
+  const resetAllStudents = async () => {
+    const confirmed = window.confirm(
+      '⚠️ WARNING: This will DELETE ALL STUDENT ACCOUNTS and their data!\n\n' +
+      'This action CANNOT be undone.\n\n' +
+      'Are you absolutely sure you want to continue?'
+    );
+
+    if (!confirmed) return;
+
+    const doubleConfirm = window.confirm(
+      '🚨 FINAL CONFIRMATION\n\n' +
+      'Type YES in the next prompt to confirm deletion of all student data.'
+    );
+
+    if (!doubleConfirm) return;
+
+    const finalConfirm = prompt('Type "DELETE ALL STUDENTS" to confirm:');
+    
+    if (finalConfirm !== 'DELETE ALL STUDENTS') {
+      alert('Reset cancelled - confirmation text did not match');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${API_URL}/api/admin/reset-all-students`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        alert(`✅ ${data.message}`);
+        // Refresh the page
+        fetchStudents();
+        fetchAnalytics();
+        fetchQuizAnalytics();
+        setSelectedStudent(null);
+      } else {
+        alert('❌ ' + (data.message || 'Failed to reset student data'));
+      }
+    } catch (error) {
+      console.error('Error resetting all students:', error);
+      alert('❌ Error resetting student data');
+    }
+  };
+
   if (loading && !students.length) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center">
@@ -234,12 +284,20 @@ const AdminDashboard = ({ userData, onLogout }) => {
           </div>
           <div className="flex gap-3">
             {userData?.role === 'superuser' && (
-              <Button
-                onClick={() => window.location.hash = '#admin/manage'}
-                className="bg-purple-600 hover:bg-purple-700"
-              >
-                👥 Manage Admins
-              </Button>
+              <>
+                <Button
+                  onClick={() => window.location.hash = '#admin/manage'}
+                  className="bg-purple-600 hover:bg-purple-700"
+                >
+                  👥 Manage Admins
+                </Button>
+                <Button
+                  onClick={resetAllStudents}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  🗑️ Reset All Students
+                </Button>
+              </>
             )}
             <Button
               onClick={onLogout}
