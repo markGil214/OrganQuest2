@@ -103,7 +103,6 @@ const QuizAssignmentManager = () => {
     const headers = [
       'Student Name',
       'Score',
-      'Total Questions',
       'Percentage',
       'Time Taken (seconds)',
       'Attempt Number',
@@ -114,7 +113,6 @@ const QuizAssignmentManager = () => {
     const rows = submissions.map(submission => [
       submission.studentName || 'Anonymous',
       submission.score,
-      submission.answers?.length || 0,
       submission.percentage?.toFixed(2) || 0,
       submission.timeTaken || 0,
       submission.attemptNumber || 1,
