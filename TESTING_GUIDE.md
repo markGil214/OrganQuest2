@@ -66,6 +66,43 @@ Tests the organ tracking utility:
 - ✅ Auth token handling
 - ✅ Get organ progress
 
+### 7. **QuizContainer.test.jsx**
+Tests the quiz container component:
+- ✅ Quiz container rendering
+- ✅ Quiz state management
+- ✅ Answer selection functionality
+- ✅ Timer countdown
+- ✅ Blocked quiz access handling
+
+### 8. **MultipleChoiceQuiz.test.jsx**
+Tests the multiple choice quiz page:
+- ✅ Quiz page rendering
+- ✅ Question display
+- ✅ Answer selection
+
+### 9. **MemoryMatchingGame.test.jsx**
+Tests the memory matching game:
+- ✅ Game board rendering
+- ✅ Card flipping mechanics
+- ✅ Moves counter
+- ✅ Completion detection
+- ✅ Back to menu button
+
+### 10. **TimedChallengeQuiz.test.jsx**
+Tests the timed challenge quiz:
+- ✅ Timer display and countdown
+- ✅ Score tracking
+- ✅ Streak counter
+- ✅ Answer submission
+- ✅ Game ending
+- ✅ Back to menu navigation
+
+## Test Statistics
+- **Total Test Suites**: 10
+- **Total Tests**: 47 (44 passing, 3 skipped)
+- **Coverage**: Contexts, Components, Pages, Utilities
+- **Last Updated**: December 2025
+
 ## Writing New Tests
 
 ### Basic Test Structure
