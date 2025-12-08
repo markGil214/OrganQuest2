@@ -3,8 +3,10 @@ import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import QuizAssignmentManager from '../components/QuizAssignmentManager';
+import { useToast } from '../contexts/ToastContext';
 
 const AdminDashboard = ({ userData, onLogout }) => {
+  const toast = useToast();
   const [students, setStudents] = useState([]);
   const [analytics, setAnalytics] = useState(null);
   const [quizAnalytics, setQuizAnalytics] = useState(null);
@@ -198,16 +200,16 @@ const AdminDashboard = ({ userData, onLogout }) => {
 
       const data = await response.json();
       if (data.success) {
-        alert(data.message);
+        toast.success(data.message);
         // Refresh student details
         viewStudentDetails(studentId);
         fetchStudents(); // Refresh list
       } else {
-        alert(data.message || 'Failed to reset attempts');
+        toast.error(data.message || 'Failed to reset attempts');
       }
     } catch (error) {
       console.error('Error resetting quiz attempts:', error);
-      alert('Error resetting quiz attempts');
+      toast.error('Error resetting quiz attempts');
     }
   };
 

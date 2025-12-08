@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/QuizAssignmentManager.css';
+import { useToast } from '../contexts/ToastContext';
 
 const QuizAssignmentManager = () => {
+  const toast = useToast();
   const [activeTab, setActiveTab] = useState('assignments'); // assignments, questionBank
   const [creationStep, setCreationStep] = useState(0); // 0=list, 1=assignment info, 2=build quiz, 3=finalize, 4=deployed
   
@@ -86,7 +88,7 @@ const QuizAssignmentManager = () => {
       setViewingSubmissions(data.data.quiz);
     } catch (error) {
       console.error('Error fetching submissions:', error);
-      alert('Error loading submissions');
+      toast.error('Error loading submissions');
     } finally {
       setLoadingSubmissions(false);
     }
@@ -95,7 +97,7 @@ const QuizAssignmentManager = () => {
   // Download submissions as CSV
   const downloadCSV = () => {
     if (!submissions || submissions.length === 0) {
-      alert('No submissions to download');
+      toast.warning('No submissions to download');
       return;
     }
 
@@ -290,12 +292,12 @@ const QuizAssignmentManager = () => {
     e.preventDefault();
     
     if (!currentAssignment.title.trim()) {
-      alert('Please enter a quiz title');
+      toast.warning('Please enter a quiz title');
       return;
     }
     
     if (!currentAssignment.assignedGrade) {
-      alert('Please select a grade level');
+      toast.warning('Please select a grade level');
       return;
     }
 
@@ -307,19 +309,19 @@ const QuizAssignmentManager = () => {
     e.preventDefault();
     
     if (!questionForm.questionText.trim()) {
-      alert('Please enter a question');
+      toast.warning('Please enter a question');
       return;
     }
 
     if (questionForm.options.some(opt => !opt.trim())) {
-      alert('Please fill in all options');
+      toast.warning('Please fill in all options');
       return;
     }
 
     try {
       const token = localStorage.getItem('authToken');
       if (!token) {
-        alert('Authentication required. Please log in again.');
+        toast.error('Authentication required. Please log in again.');
         return;
       }
 
@@ -336,7 +338,7 @@ const QuizAssignmentManager = () => {
       });
 
       if (response.status === 401) {
-        alert('Unauthorized. Please log in as a teacher.');
+        toast.error('Unauthorized. Please log in as a teacher.');
         return;
       }
 
@@ -364,10 +366,10 @@ const QuizAssignmentManager = () => {
       
       // Refresh question bank
       fetchQuestions();
-      alert('Question created and added to quiz!');
+      toast.success('Question created and added to quiz!');
     } catch (error) {
       console.error('Error creating question:', error);
-      alert(`Failed to create question: ${error.message}`);
+      toast.error(`Failed to create question: ${error.message}`);
     }
   };
 
@@ -387,7 +389,7 @@ const QuizAssignmentManager = () => {
   // STEP 3: Move to finalize
   const proceedToFinalize = () => {
     if (quizQuestions.length === 0) {
-      alert('Please add at least one question to the quiz');
+      toast.warning('Please add at least one question to the quiz');
       return;
     }
     setCreationStep(3);
@@ -419,7 +421,7 @@ const QuizAssignmentManager = () => {
       }, 3000);
     } catch (error) {
       console.error('Error deploying assignment:', error);
-      alert('Failed to deploy quiz assignment');
+      toast.error('Failed to deploy quiz assignment');
     }
   };
 
@@ -446,19 +448,19 @@ const QuizAssignmentManager = () => {
     e.preventDefault();
     
     if (!questionForm.questionText.trim()) {
-      alert('Please enter a question');
+      toast.warning('Please enter a question');
       return;
     }
 
     if (questionForm.options.some(opt => !opt.trim())) {
-      alert('Please fill in all options');
+      toast.warning('Please fill in all options');
       return;
     }
 
     try {
       const token = localStorage.getItem('authToken');
       if (!token) {
-        alert('Authentication required. Please log in again.');
+        toast.error('Authentication required. Please log in again.');
         return;
       }
 
@@ -478,7 +480,7 @@ const QuizAssignmentManager = () => {
       });
 
       if (response.status === 401) {
-        alert('Unauthorized. Please log in as a teacher.');
+        toast.error('Unauthorized. Please log in as a teacher.');
         return;
       }
 
@@ -487,7 +489,7 @@ const QuizAssignmentManager = () => {
         throw new Error(errorData.message || 'Failed to save question');
       }
       
-      alert(editingQuestion ? 'Question updated successfully!' : 'Question created successfully!');
+      toast.success(editingQuestion ? 'Question updated successfully!' : 'Question created successfully!');
       
       setQuestionForm({
         questionText: '',
@@ -503,7 +505,7 @@ const QuizAssignmentManager = () => {
       fetchQuestionStats();
     } catch (error) {
       console.error('Error saving question:', error);
-      alert(`Failed to save question: ${error.message}`);
+      toast.error(`Failed to save question: ${error.message}`);
     }
   };
 
@@ -522,11 +524,11 @@ const QuizAssignmentManager = () => {
       });
 
       if (!response.ok) throw new Error('Failed to delete assignment');
-      alert('Assignment deleted successfully');
+      toast.success('Assignment deleted successfully');
       fetchAssignments();
     } catch (error) {
       console.error('Error deleting assignment:', error);
-      alert('Failed to delete assignment');
+      toast.error('Failed to delete assignment');
     }
   };
 
@@ -546,7 +548,7 @@ const QuizAssignmentManager = () => {
       fetchAssignments();
     } catch (error) {
       console.error('Error toggling assignment:', error);
-      alert('Failed to update assignment status');
+      toast.error('Failed to update assignment status');
     }
   };
 
@@ -565,12 +567,12 @@ const QuizAssignmentManager = () => {
       });
 
       if (!response.ok) throw new Error('Failed to delete question');
-      alert('Question deleted successfully');
+      toast.success('Question deleted successfully');
       fetchQuestions();
       fetchQuestionStats();
     } catch (error) {
       console.error('Error deleting question:', error);
-      alert('Failed to delete question');
+      toast.error('Failed to delete question');
     }
   };
 
@@ -591,7 +593,7 @@ const QuizAssignmentManager = () => {
       fetchQuestionStats();
     } catch (error) {
       console.error('Error toggling question:', error);
-      alert('Failed to update question status');
+      toast.error('Failed to update question status');
     }
   };
 

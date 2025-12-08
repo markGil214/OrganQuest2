@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
+import { useToast } from '../contexts/ToastContext';
 
 const SuperAdminPanel = ({ onBack }) => {
+  const toast = useToast();
   const [admins, setAdmins] = useState([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [formData, setFormData] = useState({
@@ -96,13 +98,14 @@ const SuperAdminPanel = ({ onBack }) => {
 
       const data = await response.json();
       if (data.success) {
+        toast.success('Admin deleted successfully');
         fetchAdmins();
       } else {
-        alert(data.message || 'Failed to delete admin');
+        toast.error(data.message || 'Failed to delete admin');
       }
     } catch (error) {
       console.error('Error deleting admin:', error);
-      alert('Error deleting admin');
+      toast.error('Error deleting admin');
     }
   };
 
