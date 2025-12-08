@@ -22,7 +22,10 @@ const QuizHistoryModal = ({ isOpen, onClose }) => {
       if (!token) return;
 
       const response = await api.getQuizHistory(token);
+      console.log('Quiz history response:', response);
       if (response.success) {
+        console.log('Quiz history data:', response.data);
+        console.log('Quiz results:', response.data.quizResults);
         setHistory(response.data);
       }
     } catch (error) {
@@ -143,10 +146,12 @@ const QuizHistoryModal = ({ isOpen, onClose }) => {
                 {['multiple-choice', 'timed-challenge', 'memory-matching'].map(type => {
                   const typeInfo = getQuizTypeDisplay(type);
                   const quizzesOfType = history?.quizResults?.filter(q => q.quizType === type) || [];
+                  console.log(`${type} quizzes:`, quizzesOfType);
                   const totalAttempts = quizzesOfType.length;
                   const avgScore = totalAttempts > 0
                     ? (quizzesOfType.reduce((sum, q) => sum + (q.percentage || 0), 0) / totalAttempts).toFixed(1)
                     : 0;
+                  console.log(`${type} - Total: ${totalAttempts}, Avg: ${avgScore}%`);
                   
                   return (
                     <div key={type} className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 rounded-lg border-2 border-purple-200">
