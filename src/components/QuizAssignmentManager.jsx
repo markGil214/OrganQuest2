@@ -92,6 +92,55 @@ const QuizAssignmentManager = () => {
     }
   };
 
+  // Download submissions as CSV
+  const downloadCSV = () => {
+    if (!submissions || submissions.length === 0) {
+      alert('No submissions to download');
+      return;
+    }
+
+    // Prepare CSV headers
+    const headers = [
+      'Student Name',
+      'Score',
+      'Total Questions',
+      'Percentage',
+      'Time Taken (seconds)',
+      'Attempt Number',
+      'Submitted At'
+    ];
+
+    // Prepare CSV rows
+    const rows = submissions.map(submission => [
+      submission.studentName || 'Anonymous',
+      submission.score,
+      submission.answers?.length || 0,
+      submission.percentage?.toFixed(2) || 0,
+      submission.timeTaken || 0,
+      submission.attemptNumber || 1,
+      new Date(submission.submittedAt).toLocaleString()
+    ]);
+
+    // Combine headers and rows
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    // Create and download the file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${viewingSubmissions.title}_results_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   // Fetch assignments
   const fetchAssignments = async () => {
     setLoadingAssignments(true);
@@ -1260,7 +1309,41 @@ const QuizAssignmentManager = () => {
           <div className="modal-content submissions-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2>📊 Quiz Results: {viewingSubmissions.title}</h2>
-              <button className="modal-close" onClick={() => setViewingSubmissions(null)}>×</button>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <button 
+                  className="download-csv-btn"
+                  onClick={downloadCSV}
+                  disabled={!submissions || submissions.length === 0}
+                  style={{
+                    padding: '8px 16px',
+                    background: '#10b981',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: submissions && submissions.length > 0 ? 'pointer' : 'not-allowed',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    opacity: submissions && submissions.length > 0 ? 1 : 0.5,
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseOver={(e) => {
+                    if (submissions && submissions.length > 0) {
+                      e.target.style.background = '#059669';
+                      e.target.style.transform = 'translateY(-2px)';
+                    }
+                  }}
+                  onMouseOut={(e) => {
+                    e.target.style.background = '#10b981';
+                    e.target.style.transform = 'translateY(0)';
+                  }}
+                >
+                  📥 Download CSV
+                </button>
+                <button className="modal-close" onClick={() => setViewingSubmissions(null)}>×</button>
+              </div>
             </div>
 
             <div className="quiz-info-bar">
