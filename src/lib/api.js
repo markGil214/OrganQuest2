@@ -142,7 +142,7 @@ export const api = {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
-    });
+    }, 10000); // 10 second timeout for attempt check
     const data = await response.json();
     
     if (!response.ok) {

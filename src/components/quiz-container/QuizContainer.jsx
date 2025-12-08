@@ -146,11 +146,15 @@ const QuizContainer = () => {
     try {
       const token = localStorage.getItem('authToken');
       if (!token) {
+        console.log('No auth token found, skipping attempt check');
         setIsLoading(false);
         return;
       }
 
+      console.log('Checking quiz attempts...');
       const response = await api.getQuizAttempts(token, 'multiple-choice');
+      console.log('Attempt check response:', response);
+      
       if (response.success) {
         setAttemptInfo(response.data);
         // Block if locked OR if already at max attempts
@@ -158,11 +162,13 @@ const QuizContainer = () => {
           setIsBlocked(true);
           alert(`Quiz is locked. You have used all ${response.data.maxAttempts} attempts. Contact your teacher to reset.`);
           window.location.href = '#quiz';
+          return;
         }
       }
       setIsLoading(false);
     } catch (error) {
       console.error('Failed to check attempts:', error);
+      // Allow quiz to continue even if attempt check fails
       setIsLoading(false);
     }
   };
