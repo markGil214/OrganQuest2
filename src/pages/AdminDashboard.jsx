@@ -98,37 +98,33 @@ const AdminDashboard = ({ userData, onLogout }) => {
       console.log('Quiz Analytics Response:', data);
       
       if (data.success && data.data) {
-        // Transform the data to match UI expectations
-        const badgeStatsArray = data.data.badgeStats || [];
-        const quizTypeStatsArray = Object.entries(data.data.quizTypeStats || {})
-          .map(([type, stats]) => ({
-            type: type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
-            totalAttempts: stats.total || 0,
-            avgScore: stats.avgScore || 0,
-            avgTime: stats.avgTime || 0
-          }))
-          .filter(stat => stat.totalAttempts > 0); // Only show quiz types with data
-        
-        console.log('Transformed Quiz Type Stats:', quizTypeStatsArray);
-        
+        // Keep quizTypeStats as the original object structure from backend
         const transformed = {
           ...data.data,
-          quizTypeStats: quizTypeStatsArray,
+          performanceTrends: data.data.performanceTrends || {},
+          quizTypeStats: data.data.quizTypeStats || {}, // Keep as object, don't transform to array
           questionDifficulty: data.data.questionDifficulty?.hardestQuestions || [],
           attemptStats: {
             studentsWithLockedQuizzes: data.data.attemptStats?.lockedStudents || 0
           },
           badgeStats: {
-            mostEarned: badgeStatsArray.length > 0 ? badgeStatsArray[0].name : 'None',
-            leastEarned: badgeStatsArray.length > 0 ? badgeStatsArray[badgeStatsArray.length - 1].name : 'None'
+            mostEarned: data.data.badgeStats && data.data.badgeStats.length > 0 
+              ? data.data.badgeStats[0].name 
+              : 'None',
+            leastEarned: data.data.badgeStats && data.data.badgeStats.length > 0 
+              ? data.data.badgeStats[data.data.badgeStats.length - 1].name 
+              : 'None'
           }
         };
+        console.log('Transformed Quiz Analytics:', transformed);
+        console.log('Quiz Type Stats:', transformed.quizTypeStats);
         setQuizAnalytics(transformed);
       } else {
         console.error('Failed to fetch analytics:', data.message);
         // Set empty state to stop loading
         setQuizAnalytics({
-          quizTypeStats: [],
+          quizTypeStats: {},
+          performanceTrends: {},
           questionDifficulty: [],
           attemptStats: { studentsWithLockedQuizzes: 0 },
           badgeStats: { mostEarned: 'None', leastEarned: 'None' }
@@ -138,7 +134,8 @@ const AdminDashboard = ({ userData, onLogout }) => {
       console.error('Error fetching quiz analytics:', error);
       // Set empty state to stop loading
       setQuizAnalytics({
-        quizTypeStats: [],
+        quizTypeStats: {},
+        performanceTrends: {},
         questionDifficulty: [],
         attemptStats: { studentsWithLockedQuizzes: 0 },
         badgeStats: { mostEarned: 'None', leastEarned: 'None' }
