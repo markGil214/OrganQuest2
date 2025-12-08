@@ -281,16 +281,18 @@ const AdminDashboard = ({ userData, onLogout }) => {
           >
             📈 Quiz Analytics
           </button>
-          <button
-            onClick={() => setActiveTab('quiz-management')}
-            className={`flex-1 py-3 px-6 rounded-lg font-semibold transition-all ${
-              activeTab === 'quiz-management'
-                ? 'bg-purple-600 text-white shadow-md'
-                : 'text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            🎯 Quiz Management
-          </button>
+          {userData?.role !== 'superuser' && (
+            <button
+              onClick={() => setActiveTab('quiz-management')}
+              className={`flex-1 py-3 px-6 rounded-lg font-semibold transition-all ${
+                activeTab === 'quiz-management'
+                  ? 'bg-purple-600 text-white shadow-md'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              🎯 Quiz Management
+            </button>
+          )}
         </div>
       </div>
 
