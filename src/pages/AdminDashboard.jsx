@@ -9,7 +9,9 @@ const AdminDashboard = ({ userData, onLogout }) => {
   const toast = useToast();
   const [students, setStudents] = useState([]);
   const [classes, setClasses] = useState([]);
-  const [selectedClass, setSelectedClass] = useState(null);
+  const [currentView, setCurrentView] = useState('classes'); // 'classes' or 'class-details'
+  const [selectedClassData, setSelectedClassData] = useState(null);
+  const [classStudents, setClassStudents] = useState([]);
   const [analytics, setAnalytics] = useState(null);
   const [quizAnalytics, setQuizAnalytics] = useState(null);
   const [filters, setFilters] = useState({
@@ -218,10 +220,9 @@ const AdminDashboard = ({ userData, onLogout }) => {
       const data = await response.json();
       
       if (data.success) {
-        setSelectedClass({
-          teacher: classData,
-          students: data.data.students || []
-        });
+        setSelectedClassData(classData);
+        setClassStudents(data.data.students || []);
+        setCurrentView('class-details');
       }
     } catch (error) {
       console.error('Error fetching class details:', error);
@@ -289,6 +290,120 @@ const AdminDashboard = ({ userData, onLogout }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-6">
+      {/* Class Details View */}
+      {currentView === 'class-details' && selectedClassData ? (
+        <div className="max-w-7xl mx-auto">
+          {/* Back Button */}
+          <Button
+            onClick={() => {
+              setCurrentView('classes');
+              setSelectedClassData(null);
+              setClassStudents([]);
+            }}
+            variant="outline"
+            className="mb-6"
+          >
+            ← Back to Classes
+          </Button>
+
+          {/* Class Header */}
+          <Card className="p-6 mb-6">
+            <h1 className="text-4xl font-bold text-gray-800 mb-4">
+              {selectedClassData.assignedGrade} Grade - Section {selectedClassData.section}
+            </h1>
+            
+            {/* Teacher Info */}
+            <div className="p-4 bg-purple-50 rounded-lg">
+              <h3 className="text-xl font-bold mb-3 text-purple-800">👨‍🏫 Class Teacher</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <div className="text-sm text-gray-600">Name</div>
+                  <div className="text-lg font-semibold">{selectedClassData.fullName}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600">Username</div>
+                  <div className="text-lg font-semibold">@{selectedClassData.username}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600">Email</div>
+                  <div className="text-lg font-semibold">{selectedClassData.email || 'N/A'}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600">Teacher Code</div>
+                  <div className="text-lg font-semibold font-mono">{selectedClassData.teacherCode}</div>
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          {/* Students List */}
+          <Card className="p-6">
+            <h3 className="text-2xl font-bold mb-4">👥 Students ({classStudents.length})</h3>
+            {classStudents.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">
+                <p className="text-lg">No students enrolled in this class yet</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b-2 border-gray-200 bg-gray-50">
+                      <th className="text-left p-3 font-semibold text-gray-700">Student</th>
+                      <th className="text-left p-3 font-semibold text-gray-700">Age</th>
+                      <th className="text-left p-3 font-semibold text-gray-700">Quizzes Taken</th>
+                      <th className="text-left p-3 font-semibold text-gray-700">Avg Score</th>
+                      <th className="text-left p-3 font-semibold text-gray-700">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {classStudents.map((student) => {
+                      const avgScore = student.quizResults.length > 0 
+                        ? Math.round(student.quizResults.reduce((sum, q) => sum + (q.score / q.totalQuestions * 100), 0) / student.quizResults.length)
+                        : 0;
+                      
+                      return (
+                        <tr key={student._id} className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="p-3">
+                            <div>
+                              <div className="font-medium text-gray-900">{student.fullName}</div>
+                              <div className="text-sm text-gray-500">@{student.username}</div>
+                            </div>
+                          </td>
+                          <td className="p-3">
+                            <span className="text-gray-700">{student.age}</span>
+                          </td>
+                          <td className="p-3">
+                            <span className="font-semibold text-blue-600">{student.stats.totalQuizzesTaken}</span>
+                          </td>
+                          <td className="p-3">
+                            {student.quizResults.length > 0 ? (
+                              <span className={`text-xl font-bold ${avgScore >= 80 ? 'text-green-600' : avgScore >= 60 ? 'text-yellow-600' : 'text-red-600'}`}>
+                                {avgScore}%
+                              </span>
+                            ) : (
+                              <span className="text-gray-400 text-sm">No data</span>
+                            )}
+                          </td>
+                          <td className="p-3">
+                            <Button
+                              size="sm"
+                              onClick={() => viewStudentDetails(student._id)}
+                              className="bg-blue-500 hover:bg-blue-600 text-white"
+                            >
+                              📊 Details
+                            </Button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Card>
+        </div>
+      ) : (
+        <>
       {/* Header */}
       <div className="max-w-7xl mx-auto mb-6">
         <div className="flex justify-between items-center">
@@ -799,116 +914,6 @@ const AdminDashboard = ({ userData, onLogout }) => {
       </div>
       )}
 
-      {/* Class Detail Modal */}
-      {selectedClass && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-6 z-50" onClick={() => setSelectedClass(null)}>
-          <Card className="max-w-6xl w-full p-8 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-3xl font-bold text-gray-800 mb-6">
-              {selectedClass.teacher.assignedGrade} Grade - Section {selectedClass.teacher.section}
-            </h2>
-            
-            {/* Teacher Info */}
-            <div className="mb-6 p-4 bg-purple-50 rounded-lg">
-              <h3 className="text-xl font-bold mb-3 text-purple-800">👨‍🏫 Class Teacher</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div>
-                  <div className="text-sm text-gray-600">Name</div>
-                  <div className="text-lg font-semibold">{selectedClass.teacher.fullName}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-gray-600">Username</div>
-                  <div className="text-lg font-semibold">@{selectedClass.teacher.username}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-gray-600">Email</div>
-                  <div className="text-lg font-semibold">{selectedClass.teacher.email || 'N/A'}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-gray-600">Teacher Code</div>
-                  <div className="text-lg font-semibold font-mono">{selectedClass.teacher.teacherCode}</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Students List */}
-            <div className="mb-6">
-              <h3 className="text-xl font-bold mb-3">👥 Students ({selectedClass.students.length})</h3>
-              {selectedClass.students.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <p>No students enrolled in this class yet</p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b-2 border-gray-200 bg-gray-50">
-                        <th className="text-left p-3 font-semibold text-gray-700">Student</th>
-                        <th className="text-left p-3 font-semibold text-gray-700">Age</th>
-                        <th className="text-left p-3 font-semibold text-gray-700">Quizzes Taken</th>
-                        <th className="text-left p-3 font-semibold text-gray-700">Avg Score</th>
-                        <th className="text-left p-3 font-semibold text-gray-700">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedClass.students.map((student) => {
-                        const avgScore = student.quizResults.length > 0 
-                          ? Math.round(student.quizResults.reduce((sum, q) => sum + (q.score / q.totalQuestions * 100), 0) / student.quizResults.length)
-                          : 0;
-                        
-                        return (
-                          <tr key={student._id} className="border-b border-gray-100 hover:bg-gray-50">
-                            <td className="p-3">
-                              <div>
-                                <div className="font-medium text-gray-900">{student.fullName}</div>
-                                <div className="text-sm text-gray-500">@{student.username}</div>
-                              </div>
-                            </td>
-                            <td className="p-3">
-                              <span className="text-gray-700">{student.age}</span>
-                            </td>
-                            <td className="p-3">
-                              <span className="font-semibold text-blue-600">{student.stats.totalQuizzesTaken}</span>
-                            </td>
-                            <td className="p-3">
-                              {student.quizResults.length > 0 ? (
-                                <span className={`text-xl font-bold ${avgScore >= 80 ? 'text-green-600' : avgScore >= 60 ? 'text-yellow-600' : 'text-red-600'}`}>
-                                  {avgScore}%
-                                </span>
-                              ) : (
-                                <span className="text-gray-400 text-sm">No data</span>
-                              )}
-                            </td>
-                            <td className="p-3">
-                              <Button
-                                size="sm"
-                                onClick={() => {
-                                  setSelectedClass(null);
-                                  viewStudentDetails(student._id);
-                                }}
-                                className="bg-blue-500 hover:bg-blue-600 text-white"
-                              >
-                                📊 Details
-                              </Button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-
-            <Button
-              onClick={() => setSelectedClass(null)}
-              className="w-full bg-gray-600 hover:bg-gray-700"
-            >
-              Close
-            </Button>
-          </Card>
-        </div>
-      )}
-
       {/* Student Detail Modal */}
       {selectedStudent && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-6 z-50" onClick={() => setSelectedStudent(null)}>
@@ -1023,6 +1028,8 @@ const AdminDashboard = ({ userData, onLogout }) => {
         <div className="max-w-7xl mx-auto">
           <QuizAssignmentManager userData={userData} />
         </div>
+      )}
+      </>
       )}
     </div>
   );
