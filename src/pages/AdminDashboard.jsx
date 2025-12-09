@@ -12,6 +12,17 @@ const AdminDashboard = ({ userData, onLogout }) => {
   const [currentView, setCurrentView] = useState('classes'); // 'classes' or 'class-details'
   const [selectedClassData, setSelectedClassData] = useState(null);
   const [classStudents, setClassStudents] = useState([]);
+  const [showCreateClassModal, setShowCreateClassModal] = useState(false);
+  const [classFormData, setClassFormData] = useState({
+    fullName: '',
+    email: '',
+    username: '',
+    password: '',
+    assignedGrade: '4th',
+    section: 'A'
+  });
+  const [createClassLoading, setCreateClassLoading] = useState(false);
+  const [createClassError, setCreateClassError] = useState(null);
   const [analytics, setAnalytics] = useState(null);
   const [quizAnalytics, setQuizAnalytics] = useState(null);
   const [filters, setFilters] = useState({
@@ -250,6 +261,73 @@ const AdminDashboard = ({ userData, onLogout }) => {
     } catch (error) {
       console.error('Error deleting class:', error);
       toast.error('Error deleting class');
+    }
+  };
+
+  const handleClassFormChange = (e) => {
+    const { name, value } = e.target;
+    
+    if (name === 'assignedGrade') {
+      // Auto-select first available section when grade changes
+      const sections = ['A', 'B', 'C'];
+      const occupied = classes.filter(c => c.assignedGrade === value).map(c => c.section);
+      const availableSection = sections.find(sec => !occupied.includes(sec));
+      
+      setClassFormData(prev => ({
+        ...prev,
+        assignedGrade: value,
+        section: availableSection || prev.section
+      }));
+    } else {
+      setClassFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+  };
+
+  const isCombinationAvailable = (grade, section) => {
+    return !classes.some(c => c.assignedGrade === grade && c.section === section);
+  };
+
+  const handleCreateClass = async (e) => {
+    e.preventDefault();
+    setCreateClassLoading(true);
+    setCreateClassError(null);
+
+    // Check if combination is available
+    if (!isCombinationAvailable(classFormData.assignedGrade, classFormData.section)) {
+      setCreateClassError(`${classFormData.assignedGrade} Grade Section ${classFormData.section} already has a teacher assigned`);
+      setCreateClassLoading(false);
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${API_URL}/api/admin/create-class`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(classFormData)
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success('Class created successfully!');
+        setShowCreateClassModal(false);
+        setClassFormData({ fullName: '', email: '', username: '', password: '', assignedGrade: '4th', section: 'A' });
+        fetchClasses();
+      } else {
+        setCreateClassError(data.message || 'Failed to create class');
+      }
+    } catch (error) {
+      setCreateClassError('Error creating class');
+      console.error('Error creating class:', error);
+    } finally {
+      setCreateClassLoading(false);
     }
   };
 
@@ -856,7 +934,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
             <h3 className="text-2xl font-bold text-gray-800">🏫 My Classes</h3>
             {userData?.role === 'superuser' && (
               <Button
-                onClick={() => window.location.hash = '#admin/manage'}
+                onClick={() => setShowCreateClassModal(true)}
                 className="bg-purple-600 hover:bg-purple-700"
               >
                 ➕ Add Class
@@ -914,6 +992,153 @@ const AdminDashboard = ({ userData, onLogout }) => {
           )}
         </Card>
       </div>
+      )}
+
+      {/* Create Class Modal */}
+      {showCreateClassModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-6 z-50" onClick={() => setShowCreateClassModal(false)}>
+          <Card className="max-w-2xl w-full p-8 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-3xl font-bold text-gray-800 mb-6">➕ Add New Class</h2>
+            
+            {createClassError && (
+              <div className="mb-4 p-4 bg-red-50 border-2 border-red-200 rounded-lg">
+                <p className="text-red-600 font-medium">{createClassError}</p>
+              </div>
+            )}
+
+            <form onSubmit={handleCreateClass} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Teacher Full Name
+                  </label>
+                  <input
+                    type="text"
+                    name="fullName"
+                    value={classFormData.fullName}
+                    onChange={handleClassFormChange}
+                    className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-purple-500 outline-none"
+                    placeholder="e.g., John Smith"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={classFormData.email}
+                    onChange={handleClassFormChange}
+                    className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-purple-500 outline-none"
+                    placeholder="teacher@school.com"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Username
+                  </label>
+                  <input
+                    type="text"
+                    name="username"
+                    value={classFormData.username}
+                    onChange={handleClassFormChange}
+                    className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-purple-500 outline-none"
+                    placeholder="teacher_username"
+                    minLength="3"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    name="password"
+                    value={classFormData.password}
+                    onChange={handleClassFormChange}
+                    className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-purple-500 outline-none"
+                    placeholder="Min. 6 characters"
+                    minLength="6"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Assigned Grade
+                  </label>
+                  <select
+                    name="assignedGrade"
+                    value={classFormData.assignedGrade}
+                    onChange={handleClassFormChange}
+                    className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-purple-500 outline-none"
+                    required
+                  >
+                    <option value="4th">4th Grade</option>
+                    <option value="5th">5th Grade</option>
+                    <option value="6th">6th Grade</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Section
+                  </label>
+                  <select
+                    name="section"
+                    value={classFormData.section}
+                    onChange={handleClassFormChange}
+                    className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-purple-500 outline-none"
+                    required
+                  >
+                    <option value="A" disabled={!isCombinationAvailable(classFormData.assignedGrade, 'A')}>
+                      Section A {!isCombinationAvailable(classFormData.assignedGrade, 'A') && '(Occupied)'}
+                    </option>
+                    <option value="B" disabled={!isCombinationAvailable(classFormData.assignedGrade, 'B')}>
+                      Section B {!isCombinationAvailable(classFormData.assignedGrade, 'B') && '(Occupied)'}
+                    </option>
+                    <option value="C" disabled={!isCombinationAvailable(classFormData.assignedGrade, 'C')}>
+                      Section C {!isCombinationAvailable(classFormData.assignedGrade, 'C') && '(Occupied)'}
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <Button
+                  type="submit"
+                  disabled={createClassLoading}
+                  className="flex-1 bg-purple-600 hover:bg-purple-700"
+                >
+                  {createClassLoading ? 'Creating Class...' : 'Add Class'}
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    setShowCreateClassModal(false);
+                    setCreateClassError(null);
+                    setClassFormData({ fullName: '', email: '', username: '', password: '', assignedGrade: '4th', section: 'A' });
+                  }}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          </Card>
+        </div>
       )}
 
       {/* Student Detail Modal */}
