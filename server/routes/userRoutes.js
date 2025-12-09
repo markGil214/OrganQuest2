@@ -277,7 +277,7 @@ router.put('/profile', authMiddleware,
 // @access  Private
 router.get('/stats', authMiddleware, async (req, res) => {
   try {
-    const user = await User.findById(req.userId).select('stats quizResults organProgress');
+    const user = await User.findById(req.userId).select('stats quizResults organProgress fullName username age grade');
     
     if (!user) {
       return res.status(404).json({
@@ -289,6 +289,10 @@ router.get('/stats', authMiddleware, async (req, res) => {
     res.json({
       success: true,
       data: {
+        fullName: user.fullName,
+        username: user.username,
+        age: user.age,
+        grade: user.grade,
         stats: user.stats,
         totalQuizResults: user.quizResults.length,
         exploredOrgans: user.organProgress.filter(o => o.explored).length
@@ -299,6 +303,51 @@ router.get('/stats', authMiddleware, async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Server error fetching stats',
+      error: error.message
+    });
+  }
+});
+
+// @route   PUT /api/user/update-profile
+// @desc    Update user profile information
+// @access  Private
+router.put('/update-profile', authMiddleware, async (req, res) => {
+  try {
+    const { fullName, username, age, grade } = req.body;
+    
+    // Check if username is taken by another user
+    if (username) {
+      const existingUser = await User.findOne({ username, _id: { $ne: req.userId } });
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: 'Username already taken'
+        });
+      }
+    }
+
+    const updateData = {};
+    if (fullName) updateData.fullName = fullName;
+    if (username) updateData.username = username;
+    if (age) updateData.age = age;
+    if (grade) updateData.grade = grade;
+
+    const user = await User.findByIdAndUpdate(
+      req.userId,
+      updateData,
+      { new: true }
+    ).select('-password');
+
+    res.json({
+      success: true,
+      message: 'Profile updated successfully',
+      data: user
+    });
+  } catch (error) {
+    console.error('Profile update error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error updating profile',
       error: error.message
     });
   }

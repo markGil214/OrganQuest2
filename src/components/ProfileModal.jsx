@@ -5,19 +5,28 @@ import { cn } from '../lib/utils';
 import api from '../lib/api';
 
 const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
+  const [activeTab, setActiveTab] = useState('profile'); // 'profile', 'edit', 'progress', 'about'
   const [stats, setStats] = useState({
     quizzesTaken: 0,
-    averageScore: 0
+    averageScore: 0,
+    highScore: 0
   });
+  const [quizAnalytics, setQuizAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [editForm, setEditForm] = useState({
+    fullName: '',
+    username: '',
+    age: '',
+    grade: ''
+  });
+  const [saving, setSaving] = useState(false);
 
-  // Fetch user stats from backend
+  // Fetch user stats and info
   useEffect(() => {
-    const fetchStats = async () => {
+    const fetchData = async () => {
       try {
         const token = localStorage.getItem('authToken');
         if (!token) {
-          console.log('No auth token found');
           setLoading(false);
           return;
         }
@@ -27,7 +36,14 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
           const data = response.data;
           setStats({
             quizzesTaken: data.stats.quizzesTaken || 0,
-            averageScore: data.stats.averageScore || 0
+            averageScore: data.stats.averageScore || 0,
+            highScore: data.stats.highScore || 0
+          });
+          setEditForm({
+            fullName: data.fullName || '',
+            username: data.username || username,
+            age: data.age || '',
+            grade: data.grade || ''
           });
         }
       } catch (error) {
@@ -37,16 +53,54 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
       }
     };
 
-    fetchStats();
-  }, []);
+    fetchData();
+  }, [username]);
 
-  const handleSettingsClick = (setting) => {
-    console.log(`Settings clicked: ${setting}`);
-    // TODO: Implement settings functionality
+  // Fetch quiz analytics for progress view
+  const fetchQuizAnalytics = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/quiz-analytics`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      if (data.success) {
+        setQuizAnalytics(data.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch analytics:', error);
+    }
+  };
+
+  const handleEditSubmit = async () => {
+    setSaving(true);
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/user/update-profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(editForm)
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        alert('Profile updated successfully!');
+        setActiveTab('profile');
+      } else {
+        alert(data.message || 'Failed to update profile');
+      }
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+      alert('Error updating profile');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleLogout = () => {
-    console.log('Logging out...');
     onClose();
     if (onLogout) {
       onLogout();
@@ -57,12 +111,12 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-md bg-gradient-to-br from-purple-50 to-pink-50 border-0">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-purple-50 to-pink-50 border-0">
         <DialogHeader>
           <DialogTitle className="sr-only">Profile</DialogTitle>
         </DialogHeader>
         
-        <div className="flex flex-col items-center gap-4 py-4">
+        <div className="flex flex-col gap-4 py-4">
           {/* Profile Header */}
           <div className="flex flex-col items-center gap-3">
             <div className="relative">
@@ -72,48 +126,203 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
               <div className="absolute inset-0 rounded-full border-4 border-purple-500/30 animate-pulse" />
             </div>
             <div className="text-center">
-              <h2 className="text-lg font-bold text-gray-800">{username}</h2>
-              <p className="text-xs text-purple-600 font-medium">Anatomy Explorer</p>
+              <h2 className="text-lg font-bold text-gray-800">{editForm.fullName || username}</h2>
+              <p className="text-xs text-purple-600 font-medium">@{editForm.username}</p>
             </div>
           </div>
 
-          {/* Menu */}
-          <div className="flex flex-col gap-2 w-full px-4">
+          {/* Tabs Navigation */}
+          <div className="flex gap-2 px-4 border-b border-purple-200">
             <button
-              onClick={() => handleSettingsClick('avatar')}
-              className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white/70 hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg"
+              onClick={() => setActiveTab('profile')}
+              className={cn(
+                "px-4 py-2 text-sm font-medium transition-all",
+                activeTab === 'profile' 
+                  ? "text-purple-600 border-b-2 border-purple-600" 
+                  : "text-gray-600 hover:text-purple-600"
+              )}
             >
-              <span className="text-xl">👤</span>
-              <span className="text-sm font-medium text-gray-800">Change Avatar</span>
+              📊 Stats
             </button>
-            
             <button
-              onClick={() => handleSettingsClick('language')}
-              className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white/70 hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg"
+              onClick={() => setActiveTab('edit')}
+              className={cn(
+                "px-4 py-2 text-sm font-medium transition-all",
+                activeTab === 'edit' 
+                  ? "text-purple-600 border-b-2 border-purple-600" 
+                  : "text-gray-600 hover:text-purple-600"
+              )}
             >
-              <span className="text-xl">🌐</span>
-              <span className="text-sm font-medium text-gray-800">Language</span>
+              ✏️ Edit Info
             </button>
-            
             <button
-              onClick={() => handleSettingsClick('sound')}
-              className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white/70 hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg"
+              onClick={() => {
+                setActiveTab('progress');
+                fetchQuizAnalytics();
+              }}
+              className={cn(
+                "px-4 py-2 text-sm font-medium transition-all",
+                activeTab === 'progress' 
+                  ? "text-purple-600 border-b-2 border-purple-600" 
+                  : "text-gray-600 hover:text-purple-600"
+              )}
             >
-              <span className="text-xl">🔊</span>
-              <span className="text-sm font-medium text-gray-800">Sound Settings</span>
+              📈 Progress
             </button>
-            
             <button
-              onClick={() => handleSettingsClick('progress')}
-              className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white/70 hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg"
+              onClick={() => setActiveTab('about')}
+              className={cn(
+                "px-4 py-2 text-sm font-medium transition-all",
+                activeTab === 'about' 
+                  ? "text-purple-600 border-b-2 border-purple-600" 
+                  : "text-gray-600 hover:text-purple-600"
+              )}
             >
-              <span className="text-xl">📊</span>
-              <span className="text-sm font-medium text-gray-800">View Progress</span>
+              ℹ️ About
             </button>
           </div>
 
+          {/* Tab Content */}
+          <div className="px-4 min-h-[200px]">
+            {/* Stats Tab */}
+            {activeTab === 'profile' && (
+              <div className="space-y-3">
+                <div className="p-4 bg-white/70 rounded-xl shadow-md">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Quizzes Taken</span>
+                    <span className="text-2xl font-bold text-purple-600">{stats.quizzesTaken}</span>
+                  </div>
+                </div>
+                <div className="p-4 bg-white/70 rounded-xl shadow-md">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Average Score</span>
+                    <span className="text-2xl font-bold text-purple-600">{stats.averageScore}%</span>
+                  </div>
+                </div>
+                <div className="p-4 bg-white/70 rounded-xl shadow-md">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">High Score</span>
+                    <span className="text-2xl font-bold text-purple-600">{stats.highScore}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Edit Info Tab */}
+            {activeTab === 'edit' && (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                  <input
+                    type="text"
+                    value={editForm.fullName}
+                    onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                  <input
+                    type="text"
+                    value={editForm.username}
+                    onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Age</label>
+                    <input
+                      type="number"
+                      value={editForm.age}
+                      onChange={(e) => setEditForm({ ...editForm, age: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Grade Level</label>
+                    <input
+                      type="text"
+                      value={editForm.grade}
+                      onChange={(e) => setEditForm({ ...editForm, grade: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                </div>
+                <Button
+                  onClick={handleEditSubmit}
+                  disabled={saving}
+                  className="w-full bg-purple-600 hover:bg-purple-700"
+                >
+                  {saving ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </div>
+            )}
+
+            {/* Progress Tab */}
+            {activeTab === 'progress' && (
+              <div className="space-y-4">
+                {!quizAnalytics ? (
+                  <p className="text-center text-gray-500">Loading analytics...</p>
+                ) : (
+                  <>
+                    <h3 className="font-bold text-lg">Your Quiz Performance</h3>
+                    {Object.entries(quizAnalytics.quizTypeStats || {}).map(([quizType, data]) => (
+                      <div key={quizType} className="p-4 bg-white/70 rounded-xl shadow-md">
+                        <h4 className="font-semibold capitalize mb-2">{quizType}</h4>
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div>
+                            <span className="text-gray-600">Average: </span>
+                            <span className="font-bold text-purple-600">{data.averageScore?.toFixed(1)}%</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">Best: </span>
+                            <span className="font-bold text-green-600">{data.highestScore}</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">Attempts: </span>
+                            <span className="font-bold">{data.totalAttempts}</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">Completion: </span>
+                            <span className="font-bold">{data.completionRate?.toFixed(0)}%</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* About Tab */}
+            {activeTab === 'about' && (
+              <div className="space-y-4">
+                <div className="p-4 bg-white/70 rounded-xl shadow-md">
+                  <h3 className="font-bold text-lg mb-2">🎓 OrganQuest</h3>
+                  <p className="text-sm text-gray-700 mb-3">
+                    An interactive anatomy learning platform designed to make studying human organs fun and engaging.
+                  </p>
+                  <h4 className="font-semibold text-sm mb-1">Created by:</h4>
+                  <p className="text-sm text-purple-600 font-medium">OrganQuest Development Team</p>
+                  <p className="text-xs text-gray-500 mt-2">Version 2.0 © 2025</p>
+                </div>
+                <div className="p-4 bg-white/70 rounded-xl shadow-md">
+                  <h4 className="font-semibold text-sm mb-2">Features:</h4>
+                  <ul className="text-sm text-gray-700 space-y-1">
+                    <li>✓ Interactive 3D organ models</li>
+                    <li>✓ AR scanning & exploration</li>
+                    <li>✓ Multiple quiz modes</li>
+                    <li>✓ Progress tracking</li>
+                    <li>✓ Educational games</li>
+                  </ul>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Logout Button */}
-          <div className="w-full px-4 pt-2">
+          <div className="px-4 pt-2">
             <Button
               onClick={handleLogout}
               variant="destructive"
