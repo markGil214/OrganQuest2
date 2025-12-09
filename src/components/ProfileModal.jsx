@@ -69,7 +69,7 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
   const fetchQuizAnalytics = async () => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/user/my-progress`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/my-progress`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();
@@ -85,7 +85,7 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
     setSaving(true);
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/user/update-profile`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/update-profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
