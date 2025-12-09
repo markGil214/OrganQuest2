@@ -16,6 +16,7 @@ const RegisterPage = ({ onRegistrationComplete }) => {
     password: '',
     age: '',
     grade: '4th',
+    section: 'A',
     avatar: null,
     language: language // Use current language from context
   });
@@ -65,6 +66,7 @@ const RegisterPage = ({ onRegistrationComplete }) => {
         password: formData.password,
         age: parseInt(formData.age),
         grade: formData.grade,
+        section: formData.section,
         avatar: formData.avatar,
         language: language // Use language from context
       };
@@ -238,6 +240,25 @@ const RegisterPage = ({ onRegistrationComplete }) => {
                 <option value="4th">{registerText.grades['4th']}</option>
                 <option value="5th">{registerText.grades['5th']}</option>
                 <option value="6th">{registerText.grades['6th']}</option>
+              </select>
+            </div>
+
+            {/* Section Selector */}
+            <div className="space-y-2">
+              <label htmlFor="section" className="block text-sm font-semibold text-gray-700">
+                Section
+              </label>
+              <select
+                id="section"
+                name="section"
+                value={formData.section}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all bg-white"
+                required
+              >
+                <option value="A">Section A</option>
+                <option value="B">Section B</option>
+                <option value="C">Section C</option>
               </select>
             </div>
           </div>

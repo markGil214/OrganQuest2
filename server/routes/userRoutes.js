@@ -27,6 +27,9 @@ router.post('/register',
     body('grade')
       .isIn(['4th', '5th', '6th'])
       .withMessage('Grade must be 4th, 5th, or 6th'),
+    body('section')
+      .isIn(['A', 'B', 'C'])
+      .withMessage('Section must be A, B, or C'),
     body('avatar')
       .isInt({ min: 1, max: 4 })
       .withMessage('Avatar must be between 1 and 4'),
@@ -45,7 +48,7 @@ router.post('/register',
         });
       }
 
-      const { fullName, username, password, age, grade, avatar, language } = req.body;
+      const { fullName, username, password, age, grade, section, avatar, language } = req.body;
 
       // Check if user already exists
       const existingUser = await User.findOne({ username });
@@ -63,6 +66,7 @@ router.post('/register',
         password,
         age,
         grade,
+        section,
         avatar,
         language
       });
@@ -82,6 +86,7 @@ router.post('/register',
             username: user.username,
             age: user.age,
             grade: user.grade,
+            section: user.section,
             avatar: user.avatar,
             language: user.language,
             stats: user.stats,

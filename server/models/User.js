@@ -38,6 +38,12 @@ const userSchema = new mongoose.Schema({
     enum: ['4th', '5th', '6th'],
     default: '4th'
   },
+  section: {
+    type: String,
+    required: [true, 'Section is required'],
+    enum: ['A', 'B', 'C'],
+    uppercase: true
+  },
   avatar: {
     type: Number,
     required: [true, 'Avatar selection is required'],
