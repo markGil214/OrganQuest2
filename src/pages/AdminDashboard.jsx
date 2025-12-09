@@ -8,6 +8,8 @@ import { useToast } from '../contexts/ToastContext';
 const AdminDashboard = ({ userData, onLogout }) => {
   const toast = useToast();
   const [students, setStudents] = useState([]);
+  const [classes, setClasses] = useState([]);
+  const [selectedClass, setSelectedClass] = useState(null);
   const [analytics, setAnalytics] = useState(null);
   const [quizAnalytics, setQuizAnalytics] = useState(null);
   const [filters, setFilters] = useState({
@@ -22,7 +24,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
   const [studentQuizDetails, setStudentQuizDetails] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState(null);
-  const [activeTab, setActiveTab] = useState('students'); // students, analytics, quiz-management
+  const [activeTab, setActiveTab] = useState('classes'); // classes, analytics, quiz-management
   const [questionPage, setQuestionPage] = useState(1);
   const questionsPerPage = 10;
 
@@ -37,9 +39,31 @@ const AdminDashboard = ({ userData, onLogout }) => {
 
   useEffect(() => {
     fetchStudents();
+    fetchClasses();
     fetchAnalytics();
     fetchQuizAnalytics();
   }, [filters, currentPage]);
+
+  const fetchClasses = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${API_URL}/api/admin/classes`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+      if (data.success && data.data && Array.isArray(data.data.classes)) {
+        setClasses(data.data.classes);
+      } else {
+        setClasses([]);
+      }
+    } catch (error) {
+      console.error('Error fetching classes:', error);
+      setClasses([]);
+    }
+  };
 
   const fetchStudents = async () => {
     try {
@@ -182,6 +206,52 @@ const AdminDashboard = ({ userData, onLogout }) => {
     }
   };
 
+  const viewClassDetails = async (classData) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      
+      // Fetch students for this specific class (grade + section)
+      const response = await fetch(`${API_URL}/api/admin/students?grade=${classData.assignedGrade}&section=${classData.section}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setSelectedClass({
+          teacher: classData,
+          students: data.data.students || []
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching class details:', error);
+      toast.error('Error loading class details');
+    }
+  };
+
+  const deleteClass = async (classId) => {
+    if (!confirm('Are you sure you want to delete this class? This will remove the teacher assignment.')) return;
+
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${API_URL}/api/admin/classes/${classId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        toast.success('Class deleted successfully');
+        fetchClasses();
+      } else {
+        toast.error(data.message || 'Failed to delete class');
+      }
+    } catch (error) {
+      console.error('Error deleting class:', error);
+      toast.error('Error deleting class');
+    }
+  };
+
   const resetQuizAttempts = async (studentId, quizType = 'all') => {
     try {
       const token = localStorage.getItem('authToken');
@@ -254,14 +324,14 @@ const AdminDashboard = ({ userData, onLogout }) => {
       <div className="max-w-7xl mx-auto mb-6">
         <div className="flex gap-2 bg-white rounded-lg p-2 shadow-md">
           <button
-            onClick={() => setActiveTab('students')}
+            onClick={() => setActiveTab('classes')}
             className={`flex-1 py-3 px-6 rounded-lg font-semibold transition-all ${
-              activeTab === 'students'
+              activeTab === 'classes'
                 ? 'bg-purple-600 text-white shadow-md'
                 : 'text-gray-600 hover:bg-gray-100'
             }`}
           >
-            👥 Students
+            🏫 Classes
           </button>
           <button
             onClick={() => {
@@ -290,35 +360,6 @@ const AdminDashboard = ({ userData, onLogout }) => {
           )}
         </div>
       </div>
-
-      {/* Analytics Cards */}
-      {activeTab === 'students' && analytics && (
-        <div className="max-w-7xl mx-auto mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card className="p-6 bg-gradient-to-br from-blue-500 to-blue-600 text-white">
-            <div className="text-3xl mb-2">👥</div>
-            <div className="text-3xl font-bold">{analytics.totalStudents}</div>
-            <div className="text-sm opacity-90">Total Students</div>
-          </Card>
-
-          <Card className="p-6 bg-gradient-to-br from-green-500 to-green-600 text-white">
-            <div className="text-3xl mb-2">✅</div>
-            <div className="text-3xl font-bold">{analytics.activeStudents}</div>
-            <div className="text-sm opacity-90">Active Students</div>
-          </Card>
-
-          <Card className="p-6 bg-gradient-to-br from-purple-500 to-purple-600 text-white">
-            <div className="text-3xl mb-2">📝</div>
-            <div className="text-3xl font-bold">{analytics.totalQuizzes}</div>
-            <div className="text-sm opacity-90">Total Quizzes Taken</div>
-          </Card>
-
-          <Card className="p-6 bg-gradient-to-br from-pink-500 to-pink-600 text-white">
-            <div className="text-3xl mb-2">🎯</div>
-            <div className="text-3xl font-bold">{analytics.overallAverageScore}%</div>
-            <div className="text-sm opacity-90">Average Score</div>
-          </Card>
-        </div>
-      )}
 
       {/* Quiz Analytics Tab Content */}
       {activeTab === 'analytics' && (
@@ -700,120 +741,172 @@ const AdminDashboard = ({ userData, onLogout }) => {
       </div>
       )}
 
-      {/* Students Table */}
-      {activeTab === 'students' && (
+      {/* Classes Table */}
+      {activeTab === 'classes' && (
       <div className="max-w-7xl mx-auto mb-6">
         <Card className="p-6">
-          <h3 className="text-2xl font-bold text-gray-800 mb-4">📋 Student Learning Progress</h3>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b-2 border-gray-200 bg-gray-50">
-                  <th className="text-left p-3 font-semibold text-gray-700">Student</th>
-                  <th className="text-left p-3 font-semibold text-gray-700">Grade</th>
-                  <th className="text-left p-3 font-semibold text-gray-700">Section</th>
-                  <th className="text-left p-3 font-semibold text-gray-700">Quiz Progress</th>
-                  <th className="text-left p-3 font-semibold text-gray-700">Avg Score</th>
-                  <th className="text-left p-3 font-semibold text-gray-700">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {students.map((student) => {
-                  const avgScore = student.quizResults.length > 0 
-                    ? Math.round(student.quizResults.reduce((sum, q) => sum + (q.score / q.totalQuestions * 100), 0) / student.quizResults.length)
-                    : 0;
-                  
-                  const improvement = student.quizResults.length >= 2
-                    ? Math.round((student.quizResults[student.quizResults.length - 1].score / student.quizResults[student.quizResults.length - 1].totalQuestions * 100) - (student.quizResults[0].score / student.quizResults[0].totalQuestions * 100))
-                    : 0;
-                  
-                  const lastActive = student.stats?.lastActive ? new Date(student.stats.lastActive) : null;
-                  const daysInactive = lastActive ? Math.floor((Date.now() - lastActive) / (1000 * 60 * 60 * 24)) : 999;
-                  const isActive = daysInactive <= 7;
-                  const isAtRisk = avgScore < 40 || daysInactive > 14;
-                  
-                  return (
-                  <tr key={student._id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="p-3">
-                      <div>
-                        <div className="font-medium text-gray-900">{student.fullName}</div>
-                        <div className="text-sm text-gray-500">@{student.username}</div>
+          <h3 className="text-2xl font-bold text-gray-800 mb-4">🏫 My Classes</h3>
+          {classes.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">
+              <p className="text-lg">No classes found</p>
+              <p className="text-sm mt-2">Classes will appear here once assigned</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {classes.map((classItem) => (
+                <div
+                  key={classItem._id}
+                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-bold text-2xl">
+                      {classItem.assignedGrade.charAt(0)}
+                    </div>
+                    <div>
+                      <div className="font-bold text-xl text-gray-800">
+                        {classItem.assignedGrade} Grade - Section {classItem.section}
                       </div>
-                    </td>
-                    <td className="p-3">
-                      <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
-                        {student.grade === '4th' ? '4th Grade' : student.grade === '5th' ? '5th Grade' : student.grade === '6th' ? '6th Grade' : student.grade || 'N/A'}
-                      </span>
-                    </td>
-                    <td className="p-3">
-                      <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
-                        Section {student.section || 'N/A'}
-                      </span>
-                    </td>
-                    <td className="p-3">
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 bg-gray-200 rounded-full h-2 w-24">
-                          <div 
-                            className="bg-blue-500 h-2 rounded-full"
-                            style={{ width: `${Math.min((student.stats.totalQuizzesTaken / 10) * 100, 100)}%` }}
-                          ></div>
+                      <div className="text-sm text-gray-600">Teacher: {classItem.fullName}</div>
+                      <div className="text-xs text-gray-500">@{classItem.username}</div>
+                      {classItem.email && (
+                        <div className="text-xs text-blue-600 mt-1">
+                          📧 {classItem.email}
                         </div>
-                        <span className="text-sm font-medium text-gray-700">{student.stats.totalQuizzesTaken}/10</span>
-                      </div>
-                      <div className="text-xs text-gray-500 mt-1">Quizzes completed</div>
-                    </td>
-                    <td className="p-3">
-                      {student.quizResults.length > 0 ? (
-                        <div>
-                          <span className={`text-2xl font-bold ${avgScore >= 80 ? 'text-green-600' : avgScore >= 60 ? 'text-yellow-600' : 'text-red-600'}`}>
-                            {avgScore}%
-                          </span>
-                          <div className="text-xs text-gray-500">{student.quizResults.length} attempts</div>
-                        </div>
-                      ) : (
-                        <span className="text-gray-400 text-sm">No data</span>
                       )}
-                    </td>
-                    <td className="p-3">
-                      <Button
-                        size="sm"
-                        onClick={() => viewStudentDetails(student._id)}
-                        className="bg-blue-500 hover:bg-blue-600 text-white"
-                      >
-                        📊 Details
-                      </Button>
-                    </td>
-                  </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                    </div>
+                  </div>
 
-          {/* Pagination */}
-          {pagination && pagination.totalPages > 1 && (
-            <div className="flex justify-center gap-2 mt-6">
-              <Button
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                variant="outline"
-              >
-                Previous
-              </Button>
-              <span className="px-4 py-2 text-gray-700">
-                Page {currentPage} of {pagination.totalPages}
-              </span>
-              <Button
-                onClick={() => setCurrentPage(p => Math.min(pagination.totalPages, p + 1))}
-                disabled={currentPage === pagination.totalPages}
-                variant="outline"
-              >
-                Next
-              </Button>
+                  <div className="flex items-center gap-3">
+                    <Button
+                      onClick={() => viewClassDetails(classItem)}
+                      className="bg-blue-500 hover:bg-blue-600 text-white"
+                    >
+                      👁️ View Class
+                    </Button>
+                    <Button
+                      onClick={() => deleteClass(classItem._id)}
+                      variant="outline"
+                      className="border-red-500 text-red-600 hover:bg-red-50"
+                    >
+                      🗑 Delete
+                    </Button>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </Card>
       </div>
+      )}
+
+      {/* Class Detail Modal */}
+      {selectedClass && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-6 z-50" onClick={() => setSelectedClass(null)}>
+          <Card className="max-w-6xl w-full p-8 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-3xl font-bold text-gray-800 mb-6">
+              {selectedClass.teacher.assignedGrade} Grade - Section {selectedClass.teacher.section}
+            </h2>
+            
+            {/* Teacher Info */}
+            <div className="mb-6 p-4 bg-purple-50 rounded-lg">
+              <h3 className="text-xl font-bold mb-3 text-purple-800">👨‍🏫 Class Teacher</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <div className="text-sm text-gray-600">Name</div>
+                  <div className="text-lg font-semibold">{selectedClass.teacher.fullName}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600">Username</div>
+                  <div className="text-lg font-semibold">@{selectedClass.teacher.username}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600">Email</div>
+                  <div className="text-lg font-semibold">{selectedClass.teacher.email || 'N/A'}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600">Teacher Code</div>
+                  <div className="text-lg font-semibold font-mono">{selectedClass.teacher.teacherCode}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Students List */}
+            <div className="mb-6">
+              <h3 className="text-xl font-bold mb-3">👥 Students ({selectedClass.students.length})</h3>
+              {selectedClass.students.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <p>No students enrolled in this class yet</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b-2 border-gray-200 bg-gray-50">
+                        <th className="text-left p-3 font-semibold text-gray-700">Student</th>
+                        <th className="text-left p-3 font-semibold text-gray-700">Age</th>
+                        <th className="text-left p-3 font-semibold text-gray-700">Quizzes Taken</th>
+                        <th className="text-left p-3 font-semibold text-gray-700">Avg Score</th>
+                        <th className="text-left p-3 font-semibold text-gray-700">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedClass.students.map((student) => {
+                        const avgScore = student.quizResults.length > 0 
+                          ? Math.round(student.quizResults.reduce((sum, q) => sum + (q.score / q.totalQuestions * 100), 0) / student.quizResults.length)
+                          : 0;
+                        
+                        return (
+                          <tr key={student._id} className="border-b border-gray-100 hover:bg-gray-50">
+                            <td className="p-3">
+                              <div>
+                                <div className="font-medium text-gray-900">{student.fullName}</div>
+                                <div className="text-sm text-gray-500">@{student.username}</div>
+                              </div>
+                            </td>
+                            <td className="p-3">
+                              <span className="text-gray-700">{student.age}</span>
+                            </td>
+                            <td className="p-3">
+                              <span className="font-semibold text-blue-600">{student.stats.totalQuizzesTaken}</span>
+                            </td>
+                            <td className="p-3">
+                              {student.quizResults.length > 0 ? (
+                                <span className={`text-xl font-bold ${avgScore >= 80 ? 'text-green-600' : avgScore >= 60 ? 'text-yellow-600' : 'text-red-600'}`}>
+                                  {avgScore}%
+                                </span>
+                              ) : (
+                                <span className="text-gray-400 text-sm">No data</span>
+                              )}
+                            </td>
+                            <td className="p-3">
+                              <Button
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedClass(null);
+                                  viewStudentDetails(student._id);
+                                }}
+                                className="bg-blue-500 hover:bg-blue-600 text-white"
+                              >
+                                📊 Details
+                              </Button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            <Button
+              onClick={() => setSelectedClass(null)}
+              className="w-full bg-gray-600 hover:bg-gray-700"
+            >
+              Close
+            </Button>
+          </Card>
+        </div>
       )}
 
       {/* Student Detail Modal */}
