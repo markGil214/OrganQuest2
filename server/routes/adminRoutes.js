@@ -15,6 +15,7 @@ router.get('/students', authMiddleware, teacherMiddleware, async (req, res) => {
       performanceLevel,
       activityLevel,
       grade, // Grade filter
+      section, // Section filter
       sortBy = 'createdAt', 
       sortOrder = 'desc',
       page = 1,
@@ -32,6 +33,11 @@ router.get('/students', authMiddleware, teacherMiddleware, async (req, res) => {
     // Apply explicit grade filter if provided
     if (grade) {
       query.grade = grade;
+    }
+
+    // Apply section filter if provided
+    if (section) {
+      query.section = section;
     }
 
     if (search) {
