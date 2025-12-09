@@ -157,10 +157,10 @@ const QuizContainer = () => {
       
       if (response.success) {
         setAttemptInfo(response.data);
-        // Block if locked OR if already at max attempts
-        if (response.data.isLocked || response.data.attemptCount >= response.data.maxAttempts) {
+        // Block if already at max attempts
+        if (response.data.attemptCount >= response.data.maxAttempts) {
           setIsBlocked(true);
-          alert(`Quiz is locked. You have used all ${response.data.maxAttempts} attempts. Contact your teacher to reset.`);
+          alert(`You have used all ${response.data.maxAttempts} attempts. Contact your teacher to reset.`);
           window.location.href = '#quiz';
           return;
         }

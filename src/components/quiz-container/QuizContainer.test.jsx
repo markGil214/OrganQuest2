@@ -2,6 +2,20 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { ToastProvider } from '../../contexts/ToastContext';
 import { LanguageProvider } from '../../contexts/LanguageContext';
 
+// Suppress jsdom navigation warnings
+const originalError = console.error;
+beforeAll(() => {
+  console.error = (...args) => {
+    if (typeof args[0] === 'string' && args[0].includes('Not implemented: navigation')) {
+      return;
+    }
+    originalError.call(console, ...args);
+  };
+});
+afterAll(() => {
+  console.error = originalError;
+});
+
 // Mock QuizContainer module
 jest.mock('./QuizContainer', () => {
   return function MockQuizContainer() {

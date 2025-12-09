@@ -867,11 +867,6 @@ const AdminDashboard = ({ userData, onLogout }) => {
                         <span className="text-sm text-gray-600 ml-2">
                           {attempt.attemptCount}/{attempt.maxAttempts} attempts
                         </span>
-                        {attempt.isLocked && (
-                          <span className="ml-2 px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full">
-                            🔒 Locked
-                          </span>
-                        )}
                       </div>
                       <Button
                         onClick={() => {
@@ -881,7 +876,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
                         }}
                         size="sm"
                         className="bg-orange-500 hover:bg-orange-600 text-white"
-                        disabled={!attempt.isLocked && attempt.attemptCount === 0}
+                        disabled={attempt.attemptCount === 0}
                       >
                         Reset
                       </Button>
