@@ -125,10 +125,6 @@ const userSchema = new mongoose.Schema({
     maxAttempts: {
       type: Number,
       default: 3
-    },
-    isLocked: {
-      type: Boolean,
-      default: false
     }
   }],
   badges: [{
