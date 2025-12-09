@@ -2,6 +2,10 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema({
+  userId: {
+    type: Number,
+    unique: true
+  },
   fullName: {
     type: String,
     required: [true, 'Full name is required'],
@@ -139,6 +143,21 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 });
 
+// Auto-increment userId before saving
+userSchema.pre('save', async function(next) {
+  if (!this.isNew) {
+    return next();
+  }
+  
+  try {
+    const lastUser = await this.constructor.findOne({}, { userId: 1 }).sort({ userId: -1 });
+    this.userId = lastUser && lastUser.userId ? lastUser.userId + 1 : 1;
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Hash password before saving
 userSchema.pre('save', async function(next) {
   // Only hash the password if it has been modified (or is new)
@@ -161,6 +180,7 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
 };
 
 // Indexes for faster queries
+userSchema.index({ userId: 1 }, { unique: true });
 userSchema.index({ username: 1 });
 userSchema.index({ 'stats.highScore': -1 }); // For leaderboard queries
 userSchema.index({ role: 1, assignedGrade: 1 }); // For admin queries
