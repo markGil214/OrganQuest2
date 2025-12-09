@@ -353,4 +353,70 @@ router.put('/update-profile', authMiddleware, async (req, res) => {
   }
 });
 
+// @route   GET /api/user/my-progress
+// @desc    Get user's quiz progress and analytics
+// @access  Private
+router.get('/my-progress', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select('quizResults stats');
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Calculate quiz type stats
+    const quizTypeStats = {};
+    
+    user.quizResults.forEach(result => {
+      const quizType = result.quizType || 'multiple-choice';
+      
+      if (!quizTypeStats[quizType]) {
+        quizTypeStats[quizType] = {
+          totalAttempts: 0,
+          totalScore: 0,
+          highestScore: 0,
+          lowestScore: 100,
+          scores: []
+        };
+      }
+      
+      quizTypeStats[quizType].totalAttempts++;
+      quizTypeStats[quizType].totalScore += result.score;
+      quizTypeStats[quizType].scores.push(result.score);
+      
+      if (result.score > quizTypeStats[quizType].highestScore) {
+        quizTypeStats[quizType].highestScore = result.score;
+      }
+      if (result.score < quizTypeStats[quizType].lowestScore) {
+        quizTypeStats[quizType].lowestScore = result.score;
+      }
+    });
+
+    // Calculate averages and completion rate
+    Object.keys(quizTypeStats).forEach(quizType => {
+      const stats = quizTypeStats[quizType];
+      stats.averageScore = stats.totalScore / stats.totalAttempts;
+      stats.completionRate = (stats.totalAttempts / (stats.totalAttempts || 1)) * 100;
+    });
+
+    res.json({
+      success: true,
+      data: {
+        quizTypeStats,
+        overallStats: user.stats
+      }
+    });
+  } catch (error) {
+    console.error('Progress fetch error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error fetching progress',
+      error: error.message
+    });
+  }
+});
+
 export default router;

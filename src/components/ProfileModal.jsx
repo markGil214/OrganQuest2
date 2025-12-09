@@ -5,7 +5,7 @@ import { cn } from '../lib/utils';
 import api from '../lib/api';
 
 const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
-  const [activeTab, setActiveTab] = useState('profile'); // 'profile', 'edit', 'progress', 'about'
+  const [activeTab, setActiveTab] = useState('profile'); // 'profile', 'info', 'progress', 'about'
   const [stats, setStats] = useState({
     quizzesTaken: 0,
     averageScore: 0,
@@ -13,6 +13,13 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
   });
   const [quizAnalytics, setQuizAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [userInfo, setUserInfo] = useState({
+    fullName: '',
+    username: '',
+    age: '',
+    grade: ''
+  });
+  const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
     fullName: '',
     username: '',
@@ -39,12 +46,14 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
             averageScore: data.stats.averageScore || 0,
             highScore: data.stats.highScore || 0
           });
-          setEditForm({
+          const info = {
             fullName: data.fullName || '',
             username: data.username || username,
             age: data.age || '',
             grade: data.grade || ''
-          });
+          };
+          setUserInfo(info);
+          setEditForm(info);
         }
       } catch (error) {
         console.error('Failed to fetch stats:', error);
@@ -60,7 +69,7 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
   const fetchQuizAnalytics = async () => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/admin/quiz-analytics`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/user/my-progress`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();
@@ -88,7 +97,8 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
       const data = await response.json();
       if (data.success) {
         alert('Profile updated successfully!');
-        setActiveTab('profile');
+        setUserInfo(editForm);
+        setIsEditing(false);
       } else {
         alert(data.message || 'Failed to update profile');
       }
@@ -126,8 +136,8 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
               <div className="absolute inset-0 rounded-full border-4 border-purple-500/30 animate-pulse" />
             </div>
             <div className="text-center">
-              <h2 className="text-lg font-bold text-gray-800">{editForm.fullName || username}</h2>
-              <p className="text-xs text-purple-600 font-medium">@{editForm.username}</p>
+              <h2 className="text-lg font-bold text-gray-800">{userInfo.fullName || username}</h2>
+              <p className="text-xs text-purple-600 font-medium">@{userInfo.username}</p>
             </div>
           </div>
 
@@ -145,15 +155,18 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
               📊 Stats
             </button>
             <button
-              onClick={() => setActiveTab('edit')}
+              onClick={() => {
+                setActiveTab('info');
+                setIsEditing(false);
+              }}
               className={cn(
                 "px-4 py-2 text-sm font-medium transition-all",
-                activeTab === 'edit' 
+                activeTab === 'info' 
                   ? "text-purple-600 border-b-2 border-purple-600" 
                   : "text-gray-600 hover:text-purple-600"
               )}
             >
-              ✏️ Edit Info
+              👤 My Info
             </button>
             <button
               onClick={() => {
@@ -208,54 +221,112 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
               </div>
             )}
 
-            {/* Edit Info Tab */}
-            {activeTab === 'edit' && (
+            {/* My Info Tab */}
+            {activeTab === 'info' && (
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                  <input
-                    type="text"
-                    value={editForm.fullName}
-                    onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
-                  <input
-                    type="text"
-                    value={editForm.username}
-                    onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Age</label>
-                    <input
-                      type="number"
-                      value={editForm.age}
-                      onChange={(e) => setEditForm({ ...editForm, age: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Grade Level</label>
-                    <input
-                      type="text"
-                      value={editForm.grade}
-                      onChange={(e) => setEditForm({ ...editForm, grade: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    />
-                  </div>
-                </div>
-                <Button
-                  onClick={handleEditSubmit}
-                  disabled={saving}
-                  className="w-full bg-purple-600 hover:bg-purple-700"
-                >
-                  {saving ? 'Saving...' : 'Save Changes'}
-                </Button>
+                {!isEditing ? (
+                  <>
+                    <div className="p-4 bg-white/70 rounded-xl shadow-md">
+                      <div className="flex justify-between items-start mb-4">
+                        <h3 className="font-bold text-lg">Personal Information</h3>
+                        <Button
+                          onClick={() => setIsEditing(true)}
+                          size="sm"
+                          className="bg-purple-600 hover:bg-purple-700"
+                        >
+                          ✏️ Edit
+                        </Button>
+                      </div>
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-sm font-medium text-gray-600">Full Name</label>
+                          <p className="text-base font-semibold text-gray-800">{userInfo.fullName || 'Not set'}</p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-gray-600">Username</label>
+                          <p className="text-base font-semibold text-gray-800">@{userInfo.username}</p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-sm font-medium text-gray-600">Age</label>
+                            <p className="text-base font-semibold text-gray-800">{userInfo.age || 'Not set'}</p>
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium text-gray-600">Grade Level</label>
+                            <p className="text-base font-semibold text-gray-800">{userInfo.grade || 'Not set'}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="p-4 bg-white/70 rounded-xl shadow-md space-y-4">
+                      <h3 className="font-bold text-lg">Edit Information</h3>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                        <input
+                          type="text"
+                          value={editForm.fullName}
+                          onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                        <input
+                          type="text"
+                          value={editForm.username}
+                          onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Age</label>
+                          <input
+                            type="number"
+                            value={editForm.age}
+                            onChange={(e) => setEditForm({ ...editForm, age: e.target.value })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Grade Level</label>
+                          <select
+                            value={editForm.grade}
+                            onChange={(e) => setEditForm({ ...editForm, grade: e.target.value })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          >
+                            <option value="">Select grade</option>
+                            <option value="4th">4th Grade</option>
+                            <option value="5th">5th Grade</option>
+                            <option value="6th">6th Grade</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={handleEditSubmit}
+                          disabled={saving}
+                          className="flex-1 bg-purple-600 hover:bg-purple-700"
+                        >
+                          {saving ? 'Saving...' : '💾 Save Changes'}
+                        </Button>
+                        <Button
+                          onClick={() => {
+                            setIsEditing(false);
+                            setEditForm(userInfo);
+                          }}
+                          variant="outline"
+                          className="flex-1"
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             )}
 
