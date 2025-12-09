@@ -106,9 +106,6 @@ const AdminDashboard = ({ userData, onLogout }) => {
           performanceTrends: data.data.performanceTrends || {},
           quizTypeStats: data.data.quizTypeStats || {}, // Keep as object, don't transform to array
           questionDifficulty: data.data.questionDifficulty?.hardestQuestions || [],
-          attemptStats: {
-            studentsWithLockedQuizzes: data.data.attemptStats?.lockedStudents || 0
-          },
           badgeStats: {
             mostEarned: data.data.badgeStats && data.data.badgeStats.length > 0 
               ? data.data.badgeStats[0].name 
@@ -128,7 +125,6 @@ const AdminDashboard = ({ userData, onLogout }) => {
           quizTypeStats: {},
           performanceTrends: {},
           questionDifficulty: [],
-          attemptStats: { studentsWithLockedQuizzes: 0 },
           badgeStats: { mostEarned: 'None', leastEarned: 'None' }
         });
       }
@@ -139,7 +135,6 @@ const AdminDashboard = ({ userData, onLogout }) => {
         quizTypeStats: {},
         performanceTrends: {},
         questionDifficulty: [],
-        attemptStats: { studentsWithLockedQuizzes: 0 },
         badgeStats: { mostEarned: 'None', leastEarned: 'None' }
       });
     }
@@ -842,49 +837,6 @@ const AdminDashboard = ({ userData, onLogout }) => {
                 </div>
               </div>
             </div>
-
-            {/* Quiz Attempt Status */}
-            {studentQuizDetails && (
-              <div className="mb-6">
-                <div className="flex justify-between items-center mb-3">
-                  <h3 className="text-xl font-bold">Quiz Attempt Status</h3>
-                  <Button
-                    onClick={() => {
-                      if (confirm('Reset ALL quiz attempts for this student?')) {
-                        resetQuizAttempts(selectedStudent._id, 'all');
-                      }
-                    }}
-                    className="bg-red-600 hover:bg-red-700 text-white text-sm"
-                  >
-                    Reset All Attempts
-                  </Button>
-                </div>
-                <div className="space-y-2">
-                  {studentQuizDetails.quizAttempts.map((attempt) => (
-                    <div key={attempt.quizType} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                      <div>
-                        <span className="font-semibold">{attempt.quizType}</span>
-                        <span className="text-sm text-gray-600 ml-2">
-                          {attempt.attemptCount}/{attempt.maxAttempts} attempts
-                        </span>
-                      </div>
-                      <Button
-                        onClick={() => {
-                          if (confirm(`Reset ${attempt.quizType} attempts?`)) {
-                            resetQuizAttempts(selectedStudent._id, attempt.quizType);
-                          }
-                        }}
-                        size="sm"
-                        className="bg-orange-500 hover:bg-orange-600 text-white"
-                        disabled={attempt.attemptCount === 0}
-                      >
-                        Reset
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Badges */}
             {studentQuizDetails && studentQuizDetails.badges.length > 0 && (
