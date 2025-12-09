@@ -56,13 +56,12 @@ const userSchema = new mongoose.Schema({
   },
   avatar: {
     type: Number,
-    required: [true, 'Avatar selection is required'],
     min: 1,
-    max: 4
+    max: 4,
+    default: 1
   },
   language: {
     type: String,
-    required: [true, 'Language is required'],
     enum: ['english', 'filipino'],
     default: 'english'
   },
