@@ -811,4 +811,165 @@ function calculateFirstDayProgress(student) {
   };
 }
 
+// @route   GET /api/Teacher/classes
+// @desc    Get all classes (teachers) - Superuser only
+// @access  Superuser
+router.get('/classes', authMiddleware, superuserMiddleware, async (req, res) => {
+  try {
+    const teachers = await User.find({ role: 'teacher' })
+      .select('-password -__v')
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      data: { classes: teachers }
+    });
+  } catch (error) {
+    console.error('Get classes error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error fetching classes',
+      error: error.message
+    });
+  }
+});
+
+// @route   POST /api/Teacher/create-class
+// @desc    Create a new class with teacher assignment
+// @access  Superuser
+router.post('/create-class', 
+  authMiddleware, 
+  superuserMiddleware,
+  [
+    body('fullName').trim().notEmpty().withMessage('Teacher full name is required'),
+    body('email').isEmail().withMessage('Valid email is required'),
+    body('username').trim().isLength({ min: 3 }).withMessage('Username must be at least 3 characters'),
+    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+    body('assignedGrade').isIn(['4th', '5th', '6th']).withMessage('Invalid grade assignment'),
+    body('section').isIn(['A', 'B', 'C']).withMessage('Invalid section')
+  ],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          success: false,
+          errors: errors.array()
+        });
+      }
+
+      const { fullName, email, username, password, assignedGrade, section } = req.body;
+
+      // Check if username exists
+      const existingUsername = await User.findOne({ username });
+      if (existingUsername) {
+        return res.status(400).json({
+          success: false,
+          message: 'Username already taken'
+        });
+      }
+
+      // Check if email exists
+      const existingEmail = await User.findOne({ email });
+      if (existingEmail) {
+        return res.status(400).json({
+          success: false,
+          message: 'Email already registered'
+        });
+      }
+
+      // Generate unique teacher code
+      const generateTeacherCode = async () => {
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let code;
+        let exists = true;
+        
+        while (exists) {
+          code = 'T-';
+          for (let i = 0; i < 6; i++) {
+            code += characters.charAt(Math.floor(Math.random() * characters.length));
+          }
+          const existing = await User.findOne({ teacherCode: code });
+          exists = !!existing;
+        }
+        return code;
+      };
+
+      const teacherCode = await generateTeacherCode();
+
+      // Create teacher
+      const teacher = new User({
+        fullName,
+        email,
+        username,
+        password,
+        role: 'teacher',
+        assignedGrade,
+        section,
+        teacherCode,
+        grade: assignedGrade
+      });
+
+      await teacher.save();
+
+      res.status(201).json({
+        success: true,
+        message: 'Class created successfully',
+        data: {
+          teacher: {
+            _id: teacher._id,
+            fullName: teacher.fullName,
+            email: teacher.email,
+            username: teacher.username,
+            assignedGrade: teacher.assignedGrade,
+            section: teacher.section,
+            teacherCode: teacher.teacherCode
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Create class error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server error creating class',
+        error: error.message
+      });
+    }
+  }
+);
+
+// @route   DELETE /api/Teacher/classes/:id
+// @desc    Delete class (teacher) - Superuser only
+// @access  Superuser
+router.delete('/classes/:id',
+  authMiddleware,
+  superuserMiddleware,
+  async (req, res) => {
+    try {
+      const teacher = await User.findById(req.params.id);
+
+      if (!teacher || teacher.role !== 'teacher') {
+        return res.status(404).json({
+          success: false,
+          message: 'Class not found'
+        });
+      }
+
+      await User.findByIdAndDelete(req.params.id);
+
+      res.json({
+        success: true,
+        message: 'Class deleted successfully'
+      });
+    } catch (error) {
+      console.error('Delete class error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server error deleting class',
+        error: error.message
+      });
+    }
+  }
+);
+
 export default router;

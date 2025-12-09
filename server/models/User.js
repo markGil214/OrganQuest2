@@ -26,21 +26,31 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Password is required'],
     minlength: [6, 'Password must be at least 6 characters']
   },
+  email: {
+    type: String,
+    sparse: true, // Only for teachers
+    lowercase: true,
+    trim: true,
+    validate: {
+      validator: function(v) {
+        // Only validate if email is provided
+        if (!v) return true;
+        return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v);
+      },
+      message: 'Please enter a valid email'
+    }
+  },
   age: {
     type: Number,
-    required: [true, 'Age is required'],
     min: [1, 'Age must be at least 1'],
     max: [120, 'Age cannot exceed 120']
   },
   grade: {
     type: String,
-    required: [true, 'Grade is required'],
-    enum: ['4th', '5th', '6th'],
-    default: '4th'
+    enum: ['4th', '5th', '6th']
   },
   section: {
     type: String,
-    required: [true, 'Section is required'],
     enum: ['A', 'B', 'C'],
     uppercase: true
   },
