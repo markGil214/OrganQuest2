@@ -525,14 +525,12 @@ router.post('/students/:studentId/reset-quiz-attempts',
         const attemptIndex = student.quizAttempts.findIndex(a => a.quizType === quizType);
         if (attemptIndex !== -1) {
           student.quizAttempts[attemptIndex].attemptCount = 0;
-          student.quizAttempts[attemptIndex].isLocked = false;
           student.quizAttempts[attemptIndex].lastAttemptDate = null;
         }
       } else {
         // Reset all quiz attempts
         student.quizAttempts.forEach(attempt => {
           attempt.attemptCount = 0;
-          attempt.isLocked = false;
           attempt.lastAttemptDate = null;
         });
       }
@@ -724,27 +722,19 @@ router.get('/quiz-analytics', authMiddleware, teacherMiddleware, async (req, res
 
     // Attempt statistics
     const attemptStats = {
-      lockedStudents: 0,
       byQuizType: {}
     };
 
     students.forEach(student => {
       if (student.quizAttempts && Array.isArray(student.quizAttempts)) {
         student.quizAttempts.forEach(attempt => {
-          if (attempt.isLocked) {
-            attemptStats.lockedStudents += 1;
-          }
           if (!attemptStats.byQuizType[attempt.quizType]) {
             attemptStats.byQuizType[attempt.quizType] = {
               totalAttempts: 0,
-              lockedCount: 0,
               avgAttemptsUsed: 0
             };
           }
           attemptStats.byQuizType[attempt.quizType].totalAttempts += attempt.attemptCount;
-          if (attempt.isLocked) {
-            attemptStats.byQuizType[attempt.quizType].lockedCount += 1;
-          }
         });
       }
     });

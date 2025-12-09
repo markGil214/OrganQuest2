@@ -55,14 +55,13 @@ router.post('/submit', authMiddleware,
         attemptInfo = {
           quizType,
           attemptCount: 0,
-          maxAttempts: 3,
-          isLocked: false
+          maxAttempts: 3
         };
         user.quizAttempts.push(attemptInfo);
       }
 
-      // Check if quiz is locked OR max attempts already reached
-      if (attemptInfo.isLocked || attemptInfo.attemptCount >= attemptInfo.maxAttempts) {
+      // Check if max attempts already reached
+      if (attemptInfo.attemptCount >= attemptInfo.maxAttempts) {
         return res.status(403).json({
           success: false,
           message: 'Quiz is locked. You have reached the maximum attempts (3). Contact your teacher to reset.'
@@ -72,11 +71,6 @@ router.post('/submit', authMiddleware,
       // Increment attempt count
       attemptInfo.attemptCount += 1;
       attemptInfo.lastAttemptDate = new Date();
-
-      // Lock if max attempts reached after this submission
-      if (attemptInfo.attemptCount >= attemptInfo.maxAttempts) {
-        attemptInfo.isLocked = true;
-      }
 
       const percentage = Math.round((score / totalQuestions) * 100);
 
@@ -114,7 +108,6 @@ router.post('/submit', authMiddleware,
           totalQuizzesTaken: user.stats.totalQuizzesTaken,
           attemptNumber: attemptInfo.attemptCount,
           remainingAttempts: attemptInfo.maxAttempts - attemptInfo.attemptCount,
-          isLocked: attemptInfo.isLocked,
           newBadges
         }
       });
@@ -153,8 +146,7 @@ router.get('/attempts/:quizType', authMiddleware, async (req, res) => {
         data: {
           attemptCount: 0,
           maxAttempts: 3,
-          remainingAttempts: 3,
-          isLocked: false
+          remainingAttempts: 3
         }
       });
     }
@@ -165,7 +157,6 @@ router.get('/attempts/:quizType', authMiddleware, async (req, res) => {
         attemptCount: attemptInfo.attemptCount,
         maxAttempts: attemptInfo.maxAttempts,
         remainingAttempts: attemptInfo.maxAttempts - attemptInfo.attemptCount,
-        isLocked: attemptInfo.isLocked,
         lastAttemptDate: attemptInfo.lastAttemptDate
       }
     });
