@@ -20,6 +20,17 @@ const SuperAdminPanel = ({ onBack }) => {
 
   const API_URL = import.meta.env.VITE_API_URL || 'https://organquest2.onrender.com';
 
+  // Get occupied grade-section combinations
+  const getOccupiedCombinations = () => {
+    return classes.map(cls => `${cls.assignedGrade}-${cls.section}`);
+  };
+
+  // Check if a grade-section combination is available
+  const isCombinationAvailable = (grade, section) => {
+    const occupied = getOccupiedCombinations();
+    return !occupied.includes(`${grade}-${section}`);
+  };
+
   useEffect(() => {
     fetchClasses();
   }, []);
@@ -47,16 +58,36 @@ const SuperAdminPanel = ({ onBack }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    if (name === 'assignedGrade') {
+      // Auto-select first available section when grade changes
+      const sections = ['A', 'B', 'C'];
+      const availableSection = sections.find(sec => isCombinationAvailable(value, sec));
+      
+      setFormData(prev => ({
+        ...prev,
+        assignedGrade: value,
+        section: availableSection || prev.section
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleCreateClass = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    // Check if combination is available
+    if (!isCombinationAvailable(formData.assignedGrade, formData.section)) {
+      setError(`${formData.assignedGrade} Grade Section ${formData.section} already has a teacher assigned`);
+      setLoading(false);
+      return;
+    }
 
     try {
       const token = localStorage.getItem('authToken');
@@ -244,9 +275,15 @@ const SuperAdminPanel = ({ onBack }) => {
                     className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-purple-500 outline-none"
                     required
                   >
-                    <option value="A">Section A</option>
-                    <option value="B">Section B</option>
-                    <option value="C">Section C</option>
+                    <option value="A" disabled={!isCombinationAvailable(formData.assignedGrade, 'A')}>
+                      Section A {!isCombinationAvailable(formData.assignedGrade, 'A') && '(Occupied)'}
+                    </option>
+                    <option value="B" disabled={!isCombinationAvailable(formData.assignedGrade, 'B')}>
+                      Section B {!isCombinationAvailable(formData.assignedGrade, 'B') && '(Occupied)'}
+                    </option>
+                    <option value="C" disabled={!isCombinationAvailable(formData.assignedGrade, 'C')}>
+                      Section C {!isCombinationAvailable(formData.assignedGrade, 'C') && '(Occupied)'}
+                    </option>
                   </select>
                 </div>
               </div>

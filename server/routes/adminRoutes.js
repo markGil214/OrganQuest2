@@ -860,6 +860,20 @@ router.post('/create-class',
 
       const { fullName, email, username, password, assignedGrade, section } = req.body;
 
+      // Check if grade-section combination already exists
+      const existingClass = await User.findOne({ 
+        role: 'teacher',
+        assignedGrade,
+        section 
+      });
+      
+      if (existingClass) {
+        return res.status(400).json({
+          success: false,
+          message: `${assignedGrade} Grade Section ${section} already has a teacher assigned (${existingClass.fullName})`
+        });
+      }
+
       // Check if username exists
       const existingUsername = await User.findOne({ username });
       if (existingUsername) {
