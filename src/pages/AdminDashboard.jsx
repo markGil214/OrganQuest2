@@ -416,14 +416,6 @@ const AdminDashboard = ({ userData, onLogout }) => {
             </p>
           </div>
           <div className="flex gap-3">
-            {userData?.role === 'superuser' && (
-              <Button
-                onClick={() => window.location.hash = '#admin/manage'}
-                className="bg-purple-600 hover:bg-purple-700"
-              >
-                👥 Manage Admins
-              </Button>
-            )}
             <Button
               onClick={onLogout}
               variant="outline"
@@ -860,7 +852,17 @@ const AdminDashboard = ({ userData, onLogout }) => {
       {activeTab === 'classes' && (
       <div className="max-w-7xl mx-auto mb-6">
         <Card className="p-6">
-          <h3 className="text-2xl font-bold text-gray-800 mb-4">🏫 My Classes</h3>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-2xl font-bold text-gray-800">🏫 My Classes</h3>
+            {userData?.role === 'superuser' && (
+              <Button
+                onClick={() => window.location.hash = '#admin/manage'}
+                className="bg-purple-600 hover:bg-purple-700"
+              >
+                ➕ Add Class
+              </Button>
+            )}
+          </div>
           {classes.length === 0 ? (
             <div className="text-center py-12 text-gray-500">
               <p className="text-lg">No classes found</p>
