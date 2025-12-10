@@ -314,10 +314,29 @@ const AdminDashboard = ({ userData, onLogout }) => {
       const data = await response.json();
 
       if (data.success) {
-        const successMessage = data.emailSent 
-          ? 'Class created successfully! Invitation email sent to teacher.'
-          : 'Class created successfully! (Email notification failed to send)';
-        toast.success(successMessage);
+        if (data.emailSent) {
+          toast.success('Class created successfully! Invitation email sent to teacher.');
+        } else {
+          // Show registration URL if email failed
+          toast.error('Email failed to send. Share this link with the teacher:', {
+            duration: 10000
+          });
+          
+          if (data.registrationUrl) {
+            // Copy to clipboard
+            navigator.clipboard.writeText(data.registrationUrl);
+            
+            // Show in alert
+            setTimeout(() => {
+              alert(
+                `⚠️ EMAIL FAILED TO SEND\n\n` +
+                `Please manually share this registration link with ${classFormData.fullName}:\n\n` +
+                `${data.registrationUrl}\n\n` +
+                `(Link copied to clipboard)`
+              );
+            }, 500);
+          }
+        }
         setShowCreateClassModal(false);
         setClassFormData({ fullName: '', email: '', assignedGrade: '4th', section: 'A' });
         fetchClasses();

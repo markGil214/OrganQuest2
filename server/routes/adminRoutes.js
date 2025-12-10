@@ -927,6 +927,8 @@ router.post('/create-class',
       await teacher.save();
 
       console.log('📧 Attempting to send invitation email to:', teacher.email);
+      console.log('📧 Resend API Key configured:', !!process.env.RESEND_API_KEY);
+      console.log('📧 Registration token:', registrationToken);
 
       // Send invitation email with registration link
       const emailResult = await sendTeacherInvitationEmail({
@@ -940,6 +942,9 @@ router.post('/create-class',
 
       if (!emailResult.success) {
         console.error('❌ Failed to send invitation email:', emailResult.error);
+        console.log('📋 Registration URL (share this manually):', 
+          `${process.env.CLIENT_URL || 'https://organ-quest2.vercel.app'}/#teacher-register/${registrationToken}`
+        );
       } else {
         console.log('✅ Email sent successfully');
       }
@@ -950,6 +955,9 @@ router.post('/create-class',
           ? 'Class created successfully. Invitation email sent to teacher.'
           : 'Class created successfully. (Failed to send invitation email - check server logs)',
         emailSent: emailResult.success,
+        registrationUrl: !emailResult.success 
+          ? `${process.env.CLIENT_URL || 'https://organ-quest2.vercel.app'}/#teacher-register/${registrationToken}`
+          : undefined,
         data: {
           teacher: {
             _id: teacher._id,
@@ -958,6 +966,7 @@ router.post('/create-class',
             assignedGrade: teacher.assignedGrade,
             section: teacher.section,
             teacherCode: teacher.teacherCode,
+            accountStatus: teacher.accountStatus
             accountStatus: teacher.accountStatus
           }
         }
