@@ -1,9 +1,8 @@
 import nodemailer from 'nodemailer';
 
-// Create transporter based on available service
+// Create Gmail transporter
 let transporter = null;
 
-// Try Gmail first (recommended)
 if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
   transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -13,19 +12,8 @@ if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
     }
   });
   console.log('✅ Email service initialized with Gmail');
-} 
-// Fallback to Resend if configured
-else if (process.env.RESEND_API_KEY) {
-  const { Resend } = await import('resend');
-  const resend = new Resend(process.env.RESEND_API_KEY);
-  transporter = {
-    isResend: true,
-    resend: resend
-  };
-  console.log('⚠️  Email service initialized with Resend (limited to verified emails)');
-}
-else {
-  console.warn('⚠️  No email service configured. Set GMAIL_USER and GMAIL_APP_PASSWORD in .env');
+} else {
+  console.warn('⚠️  Gmail not configured. Set GMAIL_USER and GMAIL_APP_PASSWORD in .env');
 }
 
 export const sendTeacherInvitationEmail = async (teacherData) => {
@@ -116,32 +104,18 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
       </html>
     `;
 
-    // Send email based on transporter type
-    if (transporter.isResend) {
-      // Use Resend
-      const data = await transporter.resend.emails.send({
-        from: 'OrganQuest <onboarding@resend.dev>',
-        to: email,
-        subject: `Complete Your Teacher Registration - ${assignedGrade} Grade Section ${section}`,
-        html: emailHtml,
-      });
-      console.log('✅ Invitation email sent successfully to:', email);
-      console.log('Email ID:', data.id);
-      return { success: true, data };
-    } else {
-      // Use Gmail/Nodemailer
-      const mailOptions = {
-        from: `"OrganQuest" <${process.env.GMAIL_USER}>`,
-        to: email,
-        subject: `Complete Your Teacher Registration - ${assignedGrade} Grade Section ${section}`,
-        html: emailHtml,
-      };
+    // Send email via Gmail
+    const mailOptions = {
+      from: `"OrganQuest" <${process.env.GMAIL_USER}>`,
+      to: email,
+      subject: `Complete Your Teacher Registration - ${assignedGrade} Grade Section ${section}`,
+      html: emailHtml,
+    };
 
-      const info = await transporter.sendMail(mailOptions);
-      console.log('✅ Invitation email sent successfully to:', email);
-      console.log('Message ID:', info.messageId);
-      return { success: true, data: info };
-    }
+    const info = await transporter.sendMail(mailOptions);
+    console.log('✅ Invitation email sent successfully to:', email);
+    console.log('Message ID:', info.messageId);
+    return { success: true, data: info };
   } catch (error) {
     console.error('❌ Error sending invitation email:', error);
     console.error('Error details:', {
@@ -150,10 +124,7 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
       name: error.name
     });
     
-    // Check for common errors
-    if (error.message?.includes('can only send to')) {
-      console.error('⚠️  Resend free tier limitation: You can only send to your verified email address.');
-    } else if (error.message?.includes('Invalid login')) {
+    if (error.message?.includes('Invalid login')) {
       console.error('⚠️  Gmail authentication failed. Check GMAIL_USER and GMAIL_APP_PASSWORD.');
     }
     
