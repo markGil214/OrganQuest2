@@ -37,7 +37,9 @@ router.get('/test-email', authMiddleware, superuserMiddleware, async (req, res) 
       }
     });
 
+    console.log('🔍 Verifying Gmail connection...');
     await transporter.verify();
+    console.log('✅ Gmail connection verified successfully');
     
     // Try sending a test email to a real recipient
     const testRecipient = req.query.email || process.env.GMAIL_USER;
@@ -81,14 +83,29 @@ router.get('/test-email', authMiddleware, superuserMiddleware, async (req, res) 
     });
   } catch (error) {
     console.error('❌ Email test failed:', error);
+    console.error('   Error name:', error.name);
+    console.error('   Error code:', error.code);
+    console.error('   Error message:', error.message);
+    console.error('   Response code:', error.responseCode);
+    console.error('   Command:', error.command);
+    
     res.json({
       success: false,
       message: 'Email configuration test failed',
       error: error.message,
       code: error.code,
-      help: error.code === 'EAUTH' ? 
-        'Invalid credentials. Check if 2-Step Verification is enabled and App Password is correct.' : 
-        'Connection error. Check internet connection and Gmail settings.'
+      responseCode: error.responseCode,
+      command: error.command,
+      details: {
+        GMAIL_USER: process.env.GMAIL_USER,
+        GMAIL_APP_PASSWORD_SET: !!process.env.GMAIL_APP_PASSWORD,
+        errorType: error.name
+      },
+      help: error.code === 'EAUTH' || error.responseCode === 535 ? 
+        'Invalid Gmail credentials. Verify: 1) 2-Step Verification enabled 2) App Password is correct (no spaces) 3) Using correct Gmail account' : 
+        error.code === 'ECONNECTION' ?
+        'Cannot connect to Gmail servers. Check server internet connection.' :
+        `Gmail error: ${error.message}`
     });
   }
 });
