@@ -967,7 +967,6 @@ router.post('/create-class',
             section: teacher.section,
             teacherCode: teacher.teacherCode,
             accountStatus: teacher.accountStatus
-            accountStatus: teacher.accountStatus
           }
         }
       });
