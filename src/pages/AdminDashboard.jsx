@@ -314,7 +314,29 @@ const AdminDashboard = ({ userData, onLogout }) => {
       const data = await response.json();
 
       if (data.success) {
-        toast.success('Class created successfully! Invitation email will be sent to the teacher.');
+        if (data.emailSent) {
+          toast.success('Class created successfully! Invitation email sent to teacher.');
+        } else {
+          // Show error with registration URL
+          toast.error('Class created but email failed to send!', { duration: 5000 });
+          
+          if (data.registrationUrl) {
+            // Copy to clipboard
+            navigator.clipboard.writeText(data.registrationUrl);
+            
+            // Show registration URL
+            setTimeout(() => {
+              alert(
+                `⚠️ EMAIL FAILED TO SEND\n\n` +
+                `Class created successfully but email couldn't be sent.\n\n` +
+                `Please manually share this registration link with ${classFormData.fullName}:\n\n` +
+                `${data.registrationUrl}\n\n` +
+                `(Link copied to clipboard)\n\n` +
+                `Check server logs for the exact error.`
+              );
+            }, 500);
+          }
+        }
         setShowCreateClassModal(false);
         setClassFormData({ fullName: '', email: '', assignedGrade: '4th', section: 'A' });
         fetchClasses();
@@ -326,6 +348,43 @@ const AdminDashboard = ({ userData, onLogout }) => {
       console.error('Error creating class:', error);
     } finally {
       setCreateClassLoading(false);
+    }
+  };
+
+  const testEmailConfig = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      toast.info('Testing email configuration...');
+      
+      const response = await fetch(`${API_URL}/api/admin/test-email`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success('Email test successful! Check your inbox at ' + data.details.user);
+        alert(
+          `✅ EMAIL CONFIGURATION WORKING!\n\n` +
+          `Service: ${data.details.service}\n` +
+          `Email: ${data.details.user}\n` +
+          `Test Email Sent: ${data.details.testEmailSent ? 'Yes' : 'No'}\n\n` +
+          `Check your inbox (or spam folder) for a test email.`
+        );
+      } else {
+        toast.error('Email test failed!');
+        alert(
+          `❌ EMAIL CONFIGURATION FAILED\n\n` +
+          `Error: ${data.message}\n\n` +
+          `${data.help || ''}\n\n` +
+          `Details:\n${JSON.stringify(data.details || {}, null, 2)}`
+        );
+      }
+    } catch (error) {
+      toast.error('Failed to test email');
+      console.error('Email test error:', error);
     }
   };
 
@@ -931,12 +990,20 @@ const AdminDashboard = ({ userData, onLogout }) => {
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-2xl font-bold text-gray-800">🏫 My Classes</h3>
             {userData?.role === 'superuser' && (
-              <Button
-                onClick={() => setShowCreateClassModal(true)}
-                className="bg-purple-600 hover:bg-purple-700"
-              >
-                ➕ Add Class
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  onClick={testEmailConfig}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  📧 Test Email
+                </Button>
+                <Button
+                  onClick={() => setShowCreateClassModal(true)}
+                  className="bg-purple-600 hover:bg-purple-700"
+                >
+                  ➕ Add Class
+                </Button>
+              </div>
             )}
           </div>
           {classes.length === 0 ? (
