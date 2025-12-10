@@ -39,12 +39,33 @@ router.get('/test-email', authMiddleware, superuserMiddleware, async (req, res) 
 
     await transporter.verify();
     
+    // Try sending a test email
+    console.log('📧 Sending test email to:', process.env.GMAIL_USER);
+    const testResult = await transporter.sendMail({
+      from: `"OrganQuest Test" <${process.env.GMAIL_USER}>`,
+      to: process.env.GMAIL_USER, // Send to yourself
+      subject: 'OrganQuest Email Test - Success!',
+      html: `
+        <h2>✅ Email Configuration Working!</h2>
+        <p>Your Gmail setup is working correctly. You can now send teacher invitation emails.</p>
+        <p><strong>Configuration:</strong></p>
+        <ul>
+          <li>From: ${process.env.GMAIL_USER}</li>
+          <li>Status: Active</li>
+        </ul>
+      `
+    });
+    
+    console.log('✅ Test email sent! Message ID:', testResult.messageId);
+    
     res.json({
       success: true,
-      message: 'Email configuration is valid! Gmail is ready to send emails.',
+      message: 'Email configuration is valid! Test email sent to ' + process.env.GMAIL_USER,
       details: {
         service: 'Gmail',
-        user: process.env.GMAIL_USER
+        user: process.env.GMAIL_USER,
+        testEmailSent: true,
+        messageId: testResult.messageId
       }
     });
   } catch (error) {

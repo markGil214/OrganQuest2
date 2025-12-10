@@ -126,8 +126,22 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
       html: emailHtml,
     };
 
+    console.log('📤 Sending email...');
+    console.log('   From:', process.env.GMAIL_USER);
+    console.log('   To:', email);
+    console.log('   Subject:', mailOptions.subject);
+
     const info = await transporter.sendMail(mailOptions);
-    console.log('✅ Invitation email sent successfully to:', email);
+    console.log('✅ Invitation email sent successfully!');
+    console.log('   Recipient:', email);
+    console.log('   Message ID:', info.messageId);
+    console.log('   Response:', info.response);
+    console.log('   Accepted:', info.accepted);
+    console.log('   Rejected:', info.rejected);
+    
+    if (info.rejected && info.rejected.length > 0) {
+      console.warn('⚠️  Some recipients were rejected:', info.rejected);
+    }
     console.log('   Message ID:', info.messageId);
     console.log('   Response:', info.response);
     return { success: true, data: info };
