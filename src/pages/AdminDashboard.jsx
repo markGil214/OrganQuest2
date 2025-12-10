@@ -354,8 +354,17 @@ const AdminDashboard = ({ userData, onLogout }) => {
   const testEmailConfig = async () => {
     try {
       const token = localStorage.getItem('authToken');
-      toast.info('Testing email configuration...');
+      toast.info('Waking up server and testing email...');
       
+      // Wake up the server first with a simple endpoint
+      try {
+        await fetch(`${API_URL}/api/users/health`, { method: 'GET' });
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2s for server to fully wake
+      } catch (wakeError) {
+        console.log('Server wake-up attempt:', wakeError);
+      }
+      
+      toast.info('Testing email configuration...');
       const response = await fetch(`${API_URL}/api/admin/test-email`, {
         headers: {
           'Authorization': `Bearer ${token}`
