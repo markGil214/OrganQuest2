@@ -373,19 +373,25 @@ const AdminDashboard = ({ userData, onLogout }) => {
         }
       });
 
+      console.log('Test email response status:', response.status);
       const data = await response.json();
+      console.log('Test email response data:', data);
 
       if (data.success) {
-        toast.success('Email test successful! Check your inbox at ' + data.details.user);
+        toast.success('✅ Email test successful!');
         alert(
           `✅ EMAIL CONFIGURATION WORKING!\n\n` +
           `Service: ${data.details.service}\n` +
           `Email: ${data.details.user}\n` +
-          `Test Email Sent: ${data.details.testEmailSent ? 'Yes' : 'No'}\n\n` +
-          `Check your inbox (or spam folder) for a test email.`
+          `Recipient: ${data.details.recipient || data.details.user}\n` +
+          `Message ID: ${data.details.messageId}\n` +
+          `Accepted: ${JSON.stringify(data.details.accepted)}\n` +
+          `Rejected: ${JSON.stringify(data.details.rejected)}\n` +
+          `Response: ${data.details.response}\n\n` +
+          `Check your inbox (or spam folder) for the test email.`
         );
       } else {
-        toast.error('Email test failed!');
+        toast.error('❌ Email test failed!');
         alert(
           `❌ EMAIL CONFIGURATION FAILED\n\n` +
           `Error: ${data.message}\n\n` +
@@ -394,8 +400,14 @@ const AdminDashboard = ({ userData, onLogout }) => {
         );
       }
     } catch (error) {
-      toast.error('Failed to test email');
+      toast.error('❌ Failed to test email');
       console.error('Email test error:', error);
+      alert(
+        `❌ EMAIL TEST ERROR\n\n` +
+        `Error: ${error.message}\n\n` +
+        `This usually means the server is not responding.\n` +
+        `Check if Render server is awake.`
+      );
     }
   };
 
