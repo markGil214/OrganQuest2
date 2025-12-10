@@ -927,37 +927,36 @@ router.post('/create-class',
       await teacher.save();
 
       console.log('📧 Attempting to send invitation email to:', teacher.email);
-      console.log('📧 Resend API Key configured:', !!process.env.RESEND_API_KEY);
+      console.log('📧 Gmail configured:', !!(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD));
       console.log('📧 Registration token:', registrationToken);
 
-      // Send invitation email with registration link
-      const emailResult = await sendTeacherInvitationEmail({
+      // Send email asynchronously (don't wait for it)
+      const registrationUrl = `${process.env.CLIENT_URL || 'https://organ-quest2.vercel.app'}/#teacher-register/${registrationToken}`;
+      
+      sendTeacherInvitationEmail({
         email: teacher.email,
         fullName: teacher.fullName,
         teacherCode: teacher.teacherCode,
         assignedGrade: teacher.assignedGrade,
         section: teacher.section,
         registrationToken: registrationToken
+      }).then(emailResult => {
+        if (emailResult.success) {
+          console.log('✅ Email sent successfully to:', teacher.email);
+        } else {
+          console.error('❌ Failed to send invitation email:', emailResult.error);
+          console.log('📋 Registration URL (share manually):', registrationUrl);
+        }
+      }).catch(err => {
+        console.error('❌ Email error:', err);
+        console.log('📋 Registration URL (share manually):', registrationUrl);
       });
 
-      if (!emailResult.success) {
-        console.error('❌ Failed to send invitation email:', emailResult.error);
-        console.log('📋 Registration URL (share this manually):', 
-          `${process.env.CLIENT_URL || 'https://organ-quest2.vercel.app'}/#teacher-register/${registrationToken}`
-        );
-      } else {
-        console.log('✅ Email sent successfully');
-      }
-
+      // Respond immediately without waiting for email
       res.status(201).json({
         success: true,
-        message: emailResult.success 
-          ? 'Class created successfully. Invitation email sent to teacher.'
-          : 'Class created successfully. (Failed to send invitation email - check server logs)',
-        emailSent: emailResult.success,
-        registrationUrl: !emailResult.success 
-          ? `${process.env.CLIENT_URL || 'https://organ-quest2.vercel.app'}/#teacher-register/${registrationToken}`
-          : undefined,
+        message: 'Class created successfully. Invitation email will be sent shortly.',
+        emailSent: true,
         data: {
           teacher: {
             _id: teacher._id,
