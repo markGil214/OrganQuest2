@@ -1,11 +1,65 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
 import crypto from 'crypto';
+import nodemailer from 'nodemailer';
 import User from '../models/User.js';
 import { authMiddleware, teacherMiddleware, superuserMiddleware } from '../middleware/auth.js';
 import { sendTeacherInvitationEmail } from '../utils/emailService.js';
 
 const router = express.Router();
+
+// @route   GET /api/admin/test-email
+// @desc    Test email configuration
+// @access  Superuser
+router.get('/test-email', authMiddleware, superuserMiddleware, async (req, res) => {
+  try {
+    console.log('📧 Testing email configuration...');
+    console.log('   GMAIL_USER:', process.env.GMAIL_USER || 'NOT SET');
+    console.log('   GMAIL_APP_PASSWORD:', process.env.GMAIL_APP_PASSWORD ? 'SET (hidden)' : 'NOT SET');
+    
+    if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+      return res.json({
+        success: false,
+        message: 'Gmail credentials not configured',
+        details: {
+          GMAIL_USER: !!process.env.GMAIL_USER,
+          GMAIL_APP_PASSWORD: !!process.env.GMAIL_APP_PASSWORD
+        }
+      });
+    }
+
+    // Test connection
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_APP_PASSWORD
+      }
+    });
+
+    await transporter.verify();
+    
+    res.json({
+      success: true,
+      message: 'Email configuration is valid! Gmail is ready to send emails.',
+      details: {
+        service: 'Gmail',
+        user: process.env.GMAIL_USER
+      }
+    });
+  } catch (error) {
+    console.error('❌ Email test failed:', error);
+    res.json({
+      success: false,
+      message: 'Email configuration test failed',
+      error: error.message,
+      code: error.code,
+      help: error.code === 'EAUTH' ? 
+        'Invalid credentials. Check if 2-Step Verification is enabled and App Password is correct.' : 
+        'Connection error. Check internet connection and Gmail settings.'
+    });
+  }
+});
 
 // @route   GET /api/Teacher/students
 // @desc    Get all students with filters

@@ -4,30 +4,44 @@ import nodemailer from 'nodemailer';
 let transporter = null;
 
 if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
-  transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_APP_PASSWORD
-    }
-  });
-  console.log('✅ Email service initialized with Gmail');
+  try {
+    transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_APP_PASSWORD
+      }
+    });
+    console.log('✅ Email service initialized with Gmail');
+    console.log('   Gmail User:', process.env.GMAIL_USER);
+    console.log('   App Password:', process.env.GMAIL_APP_PASSWORD ? '***configured***' : 'NOT SET');
+  } catch (error) {
+    console.error('❌ Failed to initialize Gmail transporter:', error.message);
+  }
 } else {
-  console.warn('⚠️  Gmail not configured. Set GMAIL_USER and GMAIL_APP_PASSWORD in .env');
+  console.warn('⚠️  Gmail not configured.');
+  console.warn('   GMAIL_USER:', process.env.GMAIL_USER ? 'SET' : 'NOT SET');
+  console.warn('   GMAIL_APP_PASSWORD:', process.env.GMAIL_APP_PASSWORD ? 'SET' : 'NOT SET');
 }
 
 export const sendTeacherInvitationEmail = async (teacherData) => {
   try {
     // Check if email service is configured
     if (!transporter) {
-      console.warn('Email service not configured. Email will not be sent.');
-      return { success: false, error: 'Email service not configured' };
+      const error = 'Email service not configured. Check GMAIL_USER and GMAIL_APP_PASSWORD environment variables.';
+      console.warn('⚠️ ', error);
+      return { success: false, error };
     }
 
     const { email, fullName, teacherCode, assignedGrade, section, registrationToken } = teacherData;
 
+    // Verify transporter connection
+    console.log('🔍 Verifying Gmail connection...');
+    await transporter.verify();
+    console.log('✅ Gmail connection verified');
+
     // Generate registration URL (use environment variable or default)
-    const baseUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    const baseUrl = process.env.CLIENT_URL || 'https://organ-quest2.vercel.app';
     const registrationUrl = `${baseUrl}/#teacher-register/${registrationToken}`;
 
     const emailHtml = `
@@ -114,20 +128,28 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
 
     const info = await transporter.sendMail(mailOptions);
     console.log('✅ Invitation email sent successfully to:', email);
-    console.log('Message ID:', info.messageId);
+    console.log('   Message ID:', info.messageId);
+    console.log('   Response:', info.response);
     return { success: true, data: info };
   } catch (error) {
     console.error('❌ Error sending invitation email:', error);
-    console.error('Error details:', {
-      message: error.message,
-      code: error.code,
-      name: error.name
-    });
+    console.error('   Error type:', error.name);
+    console.error('   Error message:', error.message);
+    console.error('   Error code:', error.code);
+    console.error('   Command:', error.command);
     
-    if (error.message?.includes('Invalid login')) {
-      console.error('⚠️  Gmail authentication failed. Check GMAIL_USER and GMAIL_APP_PASSWORD.');
+    // Provide specific error messages
+    let userMessage = error.message;
+    if (error.code === 'EAUTH' || error.responseCode === 535) {
+      userMessage = 'Gmail authentication failed. Check if GMAIL_APP_PASSWORD is correct and 2-Step Verification is enabled.';
+      console.error('⚠️  Authentication failed. Verify:');
+      console.error('   1. 2-Step Verification is enabled on Gmail account');
+      console.error('   2. App Password is generated from myaccount.google.com/apppasswords');
+      console.error('   3. App Password has no spaces');
+    } else if (error.code === 'ECONNECTION') {
+      userMessage = 'Cannot connect to Gmail servers. Check internet connection.';
     }
     
-    return { success: false, error: error.message };
+    return { success: false, error: userMessage };
   }
 };
