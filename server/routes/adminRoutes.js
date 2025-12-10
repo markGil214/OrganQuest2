@@ -39,15 +39,17 @@ router.get('/test-email', authMiddleware, superuserMiddleware, async (req, res) 
 
     await transporter.verify();
     
-    // Try sending a test email
-    console.log('📧 Sending test email to:', process.env.GMAIL_USER);
+    // Try sending a test email to a real recipient
+    const testRecipient = req.query.email || process.env.GMAIL_USER;
+    console.log('📧 Sending test email to:', testRecipient);
     const testResult = await transporter.sendMail({
       from: `"OrganQuest Test" <${process.env.GMAIL_USER}>`,
-      to: process.env.GMAIL_USER, // Send to yourself
+      to: testRecipient,
       subject: 'OrganQuest Email Test - Success!',
       html: `
         <h2>✅ Email Configuration Working!</h2>
         <p>Your Gmail setup is working correctly. You can now send teacher invitation emails.</p>
+        <p><strong>Recipient:</strong> ${testRecipient}</p>
         <p><strong>Configuration:</strong></p>
         <ul>
           <li>From: ${process.env.GMAIL_USER}</li>
@@ -56,16 +58,25 @@ router.get('/test-email', authMiddleware, superuserMiddleware, async (req, res) 
       `
     });
     
-    console.log('✅ Test email sent! Message ID:', testResult.messageId);
+    console.log('✅ Test email sent!');
+    console.log('   Message ID:', testResult.messageId);
+    console.log('   Response:', testResult.response);
+    console.log('   Accepted:', testResult.accepted);
+    console.log('   Rejected:', testResult.rejected);
+    console.log('   Pending:', testResult.pending);
     
     res.json({
       success: true,
-      message: 'Email configuration is valid! Test email sent to ' + process.env.GMAIL_USER,
+      message: `Email configuration is valid! Test email sent to ${testRecipient}`,
       details: {
         service: 'Gmail',
         user: process.env.GMAIL_USER,
         testEmailSent: true,
-        messageId: testResult.messageId
+        recipient: testRecipient,
+        messageId: testResult.messageId,
+        accepted: testResult.accepted,
+        rejected: testResult.rejected,
+        response: testResult.response
       }
     });
   } catch (error) {
