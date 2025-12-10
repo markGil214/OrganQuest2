@@ -1005,33 +1005,40 @@ router.post('/create-class',
       console.log('📧 Gmail configured:', !!(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD));
       console.log('📧 Registration token:', registrationToken);
 
-      // Send email asynchronously (don't wait for it)
+      // Send email synchronously to see errors
       const registrationUrl = `${process.env.CLIENT_URL || 'https://organ-quest2.vercel.app'}/#teacher-register/${registrationToken}`;
       
-      sendTeacherInvitationEmail({
-        email: teacher.email,
-        fullName: teacher.fullName,
-        teacherCode: teacher.teacherCode,
-        assignedGrade: teacher.assignedGrade,
-        section: teacher.section,
-        registrationToken: registrationToken
-      }).then(emailResult => {
+      let emailResult;
+      try {
+        emailResult = await sendTeacherInvitationEmail({
+          email: teacher.email,
+          fullName: teacher.fullName,
+          teacherCode: teacher.teacherCode,
+          assignedGrade: teacher.assignedGrade,
+          section: teacher.section,
+          registrationToken: registrationToken
+        });
+
         if (emailResult.success) {
           console.log('✅ Email sent successfully to:', teacher.email);
         } else {
           console.error('❌ Failed to send invitation email:', emailResult.error);
           console.log('📋 Registration URL (share manually):', registrationUrl);
         }
-      }).catch(err => {
+      } catch (err) {
         console.error('❌ Email error:', err);
         console.log('📋 Registration URL (share manually):', registrationUrl);
-      });
+        emailResult = { success: false, error: err.message };
+      }
 
-      // Respond immediately without waiting for email
+      // Respond with result
       res.status(201).json({
         success: true,
-        message: 'Class created successfully. Invitation email will be sent shortly.',
-        emailSent: true,
+        message: emailResult.success 
+          ? 'Class created successfully. Invitation email sent to teacher.'
+          : 'Class created successfully. (Email failed - check server logs)',
+        emailSent: emailResult.success,
+        registrationUrl: !emailResult.success ? registrationUrl : undefined,
         data: {
           teacher: {
             _id: teacher._id,
