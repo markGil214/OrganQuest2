@@ -926,6 +926,8 @@ router.post('/create-class',
 
       await teacher.save();
 
+      console.log('📧 Attempting to send invitation email to:', teacher.email);
+
       // Send invitation email with registration link
       const emailResult = await sendTeacherInvitationEmail({
         email: teacher.email,
@@ -937,12 +939,16 @@ router.post('/create-class',
       });
 
       if (!emailResult.success) {
-        console.error('Failed to send invitation email:', emailResult.error);
+        console.error('❌ Failed to send invitation email:', emailResult.error);
+      } else {
+        console.log('✅ Email sent successfully');
       }
 
       res.status(201).json({
         success: true,
-        message: 'Class created successfully. Invitation email sent to teacher.',
+        message: emailResult.success 
+          ? 'Class created successfully. Invitation email sent to teacher.'
+          : 'Class created successfully. (Failed to send invitation email - check server logs)',
         emailSent: emailResult.success,
         data: {
           teacher: {

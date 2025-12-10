@@ -13,8 +13,9 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
 
     const { email, fullName, teacherCode, assignedGrade, section, registrationToken } = teacherData;
 
-    // Generate registration URL (update domain for production)
-    const registrationUrl = `http://localhost:5173/teacher-register/${registrationToken}`;
+    // Generate registration URL (use environment variable or default)
+    const baseUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    const registrationUrl = `${baseUrl}/#teacher-register/${registrationToken}`;
 
     const emailHtml = `
       <!DOCTYPE html>
@@ -97,10 +98,23 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
       html: emailHtml,
     });
 
-    console.log('Invitation email sent successfully:', data);
+    console.log('✅ Invitation email sent successfully to:', email);
+    console.log('Email ID:', data.id);
     return { success: true, data };
   } catch (error) {
-    console.error('Error sending invitation email:', error);
+    console.error('❌ Error sending invitation email:', error);
+    console.error('Error details:', {
+      message: error.message,
+      statusCode: error.statusCode,
+      name: error.name
+    });
+    
+    // Check for common Resend errors
+    if (error.message?.includes('can only send to')) {
+      console.error('⚠️  Resend free tier limitation: You can only send to your verified email address.');
+      console.error('   Either upgrade Resend plan or use the email you registered with.');
+    }
+    
     return { success: false, error: error.message };
   }
 };
