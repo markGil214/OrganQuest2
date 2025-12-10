@@ -15,15 +15,22 @@ const userSchema = new mongoose.Schema({
   },
   username: {
     type: String,
-    required: [true, 'Username is required'],
+    required: function() {
+      // Required for students and active teachers, optional for pending teachers
+      return this.role === 'student' || (this.role === 'teacher' && this.accountStatus === 'active');
+    },
     unique: true,
+    sparse: true,
     trim: true,
     minlength: [3, 'Username must be at least 3 characters'],
     maxlength: [30, 'Username cannot exceed 30 characters']
   },
   password: {
     type: String,
-    required: [true, 'Password is required'],
+    required: function() {
+      // Required for students and active teachers, optional for pending teachers
+      return this.role === 'student' || (this.role === 'teacher' && this.accountStatus === 'active');
+    },
     minlength: [6, 'Password must be at least 6 characters']
   },
   email: {
@@ -79,6 +86,23 @@ const userSchema = new mongoose.Schema({
     type: String,
     unique: true,
     sparse: true // Only for teachers
+  },
+  accountStatus: {
+    type: String,
+    enum: ['pending', 'active'],
+    default: function() {
+      // Students and superusers are active by default, teachers start as pending
+      return this.role === 'teacher' ? 'pending' : 'active';
+    }
+  },
+  registrationToken: {
+    type: String,
+    unique: true,
+    sparse: true // Only for pending teachers
+  },
+  tokenExpiry: {
+    type: Date,
+    default: null // Expiry date for registration token
   },
   stats: {
     totalQuizzesTaken: {

@@ -16,8 +16,6 @@ const AdminDashboard = ({ userData, onLogout }) => {
   const [classFormData, setClassFormData] = useState({
     fullName: '',
     email: '',
-    username: '',
-    password: '',
     assignedGrade: '4th',
     section: 'A'
   });
@@ -316,9 +314,12 @@ const AdminDashboard = ({ userData, onLogout }) => {
       const data = await response.json();
 
       if (data.success) {
-        toast.success('Class created successfully!');
+        const successMessage = data.emailSent 
+          ? 'Class created successfully! Invitation email sent to teacher.'
+          : 'Class created successfully! (Email notification failed to send)';
+        toast.success(successMessage);
         setShowCreateClassModal(false);
-        setClassFormData({ fullName: '', email: '', username: '', password: '', assignedGrade: '4th', section: 'A' });
+        setClassFormData({ fullName: '', email: '', assignedGrade: '4th', section: 'A' });
         fetchClasses();
       } else {
         setCreateClassError(data.message || 'Failed to create class');
@@ -958,26 +959,44 @@ const AdminDashboard = ({ userData, onLogout }) => {
                       {classItem.assignedGrade.charAt(0)}
                     </div>
                     <div>
-                      <div className="font-bold text-xl text-gray-800">
+                      <div className="font-bold text-xl text-gray-800 flex items-center gap-2">
                         {classItem.assignedGrade} Grade - Section {classItem.section}
+                        {classItem.accountStatus === 'pending' ? (
+                          <span className="px-3 py-1 bg-yellow-100 text-yellow-700 text-xs font-semibold rounded-full border border-yellow-300">
+                            ⏳ Pending Registration
+                          </span>
+                        ) : (
+                          <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full border border-green-300">
+                            ✓ Active
+                          </span>
+                        )}
                       </div>
                       <div className="text-sm text-gray-600">Teacher: {classItem.fullName}</div>
-                      <div className="text-xs text-gray-500">@{classItem.username}</div>
+                      {classItem.username && (
+                        <div className="text-xs text-gray-500">@{classItem.username}</div>
+                      )}
                       {classItem.email && (
                         <div className="text-xs text-blue-600 mt-1">
                           📧 {classItem.email}
+                        </div>
+                      )}
+                      {classItem.accountStatus === 'pending' && (
+                        <div className="text-xs text-yellow-600 mt-1 font-medium">
+                          Waiting for teacher to complete registration
                         </div>
                       )}
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <Button
-                      onClick={() => viewClassDetails(classItem)}
-                      className="bg-blue-500 hover:bg-blue-600 text-white"
-                    >
-                      👁️ View Class
-                    </Button>
+                    {classItem.accountStatus === 'active' && (
+                      <Button
+                        onClick={() => viewClassDetails(classItem)}
+                        className="bg-blue-500 hover:bg-blue-600 text-white"
+                      >
+                        👁️ View Class
+                      </Button>
+                    )}
                     <Button
                       onClick={() => deleteClass(classItem._id)}
                       variant="outline"
@@ -998,7 +1017,8 @@ const AdminDashboard = ({ userData, onLogout }) => {
       {showCreateClassModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-6 z-50" onClick={() => setShowCreateClassModal(false)}>
           <Card className="max-w-2xl w-full p-8 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-3xl font-bold text-gray-800 mb-6">➕ Add New Class</h2>
+            <h2 className="text-3xl font-bold text-gray-800 mb-2">➕ Add New Class</h2>
+            <p className="text-gray-600 mb-6">The teacher will receive an invitation email to complete their registration.</p>
             
             {createClassError && (
               <div className="mb-4 p-4 bg-red-50 border-2 border-red-200 rounded-lg">
@@ -1010,7 +1030,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Teacher Full Name
+                    Teacher Full Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -1025,7 +1045,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Email Address
+                    Email Address <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="email"
@@ -1034,40 +1054,6 @@ const AdminDashboard = ({ userData, onLogout }) => {
                     onChange={handleClassFormChange}
                     className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-purple-500 outline-none"
                     placeholder="teacher@school.com"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Username
-                  </label>
-                  <input
-                    type="text"
-                    name="username"
-                    value={classFormData.username}
-                    onChange={handleClassFormChange}
-                    className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-purple-500 outline-none"
-                    placeholder="teacher_username"
-                    minLength="3"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    name="password"
-                    value={classFormData.password}
-                    onChange={handleClassFormChange}
-                    className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-purple-500 outline-none"
-                    placeholder="Min. 6 characters"
-                    minLength="6"
                     required
                   />
                 </div>

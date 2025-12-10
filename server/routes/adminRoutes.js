@@ -1,7 +1,9 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
+import crypto from 'crypto';
 import User from '../models/User.js';
 import { authMiddleware, teacherMiddleware, superuserMiddleware } from '../middleware/auth.js';
+import { sendTeacherInvitationEmail } from '../utils/emailService.js';
 
 const router = express.Router();
 
@@ -835,7 +837,7 @@ router.get('/classes', authMiddleware, superuserMiddleware, async (req, res) => 
 });
 
 // @route   POST /api/Teacher/create-class
-// @desc    Create a new class with teacher assignment
+// @desc    Create a new class with teacher assignment (sends invitation email)
 // @access  Superuser
 router.post('/create-class', 
   authMiddleware, 
@@ -843,8 +845,6 @@ router.post('/create-class',
   [
     body('fullName').trim().notEmpty().withMessage('Teacher full name is required'),
     body('email').isEmail().withMessage('Valid email is required'),
-    body('username').trim().isLength({ min: 3 }).withMessage('Username must be at least 3 characters'),
-    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
     body('assignedGrade').isIn(['4th', '5th', '6th']).withMessage('Invalid grade assignment'),
     body('section').isIn(['A', 'B', 'C']).withMessage('Invalid section')
   ],
@@ -858,7 +858,7 @@ router.post('/create-class',
         });
       }
 
-      const { fullName, email, username, password, assignedGrade, section } = req.body;
+      const { fullName, email, assignedGrade, section } = req.body;
 
       // Check if grade-section combination already exists
       const existingClass = await User.findOne({ 
@@ -871,15 +871,6 @@ router.post('/create-class',
         return res.status(400).json({
           success: false,
           message: `${assignedGrade} Grade Section ${section} already has a teacher assigned (${existingClass.fullName})`
-        });
-      }
-
-      // Check if username exists
-      const existingUsername = await User.findOne({ username });
-      if (existingUsername) {
-        return res.status(400).json({
-          success: false,
-          message: 'Username already taken'
         });
       }
 
@@ -911,33 +902,57 @@ router.post('/create-class',
 
       const teacherCode = await generateTeacherCode();
 
-      // Create teacher
+      // Generate unique registration token
+      const generateRegistrationToken = () => {
+        return crypto.randomBytes(32).toString('hex');
+      };
+
+      const registrationToken = generateRegistrationToken();
+      const tokenExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+
+      // Create pending teacher
       const teacher = new User({
         fullName,
         email,
-        username,
-        password,
         role: 'teacher',
         assignedGrade,
         section,
         teacherCode,
-        grade: assignedGrade
+        grade: assignedGrade,
+        accountStatus: 'pending',
+        registrationToken,
+        tokenExpiry
       });
 
       await teacher.save();
 
+      // Send invitation email with registration link
+      const emailResult = await sendTeacherInvitationEmail({
+        email: teacher.email,
+        fullName: teacher.fullName,
+        teacherCode: teacher.teacherCode,
+        assignedGrade: teacher.assignedGrade,
+        section: teacher.section,
+        registrationToken: registrationToken
+      });
+
+      if (!emailResult.success) {
+        console.error('Failed to send invitation email:', emailResult.error);
+      }
+
       res.status(201).json({
         success: true,
-        message: 'Class created successfully',
+        message: 'Class created successfully. Invitation email sent to teacher.',
+        emailSent: emailResult.success,
         data: {
           teacher: {
             _id: teacher._id,
             fullName: teacher.fullName,
             email: teacher.email,
-            username: teacher.username,
             assignedGrade: teacher.assignedGrade,
             section: teacher.section,
-            teacherCode: teacher.teacherCode
+            teacherCode: teacher.teacherCode,
+            accountStatus: teacher.accountStatus
           }
         }
       });
@@ -985,5 +1000,141 @@ router.delete('/classes/:id',
     }
   }
 );
+
+// @route   POST /api/admin/complete-registration
+// @desc    Complete teacher registration with username and password
+// @access  Public (with valid token)
+router.post('/complete-registration',
+  [
+    body('registrationToken').notEmpty().withMessage('Registration token is required'),
+    body('username').trim().isLength({ min: 3 }).withMessage('Username must be at least 3 characters'),
+    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+  ],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          success: false,
+          errors: errors.array()
+        });
+      }
+
+      const { registrationToken, username, password } = req.body;
+
+      // Find teacher by registration token
+      const teacher = await User.findOne({ 
+        registrationToken,
+        role: 'teacher',
+        accountStatus: 'pending'
+      });
+
+      if (!teacher) {
+        return res.status(404).json({
+          success: false,
+          message: 'Invalid or expired registration token'
+        });
+      }
+
+      // Check if token is expired
+      if (teacher.tokenExpiry && new Date() > teacher.tokenExpiry) {
+        return res.status(400).json({
+          success: false,
+          message: 'Registration token has expired. Please contact administrator.'
+        });
+      }
+
+      // Check if username is already taken
+      const existingUsername = await User.findOne({ username });
+      if (existingUsername) {
+        return res.status(400).json({
+          success: false,
+          message: 'Username already taken'
+        });
+      }
+
+      // Update teacher with username and password
+      teacher.username = username;
+      teacher.password = password;
+      teacher.accountStatus = 'active';
+      teacher.registrationToken = undefined;
+      teacher.tokenExpiry = undefined;
+
+      await teacher.save();
+
+      res.json({
+        success: true,
+        message: 'Registration completed successfully!',
+        data: {
+          teacher: {
+            _id: teacher._id,
+            fullName: teacher.fullName,
+            email: teacher.email,
+            username: teacher.username,
+            assignedGrade: teacher.assignedGrade,
+            section: teacher.section,
+            teacherCode: teacher.teacherCode,
+            accountStatus: teacher.accountStatus
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Complete registration error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server error completing registration',
+        error: error.message
+      });
+    }
+  }
+);
+
+// @route   GET /api/admin/verify-token/:token
+// @desc    Verify registration token and get teacher info
+// @access  Public
+router.get('/verify-token/:token', async (req, res) => {
+  try {
+    const teacher = await User.findOne({
+      registrationToken: req.params.token,
+      role: 'teacher',
+      accountStatus: 'pending'
+    }).select('fullName email assignedGrade section teacherCode tokenExpiry');
+
+    if (!teacher) {
+      return res.status(404).json({
+        success: false,
+        message: 'Invalid registration token'
+      });
+    }
+
+    // Check if token is expired
+    if (teacher.tokenExpiry && new Date() > teacher.tokenExpiry) {
+      return res.status(400).json({
+        success: false,
+        message: 'Registration token has expired'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        teacher: {
+          fullName: teacher.fullName,
+          email: teacher.email,
+          assignedGrade: teacher.assignedGrade,
+          section: teacher.section,
+          teacherCode: teacher.teacherCode
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Verify token error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error verifying token',
+      error: error.message
+    });
+  }
+});
 
 export default router;

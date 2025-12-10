@@ -10,6 +10,7 @@ import ARScanner from './pages/ARScanner'
 import AdminDashboard from './pages/AdminDashboard'
 import SuperAdminPanel from './pages/SuperAdminPanel'
 import InteractiveViewer from './pages/InteractiveViewer'
+import TeacherRegister from './pages/TeacherRegister'
 import './App.css'
 
 // Lazy load individual quiz pages
@@ -68,8 +69,10 @@ function App() {
         window.location.hash = 'main-menu';
       }
     } else {
-      // If no user data, redirect to login (but allow register page and interactive viewer)
-      const allowedWithoutAuth = currentHash === 'register' || currentHash.startsWith('interactive/');
+      // If no user data, redirect to login (but allow register page, interactive viewer, and teacher-register)
+      const allowedWithoutAuth = currentHash === 'register' || 
+                                 currentHash.startsWith('interactive/') ||
+                                 currentHash.startsWith('teacher-register/');
       
       if (!allowedWithoutAuth && (!currentHash || currentHash === 'home')) {
         window.location.hash = 'login';
@@ -141,6 +144,8 @@ function App() {
         setCurrentPage('scan-explore');
       } else if (hash.startsWith('interactive/')) {
         setCurrentPage('interactive-viewer');
+      } else if (hash.startsWith('teacher-register/')) {
+        setCurrentPage('teacher-register');
       } else if (hash.startsWith('ar-scanner/')) {
         setCurrentPage('ar-scanner');
       } else if (hash === 'admin/dashboard') {
@@ -271,6 +276,8 @@ function App() {
         return <AdminDashboard userData={userData} onLogout={handleLogout} />;
       case 'admin-manage':
         return <SuperAdminPanel onBack={() => window.location.hash = '#admin/dashboard'} />;
+      case 'teacher-register':
+        return <TeacherRegister />;
       default:
         return <Home />;
     }
