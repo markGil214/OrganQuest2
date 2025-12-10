@@ -1,13 +1,38 @@
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 
-// Only initialize Resend if API key exists
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+// Create transporter based on available service
+let transporter = null;
+
+// Try Gmail first (recommended)
+if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
+  transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_APP_PASSWORD
+    }
+  });
+  console.log('✅ Email service initialized with Gmail');
+} 
+// Fallback to Resend if configured
+else if (process.env.RESEND_API_KEY) {
+  const { Resend } = await import('resend');
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  transporter = {
+    isResend: true,
+    resend: resend
+  };
+  console.log('⚠️  Email service initialized with Resend (limited to verified emails)');
+}
+else {
+  console.warn('⚠️  No email service configured. Set GMAIL_USER and GMAIL_APP_PASSWORD in .env');
+}
 
 export const sendTeacherInvitationEmail = async (teacherData) => {
   try {
-    // Check if Resend is configured
-    if (!resend) {
-      console.warn('Resend API key not configured. Email will not be sent.');
+    // Check if email service is configured
+    if (!transporter) {
+      console.warn('Email service not configured. Email will not be sent.');
       return { success: false, error: 'Email service not configured' };
     }
 
@@ -91,28 +116,45 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
       </html>
     `;
 
-    const data = await resend.emails.send({
-      from: 'OrganQuest <onboarding@resend.dev>',
-      to: email,
-      subject: `Complete Your Teacher Registration - ${assignedGrade} Grade Section ${section}`,
-      html: emailHtml,
-    });
+    // Send email based on transporter type
+    if (transporter.isResend) {
+      // Use Resend
+      const data = await transporter.resend.emails.send({
+        from: 'OrganQuest <onboarding@resend.dev>',
+        to: email,
+        subject: `Complete Your Teacher Registration - ${assignedGrade} Grade Section ${section}`,
+        html: emailHtml,
+      });
+      console.log('✅ Invitation email sent successfully to:', email);
+      console.log('Email ID:', data.id);
+      return { success: true, data };
+    } else {
+      // Use Gmail/Nodemailer
+      const mailOptions = {
+        from: `"OrganQuest" <${process.env.GMAIL_USER}>`,
+        to: email,
+        subject: `Complete Your Teacher Registration - ${assignedGrade} Grade Section ${section}`,
+        html: emailHtml,
+      };
 
-    console.log('✅ Invitation email sent successfully to:', email);
-    console.log('Email ID:', data.id);
-    return { success: true, data };
+      const info = await transporter.sendMail(mailOptions);
+      console.log('✅ Invitation email sent successfully to:', email);
+      console.log('Message ID:', info.messageId);
+      return { success: true, data: info };
+    }
   } catch (error) {
     console.error('❌ Error sending invitation email:', error);
     console.error('Error details:', {
       message: error.message,
-      statusCode: error.statusCode,
+      code: error.code,
       name: error.name
     });
     
-    // Check for common Resend errors
+    // Check for common errors
     if (error.message?.includes('can only send to')) {
       console.error('⚠️  Resend free tier limitation: You can only send to your verified email address.');
-      console.error('   Either upgrade Resend plan or use the email you registered with.');
+    } else if (error.message?.includes('Invalid login')) {
+      console.error('⚠️  Gmail authentication failed. Check GMAIL_USER and GMAIL_APP_PASSWORD.');
     }
     
     return { success: false, error: error.message };
