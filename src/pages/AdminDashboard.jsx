@@ -956,7 +956,9 @@ const AdminDashboard = ({ userData, onLogout }) => {
       <div className="max-w-7xl mx-auto mb-6">
         <Card className="p-6">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-2xl font-bold text-gray-800">🏫 My Classes</h3>
+            <h3 className="text-2xl font-bold text-gray-800">
+              {userData?.role === 'teacher' ? '👨‍🎓 My Students' : '🏫 My Classes'}
+            </h3>
             {userData?.role === 'superuser' && (
               <Button
                 onClick={() => setShowCreateClassModal(true)}
@@ -966,7 +968,80 @@ const AdminDashboard = ({ userData, onLogout }) => {
               </Button>
             )}
           </div>
-          {classes.length === 0 ? (
+          
+          {/* Show Students for Teachers */}
+          {userData?.role === 'teacher' ? (
+            students.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">
+                <p className="text-lg">No students found</p>
+                <p className="text-sm mt-2">Students from your assigned grade ({userData.assignedGrade}) will appear here</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full bg-white rounded-lg overflow-hidden">
+                  <thead className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+                    <tr>
+                      <th className="px-6 py-4 text-left font-bold">Student Name</th>
+                      <th className="px-6 py-4 text-left font-bold">Grade</th>
+                      <th className="px-6 py-4 text-left font-bold">Total Quizzes</th>
+                      <th className="px-6 py-4 text-left font-bold">Avg Score</th>
+                      <th className="px-6 py-4 text-left font-bold">Last Active</th>
+                      <th className="px-6 py-4 text-left font-bold">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {students.map((student, index) => (
+                      <tr 
+                        key={student._id} 
+                        className={`border-b hover:bg-purple-50 transition-colors ${
+                          index % 2 === 0 ? 'bg-gray-50' : 'bg-white'
+                        }`}
+                      >
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-bold">
+                              {student.fullName.charAt(0)}
+                            </div>
+                            <div>
+                              <div className="font-semibold text-gray-800">{student.fullName}</div>
+                              <div className="text-sm text-gray-500">@{student.username}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-gray-700">{student.grade}</td>
+                        <td className="px-6 py-4 text-gray-700">{student.stats.totalQuizzesTaken || 0}</td>
+                        <td className="px-6 py-4">
+                          <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                            (student.stats.averageScore || 0) >= 80 ? 'bg-green-100 text-green-700' :
+                            (student.stats.averageScore || 0) >= 60 ? 'bg-yellow-100 text-yellow-700' :
+                            'bg-red-100 text-red-700'
+                          }`}>
+                            {student.stats.averageScore || 0}%
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-gray-600 text-sm">
+                          {student.stats.lastQuizDate ? new Date(student.stats.lastQuizDate).toLocaleDateString() : 'Never'}
+                        </td>
+                        <td className="px-6 py-4">
+                          <Button
+                            onClick={() => {
+                              setSelectedStudent(student);
+                              fetchStudentQuizDetails(student._id);
+                            }}
+                            className="bg-blue-500 hover:bg-blue-600 text-white text-sm"
+                          >
+                            📊 View Progress
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )
+          ) : (
+            /* Show Classes for Superuser */
+            classes.length === 0 ? (
             <div className="text-center py-12 text-gray-500">
               <p className="text-lg">No classes found</p>
               <p className="text-sm mt-2">Classes will appear here once assigned</p>
@@ -1032,6 +1107,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
                 </div>
               ))}
             </div>
+          )
           )}
         </Card>
       </div>
