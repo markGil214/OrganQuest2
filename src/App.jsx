@@ -69,7 +69,9 @@ function App() {
         setCookie('organquest_user', userData);
       }
       // Auto-redirect to main menu if user exists and no specific hash is present
-      if (!currentHash || currentHash === 'home' || currentHash === 'login') {
+      // But don't redirect if on teacher-register page
+      if ((!currentHash || currentHash === 'home' || currentHash === 'login') && 
+          !currentHash.startsWith('teacher-register/')) {
         window.location.hash = 'main-menu';
       }
     } else {
@@ -132,6 +134,7 @@ function App() {
       
       // If trying to access protected route without auth, redirect to login
       if (isProtectedRoute && !hasAuth) {
+        console.log('REDIRECT: Protected route without auth');
         window.history.replaceState(null, '', '#login');
         setCurrentPage('login');
         return;
@@ -166,6 +169,7 @@ function App() {
       } else if (hash === 'admin/manage') {
         setCurrentPage('admin-manage');
       } else {
+        console.log('No route matched, defaulting to login. Hash was:', hash);
         setCurrentPage('login');
       }
     };
