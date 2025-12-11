@@ -985,7 +985,6 @@ const AdminDashboard = ({ userData, onLogout }) => {
                       <th className="px-6 py-4 text-left font-bold">Grade</th>
                       <th className="px-6 py-4 text-left font-bold">Total Quizzes</th>
                       <th className="px-6 py-4 text-left font-bold">Avg Score</th>
-                      <th className="px-6 py-4 text-left font-bold">Last Active</th>
                       <th className="px-6 py-4 text-left font-bold">Actions</th>
                     </tr>
                   </thead>
@@ -1018,9 +1017,6 @@ const AdminDashboard = ({ userData, onLogout }) => {
                           }`}>
                             {student.stats.averageScore || 0}%
                           </span>
-                        </td>
-                        <td className="px-6 py-4 text-gray-600 text-sm">
-                          {student.stats.lastQuizDate ? new Date(student.stats.lastQuizDate).toLocaleDateString() : 'Never'}
                         </td>
                         <td className="px-6 py-4">
                           <Button
