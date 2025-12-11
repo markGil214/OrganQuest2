@@ -1,114 +1,12 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
 import crypto from 'crypto';
-import nodemailer from 'nodemailer';
 import User from '../models/User.js';
 import { authMiddleware, teacherMiddleware, superuserMiddleware } from '../middleware/auth.js';
-import { sendTeacherInvitationEmail } from '../utils/emailService.js';
 
 const router = express.Router();
 
-// @route   GET /api/admin/test-email
-// @desc    Test email configuration
-// @access  Superuser
-router.get('/test-email', authMiddleware, superuserMiddleware, async (req, res) => {
-  try {
-    console.log('📧 Testing email configuration...');
-    console.log('   GMAIL_USER:', process.env.GMAIL_USER || 'NOT SET');
-    console.log('   GMAIL_APP_PASSWORD:', process.env.GMAIL_APP_PASSWORD ? 'SET (hidden)' : 'NOT SET');
-    
-    if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
-      return res.json({
-        success: false,
-        message: 'Gmail credentials not configured',
-        details: {
-          GMAIL_USER: !!process.env.GMAIL_USER,
-          GMAIL_APP_PASSWORD: !!process.env.GMAIL_APP_PASSWORD
-        }
-      });
-    }
-
-    // Test connection
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_APP_PASSWORD
-      }
-    });
-
-    console.log('🔍 Verifying Gmail connection...');
-    await transporter.verify();
-    console.log('✅ Gmail connection verified successfully');
-    
-    // Try sending a test email to a real recipient
-    const testRecipient = req.query.email || process.env.GMAIL_USER;
-    console.log('📧 Sending test email to:', testRecipient);
-    const testResult = await transporter.sendMail({
-      from: `"OrganQuest Test" <${process.env.GMAIL_USER}>`,
-      to: testRecipient,
-      subject: 'OrganQuest Email Test - Success!',
-      html: `
-        <h2>✅ Email Configuration Working!</h2>
-        <p>Your Gmail setup is working correctly. You can now send teacher invitation emails.</p>
-        <p><strong>Recipient:</strong> ${testRecipient}</p>
-        <p><strong>Configuration:</strong></p>
-        <ul>
-          <li>From: ${process.env.GMAIL_USER}</li>
-          <li>Status: Active</li>
-        </ul>
-      `
-    });
-    
-    console.log('✅ Test email sent!');
-    console.log('   Message ID:', testResult.messageId);
-    console.log('   Response:', testResult.response);
-    console.log('   Accepted:', testResult.accepted);
-    console.log('   Rejected:', testResult.rejected);
-    console.log('   Pending:', testResult.pending);
-    
-    res.json({
-      success: true,
-      message: `Email configuration is valid! Test email sent to ${testRecipient}`,
-      details: {
-        service: 'Gmail',
-        user: process.env.GMAIL_USER,
-        testEmailSent: true,
-        recipient: testRecipient,
-        messageId: testResult.messageId,
-        accepted: testResult.accepted,
-        rejected: testResult.rejected,
-        response: testResult.response
-      }
-    });
-  } catch (error) {
-    console.error('❌ Email test failed:', error);
-    console.error('   Error name:', error.name);
-    console.error('   Error code:', error.code);
-    console.error('   Error message:', error.message);
-    console.error('   Response code:', error.responseCode);
-    console.error('   Command:', error.command);
-    
-    res.json({
-      success: false,
-      message: 'Email configuration test failed',
-      error: error.message,
-      code: error.code,
-      responseCode: error.responseCode,
-      command: error.command,
-      details: {
-        GMAIL_USER: process.env.GMAIL_USER,
-        GMAIL_APP_PASSWORD_SET: !!process.env.GMAIL_APP_PASSWORD,
-        errorType: error.name
-      },
-      help: error.code === 'EAUTH' || error.responseCode === 535 ? 
-        'Invalid Gmail credentials. Verify: 1) 2-Step Verification enabled 2) App Password is correct (no spaces) 3) Using correct Gmail account' : 
-        error.code === 'ECONNECTION' ?
-        'Cannot connect to Gmail servers. Check server internet connection.' :
-        `Gmail error: ${error.message}`
-    });
-  }
-});
+// Email test endpoint removed - will be implemented when email service is configured
 
 // @route   GET /api/Teacher/students
 // @desc    Get all students with filters
@@ -1029,44 +927,17 @@ router.post('/create-class',
 
       await teacher.save();
 
-      console.log('📧 Attempting to send invitation email to:', teacher.email);
-      console.log('📧 Gmail configured:', !!(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD));
-      console.log('📧 Registration token:', registrationToken);
-
-      // Send email synchronously to see errors
+      // Generate registration URL for manual sharing
       const registrationUrl = `${process.env.CLIENT_URL || 'https://organ-quest2.vercel.app'}/#teacher-register/${registrationToken}`;
       
-      let emailResult;
-      try {
-        emailResult = await sendTeacherInvitationEmail({
-          email: teacher.email,
-          fullName: teacher.fullName,
-          teacherCode: teacher.teacherCode,
-          assignedGrade: teacher.assignedGrade,
-          section: teacher.section,
-          registrationToken: registrationToken
-        });
-
-        if (emailResult.success) {
-          console.log('✅ Email sent successfully to:', teacher.email);
-        } else {
-          console.error('❌ Failed to send invitation email:', emailResult.error);
-          console.log('📋 Registration URL (share manually):', registrationUrl);
-        }
-      } catch (err) {
-        console.error('❌ Email error:', err);
-        console.log('📋 Registration URL (share manually):', registrationUrl);
-        emailResult = { success: false, error: err.message };
-      }
+      console.log('✅ Class created successfully');
+      console.log('📋 Registration URL:', registrationUrl);
 
       // Respond with result
       res.status(201).json({
         success: true,
-        message: emailResult.success 
-          ? 'Class created successfully. Invitation email sent to teacher.'
-          : 'Class created successfully. (Email failed - check server logs)',
-        emailSent: emailResult.success,
-        registrationUrl: !emailResult.success ? registrationUrl : undefined,
+        message: 'Class created successfully. Share the registration URL with the teacher.',
+        registrationUrl: registrationUrl,
         data: {
           teacher: {
             _id: teacher._id,

@@ -314,29 +314,25 @@ const AdminDashboard = ({ userData, onLogout }) => {
       const data = await response.json();
 
       if (data.success) {
-        if (data.emailSent) {
-          toast.success('Class created successfully! Invitation email sent to teacher.');
-        } else {
-          // Show error with registration URL
-          toast.error('Class created but email failed to send!', { duration: 5000 });
+        toast.success('Class created successfully!');
+        
+        // Always show registration URL
+        if (data.registrationUrl) {
+          // Copy to clipboard
+          navigator.clipboard.writeText(data.registrationUrl);
           
-          if (data.registrationUrl) {
-            // Copy to clipboard
-            navigator.clipboard.writeText(data.registrationUrl);
-            
-            // Show registration URL
-            setTimeout(() => {
-              alert(
-                `⚠️ EMAIL FAILED TO SEND\n\n` +
-                `Class created successfully but email couldn't be sent.\n\n` +
-                `Please manually share this registration link with ${classFormData.fullName}:\n\n` +
-                `${data.registrationUrl}\n\n` +
-                `(Link copied to clipboard)\n\n` +
-                `Check server logs for the exact error.`
-              );
-            }, 500);
-          }
+          // Show registration URL
+          setTimeout(() => {
+            alert(
+              `✅ CLASS CREATED SUCCESSFULLY\n\n` +
+              `Please share this registration link with ${classFormData.fullName}:\n\n` +
+              `${data.registrationUrl}\n\n` +
+              `(Link copied to clipboard)\n\n` +
+              `The teacher can use this link to complete their registration.`
+            );
+          }, 500);
         }
+        
         setShowCreateClassModal(false);
         setClassFormData({ fullName: '', email: '', assignedGrade: '4th', section: 'A' });
         fetchClasses();
@@ -348,66 +344,6 @@ const AdminDashboard = ({ userData, onLogout }) => {
       console.error('Error creating class:', error);
     } finally {
       setCreateClassLoading(false);
-    }
-  };
-
-  const testEmailConfig = async () => {
-    try {
-      const token = localStorage.getItem('authToken');
-      toast.info('Waking up server and testing email...');
-      
-      // Wake up the server first with the profile endpoint
-      try {
-        await fetch(`${API_URL}/api/users/profile`, { 
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2s for server to fully wake
-      } catch (wakeError) {
-        console.log('Server wake-up attempt:', wakeError);
-      }
-      
-      toast.info('Testing email configuration...');
-      const response = await fetch(`${API_URL}/api/admin/test-email`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      console.log('Test email response status:', response.status);
-      const data = await response.json();
-      console.log('Test email response data:', data);
-
-      if (data.success) {
-        toast.success('✅ Email test successful!');
-        alert(
-          `✅ EMAIL CONFIGURATION WORKING!\n\n` +
-          `Service: ${data.details.service}\n` +
-          `Email: ${data.details.user}\n` +
-          `Recipient: ${data.details.recipient || data.details.user}\n` +
-          `Message ID: ${data.details.messageId}\n` +
-          `Accepted: ${JSON.stringify(data.details.accepted)}\n` +
-          `Rejected: ${JSON.stringify(data.details.rejected)}\n` +
-          `Response: ${data.details.response}\n\n` +
-          `Check your inbox (or spam folder) for the test email.`
-        );
-      } else {
-        toast.error('❌ Email test failed!');
-        alert(
-          `❌ EMAIL CONFIGURATION FAILED\n\n` +
-          `Error: ${data.message}\n\n` +
-          `${data.help || ''}\n\n` +
-          `Details:\n${JSON.stringify(data.details || {}, null, 2)}`
-        );
-      }
-    } catch (error) {
-      toast.error('❌ Failed to test email');
-      console.error('Email test error:', error);
-      alert(
-        `❌ EMAIL TEST ERROR\n\n` +
-        `Error: ${error.message}\n\n` +
-        `This usually means the server is not responding.\n` +
-        `Check if Render server is awake.`
-      );
     }
   };
 
@@ -1013,20 +949,12 @@ const AdminDashboard = ({ userData, onLogout }) => {
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-2xl font-bold text-gray-800">🏫 My Classes</h3>
             {userData?.role === 'superuser' && (
-              <div className="flex gap-2">
-                <Button
-                  onClick={testEmailConfig}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  📧 Test Email
-                </Button>
-                <Button
-                  onClick={() => setShowCreateClassModal(true)}
-                  className="bg-purple-600 hover:bg-purple-700"
-                >
-                  ➕ Add Class
-                </Button>
-              </div>
+              <Button
+                onClick={() => setShowCreateClassModal(true)}
+                className="bg-purple-600 hover:bg-purple-700"
+              >
+                ➕ Add Class
+              </Button>
             )}
           </div>
           {classes.length === 0 ? (
