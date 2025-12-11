@@ -23,6 +23,8 @@ const TimedChallengeQuiz = () => {
   const [questions, setQuestions] = useState([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
+  const [correctCount, setCorrectCount] = useState(0); // Track correct answers separately
+  const [wrongCount, setWrongCount] = useState(0); // Track wrong answers
   const [timeLeft, setTimeLeft] = useState(60);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [isAnswered, setIsAnswered] = useState(false);
@@ -62,38 +64,22 @@ const TimedChallengeQuiz = () => {
         return;
       }
 
-      // Scoring Policy:
-      // - Each correct answer adds points
-      // - Each wrong answer subtracts 10%
-      // - Time bonus for finishing quickly
-      const TOTAL_QUESTIONS = 75; // Total available questions in the pool
-      const MAX_TIME = 60; // Maximum time allowed in seconds
-      const MAX_BONUS = 40; // Maximum time bonus percentage
-      const WRONG_PENALTY = 10; // 10% penalty per wrong answer
-      
-      const questionsAnswered = currentQuestion + 1;
-      const correctAnswers = Math.floor(score / 10); // Each correct = 10 base points
-      const wrongAnswers = questionsAnswered - correctAnswers; // Only count answered wrong questions
-      
-      // Raw percentage based on correct answers out of total
-      const rawPercentage = (correctAnswers / TOTAL_QUESTIONS) * 100;
-      
-      // Penalty for wrong answers (10% each)
-      const wrongPenalty = wrongAnswers * WRONG_PENALTY;
-      
-      // Time bonus: MaxBonus × (1 - timeUsed/maxTime)
+      // Simple scoring: percentage based on questions answered
+      const questionsAnswered = correctCount + wrongCount;
       const timeUsed = 60 - timeLeft;
-      const timeBonus = MAX_BONUS * (1 - (timeUsed / MAX_TIME));
       
-      // Final percentage: raw + time bonus - wrong penalty, capped at 0-100
-      const finalPercentage = Math.max(0, Math.min(100, Math.round(rawPercentage + timeBonus - wrongPenalty)));
+      // Calculate percentage: correct / answered (if answered > 0)
+      let finalPercentage = 0;
+      if (questionsAnswered > 0) {
+        finalPercentage = Math.round((correctCount / questionsAnswered) * 100);
+      }
 
       const quizData = {
         quizType: 'timed-challenge',
-        score: correctAnswers, // Store actual correct count
-        totalQuestions: TOTAL_QUESTIONS, // Always 75
-        correctAnswers: correctAnswers,
-        wrongAnswers: wrongAnswers,
+        score: correctCount, // Store actual correct count
+        totalQuestions: questionsAnswered, // Questions actually answered
+        correctAnswers: correctCount,
+        wrongAnswers: wrongCount,
         percentage: finalPercentage,
         timeTaken: timeUsed,
         bestStreak: bestStreak,
@@ -111,6 +97,8 @@ const TimedChallengeQuiz = () => {
     setGameState('playing');
     setCurrentQuestion(0);
     setScore(0);
+    setCorrectCount(0);
+    setWrongCount(0);
     setTimeLeft(60);
     setSelectedAnswer(null);
     setIsAnswered(false);
@@ -131,9 +119,11 @@ const TimedChallengeQuiz = () => {
     if (isCorrect) {
       const timeBonus = Math.max(1, Math.floor(timeLeft / 10)); // Bonus points for speed
       setScore(score + 10 + timeBonus);
+      setCorrectCount(correctCount + 1);
       setStreak(streak + 1);
       setBestStreak(Math.max(bestStreak, streak + 1));
     } else {
+      setWrongCount(wrongCount + 1);
       setStreak(0);
     }
 
@@ -348,7 +338,10 @@ const TimedChallengeQuiz = () => {
             marginBottom: '2rem'
           }}>
             <div style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)', marginBottom: '0.5rem' }}>
-              Correct: {Math.floor(score / 10)} / 75 questions ✅
+              Correct: {correctCount} / {correctCount + wrongCount} answered ✅
+            </div>
+            <div style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)', marginBottom: '0.5rem' }}>
+              Score: {correctCount + wrongCount > 0 ? Math.round((correctCount / (correctCount + wrongCount)) * 100) : 0}%
             </div>
             <div style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)', marginBottom: '0.5rem' }}>
               Best Streak: {bestStreak} 🔥
