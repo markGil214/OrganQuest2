@@ -1415,11 +1415,9 @@ const AdminDashboard = ({ userData, onLogout }) => {
                               } else if (result.score !== undefined && result.totalQuestions) {
                                 scoreValue = Math.round((result.score / result.totalQuestions) * 100);
                               }
-                              const timeInMinutes = result.timeTaken ? (result.timeTaken / 60).toFixed(2) : 0;
                               return {
                                 attempt: index + 1,
                                 score: scoreValue,
-                                time: parseFloat(timeInMinutes),
                                 attemptLabel: `Attempt ${index + 1}`
                               };
                             });
@@ -1431,35 +1429,18 @@ const AdminDashboard = ({ userData, onLogout }) => {
                               tick={{ fontSize: 12 }}
                             />
                             <YAxis 
-                              yAxisId="left"
                               domain={[0, 100]} 
                               label={{ value: 'Score (%)', angle: -90, position: 'insideLeft' }}
-                              stroke="#f97316"
-                            />
-                            <YAxis 
-                              yAxisId="right"
-                              orientation="right"
-                              label={{ value: 'Time (minutes)', angle: 90, position: 'insideRight' }}
-                              stroke="#8b5cf6"
+                              stroke="#6b7280"
                             />
                             <Legend />
                             <Line 
-                              yAxisId="left"
                               type="monotone" 
                               dataKey="score" 
-                              stroke="#f97316" 
+                              stroke="#9333ea" 
                               strokeWidth={3}
-                              dot={{ fill: '#f97316', r: 5 }}
-                              name="Score %"
-                            />
-                            <Line 
-                              yAxisId="right"
-                              type="monotone" 
-                              dataKey="time" 
-                              stroke="#8b5cf6" 
-                              strokeWidth={3}
-                              dot={{ fill: '#8b5cf6', r: 5 }}
-                              name="Time (min)"
+                              dot={{ fill: '#9333ea', r: 5 }}
+                              name="Score"
                             />
                           </LineChart>
                         </ResponsiveContainer>
