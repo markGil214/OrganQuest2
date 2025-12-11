@@ -367,12 +367,10 @@
 			// Initialize Three.js renderer with transparency
 			var renderer = new THREE.WebGLRenderer({
 				alpha: true,
-				antialias: true,
-				powerPreference: 'high-performance'
+				antialias: true
 			});
 			renderer.setClearColor(new THREE.Color('lightgrey'), 0);
 			renderer.setSize(window.innerWidth, window.innerHeight);
-			renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 			renderer.domElement.style.position = 'absolute';
 			renderer.domElement.style.top = '0px';
 			renderer.domElement.style.left = '0px';
@@ -505,14 +503,15 @@
 							if (child.material) {
 								// Increase brightness and make materials more vibrant
 								if (organType === 'lungs') {
-									child.material.emissive = new THREE.Color(0.1, 0.2, 0.2);
+									child.material.emissive = new THREE.Color(0.1, 0.2, 0.2); // Add slight teal glow
 								} else {
-									child.material.emissive = new THREE.Color(0.1, 0.1, 0.1);
+									child.material.emissive = new THREE.Color(0.1, 0.1, 0.1); // General brightness boost
 								}
 								child.material.emissiveIntensity = 0.3;
 								
+								// If it has a color property, make it brighter
 								if (child.material.color) {
-									child.material.color.multiplyScalar(1.5);
+									child.material.color.multiplyScalar(1.5); // Make 50% brighter
 								}
 							}
 						}
