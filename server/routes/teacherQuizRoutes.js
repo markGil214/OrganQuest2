@@ -140,12 +140,17 @@ router.get('/by-code/:code', authMiddleware, async (req, res) => {
       });
     }
     
-    // Check if student matches assigned section
-    if (assignment.assignedSection !== 'all' && assignment.assignedSection !== student.section) {
-      return res.status(403).json({
-        success: false,
-        message: `This quiz is only for Section ${assignment.assignedSection} students`
-      });
+    // Check if student matches assigned section (case-insensitive comparison)
+    if (assignment.assignedSection && assignment.assignedSection !== 'all') {
+      const studentSection = student.section ? student.section.toUpperCase() : null;
+      const assignedSection = assignment.assignedSection.toUpperCase();
+      
+      if (!studentSection || assignedSection !== studentSection) {
+        return res.status(403).json({
+          success: false,
+          message: `This quiz is only for Section ${assignment.assignedSection} students`
+        });
+      }
     }
     
     // Count student attempts for tracking only
@@ -206,12 +211,17 @@ router.get('/:assignmentId', authMiddleware, async (req, res) => {
       });
     }
     
-    // Check if student matches assigned section
-    if (assignment.assignedSection !== 'all' && assignment.assignedSection !== student.section) {
-      return res.status(403).json({
-        success: false,
-        message: `This quiz is only for Section ${assignment.assignedSection} students`
-      });
+    // Check if student matches assigned section (case-insensitive comparison)
+    if (assignment.assignedSection && assignment.assignedSection !== 'all') {
+      const studentSection = student.section ? student.section.toUpperCase() : null;
+      const assignedSection = assignment.assignedSection.toUpperCase();
+      
+      if (!studentSection || assignedSection !== studentSection) {
+        return res.status(403).json({
+          success: false,
+          message: `This quiz is only for Section ${assignment.assignedSection} students`
+        });
+      }
     }
     
     // Count student attempts for tracking only
