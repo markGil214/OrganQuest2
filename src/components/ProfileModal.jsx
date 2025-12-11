@@ -3,15 +3,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/Dialog';
 import { Button } from './ui/Button';
 import { cn } from '../lib/utils';
 import api from '../lib/api';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from 'recharts';
 
 const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
-  const [activeTab, setActiveTab] = useState('profile'); // 'profile', 'info', 'progress', 'about'
-  const [stats, setStats] = useState({
-    quizzesTaken: 0,
-    averageScore: 0,
-    highScore: 0
-  });
-  const [quizAnalytics, setQuizAnalytics] = useState(null);
+  const [activeTab, setActiveTab] = useState('info'); // 'info', 'progress', 'about'
+  const [quizResults, setQuizResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [userInfo, setUserInfo] = useState({
     fullName: '',
@@ -28,7 +24,7 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
   });
   const [saving, setSaving] = useState(false);
 
-  // Fetch user stats and info
+  // Fetch user info and quiz results
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -41,11 +37,6 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
         const response = await api.getStats(token);
         if (response.success) {
           const data = response.data;
-          setStats({
-            quizzesTaken: data.stats.quizzesTaken || 0,
-            averageScore: data.stats.averageScore || 0,
-            highScore: data.stats.highScore || 0
-          });
           const info = {
             fullName: data.fullName || '',
             username: data.username || username,
@@ -55,8 +46,14 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
           setUserInfo(info);
           setEditForm(info);
         }
+
+        // Fetch quiz history
+        const historyResponse = await api.getQuizHistory(token);
+        if (historyResponse.success) {
+          setQuizResults(historyResponse.data.quizResults || []);
+        }
       } catch (error) {
-        console.error('Failed to fetch stats:', error);
+        console.error('Failed to fetch data:', error);
       } finally {
         setLoading(false);
       }
@@ -64,22 +61,6 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
 
     fetchData();
   }, [username]);
-
-  // Fetch quiz analytics for progress view
-  const fetchQuizAnalytics = async () => {
-    try {
-      const token = localStorage.getItem('authToken');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/my-progress`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await response.json();
-      if (data.success) {
-        setQuizAnalytics(data.data);
-      }
-    } catch (error) {
-      console.error('Failed to fetch analytics:', error);
-    }
-  };
 
   const handleEditSubmit = async () => {
     setSaving(true);
@@ -144,17 +125,6 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
           {/* Tabs Navigation */}
           <div className="flex gap-2 px-4 border-b border-purple-200">
             <button
-              onClick={() => setActiveTab('profile')}
-              className={cn(
-                "px-4 py-2 text-sm font-medium transition-all",
-                activeTab === 'profile' 
-                  ? "text-purple-600 border-b-2 border-purple-600" 
-                  : "text-gray-600 hover:text-purple-600"
-              )}
-            >
-              📊 Stats
-            </button>
-            <button
               onClick={() => {
                 setActiveTab('info');
                 setIsEditing(false);
@@ -169,10 +139,7 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
               👤 My Info
             </button>
             <button
-              onClick={() => {
-                setActiveTab('progress');
-                fetchQuizAnalytics();
-              }}
+              onClick={() => setActiveTab('progress')}
               className={cn(
                 "px-4 py-2 text-sm font-medium transition-all",
                 activeTab === 'progress' 
@@ -197,29 +164,6 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
 
           {/* Tab Content */}
           <div className="px-4 min-h-[200px]">
-            {/* Stats Tab */}
-            {activeTab === 'profile' && (
-              <div className="space-y-3">
-                <div className="p-4 bg-white/70 rounded-xl shadow-md">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Quizzes Taken</span>
-                    <span className="text-2xl font-bold text-purple-600">{stats.quizzesTaken}</span>
-                  </div>
-                </div>
-                <div className="p-4 bg-white/70 rounded-xl shadow-md">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Average Score</span>
-                    <span className="text-2xl font-bold text-purple-600">{stats.averageScore}%</span>
-                  </div>
-                </div>
-                <div className="p-4 bg-white/70 rounded-xl shadow-md">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">High Score</span>
-                    <span className="text-2xl font-bold text-purple-600">{stats.highScore}</span>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* My Info Tab */}
             {activeTab === 'info' && (
@@ -333,35 +277,64 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
             {/* Progress Tab */}
             {activeTab === 'progress' && (
               <div className="space-y-4">
-                {!quizAnalytics ? (
-                  <p className="text-center text-gray-500">Loading analytics...</p>
+                {quizResults.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <p className="text-lg">No quiz data available yet</p>
+                    <p className="text-sm mt-2">Take some quizzes to see your performance!</p>
+                  </div>
                 ) : (
-                  <>
-                    <h3 className="font-bold text-lg">Your Quiz Performance</h3>
-                    {Object.entries(quizAnalytics.quizTypeStats || {}).map(([quizType, data]) => (
-                      <div key={quizType} className="p-4 bg-white/70 rounded-xl shadow-md">
-                        <h4 className="font-semibold capitalize mb-2">{quizType}</h4>
-                        <div className="grid grid-cols-2 gap-2 text-sm">
-                          <div>
-                            <span className="text-gray-600">Average: </span>
-                            <span className="font-bold text-purple-600">{data.averageScore?.toFixed(1)}%</span>
-                          </div>
-                          <div>
-                            <span className="text-gray-600">Best: </span>
-                            <span className="font-bold text-green-600">{data.highestScore}</span>
-                          </div>
-                          <div>
-                            <span className="text-gray-600">Attempts: </span>
-                            <span className="font-bold">{data.totalAttempts}</span>
-                          </div>
-                          <div>
-                            <span className="text-gray-600">Completion: </span>
-                            <span className="font-bold">{data.completionRate?.toFixed(0)}%</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </>
+                  <div className="bg-white/70 rounded-xl p-4 shadow-md">
+                    <h3 className="font-bold text-lg mb-4">📈 Quiz Performance Over Time</h3>
+                    <ResponsiveContainer width="100%" height={250}>
+                      <LineChart data={(() => {
+                        const sortedResults = [...quizResults].sort((a, b) => {
+                          const dateA = new Date(a.completedAt || a.timestamp || 0);
+                          const dateB = new Date(b.completedAt || b.timestamp || 0);
+                          return dateA - dateB;
+                        });
+                        
+                        return sortedResults.map((result, index) => {
+                          let scoreValue = 0;
+                          if (result.percentage && result.percentage > 0) {
+                            scoreValue = result.percentage;
+                          } else if (result.score !== undefined && result.totalQuestions) {
+                            scoreValue = Math.round((result.score / result.totalQuestions) * 100);
+                          }
+                          
+                          return {
+                            attempt: index + 1,
+                            score: scoreValue,
+                            attemptLabel: `Attempt ${index + 1}`
+                          };
+                        });
+                      })()}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                        <XAxis 
+                          dataKey="attemptLabel" 
+                          stroke="#6b7280"
+                          tick={{ fontSize: 11 }}
+                        />
+                        <YAxis 
+                          domain={[0, 100]} 
+                          label={{ value: 'Score (%)', angle: -90, position: 'insideLeft', style: { fontSize: 11 } }}
+                          stroke="#6b7280"
+                          tick={{ fontSize: 11 }}
+                        />
+                        <Legend />
+                        <Line 
+                          type="monotone" 
+                          dataKey="score" 
+                          stroke="#9333ea" 
+                          strokeWidth={3}
+                          dot={{ fill: '#9333ea', r: 4 }}
+                          name="Score"
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                    <div className="mt-3 text-xs text-gray-600 text-center">
+                      Showing progress across {quizResults.length} quiz attempts
+                    </div>
+                  </div>
                 )}
               </div>
             )}
