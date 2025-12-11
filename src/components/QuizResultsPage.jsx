@@ -60,17 +60,14 @@ const QuizResultsPage = ({
             </div>
           </div>
 
-          {/* Attempt Info */}
-          <div className="bg-gray-50 p-4 rounded-xl mb-6">
-            <div className="text-sm text-gray-600">
-              Attempt {attemptNumber} of 3 • {remainingAttempts} attempts remaining
-            </div>
-            {remainingAttempts === 0 && (
-              <div className="text-red-600 font-semibold mt-2">
-                ⚠️ Maximum attempts reached. Contact your teacher to reset.
+          {/* Attempt tracking for records only */}
+          {attemptNumber && (
+            <div className="bg-gray-50 p-4 rounded-xl mb-6">
+              <div className="text-sm text-gray-600">
+                Attempt #{attemptNumber}
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* New Badges */}
           {newBadges.length > 0 && (

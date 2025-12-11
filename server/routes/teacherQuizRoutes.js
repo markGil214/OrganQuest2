@@ -130,17 +130,10 @@ router.get('/by-code/:code', authMiddleware, async (req, res) => {
       });
     }
     
-    // Check if student has attempts left
+    // Count student attempts for tracking only
     const studentAttempts = assignment.studentSubmissions.filter(
       s => s.studentId.toString() === req.userId.toString()
     ).length;
-    
-    if (studentAttempts >= assignment.maxAttempts) {
-      return res.status(403).json({
-        success: false,
-        message: `You have reached the maximum number of attempts (${assignment.maxAttempts})`
-      });
-    }
     
     // Return quiz details without submissions
     res.json({
@@ -195,17 +188,10 @@ router.get('/:assignmentId', authMiddleware, async (req, res) => {
       });
     }
     
-    // Check if student has attempts left
+    // Count student attempts for tracking only
     const studentAttempts = assignment.studentSubmissions.filter(
       s => s.studentId.toString() === req.userId.toString()
     ).length;
-    
-    if (studentAttempts >= assignment.maxAttempts) {
-      return res.status(403).json({
-        success: false,
-        message: `You have reached the maximum number of attempts (${assignment.maxAttempts})`
-      });
-    }
     
     res.json({
       success: true,
@@ -251,17 +237,10 @@ router.post('/submit/:assignmentId', authMiddleware, async (req, res) => {
     
     const student = await User.findById(req.userId);
     
-    // Count student's previous attempts
+    // Count student's previous attempts for tracking
     const previousAttempts = assignment.studentSubmissions.filter(
       s => s.studentId.toString() === req.userId.toString()
     );
-    
-    if (previousAttempts.length >= assignment.maxAttempts) {
-      return res.status(403).json({
-        success: false,
-        message: 'Maximum attempts reached'
-      });
-    }
     
     // Add submission
     assignment.studentSubmissions.push({

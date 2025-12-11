@@ -48,27 +48,19 @@ router.post('/submit', authMiddleware,
         });
       }
 
-      // Check quiz attempt limits
+      // Track attempt info without limiting
       let attemptInfo = user.quizAttempts.find(a => a.quizType === quizType);
       
       if (!attemptInfo) {
         attemptInfo = {
           quizType,
           attemptCount: 0,
-          maxAttempts: 3
+          maxAttempts: 999
         };
         user.quizAttempts.push(attemptInfo);
       }
 
-      // Check if max attempts already reached
-      if (attemptInfo.attemptCount >= attemptInfo.maxAttempts) {
-        return res.status(403).json({
-          success: false,
-          message: 'Quiz is locked. You have reached the maximum attempts (3). Contact your teacher to reset.'
-        });
-      }
-
-      // Increment attempt count
+      // Increment attempt count for tracking only
       attemptInfo.attemptCount += 1;
       attemptInfo.lastAttemptDate = new Date();
 
