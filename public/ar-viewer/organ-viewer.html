@@ -364,13 +364,16 @@
 			document.getElementById('instructions-text').innerHTML = `<span class="organ-emoji">${currentOrgan.emoji}</span> ${currentOrgan.instructions}`;
 			document.getElementById('fact-text').textContent = currentOrgan.funFact;
 
-			// Initialize Three.js renderer with transparency
+			// Initialize Three.js renderer with transparency and performance optimizations
 			var renderer = new THREE.WebGLRenderer({
 				alpha: true,
-				antialias: true
+				antialias: false, // Disable antialiasing for better performance
+				powerPreference: 'high-performance',
+				precision: 'mediump' // Use medium precision for better performance
 			});
 			renderer.setClearColor(new THREE.Color('lightgrey'), 0);
 			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // Limit pixel ratio for performance
 			renderer.domElement.style.position = 'absolute';
 			renderer.domElement.style.top = '0px';
 			renderer.domElement.style.left = '0px';
@@ -497,23 +500,50 @@
 						organModel.rotation.y = Math.PI / 2; // 90 degrees
 					}
 					
-					// Make the model lighter/brighter
+					// Optimize model for better performance
 					organModel.traverse(function(child) {
 						if (child.isMesh) {
+							// Simplify geometry for large models (heart, intestine)
+							if (child.geometry && child.geometry.attributes.position) {
+								var vertexCount = child.geometry.attributes.position.count;
+								// If mesh has too many vertices, reduce draw calls
+								if (vertexCount > 50000) {
+									child.geometry.setDrawRange(0, Math.floor(vertexCount * 0.5)); // Draw only 50% of vertices
+								}
+							}
+							
+							// Reduce texture quality for better performance
 							if (child.material) {
+								// Disable expensive features
+								child.material.flatShading = true;
+								child.material.precision = 'lowp';
+								
+								// Reduce texture filtering quality
+								if (child.material.map) {
+									child.material.map.minFilter = THREE.NearestFilter;
+									child.material.map.magFilter = THREE.NearestFilter;
+									child.material.map.anisotropy = 1;
+								}
+								if (child.material.normalMap) {
+									child.material.normalMap.minFilter = THREE.NearestFilter;
+									child.material.normalMap.magFilter = THREE.NearestFilter;
+								}
+								
 								// Increase brightness and make materials more vibrant
 								if (organType === 'lungs') {
-									child.material.emissive = new THREE.Color(0.1, 0.2, 0.2); // Add slight teal glow
+									child.material.emissive = new THREE.Color(0.1, 0.2, 0.2);
 								} else {
-									child.material.emissive = new THREE.Color(0.1, 0.1, 0.1); // General brightness boost
+									child.material.emissive = new THREE.Color(0.1, 0.1, 0.1);
 								}
 								child.material.emissiveIntensity = 0.3;
 								
-								// If it has a color property, make it brighter
 								if (child.material.color) {
-									child.material.color.multiplyScalar(1.5); // Make 50% brighter
+									child.material.color.multiplyScalar(1.5);
 								}
 							}
+							
+							// Enable frustum culling
+							child.frustumCulled = true;
 						}
 					});
 					
