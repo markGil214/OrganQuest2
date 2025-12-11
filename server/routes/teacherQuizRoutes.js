@@ -133,7 +133,14 @@ router.get('/by-code/:code', authMiddleware, async (req, res) => {
     
     // Check if student matches assigned grade
     const student = await User.findById(req.userId);
+    
+    console.log('🔍 Quiz Access Check (by-code):');
+    console.log('  Student:', student.fullName, '| Grade:', student.grade, '| Section:', student.section);
+    console.log('  Quiz:', assignment.title, '| Code:', assignment.quizCode);
+    console.log('  Quiz assigned to - Grade:', assignment.assignedGrade, '| Section:', assignment.assignedSection);
+    
     if (assignment.assignedGrade !== 'all' && assignment.assignedGrade !== student.grade) {
+      console.log('  ❌ ACCESS DENIED - Grade mismatch');
       return res.status(403).json({
         success: false,
         message: `This quiz is only for ${assignment.assignedGrade} grade students`
@@ -145,13 +152,18 @@ router.get('/by-code/:code', authMiddleware, async (req, res) => {
       const studentSection = student.section ? student.section.toUpperCase() : null;
       const assignedSection = assignment.assignedSection.toUpperCase();
       
+      console.log('  Section check:', { studentSection, assignedSection, match: studentSection === assignedSection });
+      
       if (!studentSection || assignedSection !== studentSection) {
+        console.log('  ❌ ACCESS DENIED - Section mismatch');
         return res.status(403).json({
           success: false,
           message: `This quiz is only for Section ${assignment.assignedSection} students`
         });
       }
     }
+    
+    console.log('  ✅ ACCESS GRANTED');
     
     // Count student attempts for tracking only
     const studentAttempts = assignment.studentSubmissions.filter(
