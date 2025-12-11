@@ -682,50 +682,6 @@ const AdminDashboard = ({ userData, onLogout }) => {
                       </div>
                     )}
 
-                    {/* Memory Matching Graph */}
-                    {quizAnalytics.performanceTrends['memory-matching']?.length > 0 && (
-                      <div className="border-2 border-purple-100 rounded-lg p-4 bg-gradient-to-br from-purple-50 to-white">
-                        <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                          <span className="w-3 h-3 bg-purple-500 rounded-full"></span>
-                          Memory Matching Quiz Performance
-                        </h4>
-                        <ResponsiveContainer width="100%" height={300}>
-                          <LineChart data={quizAnalytics.performanceTrends['memory-matching']}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                            <XAxis 
-                              dataKey="date" 
-                              tickFormatter={(date) => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                              stroke="#6b7280"
-                            />
-                            <YAxis 
-                              domain={[0, 100]} 
-                              label={{ value: 'Score (%)', angle: -90, position: 'insideLeft' }}
-                              stroke="#6b7280"
-                            />
-                            <Tooltip 
-                              labelFormatter={(date) => new Date(date).toLocaleDateString()}
-                              formatter={(value, name) => [
-                                name === 'avgScore' ? `${value}%` : `${value}s`,
-                                name === 'avgScore' ? 'Avg Score' : 'Avg Time'
-                              ]}
-                            />
-                            <Legend />
-                            <Line 
-                              type="monotone" 
-                              dataKey="avgScore" 
-                              stroke="#a855f7" 
-                              strokeWidth={3}
-                              dot={{ fill: '#a855f7', r: 4 }}
-                              name="Average Score"
-                            />
-                          </LineChart>
-                        </ResponsiveContainer>
-                        <div className="mt-3 text-sm text-gray-600 flex justify-between items-center px-2">
-                          <span>📊 Total Attempts: {quizAnalytics.quizTypeStats['memory-matching']?.total || 0}</span>
-                          <span>⭐ Overall Avg: {quizAnalytics.quizTypeStats['memory-matching']?.avgScore || 0}%</span>
-                        </div>
-                      </div>
-                    )}
 
                     {/* Timed Challenge Graph */}
                     {quizAnalytics.performanceTrends['timed-challenge']?.length > 0 && (
@@ -1333,17 +1289,17 @@ const AdminDashboard = ({ userData, onLogout }) => {
             {/* Performance Charts by Quiz Type */}
             {studentQuizDetails && studentQuizDetails.quizResults && studentQuizDetails.quizResults.length > 0 ? (
               <div className="mb-6 space-y-6">
-                {/* Multiple Choice & Memory Matching Chart */}
+                {/* Multiple Choice Chart */}
                 {(() => {
                   const nonTimedResults = studentQuizDetails.quizResults.filter(r => 
-                    r.quizType === 'multiple-choice' || r.quizType === 'memory-matching'
+                    r.quizType === 'multiple-choice'
                   );
                   if (nonTimedResults.length === 0) return null;
                   
                   return (
                     <div>
                       <h3 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        📈 Quiz Performance (Multiple Choice & Memory)
+                        📈 Quiz Performance (Multiple Choice)
                       </h3>
                       <div className="border-2 border-blue-100 rounded-lg p-4 bg-gradient-to-br from-blue-50 to-white">
                         <ResponsiveContainer width="100%" height={350}>

@@ -22,6 +22,14 @@ const QuizMenu = () => {
       color: '#3498db'
     },
     {
+      id: 'memory',
+      icon: '🧩',
+      title: quizText.memoryMatching,
+      description: quizText.memoryMatchingDesc,
+      route: 'quiz/memory',
+      color: '#e74c3c'
+    },
+    {
       id: 'timed',
       icon: '⚡',
       title: quizText.timedChallenge,

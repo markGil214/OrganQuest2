@@ -665,8 +665,7 @@ router.get('/quiz-analytics', authMiddleware, teacherMiddleware, async (req, res
     // Quiz type breakdown
     const quizTypeStats = {
       'multiple-choice': { total: 0, avgScore: 0, avgTime: 0, totalScore: 0, totalTime: 0 },
-      'timed-challenge': { total: 0, avgScore: 0, avgTime: 0, totalScore: 0, totalTime: 0 },
-      'memory-matching': { total: 0, avgScore: 0, avgTime: 0, totalScore: 0, totalTime: 0 }
+      'timed-challenge': { total: 0, avgScore: 0, avgTime: 0, totalScore: 0, totalTime: 0 }
     };
 
     allQuizResults.forEach(quiz => {
@@ -690,8 +689,7 @@ router.get('/quiz-analytics', authMiddleware, teacherMiddleware, async (req, res
     // Performance trends over time (for graphs)
     const performanceTrends = {
       'multiple-choice': [],
-      'timed-challenge': [],
-      'memory-matching': []
+      'timed-challenge': []
     };
 
     // Group quiz results by type and date
