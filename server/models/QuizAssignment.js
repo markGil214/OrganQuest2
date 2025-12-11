@@ -36,6 +36,12 @@ const quizAssignmentSchema = new mongoose.Schema({
     enum: ['4th', '5th', '6th', 'all'],
     required: true
   },
+  assignedSection: {
+    type: String,
+    enum: ['A', 'B', 'C', 'all'],
+    default: 'all',
+    uppercase: true
+  },
   dueDate: {
     type: Date,
     default: null

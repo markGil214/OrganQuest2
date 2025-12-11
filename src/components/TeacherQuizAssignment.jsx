@@ -11,6 +11,7 @@ const TeacherQuizAssignment = ({ userData }) => {
     title: '',
     description: '',
     assignedGrade: userData?.assignedGrade || '4th',
+    assignedSection: 'all',
     dueDate: '',
     maxAttempts: 3,
     timeLimit: null
@@ -73,6 +74,7 @@ const TeacherQuizAssignment = ({ userData }) => {
           title: '',
           description: '',
           assignedGrade: userData?.assignedGrade || '4th',
+          assignedSection: 'all',
           dueDate: '',
           maxAttempts: 3,
           timeLimit: null
@@ -185,6 +187,24 @@ const TeacherQuizAssignment = ({ userData }) => {
                   <option value="5th">5th Grade</option>
                   <option value="6th">6th Grade</option>
                   {userData?.assignedGrade === 'all' && <option value="all">All Grades</option>}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Assigned Section *
+                </label>
+                <select
+                  name="assignedSection"
+                  value={formData.assignedSection}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  required
+                >
+                  <option value="all">All Sections</option>
+                  <option value="A">Section A</option>
+                  <option value="B">Section B</option>
+                  <option value="C">Section C</option>
                 </select>
               </div>
             </div>
@@ -324,8 +344,12 @@ const TeacherQuizAssignment = ({ userData }) => {
                       <div className="font-semibold">{assignment.quizType.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}</div>
                     </div>
                     <div>
-                      <div className="text-sm text-gray-600">Grade</div>
-                      <div className="font-semibold">{assignment.assignedGrade === 'all' ? 'All Grades' : `${assignment.assignedGrade} Grade`}</div>
+                      <div className="text-sm text-gray-600">Grade / Section</div>
+                      <div className="font-semibold">
+                        {assignment.assignedGrade === 'all' ? 'All Grades' : `${assignment.assignedGrade} Grade`}
+                        {' / '}
+                        {assignment.assignedSection === 'all' ? 'All' : assignment.assignedSection}
+                      </div>
                     </div>
                     <div>
                       <div className="text-sm text-gray-600">Submissions</div>

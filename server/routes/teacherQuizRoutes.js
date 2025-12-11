@@ -8,7 +8,7 @@ const router = express.Router();
 // CREATE: Assign a new quiz with code
 router.post('/assign-quiz', authMiddleware, teacherMiddleware, async (req, res) => {
   try {
-    const { quizType, title, description, assignedGrade, dueDate, maxAttempts, timeLimit, customQuestions } = req.body;
+    const { quizType, title, description, assignedGrade, assignedSection, dueDate, maxAttempts, timeLimit, customQuestions } = req.body;
     
     const teacher = await User.findById(req.userId);
     
@@ -23,6 +23,9 @@ router.post('/assign-quiz', authMiddleware, teacherMiddleware, async (req, res) 
     // Ensure assignedGrade is valid
     const validGrade = assignedGrade && assignedGrade.trim() ? assignedGrade : (teacher.assignedGrade || 'all');
     
+    // Ensure assignedSection is valid
+    const validSection = assignedSection && assignedSection.trim() ? assignedSection.toUpperCase() : 'all';
+    
     // Generate unique quiz code
     const quizCode = await QuizAssignment.generateQuizCode();
     
@@ -34,6 +37,7 @@ router.post('/assign-quiz', authMiddleware, teacherMiddleware, async (req, res) 
       title,
       description,
       assignedGrade: validGrade,
+      assignedSection: validSection,
       dueDate: dueDate ? new Date(dueDate) : null,
       maxAttempts: maxAttempts || 3,
       timeLimit: timeLimit || null,
@@ -78,6 +82,7 @@ router.get('/my-assignments', authMiddleware, teacherMiddleware, async (req, res
         title: assignment.title,
         description: assignment.description,
         assignedGrade: assignment.assignedGrade,
+        assignedSection: assignment.assignedSection,
         dueDate: assignment.dueDate,
         maxAttempts: assignment.maxAttempts,
         timeLimit: assignment.timeLimit,
@@ -127,6 +132,14 @@ router.get('/by-code/:code', authMiddleware, async (req, res) => {
       return res.status(403).json({
         success: false,
         message: `This quiz is only for ${assignment.assignedGrade} grade students`
+      });
+    }
+    
+    // Check if student matches assigned section
+    if (assignment.assignedSection !== 'all' && assignment.assignedSection !== student.section) {
+      return res.status(403).json({
+        success: false,
+        message: `This quiz is only for Section ${assignment.assignedSection} students`
       });
     }
     
@@ -185,6 +198,14 @@ router.get('/:assignmentId', authMiddleware, async (req, res) => {
       return res.status(403).json({
         success: false,
         message: `This quiz is only for ${assignment.assignedGrade} grade students`
+      });
+    }
+    
+    // Check if student matches assigned section
+    if (assignment.assignedSection !== 'all' && assignment.assignedSection !== student.section) {
+      return res.status(403).json({
+        success: false,
+        message: `This quiz is only for Section ${assignment.assignedSection} students`
       });
     }
     
