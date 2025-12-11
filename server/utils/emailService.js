@@ -1,35 +1,34 @@
 import nodemailer from 'nodemailer';
 
-// Create SMTP2GO transporter
+// Create Gmail transporter
 let transporter = null;
 
-if (process.env.SMTP2GO_API_KEY) {
+if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
   try {
     transporter = nodemailer.createTransport({
-      host: 'mail.smtp2go.com',
-      port: 2525, // or 587, 80, 8025, 25
-      secure: false, // true for 465, false for other ports
+      service: 'gmail',
       auth: {
-        user: process.env.SMTP2GO_USER || 'your-smtp2go-username',
-        pass: process.env.SMTP2GO_API_KEY
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_APP_PASSWORD
       }
     });
-    console.log('✅ Email service initialized with SMTP2GO');
-    console.log('   SMTP2GO User:', process.env.SMTP2GO_USER || 'default');
-    console.log('   API Key:', process.env.SMTP2GO_API_KEY ? '***configured***' : 'NOT SET');
+    console.log('✅ Email service initialized with Gmail');
+    console.log('   Gmail User:', process.env.GMAIL_USER);
+    console.log('   App Password:', process.env.GMAIL_APP_PASSWORD ? '***configured***' : 'NOT SET');
   } catch (error) {
-    console.error('❌ Failed to initialize SMTP2GO transporter:', error.message);
+    console.error('❌ Failed to initialize Gmail transporter:', error.message);
   }
 } else {
-  console.warn('⚠️  SMTP2GO not configured.');
-  console.warn('   SMTP2GO_API_KEY:', process.env.SMTP2GO_API_KEY ? 'SET' : 'NOT SET');
+  console.warn('⚠️  Gmail not configured.');
+  console.warn('   GMAIL_USER:', process.env.GMAIL_USER ? 'SET' : 'NOT SET');
+  console.warn('   GMAIL_APP_PASSWORD:', process.env.GMAIL_APP_PASSWORD ? 'SET' : 'NOT SET');
 }
 
 export const sendTeacherInvitationEmail = async (teacherData) => {
   try {
     // Check if email service is configured
     if (!transporter) {
-      const error = 'Email service not configured. Check SMTP2GO_API_KEY environment variable.';
+      const error = 'Email service not configured. Check GMAIL_USER and GMAIL_APP_PASSWORD environment variables.';
       console.warn('⚠️ ', error);
       return { success: false, error };
     }
@@ -37,9 +36,9 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
     const { email, fullName, teacherCode, assignedGrade, section, registrationToken } = teacherData;
 
     // Verify transporter connection
-    console.log('🔍 Verifying SMTP2GO connection...');
+    console.log('🔍 Verifying Gmail connection...');
     await transporter.verify();
-    console.log('✅ SMTP2GO connection verified');
+    console.log('✅ Gmail connection verified');
 
     // Generate registration URL (use environment variable or default)
     const baseUrl = process.env.CLIENT_URL || 'https://organ-quest2.vercel.app';
@@ -119,16 +118,16 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
       </html>
     `;
 
-    // Send email via SMTP2GO
+    // Send email via Gmail
     const mailOptions = {
-      from: `"OrganQuest" <${process.env.SMTP2GO_SENDER || 'noreply@organquest.com'}>`,
+      from: `"OrganQuest" <${process.env.GMAIL_USER}>`,
       to: email,
       subject: `Complete Your Teacher Registration - ${assignedGrade} Grade Section ${section}`,
       html: emailHtml,
     };
 
     console.log('📤 Sending email...');
-    console.log('   From:', process.env.SMTP2GO_SENDER || 'noreply@organquest.com');
+    console.log('   From:', process.env.GMAIL_USER);
     console.log('   To:', email);
     console.log('   Subject:', mailOptions.subject);
 
@@ -156,13 +155,13 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
     // Provide specific error messages
     let userMessage = error.message;
     if (error.code === 'EAUTH' || error.responseCode === 535) {
-      userMessage = 'SMTP2GO authentication failed. Check if SMTP2GO_API_KEY is correct.';
+      userMessage = 'Gmail authentication failed. Check if GMAIL_APP_PASSWORD is correct and 2-Step Verification is enabled.';
       console.error('⚠️  Authentication failed. Verify:');
-      console.error('   1. SMTP2GO account is active');
-      console.error('   2. API key is correct');
-      console.error('   3. Sender email is verified in SMTP2GO');
+      console.error('   1. 2-Step Verification is enabled on Gmail account');
+      console.error('   2. App Password is generated from myaccount.google.com/apppasswords');
+      console.error('   3. App Password has no spaces');
     } else if (error.code === 'ECONNECTION') {
-      userMessage = 'Cannot connect to SMTP2GO servers. Check internet connection.';
+      userMessage = 'Cannot connect to Gmail servers. Check internet connection.';
     }
     
     return { success: false, error: userMessage };

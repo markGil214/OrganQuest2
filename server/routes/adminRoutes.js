@@ -14,52 +14,47 @@ const router = express.Router();
 router.get('/test-email', authMiddleware, superuserMiddleware, async (req, res) => {
   try {
     console.log('📧 Testing email configuration...');
-    console.log('   SMTP2GO_API_KEY:', process.env.SMTP2GO_API_KEY ? 'SET (hidden)' : 'NOT SET');
-    console.log('   SMTP2GO_USER:', process.env.SMTP2GO_USER || 'NOT SET');
-    console.log('   SMTP2GO_SENDER:', process.env.SMTP2GO_SENDER || 'NOT SET');
+    console.log('   GMAIL_USER:', process.env.GMAIL_USER || 'NOT SET');
+    console.log('   GMAIL_APP_PASSWORD:', process.env.GMAIL_APP_PASSWORD ? 'SET (hidden)' : 'NOT SET');
     
-    if (!process.env.SMTP2GO_API_KEY) {
+    if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
       return res.json({
         success: false,
-        message: 'SMTP2GO not configured',
+        message: 'Gmail credentials not configured',
         details: {
-          SMTP2GO_API_KEY: !!process.env.SMTP2GO_API_KEY,
-          SMTP2GO_USER: !!process.env.SMTP2GO_USER,
-          SMTP2GO_SENDER: !!process.env.SMTP2GO_SENDER
+          GMAIL_USER: !!process.env.GMAIL_USER,
+          GMAIL_APP_PASSWORD: !!process.env.GMAIL_APP_PASSWORD
         }
       });
     }
 
     // Test connection
     const transporter = nodemailer.createTransport({
-      host: 'mail.smtp2go.com',
-      port: 2525,
-      secure: false,
+      service: 'gmail',
       auth: {
-        user: process.env.SMTP2GO_USER,
-        pass: process.env.SMTP2GO_API_KEY
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_APP_PASSWORD
       }
     });
 
-    console.log('🔍 Verifying SMTP2GO connection...');
+    console.log('🔍 Verifying Gmail connection...');
     await transporter.verify();
-    console.log('✅ SMTP2GO connection verified successfully');
+    console.log('✅ Gmail connection verified successfully');
     
     // Try sending a test email to a real recipient
-    const testRecipient = req.query.email || process.env.SMTP2GO_SENDER;
+    const testRecipient = req.query.email || process.env.GMAIL_USER;
     console.log('📧 Sending test email to:', testRecipient);
     const testResult = await transporter.sendMail({
-      from: `"OrganQuest Test" <${process.env.SMTP2GO_SENDER}>`,
+      from: `"OrganQuest Test" <${process.env.GMAIL_USER}>`,
       to: testRecipient,
       subject: 'OrganQuest Email Test - Success!',
       html: `
         <h2>✅ Email Configuration Working!</h2>
-        <p>Your SMTP2GO setup is working correctly. You can now send teacher invitation emails.</p>
+        <p>Your Gmail setup is working correctly. You can now send teacher invitation emails.</p>
         <p><strong>Recipient:</strong> ${testRecipient}</p>
         <p><strong>Configuration:</strong></p>
         <ul>
-          <li>From: ${process.env.SMTP2GO_SENDER}</li>
-          <li>Service: SMTP2GO</li>
+          <li>From: ${process.env.GMAIL_USER}</li>
           <li>Status: Active</li>
         </ul>
       `
@@ -76,8 +71,8 @@ router.get('/test-email', authMiddleware, superuserMiddleware, async (req, res) 
       success: true,
       message: `Email configuration is valid! Test email sent to ${testRecipient}`,
       details: {
-        service: 'SMTP2GO',
-        sender: process.env.SMTP2GO_SENDER,
+        service: 'Gmail',
+        user: process.env.GMAIL_USER,
         testEmailSent: true,
         recipient: testRecipient,
         messageId: testResult.messageId,
@@ -102,16 +97,15 @@ router.get('/test-email', authMiddleware, superuserMiddleware, async (req, res) 
       responseCode: error.responseCode,
       command: error.command,
       details: {
-        SMTP2GO_API_KEY_SET: !!process.env.SMTP2GO_API_KEY,
-        SMTP2GO_USER: process.env.SMTP2GO_USER,
-        SMTP2GO_SENDER: process.env.SMTP2GO_SENDER,
+        GMAIL_USER: process.env.GMAIL_USER,
+        GMAIL_APP_PASSWORD_SET: !!process.env.GMAIL_APP_PASSWORD,
         errorType: error.name
       },
       help: error.code === 'EAUTH' || error.responseCode === 535 ? 
-        'Invalid SMTP2GO credentials. Verify: 1) API key is correct 2) SMTP2GO account is active 3) Sender email is verified' : 
+        'Invalid Gmail credentials. Verify: 1) 2-Step Verification enabled 2) App Password is correct (no spaces) 3) Using correct Gmail account' : 
         error.code === 'ECONNECTION' ?
-        'Cannot connect to SMTP2GO servers. Check server internet connection.' :
-        `SMTP2GO error: ${error.message}`
+        'Cannot connect to Gmail servers. Check server internet connection.' :
+        `Gmail error: ${error.message}`
     });
   }
 });
