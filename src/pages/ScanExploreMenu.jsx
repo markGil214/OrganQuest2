@@ -71,6 +71,94 @@ const ScanExploreMenu = () => {
       didYouKnow: ['You have two kidneys!', 'They clean 50 gallons of blood every day!'],
       sound: 'filter',
       hasCrossSection: true
+    },
+    {
+      id: 'stomach',
+      name: organText.stomach,
+      icon: '/organs/stomach.png',
+      color: '#ffd93d',
+      funFact: 'Your stomach digests food!',
+      description: 'The stomach breaks down your food!',
+      didYouKnow: ['It makes special juice to digest food!', 'It can stretch when you eat!'],
+      sound: 'gurgle',
+      hasCrossSection: false
+    },
+    {
+      id: 'intestine',
+      name: organText.intestine,
+      icon: '/organs/intestine.png',
+      color: '#a8e6cf',
+      funFact: 'Your intestines absorb nutrients!',
+      description: 'Intestines help digest and absorb food!',
+      didYouKnow: ['They\'re very long - about 25 feet!', 'They absorb all the good stuff from food!'],
+      sound: 'digest',
+      hasCrossSection: false
+    },
+    {
+      id: 'bladder',
+      name: organText.bladder,
+      icon: '/organs/bladder.png',
+      color: '#95e1d3',
+      funFact: 'Your bladder stores urine!',
+      description: 'The bladder is like a storage tank!',
+      didYouKnow: ['It can hold about 2 cups of liquid!', 'It tells your brain when it\'s time to go!'],
+      sound: 'drop',
+      hasCrossSection: false
+    },
+    {
+      id: 'pancreas',
+      name: organText.pancreas,
+      icon: '/organs/pancreas.png',
+      color: '#ffd670',
+      funFact: 'Your pancreas makes insulin!',
+      description: 'The pancreas helps control sugar!',
+      didYouKnow: ['It makes insulin to control blood sugar!', 'It helps you digest food too!'],
+      sound: 'produce',
+      hasCrossSection: false
+    },
+    {
+      id: 'spleen',
+      name: organText.spleen,
+      icon: '/organs/spleen.png',
+      color: '#b19cd9',
+      funFact: 'Your spleen fights germs!',
+      description: 'The spleen helps fight infections!',
+      didYouKnow: ['It filters your blood!', 'It helps your immune system!'],
+      sound: 'protect',
+      hasCrossSection: false
+    },
+    {
+      id: 'thyroid',
+      name: organText.thyroid,
+      icon: '/organs/thyroid.png',
+      color: '#ff6f91',
+      funFact: 'Your thyroid controls energy!',
+      description: 'The thyroid gland controls metabolism!',
+      didYouKnow: ['It\'s shaped like a butterfly!', 'It helps control how fast you grow!'],
+      sound: 'energy',
+      hasCrossSection: false
+    },
+    {
+      id: 'tongue',
+      name: organText.tongue,
+      icon: '/organs/tongue.png',
+      color: '#ff8b94',
+      funFact: 'Your tongue helps you taste!',
+      description: 'The tongue helps you taste and talk!',
+      didYouKnow: ['It has thousands of taste buds!', 'It\'s the strongest muscle in your body!'],
+      sound: 'taste',
+      hasCrossSection: false
+    },
+    {
+      id: 'eyes',
+      name: organText.eyes,
+      icon: '/organs/eyes.png',
+      color: '#87ceeb',
+      funFact: 'Your eyes help you see!',
+      description: 'Eyes let you see the world!',
+      didYouKnow: ['They can see millions of colors!', 'They blink about 15-20 times per minute!'],
+      sound: 'blink',
+      hasCrossSection: false
     }
   ];
 
