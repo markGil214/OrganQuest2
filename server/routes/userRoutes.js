@@ -284,7 +284,7 @@ router.put('/profile', authMiddleware,
 // @access  Private
 router.get('/stats', authMiddleware, async (req, res) => {
   try {
-    const user = await User.findById(req.userId).select('stats quizResults organProgress fullName username age grade');
+    const user = await User.findById(req.userId).select('stats quizResults organProgress fullName username age grade section');
     
     if (!user) {
       return res.status(404).json({
@@ -300,6 +300,7 @@ router.get('/stats', authMiddleware, async (req, res) => {
         username: user.username,
         age: user.age,
         grade: user.grade,
+        section: user.section,
         stats: user.stats,
         totalQuizResults: user.quizResults.length,
         exploredOrgans: user.organProgress.filter(o => o.explored).length
@@ -320,7 +321,7 @@ router.get('/stats', authMiddleware, async (req, res) => {
 // @access  Private
 router.put('/update-profile', authMiddleware, async (req, res) => {
   try {
-    const { fullName, username, age, grade } = req.body;
+    const { fullName, username, age, grade, section } = req.body;
     
     // Check if username is taken by another user
     if (username) {
@@ -338,6 +339,7 @@ router.put('/update-profile', authMiddleware, async (req, res) => {
     if (username) updateData.username = username;
     if (age) updateData.age = age;
     if (grade) updateData.grade = grade;
+    if (section) updateData.section = section;
 
     const user = await User.findByIdAndUpdate(
       req.userId,
