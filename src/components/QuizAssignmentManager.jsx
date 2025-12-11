@@ -1445,18 +1445,6 @@ const QuizAssignmentManager = () => {
                         {(submissions.reduce((sum, s) => sum + (s.percentage || 0), 0) / submissions.length).toFixed(1)}%
                       </span>
                     </div>
-                    <div className="summary-card">
-                      <span className="summary-label">Highest Score</span>
-                      <span className="summary-value">
-                        {Math.max(...submissions.map(s => s.percentage || 0)).toFixed(0)}%
-                      </span>
-                    </div>
-                    <div className="summary-card">
-                      <span className="summary-label">Lowest Score</span>
-                      <span className="summary-value">
-                        {Math.min(...submissions.map(s => s.percentage || 0)).toFixed(0)}%
-                      </span>
-                    </div>
                   </div>
                 </div>
               )}

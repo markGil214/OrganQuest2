@@ -181,32 +181,37 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
       {/* About Modal */}
       {showAboutModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => { playClickSound(); setShowAboutModal(false); }}>
-          <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 max-w-md mx-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 max-w-2xl mx-4 shadow-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="text-center mb-4">
               <span className="text-4xl">🎓</span>
-              <h2 className="text-xl font-bold text-gray-800 mt-2">OrganQuest</h2>
+              <h2 className="text-2xl font-bold text-gray-800 mt-2">About Us</h2>
             </div>
-            <p className="text-sm text-gray-700 mb-4 text-center">
-              An interactive anatomy learning platform designed to make studying human organs fun and engaging.
-            </p>
-            <div className="bg-white/70 rounded-xl p-4 mb-4">
-              <h4 className="font-semibold text-sm mb-2">Features:</h4>
-              <ul className="text-sm text-gray-700 space-y-1">
-                <li>✓ Interactive 3D organ models</li>
-                <li>✓ AR scanning & exploration</li>
-                <li>✓ Multiple quiz modes</li>
-                <li>✓ Progress tracking</li>
-                <li>✓ Educational games</li>
-              </ul>
-            </div>
-            <div className="text-center mb-4">
-              <h4 className="font-semibold text-sm mb-1">Created by:</h4>
-              <p className="text-sm text-purple-600 font-medium">OrganQuest Development Team</p>
-              <p className="text-xs text-gray-500 mt-1">Version 2.0 © 2025</p>
+            <div className="text-sm text-gray-700 space-y-3">
+              <p>
+                Welcome to <strong>AR Organs Interactive</strong>, a learning platform designed to make studying the human body fun, engaging, and accessible for children. Our application uses Augmented Reality (AR) to bring human organs to life, allowing kids to explore, rotate, and interact with 3D models as if they were right in front of them.
+              </p>
+              <p>
+                We believe that learning should be exciting, not intimidating. That's why we combined AR technology with an interactive quiz-based learning system that helps children test their knowledge, build confidence, and develop curiosity about how the human body works.
+              </p>
+              <div className="bg-white/70 rounded-xl p-4">
+                <h4 className="font-semibold text-base mb-2">Our goal is simple:</h4>
+                <ul className="space-y-1">
+                  <li>✔️ Make science enjoyable</li>
+                  <li>✔️ Encourage hands-on discovery</li>
+                  <li>✔️ Support visual learning through immersive 3D experiences</li>
+                  <li>✔️ Provide a safe and kid-friendly educational tool for students and teachers</li>
+                </ul>
+              </div>
+              <p>
+                This project is proudly developed by <strong>BSIT students</strong>, created as part of our Capstone Project. Through this app, we aim to contribute to modern learning by offering an innovative tool that blends education and technology in a way children love.
+              </p>
+              <p className="text-center font-medium text-purple-600 pt-2">
+                Thank you for supporting our journey toward building a more interactive, future-ready learning experience for young learners.
+              </p>
             </div>
             <button
               onClick={() => { playClickSound(); setShowAboutModal(false); }}
-              className="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors"
+              className="w-full py-2 mt-4 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors"
             >
               Close
             </button>

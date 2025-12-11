@@ -235,8 +235,11 @@ const QuizContainer = () => {
       const timeTaken = Math.floor((Date.now() - startTime) / 1000);
       const percentage = calculatePercentage(score, quizQuestions.length);
 
+      // Determine quiz type: use 'custom-quiz' if assignment has custom questions
+      const quizType = assignmentData?.customQuestions?.length > 0 ? 'custom-quiz' : 'multiple-choice';
+
       const quizData = {
-        quizType: 'multiple-choice',
+        quizType: quizType,
         score: score,
         totalQuestions: quizQuestions.length,
         percentage,

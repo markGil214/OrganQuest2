@@ -767,6 +767,51 @@ const AdminDashboard = ({ userData, onLogout }) => {
                         </div>
                       </div>
                     )}
+
+                    {/* Custom Quiz Performance Graph */}
+                    {quizAnalytics.performanceTrends['custom-quiz']?.length > 0 && (
+                      <div className="mt-8">
+                        <h4 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                          <span className="w-3 h-3 bg-orange-500 rounded-full"></span>
+                          Custom Quiz Performance
+                        </h4>
+                        <ResponsiveContainer width="100%" height={300}>
+                          <LineChart data={quizAnalytics.performanceTrends['custom-quiz']}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                            <XAxis 
+                              dataKey="date" 
+                              tickFormatter={(date) => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              stroke="#6b7280"
+                            />
+                            <YAxis 
+                              domain={[0, 100]} 
+                              label={{ value: 'Score (%)', angle: -90, position: 'insideLeft' }}
+                              stroke="#6b7280"
+                            />
+                            <Tooltip 
+                              labelFormatter={(date) => new Date(date).toLocaleDateString()}
+                              formatter={(value, name) => [
+                                name === 'avgScore' ? `${value}%` : `${value}s`,
+                                name === 'avgScore' ? 'Avg Score' : 'Avg Time'
+                              ]}
+                            />
+                            <Legend />
+                            <Line 
+                              type="monotone" 
+                              dataKey="avgScore" 
+                              stroke="#f97316" 
+                              strokeWidth={3}
+                              dot={{ fill: '#f97316', r: 4 }}
+                              name="Average Score"
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                        <div className="mt-3 text-sm text-gray-600 flex justify-between items-center px-2">
+                          <span>📊 Total Attempts: {quizAnalytics.quizTypeStats['custom-quiz']?.total || 0}</span>
+                          <span>⭐ Overall Avg: {quizAnalytics.quizTypeStats['custom-quiz']?.avgScore || 0}%</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </Card>
