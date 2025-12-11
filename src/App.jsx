@@ -49,10 +49,14 @@ function App() {
 
   // Check for existing user data on app load
   useEffect(() => {
+    const currentHash = window.location.hash.slice(1); // Remove the # symbol
+    console.log('=== APP MOUNT ===');
+    console.log('Initial hash:', currentHash);
+    console.log('Full URL:', window.location.href);
+    
     const existingUserData = getCookie('organquest_user');
     const localStorageUserData = localStorage.getItem('userData');
     const authToken = localStorage.getItem('authToken');
-    const currentHash = window.location.hash.slice(1); // Remove the # symbol
     
     // Check if user is authenticated via cookie OR localStorage
     const isAuthenticated = existingUserData || (localStorageUserData && authToken);
