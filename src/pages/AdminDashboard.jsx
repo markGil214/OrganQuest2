@@ -1321,6 +1321,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
                         return {
                           attempt: index + 1,
                           score: scoreValue,
+                          scoreDisplay: scoreValue,
                           date: resultDate 
                             ? new Date(resultDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) 
                             : `Attempt ${index + 1}`,
@@ -1341,7 +1342,11 @@ const AdminDashboard = ({ userData, onLogout }) => {
                         stroke="#6b7280"
                       />
                       <Tooltip 
-                        formatter={(value, name) => [`${value}%`, 'Score']}
+                        formatter={(value, name, props) => {
+                          // Use the scoreDisplay from the data point
+                          const displayScore = props?.payload?.scoreDisplay ?? value;
+                          return [`${displayScore}%`, 'Score'];
+                        }}
                         labelFormatter={(label, payload) => {
                           if (payload && payload[0]) {
                             return `${payload[0].payload.fullDate} - ${payload[0].payload.type}`;
