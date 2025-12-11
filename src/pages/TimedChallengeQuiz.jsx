@@ -248,7 +248,6 @@ const TimedChallengeQuiz = () => {
             <h3 style={{ fontSize: 'clamp(1rem, 3vw, 1.3rem)', marginBottom: '1rem', fontWeight: '600' }}>🎯 How to Play:</h3>
             <div style={{ textAlign: 'left', fontSize: 'clamp(0.85rem, 2.5vw, 1rem)', lineHeight: '1.6' }}>
               <p>• Answer questions as fast as possible</p>
-              <p>• Correct answers = 10 points + time bonus</p>
               <p>• Build streaks for extra excitement</p>
               <p>• Beat your high score!</p>
             </div>
