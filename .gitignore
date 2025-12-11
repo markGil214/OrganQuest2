@@ -16,6 +16,9 @@ dist-ssr
 android/
 android/**
 
+# MailerSend
+mailersend-nodejs-main
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
