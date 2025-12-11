@@ -61,6 +61,7 @@ const QuizAssignmentManager = () => {
       try {
         const userData = JSON.parse(userDataStr);
         const teacherGrade = userData.assignedGrade || '';
+        const teacherSection = userData.assignedSection || 'all';
         if (teacherGrade) {
           setQuestionForm(prev => ({ ...prev, grade: teacherGrade }));
           setFilters(prev => ({ ...prev, grade: teacherGrade }));
@@ -262,13 +263,15 @@ const QuizAssignmentManager = () => {
 
   // STEP 1: Start creating new assignment
   const startNewAssignment = () => {
-    // Get teacher's assigned grade from localStorage
+    // Get teacher's assigned grade and section from localStorage
     const userDataStr = localStorage.getItem('userData');
     let teacherGrade = '';
+    let teacherSection = 'all';
     if (userDataStr) {
       try {
         const userData = JSON.parse(userDataStr);
         teacherGrade = userData.assignedGrade || '';
+        teacherSection = userData.assignedSection || 'all';
       } catch (error) {
         console.error('Error parsing userData:', error);
       }
@@ -279,7 +282,7 @@ const QuizAssignmentManager = () => {
       title: '',
       description: '',
       assignedGrade: teacherGrade, // Auto-populate with teacher's grade
-      assignedSection: 'all',
+      assignedSection: teacherSection, // Auto-populate with teacher's section
       dueDate: '',
       maxAttempts: 3,
       timeLimit: 600
@@ -806,13 +809,16 @@ const QuizAssignmentManager = () => {
                       <select 
                         value={currentAssignment.assignedSection}
                         onChange={(e) => setCurrentAssignment({...currentAssignment, assignedSection: e.target.value})}
+                        disabled
                         required
+                        className="grade-disabled"
                       >
                         <option value="all">All Sections</option>
                         <option value="A">Section A</option>
                         <option value="B">Section B</option>
                         <option value="C">Section C</option>
                       </select>
+                      <small className="field-hint">Auto-detected from your teacher profile</small>
                     </div>
                   </div>
 

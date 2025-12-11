@@ -11,7 +11,7 @@ const TeacherQuizAssignment = ({ userData }) => {
     title: '',
     description: '',
     assignedGrade: userData?.assignedGrade || '4th',
-    assignedSection: 'all',
+    assignedSection: userData?.assignedSection || 'all',
     dueDate: '',
     maxAttempts: 3,
     timeLimit: null
@@ -74,7 +74,7 @@ const TeacherQuizAssignment = ({ userData }) => {
           title: '',
           description: '',
           assignedGrade: userData?.assignedGrade || '4th',
-          assignedSection: 'all',
+          assignedSection: userData?.assignedSection || 'all',
           dueDate: '',
           maxAttempts: 3,
           timeLimit: null
@@ -198,7 +198,8 @@ const TeacherQuizAssignment = ({ userData }) => {
                   name="assignedSection"
                   value={formData.assignedSection}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-gray-100"
+                  disabled
                   required
                 >
                   <option value="all">All Sections</option>
@@ -206,6 +207,7 @@ const TeacherQuizAssignment = ({ userData }) => {
                   <option value="B">Section B</option>
                   <option value="C">Section C</option>
                 </select>
+                <small className="text-gray-500 text-xs mt-1">Auto-detected from your teacher profile</small>
               </div>
             </div>
 
