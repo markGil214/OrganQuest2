@@ -15,6 +15,7 @@ const QuizAssignmentManager = () => {
     title: '',
     description: '',
     assignedGrade: '',
+    assignedSection: 'all',
     dueDate: '',
     maxAttempts: 3,
     timeLimit: 600
@@ -278,6 +279,7 @@ const QuizAssignmentManager = () => {
       title: '',
       description: '',
       assignedGrade: teacherGrade, // Auto-populate with teacher's grade
+      assignedSection: 'all',
       dueDate: '',
       maxAttempts: 3,
       timeLimit: 600
@@ -434,6 +436,7 @@ const QuizAssignmentManager = () => {
         title: '',
         description: '',
         assignedGrade: '',
+        assignedSection: 'all',
         dueDate: '',
         maxAttempts: 3,
         timeLimit: 600
@@ -797,6 +800,19 @@ const QuizAssignmentManager = () => {
                         <option value="6th">6th Grade</option>
                       </select>
                       <small className="field-hint">Auto-detected from your teacher profile</small>
+                    </div>
+                    <div className="form-group">
+                      <label>Section *</label>
+                      <select 
+                        value={currentAssignment.assignedSection}
+                        onChange={(e) => setCurrentAssignment({...currentAssignment, assignedSection: e.target.value})}
+                        required
+                      >
+                        <option value="all">All Sections</option>
+                        <option value="A">Section A</option>
+                        <option value="B">Section B</option>
+                        <option value="C">Section C</option>
+                      </select>
                     </div>
                   </div>
 
