@@ -983,8 +983,8 @@ const AdminDashboard = ({ userData, onLogout }) => {
                     <tr>
                       <th className="px-6 py-4 text-left font-bold">Student Name</th>
                       <th className="px-6 py-4 text-left font-bold">Grade</th>
+                      <th className="px-6 py-4 text-left font-bold">Section</th>
                       <th className="px-6 py-4 text-left font-bold">Total Quizzes</th>
-                      <th className="px-6 py-4 text-left font-bold">Avg Score</th>
                       <th className="px-6 py-4 text-left font-bold">Actions</th>
                     </tr>
                   </thead>
@@ -1008,16 +1008,8 @@ const AdminDashboard = ({ userData, onLogout }) => {
                           </div>
                         </td>
                         <td className="px-6 py-4 text-gray-700">{student.grade}</td>
+                        <td className="px-6 py-4 text-gray-700">{student.section || '-'}</td>
                         <td className="px-6 py-4 text-gray-700">{student.stats.totalQuizzesTaken || 0}</td>
-                        <td className="px-6 py-4">
-                          <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                            (student.stats.averageScore || 0) >= 80 ? 'bg-green-100 text-green-700' :
-                            (student.stats.averageScore || 0) >= 60 ? 'bg-yellow-100 text-yellow-700' :
-                            'bg-red-100 text-red-700'
-                          }`}>
-                            {student.stats.averageScore || 0}%
-                          </span>
-                        </td>
                         <td className="px-6 py-4">
                           <Button
                             onClick={() => viewStudentDetails(student._id)}
