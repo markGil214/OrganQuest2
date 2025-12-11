@@ -1,7 +1,7 @@
 // Organ Configurations - Add new organs here easily!
 const organConfigs = {
 	heart: {
-		modelPath: '/models/heart/scene.gltf',
+		modelPath: '/models/heart3D/heart.glb',
 		scale: { x: 2.0, y: 2.0, z: 2.0 },
 		position: { y: 0.5 },
 		colors: {
@@ -350,7 +350,7 @@ const organConfigs = {
 	},
 	
 	heart3d: {
-		modelPath: '/models/heart3D/scene.gltf',
+		modelPath: '/models/heart3D/heart.glb',
 		scale: { x: 2.0, y: 2.0, z: 2.0 },
 		position: { y: 0.5 },
 		colors: {
