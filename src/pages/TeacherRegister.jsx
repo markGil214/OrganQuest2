@@ -119,7 +119,7 @@ const TeacherRegister = () => {
           }, 1000);
         } else {
           // If auto-login fails, redirect to login page
-          toast.info('Please login with your new credentials');
+          toast.success('Please login with your new credentials');
           setTimeout(() => {
             window.location.hash = 'login';
           }, 2000);
