@@ -58,8 +58,17 @@ const AdminDashboard = ({ userData, onLogout }) => {
 
   // Auto-populate grade filter for teachers on mount
   useEffect(() => {
-    if (userData?.role === 'teacher' && userData?.assignedGrade) {
-      setFilters(prev => ({ ...prev, grade: userData.assignedGrade }));
+    if (userData?.role === 'teacher') {
+      const updates = {};
+      if (userData?.assignedGrade) {
+        updates.grade = userData.assignedGrade;
+      }
+      if (userData?.assignedSection) {
+        updates.section = userData.assignedSection;
+      }
+      if (Object.keys(updates).length > 0) {
+        setFilters(prev => ({ ...prev, ...updates }));
+      }
     }
   }, [userData]);
 
@@ -550,7 +559,9 @@ const AdminDashboard = ({ userData, onLogout }) => {
             <p className="text-gray-600 mt-2">
               Welcome, {userData?.fullName} 
               {userData?.role === 'superuser' && ' (Superuser)'}
-              {userData?.role === 'teacher' && ` - ${userData.assignedGrade} Grade`}
+              {userData?.role === 'teacher' && userData.assignedGrade && (
+                ` - ${userData.assignedGrade} Grade${userData.assignedSection && userData.assignedSection !== 'all' ? ` - Section ${userData.assignedSection}` : ''}`
+              )}
             </p>
           </div>
           <div className="flex gap-3">
