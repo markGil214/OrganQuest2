@@ -39,6 +39,20 @@ const AdminDashboard = ({ userData, onLogout }) => {
   const [questionPage, setQuestionPage] = useState(1);
   const questionsPerPage = 10;
   
+  // Delete confirmation dialog state
+  const [deleteConfirmDialog, setDeleteConfirmDialog] = useState({
+    isOpen: false,
+    studentId: null,
+    studentName: ''
+  });
+  
+  // Delete confirmation dialog state
+  const [deleteConfirmDialog, setDeleteConfirmDialog] = useState({
+    isOpen: false,
+    studentId: null,
+    studentName: ''
+  });
+  
   // Registration URL Modal state
   const [showRegistrationModal, setShowRegistrationModal] = useState(false);
   const [registrationModalData, setRegistrationModalData] = useState({
@@ -222,6 +236,37 @@ const AdminDashboard = ({ userData, onLogout }) => {
       }
     } catch (error) {
       console.error('Error fetching student details:', error);
+    }
+  };
+
+  const handleDeleteStudent = (studentId, studentName) => {
+    setDeleteConfirmDialog({
+      isOpen: true,
+      studentId,
+      studentName
+    });
+  };
+
+  const confirmDeleteStudent = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${API_URL}/api/admin/students/${deleteConfirmDialog.studentId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      if (data.success) {
+        toast?.success(`Student ${deleteConfirmDialog.studentName} deleted successfully`);
+        setDeleteConfirmDialog({ isOpen: false, studentId: null, studentName: '' });
+        fetchStudents();
+      } else {
+        toast?.error(data.message || 'Failed to delete student');
+      }
+    } catch (error) {
+      console.error('Error deleting student:', error);
+      toast?.error('Failed to delete student');
     }
   };
 
@@ -1010,12 +1055,18 @@ const AdminDashboard = ({ userData, onLogout }) => {
                         <td className="px-6 py-4 text-gray-700">{student.grade}</td>
                         <td className="px-6 py-4 text-gray-700">{student.section || '-'}</td>
                         <td className="px-6 py-4 text-gray-700">{student.stats.totalQuizzesTaken || 0}</td>
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4 flex gap-2">
                           <Button
                             onClick={() => viewStudentDetails(student._id)}
                             className="bg-blue-500 hover:bg-blue-600 text-white text-sm"
                           >
                             📊 View Progress
+                          </Button>
+                          <Button
+                            onClick={() => handleDeleteStudent(student._id, student.fullName)}
+                            className="bg-red-500 hover:bg-red-600 text-white text-sm"
+                          >
+                            🗑️ Delete
                           </Button>
                         </td>
                       </tr>
@@ -1528,6 +1579,36 @@ const AdminDashboard = ({ userData, onLogout }) => {
               </Button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {deleteConfirmDialog.isOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <Card className="w-full max-w-md p-6">
+            <div className="text-center mb-6">
+              <div className="text-6xl mb-4">⚠️</div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">Delete Student?</h2>
+              <p className="text-gray-600">
+                Are you sure you want to delete <span className="font-semibold">{deleteConfirmDialog.studentName}</span>?
+              </p>
+              <p className="text-sm text-red-600 mt-2">This action cannot be undone.</p>
+            </div>
+            <div className="flex gap-3">
+              <Button
+                onClick={() => setDeleteConfirmDialog({ isOpen: false, studentId: null, studentName: '' })}
+                className="flex-1 bg-gray-500 hover:bg-gray-600"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={confirmDeleteStudent}
+                className="flex-1 bg-red-600 hover:bg-red-700"
+              >
+                Delete
+              </Button>
+            </div>
+          </Card>
         </div>
       )}
       </>
