@@ -82,6 +82,12 @@ const userSchema = new mongoose.Schema({
     enum: ['4th', '5th', '6th', 'all'],
     default: null // Only for teachers
   },
+  assignedSection: {
+    type: String,
+    enum: ['A', 'B', 'C', 'all'],
+    default: null, // Only for teachers
+    uppercase: true
+  },
   teacherCode: {
     type: String,
     unique: true,

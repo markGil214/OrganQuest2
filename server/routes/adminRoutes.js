@@ -34,6 +34,11 @@ router.get('/students', authMiddleware, teacherMiddleware, async (req, res) => {
       query.grade = req.assignedGrade;
     }
 
+    // Filter by assigned section if teacher (not superuser)
+    if (req.userRole === 'teacher' && req.assignedSection && req.assignedSection !== 'all') {
+      query.section = req.assignedSection;
+    }
+
     // Apply explicit grade filter if provided
     if (grade) {
       query.grade = grade;
@@ -900,7 +905,7 @@ router.post('/create-class',
       const existingClass = await User.findOne({ 
         role: 'teacher',
         assignedGrade,
-        section 
+        assignedSection: section 
       });
       
       if (existingClass) {
@@ -952,7 +957,7 @@ router.post('/create-class',
         email,
         role: 'teacher',
         assignedGrade,
-        section,
+        assignedSection: section,
         teacherCode,
         grade: assignedGrade,
         accountStatus: 'pending',
@@ -976,7 +981,7 @@ router.post('/create-class',
           fullName: teacher.fullName,
           teacherCode: teacher.teacherCode,
           assignedGrade: teacher.assignedGrade,
-          section: teacher.section,
+          section: teacher.assignedSection,
           registrationToken: registrationToken
         });
 
@@ -1006,7 +1011,7 @@ router.post('/create-class',
             fullName: teacher.fullName,
             email: teacher.email,
             assignedGrade: teacher.assignedGrade,
-            section: teacher.section,
+            assignedSection: teacher.assignedSection,
             teacherCode: teacher.teacherCode,
             accountStatus: teacher.accountStatus
           }
@@ -1128,7 +1133,7 @@ router.post('/complete-registration',
             email: teacher.email,
             username: teacher.username,
             assignedGrade: teacher.assignedGrade,
-            section: teacher.section,
+            assignedSection: teacher.assignedSection,
             teacherCode: teacher.teacherCode,
             accountStatus: teacher.accountStatus
           }
@@ -1154,7 +1159,7 @@ router.get('/verify-token/:token', async (req, res) => {
       registrationToken: req.params.token,
       role: 'teacher',
       accountStatus: 'pending'
-    }).select('fullName email assignedGrade section teacherCode tokenExpiry');
+    }).select('fullName email assignedGrade assignedSection teacherCode tokenExpiry');
 
     if (!teacher) {
       return res.status(404).json({
@@ -1178,7 +1183,7 @@ router.get('/verify-token/:token', async (req, res) => {
           fullName: teacher.fullName,
           email: teacher.email,
           assignedGrade: teacher.assignedGrade,
-          section: teacher.section,
+          assignedSection: teacher.assignedSection,
           teacherCode: teacher.teacherCode
         }
       }

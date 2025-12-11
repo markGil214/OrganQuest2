@@ -46,6 +46,7 @@ export const teacherMiddleware = async (req, res, next) => {
 
     req.userRole = user.role;
     req.assignedGrade = user.assignedGrade;
+    req.assignedSection = user.assignedSection;
     req.teacherCode = user.teacherCode;
     next();
   } catch (error) {
