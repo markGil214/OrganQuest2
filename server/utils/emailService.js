@@ -1,47 +1,33 @@
-import nodemailer from 'nodemailer';
+import { MailerSend, EmailParams, Sender, Recipient } from 'mailersend';
 
-// Create cPanel SMTP transporter
-let transporter = null;
+// Create MailerSend client
+let mailerSend = null;
 
-if (process.env.SMTP_USER && process.env.SMTP_PASSWORD) {
+if (process.env.MAILERSEND_API_KEY) {
   try {
-    transporter = nodemailer.createTransport({
-      host: 'hari.fr.planethoster.net',
-      port: 465,
-      secure: true, // use SSL
-      auth: {
-        user: process.env.SMTP_USER, // marco@nusa22.piscines-design.fr
-        pass: process.env.SMTP_PASSWORD
-      }
+    mailerSend = new MailerSend({
+      apiKey: process.env.MAILERSEND_API_KEY,
     });
-    console.log('✅ Email service initialized with cPanel SMTP');
-    console.log('   SMTP Host: hari.fr.planethoster.net');
-    console.log('   SMTP Port: 465 (SSL)');
-    console.log('   SMTP User:', process.env.SMTP_USER);
+    console.log('✅ Email service initialized with MailerSend');
+    console.log('   API Key:', process.env.MAILERSEND_API_KEY ? '***configured***' : 'NOT SET');
   } catch (error) {
-    console.error('❌ Failed to initialize SMTP transporter:', error.message);
+    console.error('❌ Failed to initialize MailerSend:', error.message);
   }
 } else {
-  console.warn('⚠️  SMTP not configured.');
-  console.warn('   SMTP_USER:', process.env.SMTP_USER ? 'SET' : 'NOT SET');
-  console.warn('   SMTP_PASSWORD:', process.env.SMTP_PASSWORD ? 'SET' : 'NOT SET');
+  console.warn('⚠️  MailerSend not configured.');
+  console.warn('   MAILERSEND_API_KEY:', process.env.MAILERSEND_API_KEY ? 'SET' : 'NOT SET');
 }
 
 export const sendTeacherInvitationEmail = async (teacherData) => {
   try {
     // Check if email service is configured
-    if (!transporter) {
-      const error = 'Email service not configured. Check SMTP_USER and SMTP_PASSWORD environment variables.';
+    if (!mailerSend) {
+      const error = 'Email service not configured. Check MAILERSEND_API_KEY environment variable.';
       console.warn('⚠️ ', error);
       return { success: false, error };
     }
 
     const { email, fullName, teacherCode, assignedGrade, section, registrationToken } = teacherData;
-
-    // Verify transporter connection
-    console.log('🔍 Verifying SMTP connection...');
-    await transporter.verify();
-    console.log('✅ SMTP connection verified');
 
     // Generate registration URL (use environment variable or default)
     const baseUrl = process.env.CLIENT_URL || 'https://organ-quest2.vercel.app';
@@ -121,33 +107,33 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
       </html>
     `;
 
-    // Send email via cPanel SMTP
-    const mailOptions = {
-      from: `"OrganQuest" <${process.env.SMTP_USER}>`,
-      to: email,
-      subject: `Complete Your Teacher Registration - ${assignedGrade} Grade Section ${section}`,
-      html: emailHtml,
-    };
+    // Send email via MailerSend
+    const sentFrom = new Sender(
+      process.env.MAILERSEND_FROM_EMAIL || 'noreply@trial-0r83ql3rn5p4zw1j.mlsender.net',
+      'OrganQuest'
+    );
 
-    console.log('📤 Sending email...');
-    console.log('   From:', process.env.SMTP_USER);
+    const recipients = [new Recipient(email, fullName)];
+
+    const emailParams = new EmailParams()
+      .setFrom(sentFrom)
+      .setTo(recipients)
+      .setSubject(`Complete Your Teacher Registration - ${assignedGrade} Grade Section ${section}`)
+      .setHtml(emailHtml)
+      .setText(`Hello ${fullName}, Please complete your teacher registration at: ${registrationUrl}`);
+
+    console.log('📤 Sending email via MailerSend...');
+    console.log('   From:', process.env.MAILERSEND_FROM_EMAIL || 'noreply@trial-0r83ql3rn5p4zw1j.mlsender.net');
     console.log('   To:', email);
-    console.log('   Subject:', mailOptions.subject);
+    console.log('   Subject:', emailParams.subject);
 
-    const info = await transporter.sendMail(mailOptions);
+    const response = await mailerSend.email.send(emailParams);
+    
     console.log('✅ Invitation email sent successfully!');
     console.log('   Recipient:', email);
-    console.log('   Message ID:', info.messageId);
-    console.log('   Response:', info.response);
-    console.log('   Accepted:', info.accepted);
-    console.log('   Rejected:', info.rejected);
+    console.log('   Response:', response);
     
-    if (info.rejected && info.rejected.length > 0) {
-      console.warn('⚠️  Some recipients were rejected:', info.rejected);
-    }
-    console.log('   Message ID:', info.messageId);
-    console.log('   Response:', info.response);
-    return { success: true, data: info };
+    return { success: true, data: response };
   } catch (error) {
     console.error('❌ Error sending invitation email:', error);
     console.error('   Error type:', error.name);
@@ -157,14 +143,17 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
     
     // Provide specific error messages
     let userMessage = error.message;
-    if (error.code === 'EAUTH' || error.responseCode === 535) {
-      userMessage = 'SMTP authentication failed. Check if SMTP_USER and SMTP_PASSWORD are correct.';
+    if (error.statusCode === 401 || error.statusCode === 403) {
+      userMessage = 'MailerSend authentication failed. Check if MAILERSEND_API_KEY is correct.';
       console.error('⚠️  Authentication failed. Verify:');
-      console.error('   1. Email account exists in cPanel');
-      console.error('   2. Password is correct');
-      console.error('   3. Email account is active');
-    } else if (error.code === 'ECONNECTION') {
-      userMessage = 'Cannot connect to SMTP server. Check internet connection.';
+      console.error('   1. API key is correct');
+      console.error('   2. API key has not expired');
+      console.error('   3. MailerSend account is active');
+    } else if (error.statusCode === 422) {
+      userMessage = 'Invalid email parameters. Check sender and recipient email addresses.';
+      console.error('⚠️  Validation error. Verify:');
+      console.error('   1. Sender email is verified in MailerSend');
+      console.error('   2. Recipient email is valid');
     }
     
     return { success: false, error: userMessage };

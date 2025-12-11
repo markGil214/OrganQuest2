@@ -932,7 +932,7 @@ router.post('/create-class',
       const registrationUrl = `${process.env.CLIENT_URL || 'https://organ-quest2.vercel.app'}/#teacher-register/${registrationToken}`;
       
       console.log('📧 Attempting to send invitation email to:', teacher.email);
-      console.log('📧 SMTP configured:', !!(process.env.SMTP_USER && process.env.SMTP_PASSWORD));
+      console.log('📧 MailerSend configured:', !!process.env.MAILERSEND_API_KEY);
 
       // Send invitation email
       let emailResult;
