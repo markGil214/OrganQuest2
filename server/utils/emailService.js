@@ -1,34 +1,37 @@
 import nodemailer from 'nodemailer';
 
-// Create Gmail transporter
+// Create cPanel SMTP transporter
 let transporter = null;
 
-if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
+if (process.env.SMTP_USER && process.env.SMTP_PASSWORD) {
   try {
     transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'hari.fr.planethoster.net',
+      port: 465,
+      secure: true, // use SSL
       auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_APP_PASSWORD
+        user: process.env.SMTP_USER, // marco@nusa22.piscines-design.fr
+        pass: process.env.SMTP_PASSWORD
       }
     });
-    console.log('✅ Email service initialized with Gmail');
-    console.log('   Gmail User:', process.env.GMAIL_USER);
-    console.log('   App Password:', process.env.GMAIL_APP_PASSWORD ? '***configured***' : 'NOT SET');
+    console.log('✅ Email service initialized with cPanel SMTP');
+    console.log('   SMTP Host: hari.fr.planethoster.net');
+    console.log('   SMTP Port: 465 (SSL)');
+    console.log('   SMTP User:', process.env.SMTP_USER);
   } catch (error) {
-    console.error('❌ Failed to initialize Gmail transporter:', error.message);
+    console.error('❌ Failed to initialize SMTP transporter:', error.message);
   }
 } else {
-  console.warn('⚠️  Gmail not configured.');
-  console.warn('   GMAIL_USER:', process.env.GMAIL_USER ? 'SET' : 'NOT SET');
-  console.warn('   GMAIL_APP_PASSWORD:', process.env.GMAIL_APP_PASSWORD ? 'SET' : 'NOT SET');
+  console.warn('⚠️  SMTP not configured.');
+  console.warn('   SMTP_USER:', process.env.SMTP_USER ? 'SET' : 'NOT SET');
+  console.warn('   SMTP_PASSWORD:', process.env.SMTP_PASSWORD ? 'SET' : 'NOT SET');
 }
 
 export const sendTeacherInvitationEmail = async (teacherData) => {
   try {
     // Check if email service is configured
     if (!transporter) {
-      const error = 'Email service not configured. Check GMAIL_USER and GMAIL_APP_PASSWORD environment variables.';
+      const error = 'Email service not configured. Check SMTP_USER and SMTP_PASSWORD environment variables.';
       console.warn('⚠️ ', error);
       return { success: false, error };
     }
@@ -36,9 +39,9 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
     const { email, fullName, teacherCode, assignedGrade, section, registrationToken } = teacherData;
 
     // Verify transporter connection
-    console.log('🔍 Verifying Gmail connection...');
+    console.log('🔍 Verifying SMTP connection...');
     await transporter.verify();
-    console.log('✅ Gmail connection verified');
+    console.log('✅ SMTP connection verified');
 
     // Generate registration URL (use environment variable or default)
     const baseUrl = process.env.CLIENT_URL || 'https://organ-quest2.vercel.app';
@@ -118,16 +121,16 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
       </html>
     `;
 
-    // Send email via Gmail
+    // Send email via cPanel SMTP
     const mailOptions = {
-      from: `"OrganQuest" <${process.env.GMAIL_USER}>`,
+      from: `"OrganQuest" <${process.env.SMTP_USER}>`,
       to: email,
       subject: `Complete Your Teacher Registration - ${assignedGrade} Grade Section ${section}`,
       html: emailHtml,
     };
 
     console.log('📤 Sending email...');
-    console.log('   From:', process.env.GMAIL_USER);
+    console.log('   From:', process.env.SMTP_USER);
     console.log('   To:', email);
     console.log('   Subject:', mailOptions.subject);
 
@@ -155,13 +158,13 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
     // Provide specific error messages
     let userMessage = error.message;
     if (error.code === 'EAUTH' || error.responseCode === 535) {
-      userMessage = 'Gmail authentication failed. Check if GMAIL_APP_PASSWORD is correct and 2-Step Verification is enabled.';
+      userMessage = 'SMTP authentication failed. Check if SMTP_USER and SMTP_PASSWORD are correct.';
       console.error('⚠️  Authentication failed. Verify:');
-      console.error('   1. 2-Step Verification is enabled on Gmail account');
-      console.error('   2. App Password is generated from myaccount.google.com/apppasswords');
-      console.error('   3. App Password has no spaces');
+      console.error('   1. Email account exists in cPanel');
+      console.error('   2. Password is correct');
+      console.error('   3. Email account is active');
     } else if (error.code === 'ECONNECTION') {
-      userMessage = 'Cannot connect to Gmail servers. Check internet connection.';
+      userMessage = 'Cannot connect to SMTP server. Check internet connection.';
     }
     
     return { success: false, error: userMessage };
