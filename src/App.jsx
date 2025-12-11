@@ -74,12 +74,21 @@ function App() {
                                  currentHash.startsWith('interactive/') ||
                                  currentHash.startsWith('teacher-register/');
       
+      console.log('=== AUTH CHECK ===');
+      console.log('currentHash:', currentHash);
+      console.log('allowedWithoutAuth:', allowedWithoutAuth);
+      console.log('startsWith teacher-register/:', currentHash.startsWith('teacher-register/'));
+      
       if (!allowedWithoutAuth && (!currentHash || currentHash === 'home')) {
+        console.log('Redirecting to login: empty or home');
         window.location.hash = 'login';
       } else if (!allowedWithoutAuth && currentHash && currentHash !== 'login' && currentHash !== 'register') {
         // Store the intended destination and redirect to login
+        console.log('Redirecting to login: protected route');
         sessionStorage.setItem('redirectAfterLogin', currentHash);
         window.location.hash = 'login';
+      } else {
+        console.log('Access allowed');
       }
       // Allow register route and interactive viewer to work without authentication
     }
