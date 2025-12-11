@@ -117,8 +117,7 @@ const TimedChallengeQuiz = () => {
     const isCorrect = answerIndex === currentQ.correct;
 
     if (isCorrect) {
-      const timeBonus = Math.max(1, Math.floor(timeLeft / 10)); // Bonus points for speed
-      setScore(score + 10 + timeBonus);
+      setScore(score + 1); // 1 point per correct answer
       setCorrectCount(correctCount + 1);
       setStreak(streak + 1);
       setBestStreak(Math.max(bestStreak, streak + 1));
@@ -150,10 +149,10 @@ const TimedChallengeQuiz = () => {
   };
 
   const getScoreRating = () => {
-    if (score >= 200) return { emoji: '🏆', message: 'AMAZING!', color: '#FFD700' };
-    if (score >= 150) return { emoji: '🌟', message: 'EXCELLENT!', color: '#4ECDC4' };
-    if (score >= 100) return { emoji: '🎉', message: 'GREAT JOB!', color: '#9B59B6' };
-    if (score >= 50) return { emoji: '👍', message: 'GOOD WORK!', color: '#3498DB' };
+    if (score >= 20) return { emoji: '🏆', message: 'AMAZING!', color: '#FFD700' };
+    if (score >= 15) return { emoji: '🌟', message: 'EXCELLENT!', color: '#4ECDC4' };
+    if (score >= 10) return { emoji: '🎉', message: 'GREAT JOB!', color: '#9B59B6' };
+    if (score >= 5) return { emoji: '👍', message: 'GOOD WORK!', color: '#3498DB' };
     return { emoji: '💪', message: 'KEEP TRYING!', color: '#E67E22' };
   };
 
