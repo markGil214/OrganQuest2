@@ -105,12 +105,12 @@ const TeacherRegister = () => {
 
         const loginData = await loginResponse.json();
 
-        if (loginData.success && loginData.user) {
-          localStorage.setItem('authToken', loginData.token);
-          localStorage.setItem('userRole', loginData.user.role);
-          localStorage.setItem('userId', loginData.user._id);
+        if (loginData.success && loginData.data && loginData.data.user) {
+          localStorage.setItem('authToken', loginData.data.token);
+          localStorage.setItem('userRole', loginData.data.user.role);
+          localStorage.setItem('userId', loginData.data.user.id);
           
-          toast.success('Logged in successfully!');
+          toast.success('Registration completed! Logging you in...');
           
           // Navigate to teacher dashboard
           setTimeout(() => {
