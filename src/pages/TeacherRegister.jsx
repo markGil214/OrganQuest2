@@ -81,6 +81,11 @@ const TeacherRegister = () => {
         })
       });
 
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Server error' }));
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
 
       if (data.success) {
@@ -100,14 +105,17 @@ const TeacherRegister = () => {
 
         const loginData = await loginResponse.json();
 
-        if (loginData.success) {
+        if (loginData.success && loginData.user) {
           localStorage.setItem('authToken', loginData.token);
           localStorage.setItem('userRole', loginData.user.role);
           localStorage.setItem('userId', loginData.user._id);
           
+          toast.success('Logged in successfully!');
+          
           // Navigate to teacher dashboard
           setTimeout(() => {
             window.location.hash = 'admin/dashboard';
+            window.location.reload(); // Force reload to update app state
           }, 1000);
         } else {
           // If auto-login fails, redirect to login page
