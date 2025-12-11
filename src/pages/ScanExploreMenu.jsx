@@ -25,7 +25,8 @@ const ScanExploreMenu = () => {
       funFact: 'Your heart beats all day!',
       description: 'The heart is your body\'s amazing pump!',
       didYouKnow: ['It beats 100,000 times a day!', 'It\'s about the size of your fist!'],
-      sound: 'thump'
+      sound: 'thump',
+      hasCrossSection: true
     },
     {
       id: 'brain',
@@ -35,7 +36,8 @@ const ScanExploreMenu = () => {
       funFact: 'Your brain controls everything!',
       description: 'The brain is your control center!',
       didYouKnow: ['It never stops working, even when you sleep!', 'It has billions of tiny helpers called neurons!'],
-      sound: 'zap'
+      sound: 'zap',
+      hasCrossSection: true
     },
     {
       id: 'lungs',
@@ -45,7 +47,8 @@ const ScanExploreMenu = () => {
       funFact: 'Your lungs help you breathe!',
       description: 'Lungs give you fresh air to live!',
       didYouKnow: ['You breathe about 20,000 times a day!', 'They\'re like balloons that fill with air!'],
-      sound: 'whoosh'
+      sound: 'whoosh',
+      hasCrossSection: true
     },
     {
       id: 'liver',
@@ -55,7 +58,8 @@ const ScanExploreMenu = () => {
       funFact: 'Your liver cleans your body!',
       description: 'The liver is your body\'s cleaner!',
       didYouKnow: ['It can fix itself if it gets hurt!', 'It makes bile to help digest food!'],
-      sound: 'clean'
+      sound: 'clean',
+      hasCrossSection: true
     },
     {
       id: 'kidney',
@@ -65,107 +69,8 @@ const ScanExploreMenu = () => {
       funFact: 'Your kidneys filter your blood!',
       description: 'Kidneys are your body\'s filters!',
       didYouKnow: ['You have two kidneys!', 'They clean 50 gallons of blood every day!'],
-      sound: 'filter'
-    },
-    {
-      id: 'eyes',
-      name: organText.eyes,
-      icon: '/organs/eyes.png', // Using brain icon as closest match
-      color: '#3742fa',
-      funFact: 'Your eyes see millions of colors!',
-      description: 'Eyes are your windows to the world!',
-      didYouKnow: ['You can see 10 million different colors!', 'Your eyes move 50 times per second when reading!'],
-      sound: 'blink'
-    },
-    {
-      id: 'stomach',
-      name: organText.stomach,
-      icon: '/organs/stomach.png',
-      color: '#ff6348',
-      funFact: 'Your stomach churns food like a mixer!',
-      description: 'The stomach breaks down your food!',
-      didYouKnow: ['It can hold up to 4 liters of food!', 'Stomach acid is super strong - it could dissolve metal!'],
-      sound: 'gurgle'
-    },
-    {
-      id: 'intestine',
-      name: organText.intestine,
-      icon: '/organs/intestine.png',
-      color: '#f39c12',
-      funFact: 'Your intestines are 20 feet long!',
-      description: 'Intestines absorb nutrients from food!',
-      didYouKnow: ['Your small intestine is like a long winding road!', 'It has millions of tiny helpers called villi!'],
-      sound: 'process'
-    },
-    {
-      id: 'pancreas',
-      name: organText.pancreas,
-      icon: '/organs/pancreas.png',
-      color: '#e17055',
-      funFact: 'Your pancreas makes insulin!',
-      description: 'The pancreas helps control your blood sugar!',
-      didYouKnow: ['It\'s both an organ AND a gland!', 'It makes special juice to help digest food!'],
-      sound: 'bubble'
-    },
-    {
-      id: 'spleen',
-      name: organText.spleen,
-      icon: '/organs/spleen.png',
-      color: '#6c5ce7',
-      funFact: 'Your spleen filters blood!',
-      description: 'The spleen helps fight germs!',
-      didYouKnow: ['It stores red blood cells for emergencies!', 'It filters blood like a coffee filter!'],
-      sound: 'filter'
-    },
-    {
-      id: 'diaphragm',
-      name: organText.diaphragm,
-      icon: '/organs/diaphragm.png',
-      color: '#00b894',
-      funFact: 'Your main breathing muscle!',
-      description: 'The diaphragm helps you breathe!',
-      didYouKnow: ['It moves up and down 20,000 times a day!', 'It\'s controlled by nerves from your neck!'],
-      sound: 'breathe'
-    },
-    {
-      id: 'bladder',
-      name: organText.bladder,
-      icon: '/organs/bladder.png',
-      color: '#f39c12',
-      funFact: 'Your body\'s storage tank!',
-      description: 'The bladder stores urine until you\'re ready to go!',
-      didYouKnow: ['It can hold up to 2 cups of liquid!', 'It\'s made of stretchy muscle like a balloon!'],
-      sound: 'drop'
-    },
-    {
-      id: 'thyroid',
-      name: organText.thyroidGland,
-      icon: '/organs/thyroid-gland.png',
-      color: '#ff6b9d',
-      funFact: 'Your butterfly-shaped energy controller!',
-      description: 'The thyroid controls how fast your body works!',
-      didYouKnow: ['It\'s shaped like a butterfly in your neck!', 'It helps you grow and gives you energy!'],
-      sound: 'flutter'
-    },
-    {
-      id: 'tongue',
-      name: organText.tongue,
-      icon: '/organs/tongue.png',
-      color: '#fd79a8',
-      funFact: 'Your amazing taste detector!',
-      description: 'The tongue helps you taste, eat, and talk!',
-      didYouKnow: ['It has 10,000 tiny taste buds!', 'It\'s one of your strongest muscles!'],
-      sound: 'lick'
-    },
-    {
-      id: 'pelvis',
-      name: organText.pelvisFemur,
-      icon: '/organs/pelvis-femur.png',
-      color: '#a29bfe',
-      funFact: 'Your body\'s strong foundation!',
-      description: 'These bones support your whole body!',
-      didYouKnow: ['Your femur is the longest bone in your body!', 'They help you walk, run, and jump!'],
-      sound: 'bone'
+      sound: 'filter',
+      hasCrossSection: true
     }
   ];
 
@@ -317,14 +222,16 @@ const ScanExploreMenu = () => {
               {scanText.exploreInAR} {selectedOrgan.name} in AR!
             </Button>
 
-            <Button
-              onClick={() => window.location.hash = `interactive/${selectedOrgan.id}`}
-              className="w-full bg-gradient-to-r from-blue-500 via-cyan-500 to-teal-500 hover:from-blue-600 hover:via-cyan-600 hover:to-teal-600 text-white font-black text-lg md:text-xl py-7 rounded-2xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-95 border-2 border-white/30"
-              size="lg"
-            >
-              <span className="mr-2 text-2xl">🔬</span>
-              {scanText.exploreCrossSection}
-            </Button>
+            {selectedOrgan.hasCrossSection && (
+              <Button
+                onClick={() => window.location.hash = `interactive/${selectedOrgan.id}`}
+                className="w-full bg-gradient-to-r from-blue-500 via-cyan-500 to-teal-500 hover:from-blue-600 hover:via-cyan-600 hover:to-teal-600 text-white font-black text-lg md:text-xl py-7 rounded-2xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-95 border-2 border-white/30"
+                size="lg"
+              >
+                <span className="mr-2 text-2xl">🔬</span>
+                {scanText.exploreCrossSection}
+              </Button>
+            )}
           </Card>
         </div>
       </div>
