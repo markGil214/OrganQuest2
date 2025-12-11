@@ -23,6 +23,7 @@ const TimedChallengeQuiz = () => {
   const [questions, setQuestions] = useState([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
+  const [wrongAnswers, setWrongAnswers] = useState(0);
   const [timeLeft, setTimeLeft] = useState(60);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [isAnswered, setIsAnswered] = useState(false);
@@ -66,6 +67,7 @@ const TimedChallengeQuiz = () => {
       const TOTAL_QUESTIONS = 75; // Total available questions in the pool
       const MAX_TIME = 60; // Maximum time allowed in seconds
       const MAX_BONUS = 40; // Maximum time bonus percentage
+      const WRONG_PENALTY = 10; // Penalty per wrong answer
       
       const questionsAnswered = currentQuestion + 1;
       const correctAnswers = Math.floor(score / 10); // Each correct = 10 base points
@@ -77,8 +79,11 @@ const TimedChallengeQuiz = () => {
       const timeUsed = 60 - timeLeft;
       const timeBonus = MAX_BONUS * (1 - (timeUsed / MAX_TIME));
       
-      // Final percentage capped at 100
-      const finalPercentage = Math.min(100, Math.round(rawPercentage + timeBonus));
+      // Wrong answer penalty: -10% per wrong answer
+      const wrongPenalty = wrongAnswers * WRONG_PENALTY;
+      
+      // Final percentage: Raw% + TimeBonus% - WrongPenalty%, capped at 0-100
+      const finalPercentage = Math.max(0, Math.min(100, Math.round(rawPercentage + timeBonus - wrongPenalty)));
 
       const quizData = {
         quizType: 'timed-challenge',
@@ -103,6 +108,7 @@ const TimedChallengeQuiz = () => {
     setGameState('playing');
     setCurrentQuestion(0);
     setScore(0);
+    setWrongAnswers(0);
     setTimeLeft(60);
     setSelectedAnswer(null);
     setIsAnswered(false);
@@ -119,7 +125,6 @@ const TimedChallengeQuiz = () => {
 
     const currentQ = questions[currentQuestion];
     const isCorrect = answerIndex === currentQ.correct;
-
     if (isCorrect) {
       const timeBonus = Math.max(1, Math.floor(timeLeft / 10)); // Bonus points for speed
       setScore(score + 10 + timeBonus);
@@ -127,6 +132,8 @@ const TimedChallengeQuiz = () => {
       setBestStreak(Math.max(bestStreak, streak + 1));
     } else {
       setStreak(0);
+      setWrongAnswers(wrongAnswers + 1);
+    } setStreak(0);
     }
 
     // Move to next question after short delay
@@ -338,15 +345,15 @@ const TimedChallengeQuiz = () => {
             borderRadius: '15px',
             padding: 'clamp(1rem, 3vw, 1.5rem)',
             marginBottom: '2rem'
-          }}>
             <div style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)', marginBottom: '0.5rem' }}>
-              Correct: {Math.floor(score / 10)} / 75 questions ✅
+              Correct: {Math.floor(score / 10)} / 75 ✅ | Wrong: {wrongAnswers} ❌
             </div>
             <div style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)', marginBottom: '0.5rem' }}>
               Best Streak: {bestStreak} 🔥
             </div>
             <div style={{ fontSize: 'clamp(0.85rem, 2.5vw, 1rem)', opacity: 0.8 }}>
-              Time: {60 - timeLeft} seconds
+              Time: {60 - timeLeft}s | Penalty: -{wrongAnswers * 10}%
+            </div>: {60 - timeLeft} seconds
             </div>
           </div>
           
