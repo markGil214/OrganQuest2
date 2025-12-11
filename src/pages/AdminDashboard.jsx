@@ -1415,11 +1415,11 @@ const AdminDashboard = ({ userData, onLogout }) => {
                               } else if (result.score !== undefined && result.totalQuestions) {
                                 scoreValue = Math.round((result.score / result.totalQuestions) * 100);
                               }
-                              const timeInSeconds = result.timeTaken || 0;
+                              const timeInMinutes = result.timeTaken ? (result.timeTaken / 60).toFixed(2) : 0;
                               return {
                                 attempt: index + 1,
                                 score: scoreValue,
-                                time: timeInSeconds,
+                                time: parseFloat(timeInMinutes),
                                 attemptLabel: `Attempt ${index + 1}`
                               };
                             });
@@ -1439,7 +1439,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
                             <YAxis 
                               yAxisId="right"
                               orientation="right"
-                              label={{ value: 'Time (seconds)', angle: 90, position: 'insideRight' }}
+                              label={{ value: 'Time (minutes)', angle: 90, position: 'insideRight' }}
                               stroke="#8b5cf6"
                             />
                             <Legend />
@@ -1459,7 +1459,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
                               stroke="#8b5cf6" 
                               strokeWidth={3}
                               dot={{ fill: '#8b5cf6', r: 5 }}
-                              name="Time (s)"
+                              name="Time (min)"
                             />
                           </LineChart>
                         </ResponsiveContainer>
