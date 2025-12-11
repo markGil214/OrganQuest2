@@ -50,6 +50,8 @@ const TeacherRegister = () => {
     e.preventDefault();
     setError(null);
 
+    console.log('=== REGISTRATION STARTED ===');
+
     // Validation
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
@@ -69,6 +71,7 @@ const TeacherRegister = () => {
     setSubmitting(true);
 
     try {
+      console.log('Calling complete-registration endpoint...');
       const response = await fetch(`${API_URL}/api/admin/complete-registration`, {
         method: 'POST',
         headers: {
@@ -81,12 +84,16 @@ const TeacherRegister = () => {
         })
       });
 
+      console.log('Complete-registration response status:', response.status);
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: 'Server error' }));
+        console.error('Registration failed:', errorData);
         throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log('Registration response:', data);
 
       if (data.success) {
         toast.success('Registration completed successfully!');
@@ -139,10 +146,12 @@ const TeacherRegister = () => {
         }
       } else {
         setError(data.message || 'Registration failed');
+        console.error('Registration failed:', data.message);
       }
     } catch (err) {
       setError('An error occurred during registration');
       console.error('Registration error:', err);
+      toast.error(err.message || 'Registration failed');
     } finally {
       setSubmitting(false);
     }
