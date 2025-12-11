@@ -502,6 +502,40 @@ router.delete('/students/:studentId',
   }
 );
 
+// @route   DELETE /api/Teacher/students/bulk/all
+// @desc    Delete all students (Teacher/Superuser)
+// @access  Teacher/Superuser
+router.delete('/students/bulk/all',
+  authMiddleware,
+  teacherMiddleware,
+  async (req, res) => {
+    try {
+      // Build query based on user role
+      let query = { role: 'student' };
+      
+      // If teacher (not superuser), only delete students from their section
+      if (req.userRole === 'teacher' && req.assignedSection && req.assignedSection !== 'all') {
+        query.section = req.assignedSection;
+      }
+
+      const result = await User.deleteMany(query);
+
+      res.json({
+        success: true,
+        message: `Successfully deleted ${result.deletedCount} student(s)`,
+        deletedCount: result.deletedCount
+      });
+    } catch (error) {
+      console.error('Bulk delete students error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error deleting students',
+        error: error.message
+      });
+    }
+  }
+);
+
 // @route   DELETE /api/Teacher/admins/:id
 // @desc    Delete admin (Superuser only)
 // @access  Superuser

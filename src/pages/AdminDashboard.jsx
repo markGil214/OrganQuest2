@@ -272,6 +272,45 @@ const AdminDashboard = ({ userData, onLogout }) => {
     }
   };
 
+  const handleBulkDeleteStudents = () => {
+    const message = userData?.role === 'teacher' && userData?.assignedSection && userData?.assignedSection !== 'all'
+      ? `Are you sure you want to delete ALL students from Section ${userData.assignedSection}? This action cannot be undone!`
+      : 'Are you sure you want to delete ALL students? This action cannot be undone!';
+    
+    if (!window.confirm(message)) return;
+    
+    // Double confirmation
+    if (!window.confirm('⚠️ FINAL WARNING: This will permanently delete all student accounts and their data. Are you absolutely sure?')) return;
+    
+    bulkDeleteStudents();
+  };
+
+  const bulkDeleteStudents = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${API_URL}/api/admin/students/bulk/all`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      if (data.success) {
+        toast?.success(data.message || `Successfully deleted ${data.deletedCount} student(s)`);
+        fetchStudents();
+        if (selectedClassData) {
+          // Refresh class students list
+          setClassStudents([]);
+        }
+      } else {
+        toast?.error(data.message || 'Failed to delete students');
+      }
+    } catch (error) {
+      console.error('Error bulk deleting students:', error);
+      toast?.error('Failed to delete students');
+    }
+  };
+
   const viewClassDetails = async (classData) => {
     try {
       const token = localStorage.getItem('authToken');
@@ -488,7 +527,18 @@ const AdminDashboard = ({ userData, onLogout }) => {
 
           {/* Students List */}
           <Card className="p-6">
-            <h3 className="text-2xl font-bold mb-4">👥 Students ({classStudents.length})</h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-2xl font-bold">👥 Students ({classStudents.length})</h3>
+              {classStudents.length > 0 && (
+                <Button
+                  onClick={handleBulkDeleteStudents}
+                  variant="outline"
+                  className="border-red-500 text-red-600 hover:bg-red-50"
+                >
+                  🗑️ Delete All Students
+                </Button>
+              )}
+            </div>
             {classStudents.length === 0 ? (
               <div className="text-center py-12 text-gray-500">
                 <p className="text-lg">No students enrolled in this class yet</p>
