@@ -632,17 +632,17 @@
         camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         camera.position.set(0, 0, 5);
 
-        // Renderer - optimized for performance
+        // Renderer
         renderer = new THREE.WebGLRenderer({ 
-          antialias: false, // Disable for better performance
+          antialias: true, 
           alpha: true,
-          powerPreference: "high-performance",
-          precision: "mediump" // Use medium precision
+          powerPreference: "high-performance"
         });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // Limit pixel ratio
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.outputEncoding = THREE.sRGBEncoding;
-        renderer.shadowMap.enabled = false; // Disable shadows for performance
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         document.getElementById('threejs-container').appendChild(renderer.domElement);
 
         // Controls
@@ -720,29 +720,13 @@
             model.scale.set(config.scale.x, config.scale.y, config.scale.z);
             model.position.set(0, config.position.y, 0);
 
-            // Enable shadows, optimize performance, and make parts clickable
+            // Enable shadows and make parts clickable
             model.traverse((child) => {
               if (child.isMesh) {
                 child.castShadow = true;
                 child.receiveShadow = true;
                 
-                // Optimize geometry for large models
-                if (child.geometry && child.geometry.attributes.position) {
-                  const vertexCount = child.geometry.attributes.position.count;
-                  if (vertexCount > 50000) {
-                    child.geometry.setDrawRange(0, Math.floor(vertexCount * 0.5));
-                  }
-                }
-                
                 if (child.material) {
-                  // Reduce texture quality for better performance
-                  child.material.precision = 'lowp';
-                  if (child.material.map) {
-                    child.material.map.minFilter = THREE.NearestFilter;
-                    child.material.map.magFilter = THREE.NearestFilter;
-                    child.material.map.anisotropy = 1;
-                  }
-                  
                   // Ensure material has proper properties
                   if (!child.material.color) {
                     child.material.color = new THREE.Color(0xffffff);
@@ -754,9 +738,6 @@
                   // Store original material for hover effect
                   child.userData.originalColor = child.material.color.clone();
                 }
-
-                // Enable frustum culling
-                child.frustumCulled = true;
 
                 // Make this part clickable
                 clickableParts.push(child);
