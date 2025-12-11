@@ -100,6 +100,14 @@ const QuizContainer = () => {
       
       if (response.ok && data.success) {
         setAssignmentData(data.data);
+        
+        // Check if student has exceeded attempt limit
+        if (data.data.attemptsMade >= data.data.maxAttempts) {
+          setIsBlocked(true);
+          setIsLoading(false);
+          return;
+        }
+        
         // Set custom questions if available
         if (data.data.customQuestions && data.data.customQuestions.length > 0) {
           const formattedQuestions = data.data.customQuestions.map(q => ({
@@ -374,7 +382,57 @@ const QuizContainer = () => {
     );
   }
 
-  // Removed quiz blocking - users can take quiz unlimited times
+  // Show blocked message if attempt limit reached
+  if (isBlocked) {
+    return (
+      <div style={{ 
+        minHeight: '100vh', 
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        padding: '2rem'
+      }}>
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: '30px',
+          padding: '3rem',
+          textAlign: 'center',
+          maxWidth: '500px',
+          color: 'white'
+        }}>
+          <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🔒</div>
+          <h2 style={{ fontSize: '2rem', marginBottom: '1rem', fontWeight: 'bold' }}>Quiz Locked</h2>
+          <p style={{ fontSize: '1.125rem', marginBottom: '1.5rem', opacity: 0.9 }}>
+            You have reached the maximum number of attempts ({assignmentData?.maxAttempts || 0}) for this quiz.
+          </p>
+          <p style={{ fontSize: '1rem', marginBottom: '2rem', opacity: 0.8 }}>
+            Attempts made: {assignmentData?.attemptsMade || 0} / {assignmentData?.maxAttempts || 0}
+          </p>
+          <button
+            onClick={() => window.location.href = '#quiz'}
+            style={{
+              padding: '1rem 2rem',
+              fontSize: '1.125rem',
+              background: 'white',
+              color: '#667eea',
+              border: 'none',
+              borderRadius: '15px',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              transition: 'transform 0.2s',
+              fontFamily: '"Montserrat", sans-serif'
+            }}
+            onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
+            onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+          >
+            Back to Quiz Menu
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (quizCompleted) {
     const scoreInfo = getScoreMessage();

@@ -290,6 +290,16 @@ router.post('/submit/:assignmentId', authMiddleware, async (req, res) => {
       s => s.studentId.toString() === req.userId.toString()
     );
     
+    // Check if student has exceeded attempt limit
+    if (previousAttempts.length >= assignment.maxAttempts) {
+      return res.status(403).json({
+        success: false,
+        message: `You have reached the maximum number of attempts (${assignment.maxAttempts}) for this quiz.`,
+        attemptsMade: previousAttempts.length,
+        maxAttempts: assignment.maxAttempts
+      });
+    }
+    
     // Add submission
     assignment.studentSubmissions.push({
       studentId: req.userId,
