@@ -486,57 +486,54 @@ const AdminDashboard = ({ userData, onLogout }) => {
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b-2 border-gray-200 bg-gray-50">
-                      <th className="text-left p-3 font-semibold text-gray-700">Student</th>
-                      <th className="text-left p-3 font-semibold text-gray-700">Age</th>
-                      <th className="text-left p-3 font-semibold text-gray-700">Quizzes Taken</th>
-                      <th className="text-left p-3 font-semibold text-gray-700">Avg Score</th>
-                      <th className="text-left p-3 font-semibold text-gray-700">Actions</th>
+                <table className="min-w-full bg-white rounded-lg overflow-hidden">
+                  <thead className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+                    <tr>
+                      <th className="px-6 py-4 text-left font-bold">Student Name</th>
+                      <th className="px-6 py-4 text-left font-bold">Grade</th>
+                      <th className="px-6 py-4 text-left font-bold">Section</th>
+                      <th className="px-6 py-4 text-left font-bold">Total Quizzes</th>
+                      <th className="px-6 py-4 text-left font-bold">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {classStudents.map((student) => {
-                      const avgScore = student.quizResults.length > 0 
-                        ? Math.round(student.quizResults.reduce((sum, q) => sum + (q.score / q.totalQuestions * 100), 0) / student.quizResults.length)
-                        : 0;
-                      
-                      return (
-                        <tr key={student._id} className="border-b border-gray-100 hover:bg-gray-50">
-                          <td className="p-3">
+                    {classStudents.map((student, index) => (
+                      <tr 
+                        key={student._id} 
+                        className={`border-b hover:bg-purple-50 transition-colors ${
+                          index % 2 === 0 ? 'bg-gray-50' : 'bg-white'
+                        }`}
+                      >
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-bold">
+                              {student.fullName.charAt(0)}
+                            </div>
                             <div>
-                              <div className="font-medium text-gray-900">{student.fullName}</div>
+                              <div className="font-semibold text-gray-800">{student.fullName}</div>
                               <div className="text-sm text-gray-500">@{student.username}</div>
                             </div>
-                          </td>
-                          <td className="p-3">
-                            <span className="text-gray-700">{student.age}</span>
-                          </td>
-                          <td className="p-3">
-                            <span className="font-semibold text-blue-600">{student.stats.totalQuizzesTaken}</span>
-                          </td>
-                          <td className="p-3">
-                            {student.quizResults.length > 0 ? (
-                              <span className={`text-xl font-bold ${avgScore >= 80 ? 'text-green-600' : avgScore >= 60 ? 'text-yellow-600' : 'text-red-600'}`}>
-                                {avgScore}%
-                              </span>
-                            ) : (
-                              <span className="text-gray-400 text-sm">No data</span>
-                            )}
-                          </td>
-                          <td className="p-3">
-                            <Button
-                              size="sm"
-                              onClick={() => viewStudentDetails(student._id)}
-                              className="bg-blue-500 hover:bg-blue-600 text-white"
-                            >
-                              📊 Details
-                            </Button>
-                          </td>
-                        </tr>
-                      );
-                    })}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-gray-700">{student.grade}</td>
+                        <td className="px-6 py-4 text-gray-700">{student.section || '-'}</td>
+                        <td className="px-6 py-4 text-gray-700">{student.stats.totalQuizzesTaken || 0}</td>
+                        <td className="px-6 py-4 flex gap-2">
+                          <Button
+                            onClick={() => viewStudentDetails(student._id)}
+                            className="bg-blue-500 hover:bg-blue-600 text-white text-sm"
+                          >
+                            📊 View Progress
+                          </Button>
+                          <Button
+                            onClick={() => handleDeleteStudent(student._id, student.fullName)}
+                            className="bg-red-500 hover:bg-red-600 text-white text-sm"
+                          >
+                            🗑️ Delete
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
