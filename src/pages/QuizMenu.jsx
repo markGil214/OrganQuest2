@@ -40,6 +40,13 @@ const QuizMenu = () => {
   ];
 
   const handleCardClick = (quizType) => {
+    // Memory matching always goes to solo mode directly
+    if (quizType.id === 'memory') {
+      window.location.href = `#${quizType.route}`;
+      return;
+    }
+    
+    // Other quiz types show mode selector
     setSelectedQuizType(quizType);
     setShowModeSelector(true);
   };
