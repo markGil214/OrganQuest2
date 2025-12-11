@@ -35,7 +35,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
   const [studentQuizDetails, setStudentQuizDetails] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState(null);
-  const [activeTab, setActiveTab] = useState('classes'); // classes, analytics, quiz-management
+  const [activeTab, setActiveTab] = useState(userData?.role === 'superuser' ? 'classes' : 'students'); // superuser starts with classes, teacher with students
   const [questionPage, setQuestionPage] = useState(1);
   const questionsPerPage = 10;
   
@@ -571,15 +571,27 @@ const AdminDashboard = ({ userData, onLogout }) => {
       {/* Tab Navigation */}
       <div className="max-w-7xl mx-auto mb-6">
         <div className="flex gap-2 bg-white rounded-lg p-2 shadow-md">
+          {userData?.role === 'superuser' && (
+            <button
+              onClick={() => setActiveTab('classes')}
+              className={`flex-1 py-3 px-6 rounded-lg font-semibold transition-all ${
+                activeTab === 'classes'
+                  ? 'bg-purple-600 text-white shadow-md'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              🏫 Classes
+            </button>
+          )}
           <button
-            onClick={() => setActiveTab('classes')}
+            onClick={() => setActiveTab('students')}
             className={`flex-1 py-3 px-6 rounded-lg font-semibold transition-all ${
-              activeTab === 'classes'
+              activeTab === 'students'
                 ? 'bg-purple-600 text-white shadow-md'
                 : 'text-gray-600 hover:bg-gray-100'
             }`}
           >
-            🏫 Classes
+            👥 Students
           </button>
           <button
             onClick={() => {
