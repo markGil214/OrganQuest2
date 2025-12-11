@@ -314,7 +314,11 @@ const AdminDashboard = ({ userData, onLogout }) => {
       const data = await response.json();
 
       if (data.success) {
-        toast.success('Class created successfully!');
+        if (data.emailSent) {
+          toast.success('✅ Class created! Invitation email sent to teacher.');
+        } else {
+          toast.warning('⚠️ Class created but email failed to send!', { duration: 5000 });
+        }
         
         // Always show registration URL
         if (data.registrationUrl) {
@@ -323,12 +327,17 @@ const AdminDashboard = ({ userData, onLogout }) => {
           
           // Show registration URL
           setTimeout(() => {
+            const emailStatus = data.emailSent 
+              ? '✅ Email sent successfully!' 
+              : '⚠️ Email failed - please share manually';
+            
             alert(
-              `✅ CLASS CREATED SUCCESSFULLY\n\n` +
-              `Please share this registration link with ${classFormData.fullName}:\n\n` +
+              `CLASS CREATED SUCCESSFULLY\n\n` +
+              `${emailStatus}\n\n` +
+              `Registration link for ${classFormData.fullName}:\n\n` +
               `${data.registrationUrl}\n\n` +
               `(Link copied to clipboard)\n\n` +
-              `The teacher can use this link to complete their registration.`
+              `${data.emailSent ? 'Teacher will receive an email with this link.' : 'Please send this link to the teacher via other means.'}`
             );
           }, 500);
         }

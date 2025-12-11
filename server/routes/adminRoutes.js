@@ -3,6 +3,7 @@ import { body, validationResult } from 'express-validator';
 import crypto from 'crypto';
 import User from '../models/User.js';
 import { authMiddleware, teacherMiddleware, superuserMiddleware } from '../middleware/auth.js';
+import { sendTeacherInvitationEmail } from '../utils/emailService.js';
 
 const router = express.Router();
 
@@ -927,16 +928,43 @@ router.post('/create-class',
 
       await teacher.save();
 
-      // Generate registration URL for manual sharing
+      // Generate registration URL
       const registrationUrl = `${process.env.CLIENT_URL || 'https://organ-quest2.vercel.app'}/#teacher-register/${registrationToken}`;
       
-      console.log('✅ Class created successfully');
-      console.log('📋 Registration URL:', registrationUrl);
+      console.log('📧 Attempting to send invitation email to:', teacher.email);
+      console.log('📧 SMTP configured:', !!(process.env.SMTP_USER && process.env.SMTP_PASSWORD));
+
+      // Send invitation email
+      let emailResult;
+      try {
+        emailResult = await sendTeacherInvitationEmail({
+          email: teacher.email,
+          fullName: teacher.fullName,
+          teacherCode: teacher.teacherCode,
+          assignedGrade: teacher.assignedGrade,
+          section: teacher.section,
+          registrationToken: registrationToken
+        });
+
+        if (emailResult.success) {
+          console.log('✅ Email sent successfully to:', teacher.email);
+        } else {
+          console.error('❌ Failed to send invitation email:', emailResult.error);
+          console.log('📋 Registration URL (share manually):', registrationUrl);
+        }
+      } catch (err) {
+        console.error('❌ Email error:', err);
+        console.log('📋 Registration URL (share manually):', registrationUrl);
+        emailResult = { success: false, error: err.message };
+      }
 
       // Respond with result
       res.status(201).json({
         success: true,
-        message: 'Class created successfully. Share the registration URL with the teacher.',
+        message: emailResult.success 
+          ? 'Class created successfully. Invitation email sent to teacher.'
+          : 'Class created successfully. Email failed - please share the registration URL manually.',
+        emailSent: emailResult.success,
         registrationUrl: registrationUrl,
         data: {
           teacher: {
