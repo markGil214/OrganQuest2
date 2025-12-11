@@ -463,6 +463,40 @@ router.put('/admins/:id',
   }
 );
 
+// @route   DELETE /api/Teacher/students/:studentId
+// @desc    Delete student (Teacher/Superuser)
+// @access  Teacher/Superuser
+router.delete('/students/:studentId',
+  authMiddleware,
+  teacherMiddleware,
+  async (req, res) => {
+    try {
+      const student = await User.findById(req.params.studentId);
+
+      if (!student || student.role !== 'student') {
+        return res.status(404).json({
+          success: false,
+          message: 'Student not found'
+        });
+      }
+
+      await User.findByIdAndDelete(req.params.studentId);
+
+      res.json({
+        success: true,
+        message: 'Student deleted successfully'
+      });
+    } catch (error) {
+      console.error('Delete student error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error deleting student',
+        error: error.message
+      });
+    }
+  }
+);
+
 // @route   DELETE /api/Teacher/admins/:id
 // @desc    Delete admin (Superuser only)
 // @access  Superuser
