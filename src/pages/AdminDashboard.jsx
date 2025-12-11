@@ -38,6 +38,14 @@ const AdminDashboard = ({ userData, onLogout }) => {
   const [activeTab, setActiveTab] = useState('classes'); // classes, analytics, quiz-management
   const [questionPage, setQuestionPage] = useState(1);
   const questionsPerPage = 10;
+  
+  // Registration URL Modal state
+  const [showRegistrationModal, setShowRegistrationModal] = useState(false);
+  const [registrationModalData, setRegistrationModalData] = useState({
+    teacherName: '',
+    registrationUrl: '',
+    emailSent: false
+  });
 
   const API_URL = import.meta.env.VITE_API_URL || 'https://organquest2.onrender.com';
 
@@ -325,21 +333,13 @@ const AdminDashboard = ({ userData, onLogout }) => {
           // Copy to clipboard
           navigator.clipboard.writeText(data.registrationUrl);
           
-          // Show registration URL
-          setTimeout(() => {
-            const emailStatus = data.emailSent 
-              ? '✅ Email sent successfully!' 
-              : '⚠️ Email failed - please share manually';
-            
-            alert(
-              `CLASS CREATED SUCCESSFULLY\n\n` +
-              `${emailStatus}\n\n` +
-              `Registration link for ${classFormData.fullName}:\n\n` +
-              `${data.registrationUrl}\n\n` +
-              `(Link copied to clipboard)\n\n` +
-              `${data.emailSent ? 'Teacher will receive an email with this link.' : 'Please send this link to the teacher via other means.'}`
-            );
-          }, 500);
+          // Show modal with registration URL
+          setRegistrationModalData({
+            teacherName: classFormData.fullName,
+            registrationUrl: data.registrationUrl,
+            emailSent: data.emailSent
+          });
+          setShowRegistrationModal(true);
         }
         
         setShowCreateClassModal(false);
@@ -1264,6 +1264,92 @@ const AdminDashboard = ({ userData, onLogout }) => {
       {activeTab === 'quiz-management' && (
         <div className="max-w-7xl mx-auto">
           <QuizAssignmentManager userData={userData} />
+        </div>
+      )}
+
+      {/* Registration URL Modal */}
+      {showRegistrationModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                ✅ Class Created Successfully!
+              </h3>
+              <button
+                onClick={() => setShowRegistrationModal(false)}
+                className="text-gray-400 hover:text-gray-600 text-2xl"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Email Status */}
+              <div className={`p-4 rounded-lg ${registrationModalData.emailSent ? 'bg-green-50 border border-green-200' : 'bg-yellow-50 border border-yellow-200'}`}>
+                <p className={`font-semibold ${registrationModalData.emailSent ? 'text-green-800' : 'text-yellow-800'}`}>
+                  {registrationModalData.emailSent ? '✅ Email Sent Successfully!' : '⚠️ Email Failed - Please Share Manually'}
+                </p>
+                <p className={`text-sm mt-1 ${registrationModalData.emailSent ? 'text-green-600' : 'text-yellow-600'}`}>
+                  {registrationModalData.emailSent 
+                    ? `An invitation email has been sent to ${registrationModalData.teacherName}.`
+                    : 'The email could not be sent. Please share the registration link manually.'}
+                </p>
+              </div>
+
+              {/* Teacher Info */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-sm text-gray-600 mb-1">Teacher Name:</p>
+                <p className="font-semibold text-gray-800">{registrationModalData.teacherName}</p>
+              </div>
+
+              {/* Registration URL */}
+              <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+                <p className="text-sm text-blue-800 font-semibold mb-2">Registration Link:</p>
+                <div className="bg-white p-3 rounded border border-blue-300 break-all text-sm font-mono text-gray-700">
+                  {registrationModalData.registrationUrl}
+                </div>
+                <p className="text-xs text-blue-600 mt-2">✓ Link copied to clipboard</p>
+              </div>
+
+              {/* Instructions */}
+              <div className="bg-purple-50 border border-purple-200 p-4 rounded-lg">
+                <p className="font-semibold text-purple-800 mb-2">📋 Next Steps:</p>
+                <ul className="text-sm text-purple-700 space-y-1 list-disc list-inside">
+                  {registrationModalData.emailSent ? (
+                    <>
+                      <li>The teacher will receive the registration link via email</li>
+                      <li>They can click the link to complete registration</li>
+                      <li>Backup: Share the link above if they don't receive the email</li>
+                    </>
+                  ) : (
+                    <>
+                      <li>Share the registration link above with {registrationModalData.teacherName}</li>
+                      <li>The teacher will use this link to create their account</li>
+                      <li>Link is valid for 7 days</li>
+                    </>
+                  )}
+                </ul>
+              </div>
+            </div>
+
+            <div className="mt-6 flex gap-3">
+              <Button
+                onClick={() => {
+                  navigator.clipboard.writeText(registrationModalData.registrationUrl);
+                  toast.success('Link copied to clipboard!');
+                }}
+                className="flex-1 bg-blue-600 hover:bg-blue-700"
+              >
+                📋 Copy Link
+              </Button>
+              <Button
+                onClick={() => setShowRegistrationModal(false)}
+                className="flex-1 bg-gray-600 hover:bg-gray-700"
+              >
+                Close
+              </Button>
+            </div>
+          </div>
         </div>
       )}
       </>

@@ -109,7 +109,7 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
 
     // Send email via MailerSend
     const sentFrom = new Sender(
-      process.env.MAILERSEND_FROM_EMAIL || 'noreply@trial-0r83ql3rn5p4zw1j.mlsender.net',
+      process.env.MAILERSEND_FROM_EMAIL || 'MS_D578ie@test-nrw7gymez1kg2k8e.mlsender.net',
       'OrganQuest'
     );
 
@@ -123,7 +123,7 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
       .setText(`Hello ${fullName}, Please complete your teacher registration at: ${registrationUrl}`);
 
     console.log('📤 Sending email via MailerSend...');
-    console.log('   From:', process.env.MAILERSEND_FROM_EMAIL || 'noreply@trial-0r83ql3rn5p4zw1j.mlsender.net');
+    console.log('   From:', process.env.MAILERSEND_FROM_EMAIL || 'MS_D578ie@test-nrw7gymez1kg2k8e.mlsender.net');
     console.log('   To:', email);
     console.log('   Subject:', emailParams.subject);
 

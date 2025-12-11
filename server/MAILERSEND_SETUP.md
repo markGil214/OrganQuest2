@@ -1,4 +1,4 @@
-# MailerSend Email Setup Guide
+x`# MailerSend Email Setup Guide
 
 This guide will help you configure MailerSend for sending teacher invitation emails.
 
