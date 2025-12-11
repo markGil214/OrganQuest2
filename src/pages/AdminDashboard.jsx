@@ -1024,10 +1024,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
                         </td>
                         <td className="px-6 py-4">
                           <Button
-                            onClick={() => {
-                              setSelectedStudent(student);
-                              fetchStudentQuizDetails(student._id);
-                            }}
+                            onClick={() => viewStudentDetails(student._id)}
                             className="bg-blue-500 hover:bg-blue-600 text-white text-sm"
                           >
                             📊 View Progress
@@ -1230,51 +1227,107 @@ const AdminDashboard = ({ userData, onLogout }) => {
       {/* Student Detail Modal */}
       {selectedStudent && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-6 z-50" onClick={() => setSelectedStudent(null)}>
-          <Card className="max-w-4xl w-full p-8 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-3xl font-bold text-gray-800 mb-6">{selectedStudent.fullName}</h2>
-            
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <div>
-                <div className="text-sm text-gray-600">Username</div>
-                <div className="text-lg font-semibold">{selectedStudent.username}</div>
-              </div>
-              <div>
-                <div className="text-sm text-gray-600">Age</div>
-                <div className="text-lg font-semibold">{selectedStudent.age}</div>
-              </div>
-              <div>
-                <div className="text-sm text-gray-600">Grade</div>
-                <div className="text-lg font-semibold">{selectedStudent.grade}</div>
-              </div>
-              <div>
-                <div className="text-sm text-gray-600">Registered</div>
-                <div className="text-lg font-semibold">
-                  {new Date(selectedStudent.createdAt).toLocaleDateString()}
-                </div>
+          <Card className="max-w-6xl w-full p-8 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            {/* Student Header */}
+            <div className="mb-6">
+              <h2 className="text-3xl font-bold text-gray-800 mb-2">📊 {selectedStudent.fullName}'s Progress</h2>
+              <div className="flex gap-6 text-sm text-gray-600">
+                <span>@{selectedStudent.username}</span>
+                <span>•</span>
+                <span>{selectedStudent.grade} Grade</span>
+                <span>•</span>
+                <span>Age {selectedStudent.age}</span>
+                <span>•</span>
+                <span>Joined {new Date(selectedStudent.createdAt).toLocaleDateString()}</span>
               </div>
             </div>
 
-            <div className="mb-6">
-              <h3 className="text-xl font-bold mb-3">Statistics</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-4 bg-blue-50 rounded-lg">
-                  <div className="text-2xl font-bold text-blue-600">{selectedStudent.stats.totalQuizzesTaken}</div>
-                  <div className="text-sm text-gray-600">Quizzes Taken</div>
-                </div>
-                <div className="text-center p-4 bg-purple-50 rounded-lg">
-                  <div className="text-2xl font-bold text-purple-600">{selectedStudent.stats.highScore}</div>
-                  <div className="text-sm text-gray-600">High Score</div>
-                </div>
+            {/* Statistics Cards */}
+            <div className="grid grid-cols-4 gap-4 mb-6">
+              <div className="text-center p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
+                <div className="text-3xl font-bold text-blue-600">{selectedStudent.stats.totalQuizzesTaken || 0}</div>
+                <div className="text-sm text-gray-600">Total Quizzes</div>
+              </div>
+              <div className="text-center p-4 bg-green-50 rounded-lg border-2 border-green-200">
+                <div className="text-3xl font-bold text-green-600">{selectedStudent.stats.averageScore || 0}%</div>
+                <div className="text-sm text-gray-600">Average Score</div>
+              </div>
+              <div className="text-center p-4 bg-purple-50 rounded-lg border-2 border-purple-200">
+                <div className="text-3xl font-bold text-purple-600">{selectedStudent.stats.highScore || 0}%</div>
+                <div className="text-sm text-gray-600">High Score</div>
+              </div>
+              <div className="text-center p-4 bg-yellow-50 rounded-lg border-2 border-yellow-200">
+                <div className="text-3xl font-bold text-yellow-600">{studentQuizDetails?.badges?.length || 0}</div>
+                <div className="text-sm text-gray-600">Badges Earned</div>
               </div>
             </div>
+
+            {/* Performance Chart */}
+            {studentQuizDetails && studentQuizDetails.quizResults && studentQuizDetails.quizResults.length > 0 ? (
+              <div className="mb-6">
+                <h3 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                  📈 Quiz Performance Over Time
+                </h3>
+                <div className="border-2 border-blue-100 rounded-lg p-4 bg-gradient-to-br from-blue-50 to-white">
+                  <ResponsiveContainer width="100%" height={350}>
+                    <LineChart data={studentQuizDetails.quizResults.map((result, index) => ({
+                      attempt: index + 1,
+                      score: result.percentage || 0,
+                      date: result.timestamp ? new Date(result.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : `Attempt ${index + 1}`,
+                      type: result.quizType
+                    }))}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                      <XAxis 
+                        dataKey="date" 
+                        stroke="#6b7280"
+                        tick={{ fontSize: 12 }}
+                      />
+                      <YAxis 
+                        domain={[0, 100]} 
+                        label={{ value: 'Score (%)', angle: -90, position: 'insideLeft' }}
+                        stroke="#6b7280"
+                      />
+                      <Tooltip 
+                        formatter={(value, name) => [`${value}%`, 'Score']}
+                        labelFormatter={(label, payload) => {
+                          if (payload && payload[0]) {
+                            return `${label} - ${payload[0].payload.type}`;
+                          }
+                          return label;
+                        }}
+                      />
+                      <Legend />
+                      <Line 
+                        type="monotone" 
+                        dataKey="score" 
+                        stroke="#3b82f6" 
+                        strokeWidth={3}
+                        dot={{ fill: '#3b82f6', r: 5 }}
+                        name="Score"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                  <div className="mt-3 text-sm text-gray-600 text-center">
+                    Showing progress across {studentQuizDetails.quizResults.length} quiz attempts
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="mb-6 p-8 bg-gray-50 rounded-lg text-center text-gray-500">
+                <p className="text-lg">No quiz data available yet</p>
+                <p className="text-sm mt-2">Student needs to take quizzes to see performance trends</p>
+              </div>
+            )}
 
             {/* Badges */}
-            {studentQuizDetails && studentQuizDetails.badges.length > 0 && (
+            {studentQuizDetails && studentQuizDetails.badges && studentQuizDetails.badges.length > 0 && (
               <div className="mb-6">
-                <h3 className="text-xl font-bold mb-3">Badges Earned</h3>
+                <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
+                  🏆 Badges Earned
+                </h3>
                 <div className="flex flex-wrap gap-2">
                   {studentQuizDetails.badges.map((badge, index) => (
-                    <span key={index} className="px-3 py-2 bg-yellow-100 text-yellow-800 rounded-lg text-sm font-semibold">
+                    <span key={index} className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-orange-400 text-white rounded-lg text-sm font-bold shadow-md">
                       {typeof badge === 'string' ? badge : badge.name || badge.badgeId}
                     </span>
                   ))}
@@ -1282,53 +1335,55 @@ const AdminDashboard = ({ userData, onLogout }) => {
               </div>
             )}
 
-            {/* Quiz History */}
-            {studentQuizDetails && studentQuizDetails.quizResults.length > 0 && (
+            {/* Recent Quiz Results Table */}
+            {studentQuizDetails && studentQuizDetails.quizResults && studentQuizDetails.quizResults.length > 0 && (
               <div className="mb-6">
-                <h3 className="text-xl font-bold mb-3">Recent Quiz Results</h3>
-                <div className="space-y-2 max-h-60 overflow-y-auto">
-                  {studentQuizDetails.quizResults.slice(0, 10).map((result, index) => (
-                    <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                      <div>
-                        <span className="font-semibold">{result.quizType}</span>
-                        <span className="text-sm text-gray-600 ml-2">
-                          Attempt {result.attemptNumber}
-                        </span>
-                      </div>
-                      <div className="flex gap-4 items-center">
-                        <span className={`font-bold ${
-                          (result.percentage || 0) >= 80 ? 'text-green-600' :
-                          (result.percentage || 0) >= 60 ? 'text-yellow-600' :
-                          'text-red-600'
-                        }`}>
-                          {(result.percentage || 0).toFixed(0)}%
-                        </span>
-                        <span className="text-sm text-gray-600">
-                          {result.timeTaken ? `${Math.floor(result.timeTaken / 60)}m ${result.timeTaken % 60}s` : 'N/A'}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                <h3 className="text-xl font-bold mb-3">📝 Recent Quiz Results</h3>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full bg-white rounded-lg overflow-hidden border">
+                    <thead className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-sm font-bold">#</th>
+                        <th className="px-4 py-3 text-left text-sm font-bold">Quiz Type</th>
+                        <th className="px-4 py-3 text-left text-sm font-bold">Score</th>
+                        <th className="px-4 py-3 text-left text-sm font-bold">Time Taken</th>
+                        <th className="px-4 py-3 text-left text-sm font-bold">Date</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {studentQuizDetails.quizResults.slice(0, 10).map((result, index) => (
+                        <tr key={index} className={`border-b hover:bg-purple-50 ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
+                          <td className="px-4 py-3 text-sm font-semibold text-gray-600">#{index + 1}</td>
+                          <td className="px-4 py-3 text-sm font-medium">{result.quizType || 'Unknown'}</td>
+                          <td className="px-4 py-3">
+                            <span className={`px-3 py-1 rounded-full text-sm font-bold ${
+                              (result.percentage || 0) >= 80 ? 'bg-green-100 text-green-700' :
+                              (result.percentage || 0) >= 60 ? 'bg-yellow-100 text-yellow-700' :
+                              'bg-red-100 text-red-700'
+                            }`}>
+                              {(result.percentage || 0).toFixed(0)}%
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-600">
+                            {result.timeTaken ? `${Math.floor(result.timeTaken / 60)}m ${result.timeTaken % 60}s` : 'N/A'}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-600">
+                            {result.timestamp ? new Date(result.timestamp).toLocaleDateString() : 'Unknown'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             )}
-
-            <div className="mb-6">
-              <h3 className="text-xl font-bold mb-3">First Day Activity</h3>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-700">Quizzes on First Day:</span>
-                  <span className="font-bold text-blue-600">{selectedStudent.firstDayProgress.quizzesTaken}</span>
-                </div>
-              </div>
-            </div>
 
             <Button
               onClick={() => {
                 setSelectedStudent(null);
                 setStudentQuizDetails(null);
               }}
-              className="w-full bg-gray-600 hover:bg-gray-700"
+              className="w-full bg-gray-600 hover:bg-gray-700 text-white"
             >
               Close
             </Button>
