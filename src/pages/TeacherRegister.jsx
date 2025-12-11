@@ -50,8 +50,6 @@ const TeacherRegister = () => {
     e.preventDefault();
     setError(null);
 
-    console.log('=== REGISTRATION STARTED ===');
-
     // Validation
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
@@ -71,7 +69,6 @@ const TeacherRegister = () => {
     setSubmitting(true);
 
     try {
-      console.log('Calling complete-registration endpoint...');
       const response = await fetch(`${API_URL}/api/admin/complete-registration`, {
         method: 'POST',
         headers: {
@@ -84,16 +81,12 @@ const TeacherRegister = () => {
         })
       });
 
-      console.log('Complete-registration response status:', response.status);
-
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: 'Server error' }));
-        console.error('Registration failed:', errorData);
         throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('Registration response:', data);
 
       if (data.success) {
         toast.success('Registration completed successfully!');
@@ -111,10 +104,8 @@ const TeacherRegister = () => {
         });
 
         const loginData = await loginResponse.json();
-        console.log('Login response:', loginData);
 
         if (!loginResponse.ok) {
-          console.error('Login failed with status:', loginResponse.status);
           toast.error('Auto-login failed. Please login manually.');
           setTimeout(() => {
             window.location.hash = 'login';
@@ -123,11 +114,8 @@ const TeacherRegister = () => {
         }
 
         if (loginData.success && loginData.data && loginData.data.user) {
-          console.log('Setting localStorage...');
           localStorage.setItem('authToken', loginData.data.token);
           localStorage.setItem('userRole', loginData.data.user.role);
-          localStorage.setItem('userId', loginData.data.user.id);
-          
           console.log('Auth data saved. Redirecting to dashboard...');
           
           // Also set userData for immediate app state update
@@ -143,13 +131,13 @@ const TeacherRegister = () => {
           
           toast.success('Registration completed! Redirecting to dashboard...');
           
-          // Navigate to teacher dashboard - the app will detect the userData and allow access
+          // Navigate to teacher dashboard with full page reload to ensure fresh state
           setTimeout(() => {
-            window.location.href = window.location.origin + '/#admin/dashboard';
+            window.location.href = window.location.origin + window.location.pathname + '#admin/dashboard';
+            window.location.reload();
           }, 1500);
         } else {
           // If auto-login fails, redirect to login page
-          console.error('Login response missing data:', loginData);
           toast.error('Please login with your new credentials');
           setTimeout(() => {
             window.location.hash = 'login';
@@ -157,7 +145,6 @@ const TeacherRegister = () => {
         }
       } else {
         setError(data.message || 'Registration failed');
-        console.error('Registration failed:', data.message);
       }
     } catch (err) {
       setError('An error occurred during registration');

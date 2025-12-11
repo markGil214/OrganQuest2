@@ -50,9 +50,6 @@ function App() {
   // Check for existing user data on app load
   useEffect(() => {
     const currentHash = window.location.hash.slice(1); // Remove the # symbol
-    console.log('=== APP MOUNT ===');
-    console.log('Initial hash:', currentHash);
-    console.log('Full URL:', window.location.href);
     
     const existingUserData = getCookie('organquest_user');
     const localStorageUserData = localStorage.getItem('userData');
@@ -80,21 +77,12 @@ function App() {
                                  currentHash.startsWith('interactive/') ||
                                  currentHash.startsWith('teacher-register/');
       
-      console.log('=== AUTH CHECK ===');
-      console.log('currentHash:', currentHash);
-      console.log('allowedWithoutAuth:', allowedWithoutAuth);
-      console.log('startsWith teacher-register/:', currentHash.startsWith('teacher-register/'));
-      
       if (!allowedWithoutAuth && (!currentHash || currentHash === 'home')) {
-        console.log('Redirecting to login: empty or home');
         window.location.hash = 'login';
       } else if (!allowedWithoutAuth && currentHash && currentHash !== 'login' && currentHash !== 'register') {
         // Store the intended destination and redirect to login
-        console.log('Redirecting to login: protected route');
         sessionStorage.setItem('redirectAfterLogin', currentHash);
         window.location.hash = 'login';
-      } else {
-        console.log('Access allowed');
       }
       // Allow register route and interactive viewer to work without authentication
     }
@@ -134,7 +122,6 @@ function App() {
       
       // If trying to access protected route without auth, redirect to login
       if (isProtectedRoute && !hasAuth) {
-        console.log('REDIRECT: Protected route without auth');
         window.history.replaceState(null, '', '#login');
         setCurrentPage('login');
         return;
@@ -169,7 +156,6 @@ function App() {
       } else if (hash === 'admin/manage') {
         setCurrentPage('admin-manage');
       } else {
-        console.log('No route matched, defaulting to login. Hash was:', hash);
         setCurrentPage('login');
       }
     };
