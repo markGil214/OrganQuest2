@@ -130,7 +130,7 @@ const ScanExploreMenu = () => {
     {
       id: 'thyroid',
       name: organText.thyroid,
-      icon: '/organs/thyroid.png',
+      icon: '/organs/thyroid-gland.png',
       color: '#ff6f91',
       funFact: 'Your thyroid controls energy!',
       description: 'The thyroid gland controls metabolism!',

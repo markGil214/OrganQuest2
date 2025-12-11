@@ -269,7 +269,7 @@ const organConfigs = {
 	
 	eyes: {
 		modelPath: '/models/Eyes/Eyes.glb',
-		scale: { x: 2.0, y: 2.0, z: 2.0 },
+		scale: { x: 6.0, y: 6.0, z: 6.0 },
 		position: { y: 0.5 },
 		colors: {
 			primary: '#0984e3',
