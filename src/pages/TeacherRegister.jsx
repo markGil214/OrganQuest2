@@ -104,12 +104,24 @@ const TeacherRegister = () => {
         });
 
         const loginData = await loginResponse.json();
+        console.log('Login response:', loginData);
+
+        if (!loginResponse.ok) {
+          console.error('Login failed with status:', loginResponse.status);
+          toast.error('Auto-login failed. Please login manually.');
+          setTimeout(() => {
+            window.location.hash = 'login';
+          }, 2000);
+          return;
+        }
 
         if (loginData.success && loginData.data && loginData.data.user) {
+          console.log('Setting localStorage...');
           localStorage.setItem('authToken', loginData.data.token);
           localStorage.setItem('userRole', loginData.data.user.role);
           localStorage.setItem('userId', loginData.data.user.id);
           
+          console.log('Auth data saved. Redirecting to dashboard...');
           toast.success('Registration completed! Logging you in...');
           
           // Navigate to teacher dashboard
@@ -119,7 +131,8 @@ const TeacherRegister = () => {
           }, 1000);
         } else {
           // If auto-login fails, redirect to login page
-          toast.success('Please login with your new credentials');
+          console.error('Login response missing data:', loginData);
+          toast.error('Please login with your new credentials');
           setTimeout(() => {
             window.location.hash = 'login';
           }, 2000);
