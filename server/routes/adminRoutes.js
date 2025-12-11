@@ -686,9 +686,14 @@ router.get('/quiz-analytics', authMiddleware, teacherMiddleware, async (req, res
   try {
     const query = { role: 'student' };
 
-    // Filter by assigned grade if teacher
+    // Filter by assigned grade if teacher (not superuser)
     if (req.userRole === 'teacher' && req.assignedGrade && req.assignedGrade !== 'all') {
       query.grade = req.assignedGrade;
+    }
+
+    // Filter by assigned section if teacher (not superuser)
+    if (req.userRole === 'teacher' && req.assignedSection && req.assignedSection !== 'all') {
+      query.section = req.assignedSection;
     }
 
     const students = await User.find(query).select('quizResults quizAttempts badges');

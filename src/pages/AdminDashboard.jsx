@@ -528,18 +528,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
 
           {/* Students List */}
           <Card className="p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-2xl font-bold">👥 Students ({classStudents.length})</h3>
-              {classStudents.length > 0 && (
-                <Button
-                  onClick={handleBulkDeleteStudents}
-                  variant="outline"
-                  className="border-red-500 text-red-600 hover:bg-red-50"
-                >
-                  🗑️ Delete All Students
-                </Button>
-              )}
-            </div>
+            <h3 className="text-2xl font-bold mb-4">👥 Students ({classStudents.length})</h3>
             {classStudents.length === 0 ? (
               <div className="text-center py-12 text-gray-500">
                 <p className="text-lg">No students enrolled in this class yet</p>
