@@ -6,6 +6,15 @@ import api from '../lib/api';
 
 const TimedChallengeQuiz = () => {
 
+  // Get assignment ID from URL if in teacher mode
+  const getAssignmentId = () => {
+    const params = new URLSearchParams(window.location.hash.split('?')[1]);
+    return params.get('assignment');
+  };
+
+  const [assignmentId, setAssignmentId] = useState(getAssignmentId());
+  const [assignmentData, setAssignmentData] = useState(null);
+
   // Shuffle function
   const shuffleArray = (array) => {
     const shuffled = [...array];
@@ -39,6 +48,32 @@ const TimedChallengeQuiz = () => {
   useEffect(() => {
     setQuestions(shuffleArray(timedChallengeQuestions));
   }, []);
+
+  // Fetch assignment data if in teacher mode
+  useEffect(() => {
+    if (assignmentId) {
+      fetchAssignmentData();
+    }
+  }, [assignmentId]);
+
+  const fetchAssignmentData = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/teacher/quiz/${assignmentId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setAssignmentData(data.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch assignment:', error);
+    }
+  };
 
   // Timer countdown
   useEffect(() => {
@@ -83,7 +118,8 @@ const TimedChallengeQuiz = () => {
         percentage: finalPercentage,
         timeTaken: timeUsed,
         bestStreak: bestStreak,
-        answers: [] // Timed quiz doesn't need detailed answers
+        answers: [], // Timed quiz doesn't need detailed answers
+        assignmentId: assignmentId || null // Include assignment ID if in teacher mode
       };
 
       const response = await api.submitQuiz(token, quizData);

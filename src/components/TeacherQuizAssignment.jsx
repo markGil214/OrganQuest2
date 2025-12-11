@@ -167,7 +167,6 @@ const TeacherQuizAssignment = ({ userData }) => {
                 >
                   <option value="multiple-choice">Multiple Choice</option>
                   <option value="timed-challenge">Timed Challenge</option>
-                  <option value="memory-matching">Memory Matching</option>
                 </select>
               </div>
 
