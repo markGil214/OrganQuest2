@@ -492,7 +492,7 @@ export const interactiveConfigs = {
 		]
 	},
 	liver: {
-		modelPath: '/models/slicedLiver/slicedLiver.glb',
+		modelPath: '/models/liver/liver.glb',
 		scale: { x: 5, y: 5, z: 5 },
 		position: { y: 0 },
 		cameraPosition: { x: 8, y: 0, z: 5 },

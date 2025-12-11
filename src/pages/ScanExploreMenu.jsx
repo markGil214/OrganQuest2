@@ -9,6 +9,7 @@ const ScanExploreMenu = () => {
   const { ts } = useLanguage();
   const scanText = ts('scanExplore');
   const commonText = ts('common');
+  const organText = ts('organs');
   
   const [selectedOrgan, setSelectedOrgan] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
@@ -18,7 +19,7 @@ const ScanExploreMenu = () => {
   const organs = [
     {
       id: 'heart',
-      name: 'Heart',
+      name: organText.heart,
       icon: '/organs/heart.png',
       color: '#ff6b6b',
       funFact: 'Your heart beats all day!',
@@ -28,7 +29,7 @@ const ScanExploreMenu = () => {
     },
     {
       id: 'brain',
-      name: 'Brain',
+      name: organText.brain,
       icon: '/organs/brain.png',
       color: '#845ec2',
       funFact: 'Your brain controls everything!',
@@ -38,7 +39,7 @@ const ScanExploreMenu = () => {
     },
     {
       id: 'lungs',
-      name: 'Lungs',
+      name: organText.lungs,
       icon: '/organs/lungs.png',
       color: '#4ecdc4',
       funFact: 'Your lungs help you breathe!',
@@ -48,7 +49,7 @@ const ScanExploreMenu = () => {
     },
     {
       id: 'liver',
-      name: 'Liver',
+      name: organText.liver,
       icon: '/organs/liver.png',
       color: '#ff9f43',
       funFact: 'Your liver cleans your body!',
@@ -58,7 +59,7 @@ const ScanExploreMenu = () => {
     },
     {
       id: 'kidney',
-      name: 'Kidneys',
+      name: organText.kidney,
       icon: '/organs/kidney.png',
       color: '#26de81',
       funFact: 'Your kidneys filter your blood!',
@@ -68,7 +69,7 @@ const ScanExploreMenu = () => {
     },
     {
       id: 'eyes',
-      name: 'Eyes',
+      name: organText.eyes,
       icon: '/organs/eyes.png', // Using brain icon as closest match
       color: '#3742fa',
       funFact: 'Your eyes see millions of colors!',
@@ -78,7 +79,7 @@ const ScanExploreMenu = () => {
     },
     {
       id: 'stomach',
-      name: 'Stomach',
+      name: organText.stomach,
       icon: '/organs/stomach.png',
       color: '#ff6348',
       funFact: 'Your stomach churns food like a mixer!',
@@ -88,7 +89,7 @@ const ScanExploreMenu = () => {
     },
     {
       id: 'intestine',
-      name: 'Intestines',
+      name: organText.intestine,
       icon: '/organs/intestine.png',
       color: '#f39c12',
       funFact: 'Your intestines are 20 feet long!',
@@ -98,7 +99,7 @@ const ScanExploreMenu = () => {
     },
     {
       id: 'pancreas',
-      name: 'Pancreas',
+      name: organText.pancreas,
       icon: '/organs/pancreas.png',
       color: '#e17055',
       funFact: 'Your pancreas makes insulin!',
@@ -108,7 +109,7 @@ const ScanExploreMenu = () => {
     },
     {
       id: 'spleen',
-      name: 'Spleen',
+      name: organText.spleen,
       icon: '/organs/spleen.png',
       color: '#6c5ce7',
       funFact: 'Your spleen filters blood!',
@@ -118,7 +119,7 @@ const ScanExploreMenu = () => {
     },
     {
       id: 'diaphragm',
-      name: 'Diaphragm',
+      name: organText.diaphragm,
       icon: '/organs/diaphragm.png',
       color: '#00b894',
       funFact: 'Your main breathing muscle!',
@@ -128,7 +129,7 @@ const ScanExploreMenu = () => {
     },
     {
       id: 'bladder',
-      name: 'Bladder',
+      name: organText.bladder,
       icon: '/organs/bladder.png',
       color: '#f39c12',
       funFact: 'Your body\'s storage tank!',
@@ -138,7 +139,7 @@ const ScanExploreMenu = () => {
     },
     {
       id: 'thyroid',
-      name: 'Thyroid',
+      name: organText.thyroidGland,
       icon: '/organs/thyroid-gland.png',
       color: '#ff6b9d',
       funFact: 'Your butterfly-shaped energy controller!',
@@ -148,7 +149,7 @@ const ScanExploreMenu = () => {
     },
     {
       id: 'tongue',
-      name: 'Tongue',
+      name: organText.tongue,
       icon: '/organs/tongue.png',
       color: '#fd79a8',
       funFact: 'Your amazing taste detector!',
@@ -158,7 +159,7 @@ const ScanExploreMenu = () => {
     },
     {
       id: 'pelvis',
-      name: 'Pelvis & Femur',
+      name: organText.pelvisFemur,
       icon: '/organs/pelvis-femur.png',
       color: '#a29bfe',
       funFact: 'Your body\'s strong foundation!',
