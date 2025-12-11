@@ -283,58 +283,152 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
                     <p className="text-sm mt-2">Take some quizzes to see your performance!</p>
                   </div>
                 ) : (
-                  <div className="bg-white/70 rounded-xl p-4 shadow-md">
-                    <h3 className="font-bold text-lg mb-4">📈 Quiz Performance Over Time</h3>
-                    <ResponsiveContainer width="100%" height={250}>
-                      <LineChart data={(() => {
-                        const sortedResults = [...quizResults].sort((a, b) => {
-                          const dateA = new Date(a.completedAt || a.timestamp || 0);
-                          const dateB = new Date(b.completedAt || b.timestamp || 0);
-                          return dateA - dateB;
-                        });
-                        
-                        return sortedResults.map((result, index) => {
-                          let scoreValue = 0;
-                          if (result.percentage && result.percentage > 0) {
-                            scoreValue = result.percentage;
-                          } else if (result.score !== undefined && result.totalQuestions) {
-                            scoreValue = Math.round((result.score / result.totalQuestions) * 100);
-                          }
-                          
-                          return {
-                            attempt: index + 1,
-                            score: scoreValue,
-                            attemptLabel: `Attempt ${index + 1}`
-                          };
-                        });
-                      })()}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                        <XAxis 
-                          dataKey="attemptLabel" 
-                          stroke="#6b7280"
-                          tick={{ fontSize: 11 }}
-                        />
-                        <YAxis 
-                          domain={[0, 100]} 
-                          label={{ value: 'Score (%)', angle: -90, position: 'insideLeft', style: { fontSize: 11 } }}
-                          stroke="#6b7280"
-                          tick={{ fontSize: 11 }}
-                        />
-                        <Legend />
-                        <Line 
-                          type="monotone" 
-                          dataKey="score" 
-                          stroke="#9333ea" 
-                          strokeWidth={3}
-                          dot={{ fill: '#9333ea', r: 4 }}
-                          name="Score"
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
-                    <div className="mt-3 text-xs text-gray-600 text-center">
-                      Showing progress across {quizResults.length} quiz attempts
-                    </div>
-                  </div>
+                  <>
+                    {/* Non-Timed Challenge Chart (Multiple Choice & Memory Matching) */}
+                    {(() => {
+                      const nonTimedResults = quizResults.filter(r => 
+                        r.quizType !== 'timed-challenge'
+                      );
+                      if (nonTimedResults.length === 0) return null;
+                      
+                      return (
+                        <div className="bg-white/70 rounded-xl p-4 shadow-md">
+                          <h3 className="font-bold text-lg mb-4">📈 Quiz Performance Over Time</h3>
+                          <ResponsiveContainer width="100%" height={250}>
+                            <LineChart data={(() => {
+                              const sortedResults = [...nonTimedResults].sort((a, b) => {
+                                const dateA = new Date(a.completedAt || a.timestamp || 0);
+                                const dateB = new Date(b.completedAt || b.timestamp || 0);
+                                return dateA - dateB;
+                              });
+                              
+                              return sortedResults.map((result, index) => {
+                                let scoreValue = 0;
+                                if (result.percentage && result.percentage > 0) {
+                                  scoreValue = result.percentage;
+                                } else if (result.score !== undefined && result.totalQuestions) {
+                                  scoreValue = Math.round((result.score / result.totalQuestions) * 100);
+                                }
+                                
+                                return {
+                                  attempt: index + 1,
+                                  score: scoreValue,
+                                  attemptLabel: `Attempt ${index + 1}`
+                                };
+                              });
+                            })()}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                              <XAxis 
+                                dataKey="attemptLabel" 
+                                stroke="#6b7280"
+                                tick={{ fontSize: 11 }}
+                              />
+                              <YAxis 
+                                domain={[0, 100]} 
+                                label={{ value: 'Score (%)', angle: -90, position: 'insideLeft', style: { fontSize: 11 } }}
+                                stroke="#6b7280"
+                                tick={{ fontSize: 11 }}
+                              />
+                              <Legend />
+                              <Line 
+                                type="monotone" 
+                                dataKey="score" 
+                                stroke="#9333ea" 
+                                strokeWidth={3}
+                                dot={{ fill: '#9333ea', r: 4 }}
+                                name="Score"
+                              />
+                            </LineChart>
+                          </ResponsiveContainer>
+                          <div className="mt-3 text-xs text-gray-600 text-center">
+                            Showing {nonTimedResults.length} quiz attempts
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Timed Challenge Chart */}
+                    {(() => {
+                      const timedResults = quizResults.filter(r => 
+                        r.quizType === 'timed-challenge'
+                      );
+                      if (timedResults.length === 0) return null;
+                      
+                      return (
+                        <div className="bg-white/70 rounded-xl p-4 shadow-md">
+                          <h3 className="font-bold text-lg mb-4">⏱️ Timed Challenge Performance</h3>
+                          <ResponsiveContainer width="100%" height={250}>
+                            <LineChart data={(() => {
+                              const sortedResults = [...timedResults].sort((a, b) => {
+                                const dateA = new Date(a.completedAt || a.timestamp || 0);
+                                const dateB = new Date(b.completedAt || b.timestamp || 0);
+                                return dateA - dateB;
+                              });
+                              
+                              return sortedResults.map((result, index) => {
+                                let scoreValue = 0;
+                                if (result.percentage && result.percentage > 0) {
+                                  scoreValue = result.percentage;
+                                } else if (result.score !== undefined && result.totalQuestions) {
+                                  scoreValue = Math.round((result.score / result.totalQuestions) * 100);
+                                }
+                                const timeInSeconds = result.timeTaken || 0;
+                                return {
+                                  attempt: index + 1,
+                                  score: scoreValue,
+                                  time: timeInSeconds,
+                                  attemptLabel: `Attempt ${index + 1}`
+                                };
+                              });
+                            })()}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                              <XAxis 
+                                dataKey="attemptLabel" 
+                                stroke="#6b7280"
+                                tick={{ fontSize: 11 }}
+                              />
+                              <YAxis 
+                                yAxisId="left"
+                                domain={[0, 100]} 
+                                label={{ value: 'Score (%)', angle: -90, position: 'insideLeft', style: { fontSize: 11 } }}
+                                stroke="#f97316"
+                                tick={{ fontSize: 11 }}
+                              />
+                              <YAxis 
+                                yAxisId="right"
+                                orientation="right"
+                                label={{ value: 'Time (s)', angle: 90, position: 'insideRight', style: { fontSize: 11 } }}
+                                stroke="#8b5cf6"
+                                tick={{ fontSize: 11 }}
+                              />
+                              <Legend />
+                              <Line 
+                                yAxisId="left"
+                                type="monotone" 
+                                dataKey="score" 
+                                stroke="#f97316" 
+                                strokeWidth={3}
+                                dot={{ fill: '#f97316', r: 4 }}
+                                name="Score %"
+                              />
+                              <Line 
+                                yAxisId="right"
+                                type="monotone" 
+                                dataKey="time" 
+                                stroke="#8b5cf6" 
+                                strokeWidth={3}
+                                dot={{ fill: '#8b5cf6', r: 4 }}
+                                name="Time (s)"
+                              />
+                            </LineChart>
+                          </ResponsiveContainer>
+                          <div className="mt-3 text-xs text-gray-600 text-center">
+                            Showing {timedResults.length} quiz attempts
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </>
                 )}
               </div>
             )}
