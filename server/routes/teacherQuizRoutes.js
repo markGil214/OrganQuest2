@@ -23,8 +23,13 @@ router.post('/assign-quiz', authMiddleware, teacherMiddleware, async (req, res) 
     // Ensure assignedGrade is valid
     const validGrade = assignedGrade && assignedGrade.trim() ? assignedGrade : (teacher.assignedGrade || 'all');
     
-    // Ensure assignedSection is valid
-    const validSection = assignedSection && assignedSection.trim() ? assignedSection.toUpperCase() : 'all';
+    // Ensure assignedSection is valid - keep 'all' lowercase, convert A/B/C to uppercase
+    let validSection = assignedSection && assignedSection.trim() ? assignedSection : 'all';
+    if (validSection.toLowerCase() !== 'all') {
+      validSection = validSection.toUpperCase();
+    } else {
+      validSection = 'all';
+    }
     
     // Generate unique quiz code
     const quizCode = await QuizAssignment.generateQuizCode();
