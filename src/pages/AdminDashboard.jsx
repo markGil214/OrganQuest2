@@ -1271,24 +1271,27 @@ const AdminDashboard = ({ userData, onLogout }) => {
                 <div className="border-2 border-blue-100 rounded-lg p-4 bg-gradient-to-br from-blue-50 to-white">
                   <ResponsiveContainer width="100%" height={350}>
                     <LineChart data={(() => {
-                      // Sort quiz results by timestamp or use original order
+                      // Sort quiz results by completedAt or use original order
                       const sortedResults = [...studentQuizDetails.quizResults].sort((a, b) => {
-                        if (a.timestamp && b.timestamp) {
-                          return new Date(a.timestamp) - new Date(b.timestamp);
+                        const dateA = a.completedAt || a.timestamp;
+                        const dateB = b.completedAt || b.timestamp;
+                        if (dateA && dateB) {
+                          return new Date(dateA) - new Date(dateB);
                         }
                         return 0;
                       });
                       
                       return sortedResults.map((result, index) => {
-                        const scoreValue = result.percentage || result.score || 0;
+                        const scoreValue = result.percentage !== undefined ? result.percentage : (result.score || 0);
+                        const resultDate = result.completedAt || result.timestamp;
                         return {
                           attempt: index + 1,
                           score: scoreValue,
-                          date: result.timestamp 
-                            ? new Date(result.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) 
+                          date: resultDate 
+                            ? new Date(resultDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) 
                             : `Attempt ${index + 1}`,
                           type: result.quizType || 'Quiz',
-                          fullDate: result.timestamp ? new Date(result.timestamp).toLocaleString() : 'Unknown'
+                          fullDate: resultDate ? new Date(resultDate).toLocaleString() : 'Unknown'
                         };
                       });
                     })()}>
@@ -1384,7 +1387,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
                             {result.timeTaken ? `${Math.floor(result.timeTaken / 60)}m ${result.timeTaken % 60}s` : 'N/A'}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-600">
-                            {result.timestamp ? new Date(result.timestamp).toLocaleDateString() : 'Unknown'}
+                            {(result.completedAt || result.timestamp) ? new Date(result.completedAt || result.timestamp).toLocaleDateString() : 'Unknown'}
                           </td>
                         </tr>
                       ))}
