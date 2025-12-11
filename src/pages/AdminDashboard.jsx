@@ -316,7 +316,8 @@ const AdminDashboard = ({ userData, onLogout }) => {
       const token = localStorage.getItem('authToken');
       
       // Fetch students for this specific class (grade + section)
-      const response = await fetch(`${API_URL}/api/admin/students?grade=${classData.assignedGrade}&section=${classData.section}`, {
+      // Note: classData is a teacher object with assignedGrade and assignedSection
+      const response = await fetch(`${API_URL}/api/admin/students?grade=${classData.assignedGrade}&section=${classData.assignedSection}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
@@ -498,7 +499,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
           {/* Class Header */}
           <Card className="p-6 mb-6">
             <h1 className="text-4xl font-bold text-gray-800 mb-4">
-              {selectedClassData.assignedGrade} Grade - Section {selectedClassData.section}
+              {selectedClassData.assignedGrade} Grade - Section {selectedClassData.assignedSection}
             </h1>
             
             {/* Teacher Info */}
