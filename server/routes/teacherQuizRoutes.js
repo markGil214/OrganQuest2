@@ -49,7 +49,7 @@ router.post('/assign-quiz', authMiddleware, teacherMiddleware, async (req, res) 
     res.status(201).json({
       success: true,
       message: 'Quiz assigned successfully',
-      assignment: quizAssignment
+      data: quizAssignment
     });
   } catch (error) {
     console.error('Error assigning quiz:', error);
