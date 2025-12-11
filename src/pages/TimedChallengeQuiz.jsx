@@ -62,18 +62,32 @@ const TimedChallengeQuiz = () => {
         return;
       }
 
-      const totalQuestionsAnswered = currentQuestion + 1;
-      const correctAnswers = Math.floor(score / 10); // Approximate based on scoring
-      const percentage = totalQuestionsAnswered > 0 ? Math.round((correctAnswers / totalQuestionsAnswered) * 100) : 0;
+      // Policy A: Strict scoring - unanswered questions count as wrong
+      const TOTAL_QUESTIONS = 75; // Total available questions in the pool
+      const MAX_TIME = 60; // Maximum time allowed in seconds
+      const MAX_BONUS = 40; // Maximum time bonus percentage
+      
+      const questionsAnswered = currentQuestion + 1;
+      const correctAnswers = Math.floor(score / 10); // Each correct = 10 base points
+      
+      // Raw percentage based on ALL questions (unanswered = wrong)
+      const rawPercentage = (correctAnswers / TOTAL_QUESTIONS) * 100;
+      
+      // Time bonus: MaxBonus × (1 - timeUsed/maxTime)
+      const timeUsed = 60 - timeLeft;
+      const timeBonus = MAX_BONUS * (1 - (timeUsed / MAX_TIME));
+      
+      // Final percentage capped at 100
+      const finalPercentage = Math.min(100, Math.round(rawPercentage + timeBonus));
 
       const quizData = {
         quizType: 'timed-challenge',
-        score: score,
-        totalQuestions: totalQuestionsAnswered,
+        score: correctAnswers, // Store actual correct count
+        totalQuestions: TOTAL_QUESTIONS, // Always 75
         correctAnswers: correctAnswers,
-        wrongAnswers: totalQuestionsAnswered - correctAnswers,
-        percentage: percentage,
-        timeTaken: 60 - timeLeft,
+        wrongAnswers: TOTAL_QUESTIONS - correctAnswers, // Includes unanswered
+        percentage: finalPercentage,
+        timeTaken: timeUsed,
         bestStreak: bestStreak,
         answers: [] // Timed quiz doesn't need detailed answers
       };
@@ -326,10 +340,13 @@ const TimedChallengeQuiz = () => {
             marginBottom: '2rem'
           }}>
             <div style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)', marginBottom: '0.5rem' }}>
+              Correct: {Math.floor(score / 10)} / 75 questions ✅
+            </div>
+            <div style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)', marginBottom: '0.5rem' }}>
               Best Streak: {bestStreak} 🔥
             </div>
             <div style={{ fontSize: 'clamp(0.85rem, 2.5vw, 1rem)', opacity: 0.8 }}>
-              Questions Answered in 60 seconds!
+              Time: {60 - timeLeft} seconds
             </div>
           </div>
           
