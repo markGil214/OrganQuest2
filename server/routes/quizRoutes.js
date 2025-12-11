@@ -81,9 +81,19 @@ router.post('/submit', authMiddleware,
       // Update stats
       user.stats.totalQuizzesTaken += 1;
       user.stats.totalScore += score;
-      if (score > user.stats.highScore) {
-        user.stats.highScore = score;
+      
+      // Calculate and store percentage-based high score
+      if (percentage > (user.stats.highScore || 0)) {
+        user.stats.highScore = percentage;
       }
+      
+      // Calculate average score from all quiz results
+      const allPercentages = user.quizResults.map(q => 
+        q.percentage !== undefined ? q.percentage : Math.round((q.score / q.totalQuestions) * 100)
+      );
+      user.stats.averageScore = Math.round(
+        allPercentages.reduce((sum, p) => sum + p, 0) / allPercentages.length
+      );
 
       // Check for badges
       const newBadges = checkAndAwardBadges(user);

@@ -1249,11 +1249,39 @@ const AdminDashboard = ({ userData, onLogout }) => {
                 <div className="text-sm text-gray-600">Total Quizzes</div>
               </div>
               <div className="text-center p-4 bg-green-50 rounded-lg border-2 border-green-200">
-                <div className="text-3xl font-bold text-green-600">{selectedStudent.stats.averageScore || 0}%</div>
+                <div className="text-3xl font-bold text-green-600">
+                  {(() => {
+                    // Calculate average from quizResults if stats.averageScore is 0
+                    if (selectedStudent.stats.averageScore && selectedStudent.stats.averageScore > 0) {
+                      return selectedStudent.stats.averageScore;
+                    }
+                    if (studentQuizDetails?.quizResults?.length > 0) {
+                      const avg = studentQuizDetails.quizResults.reduce((sum, q) => {
+                        const pct = (q.percentage && q.percentage > 0) ? q.percentage : 
+                          (q.score !== undefined && q.totalQuestions ? Math.round((q.score / q.totalQuestions) * 100) : 0);
+                        return sum + pct;
+                      }, 0) / studentQuizDetails.quizResults.length;
+                      return Math.round(avg);
+                    }
+                    return 0;
+                  })()}%
+                </div>
                 <div className="text-sm text-gray-600">Average Score</div>
               </div>
               <div className="text-center p-4 bg-purple-50 rounded-lg border-2 border-purple-200">
-                <div className="text-3xl font-bold text-purple-600">{selectedStudent.stats.highScore || 0}%</div>
+                <div className="text-3xl font-bold text-purple-600">
+                  {(() => {
+                    // Calculate high score from quizResults if stats.highScore looks like raw score
+                    if (studentQuizDetails?.quizResults?.length > 0) {
+                      const maxPct = Math.max(...studentQuizDetails.quizResults.map(q => {
+                        return (q.percentage && q.percentage > 0) ? q.percentage : 
+                          (q.score !== undefined && q.totalQuestions ? Math.round((q.score / q.totalQuestions) * 100) : 0);
+                      }));
+                      return maxPct;
+                    }
+                    return selectedStudent.stats.highScore || 0;
+                  })()}%
+                </div>
                 <div className="text-sm text-gray-600">High Score</div>
               </div>
               <div className="text-center p-4 bg-yellow-50 rounded-lg border-2 border-yellow-200">
@@ -1282,7 +1310,13 @@ const AdminDashboard = ({ userData, onLogout }) => {
                       });
                       
                       return sortedResults.map((result, index) => {
-                        const scoreValue = result.percentage !== undefined ? result.percentage : (result.score || 0);
+                        // Calculate percentage properly - use stored percentage or calculate from score/totalQuestions
+                        let scoreValue = 0;
+                        if (result.percentage && result.percentage > 0) {
+                          scoreValue = result.percentage;
+                        } else if (result.score !== undefined && result.totalQuestions) {
+                          scoreValue = Math.round((result.score / result.totalQuestions) * 100);
+                        }
                         const resultDate = result.completedAt || result.timestamp;
                         return {
                           attempt: index + 1,
@@ -1382,13 +1416,22 @@ const AdminDashboard = ({ userData, onLogout }) => {
                           <td className="px-4 py-3 text-sm font-semibold text-gray-600">#{index + 1}</td>
                           <td className="px-4 py-3 text-sm font-medium">{result.quizType || 'Unknown'}</td>
                           <td className="px-4 py-3">
-                            <span className={`px-3 py-1 rounded-full text-sm font-bold ${
-                              (result.percentage || 0) >= 80 ? 'bg-green-100 text-green-700' :
-                              (result.percentage || 0) >= 60 ? 'bg-yellow-100 text-yellow-700' :
-                              'bg-red-100 text-red-700'
-                            }`}>
-                              {(result.percentage || 0).toFixed(0)}%
-                            </span>
+                            {(() => {
+                              const pct = (result.percentage && result.percentage > 0) 
+                                ? result.percentage 
+                                : (result.score !== undefined && result.totalQuestions 
+                                    ? Math.round((result.score / result.totalQuestions) * 100) 
+                                    : 0);
+                              return (
+                                <span className={`px-3 py-1 rounded-full text-sm font-bold ${
+                                  pct >= 80 ? 'bg-green-100 text-green-700' :
+                                  pct >= 60 ? 'bg-yellow-100 text-yellow-700' :
+                                  'bg-red-100 text-red-700'
+                                }`}>
+                                  {pct}%
+                                </span>
+                              );
+                            })()}
                           </td>
                           <td className="px-4 py-3 text-sm text-gray-600">
                             {result.timeTaken ? `${Math.floor(result.timeTaken / 60)}m ${result.timeTaken % 60}s` : 'N/A'}
