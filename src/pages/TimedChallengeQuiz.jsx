@@ -345,6 +345,7 @@ const TimedChallengeQuiz = () => {
             borderRadius: '15px',
             padding: 'clamp(1rem, 3vw, 1.5rem)',
             marginBottom: '2rem'
+          }}>
             <div style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)', marginBottom: '0.5rem' }}>
               Correct: {Math.floor(score / 10)} / 75 ✅ | Wrong: {wrongAnswers} ❌
             </div>
@@ -353,7 +354,6 @@ const TimedChallengeQuiz = () => {
             </div>
             <div style={{ fontSize: 'clamp(0.85rem, 2.5vw, 1rem)', opacity: 0.8 }}>
               Time: {60 - timeLeft}s | Penalty: -{wrongAnswers * 10}%
-            </div>: {60 - timeLeft} seconds
             </div>
           </div>
           
