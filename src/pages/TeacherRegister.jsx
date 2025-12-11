@@ -129,13 +129,24 @@ const TeacherRegister = () => {
           localStorage.setItem('userId', loginData.data.user.id);
           
           console.log('Auth data saved. Redirecting to dashboard...');
-          toast.success('Registration completed! Logging you in...');
           
-          // Navigate to teacher dashboard
+          // Also set userData for immediate app state update
+          localStorage.setItem('userData', JSON.stringify(loginData.data.user));
+          
+          // Set cookie for persistent auth
+          const setCookie = (name, value, days = 7) => {
+            const expires = new Date();
+            expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+            document.cookie = `${name}=${JSON.stringify(value)};expires=${expires.toUTCString()};path=/`;
+          };
+          setCookie('organquest_user', loginData.data.user);
+          
+          toast.success('Registration completed! Redirecting to dashboard...');
+          
+          // Navigate to teacher dashboard - the app will detect the userData and allow access
           setTimeout(() => {
-            window.location.hash = 'admin/dashboard';
-            window.location.reload(); // Force reload to update app state
-          }, 1000);
+            window.location.href = window.location.origin + '/#admin/dashboard';
+          }, 1500);
         } else {
           // If auto-login fails, redirect to login page
           console.error('Login response missing data:', loginData);
