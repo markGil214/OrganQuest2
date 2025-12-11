@@ -11,6 +11,7 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
   
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showLearnMoreModal, setShowLearnMoreModal] = useState(false);
+  const [showAboutModal, setShowAboutModal] = useState(false);
 
   const menuOptions = [
     {
@@ -38,21 +39,29 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
       color: '#3498db'
     },
     {
-      id: 'exit',
-      icon: '🚪',
-      title: menuText.exit,
-      subtitle: menuText.exitSubtitle,
-      route: '#home',
+      id: 'about',
+      icon: 'ℹ️',
+      title: menuText.about || 'About',
+      subtitle: menuText.aboutSubtitle || 'Learn about OrganQuest',
+      route: '#about',
       color: '#e74c3c'
     }
   ];
 
+  // Play click sound
+  const playClickSound = () => {
+    const audio = new Audio('/sounds/pop.mp3');
+    audio.volume = 0.5;
+    audio.play().catch(e => console.log('Audio play failed:', e));
+  };
+
   const handleMenuClick = (route) => {
+    playClickSound();
     console.log(`Navigating to: ${route}`);
     
-    // Check if it's the exit route - do nothing (disabled for now)
-    if (route === '#home' || route === '#exit') {
-      console.log('Exit button clicked - navigation disabled');
+    // Check if it's the about route - show about modal
+    if (route === '#about') {
+      setShowAboutModal(true);
       return;
     }
     
@@ -65,10 +74,12 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
   };
 
   const handleProfileClick = () => {
+    playClickSound();
     setShowProfileModal(true);
   };
 
   const closeProfileModal = () => {
+    playClickSound();
     setShowProfileModal(false);
   };
 
@@ -88,7 +99,7 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
       {/* Language Toggle Button - Bottom Right */}
       <div className="fixed bottom-6 right-6 z-50">
         <button
-          onClick={() => changeLanguage(language === 'english' ? 'filipino' : 'english')}
+          onClick={() => { playClickSound(); changeLanguage(language === 'english' ? 'filipino' : 'english'); }}
           className="bg-white hover:bg-gray-50 px-5 py-3 rounded-2xl shadow-lg text-sm font-bold text-indigo-600 transition-all hover:scale-105 hover:shadow-xl active:scale-95 border-2 border-indigo-200"
         >
           <span className="text-lg mr-1">{language === 'english' ? '🇵🇭' : '🇬🇧'}</span>
@@ -155,6 +166,7 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
           userAvatar={userAvatar}
           onClose={closeProfileModal}
           onLogout={onLogout}
+          playClickSound={playClickSound}
         />
       )}
 
@@ -162,8 +174,44 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
       {showLearnMoreModal && (
         <LearnMoreModal
           isOpen={showLearnMoreModal}
-          onClose={() => setShowLearnMoreModal(false)}
+          onClose={() => { playClickSound(); setShowLearnMoreModal(false); }}
         />
+      )}
+
+      {/* About Modal */}
+      {showAboutModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => { playClickSound(); setShowAboutModal(false); }}>
+          <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 max-w-md mx-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="text-center mb-4">
+              <span className="text-4xl">🎓</span>
+              <h2 className="text-xl font-bold text-gray-800 mt-2">OrganQuest</h2>
+            </div>
+            <p className="text-sm text-gray-700 mb-4 text-center">
+              An interactive anatomy learning platform designed to make studying human organs fun and engaging.
+            </p>
+            <div className="bg-white/70 rounded-xl p-4 mb-4">
+              <h4 className="font-semibold text-sm mb-2">Features:</h4>
+              <ul className="text-sm text-gray-700 space-y-1">
+                <li>✓ Interactive 3D organ models</li>
+                <li>✓ AR scanning & exploration</li>
+                <li>✓ Multiple quiz modes</li>
+                <li>✓ Progress tracking</li>
+                <li>✓ Educational games</li>
+              </ul>
+            </div>
+            <div className="text-center mb-4">
+              <h4 className="font-semibold text-sm mb-1">Created by:</h4>
+              <p className="text-sm text-purple-600 font-medium">OrganQuest Development Team</p>
+              <p className="text-xs text-gray-500 mt-1">Version 2.0 © 2025</p>
+            </div>
+            <button
+              onClick={() => { playClickSound(); setShowAboutModal(false); }}
+              className="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Decorative Elements */}

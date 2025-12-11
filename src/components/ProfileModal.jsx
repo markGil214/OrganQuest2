@@ -5,8 +5,8 @@ import { cn } from '../lib/utils';
 import api from '../lib/api';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from 'recharts';
 
-const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
-  const [activeTab, setActiveTab] = useState('info'); // 'info', 'progress', 'about'
+const ProfileModal = ({ username, userAvatar, onClose, onLogout, playClickSound }) => {
+  const [activeTab, setActiveTab] = useState('info'); // 'info', 'progress'
   const [quizResults, setQuizResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [userInfo, setUserInfo] = useState({
@@ -23,6 +23,18 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
     grade: ''
   });
   const [saving, setSaving] = useState(false);
+
+  // Play sound helper - use passed function or create new
+  const handleClick = (callback) => {
+    if (playClickSound) {
+      playClickSound();
+    } else {
+      const audio = new Audio('/sounds/pop.mp3');
+      audio.volume = 0.5;
+      audio.play().catch(e => console.log('Audio play failed:', e));
+    }
+    if (callback) callback();
+  };
 
   // Fetch user info and quiz results
   useEffect(() => {
@@ -125,10 +137,10 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
           {/* Tabs Navigation */}
           <div className="flex gap-2 px-4 border-b border-purple-200">
             <button
-              onClick={() => {
+              onClick={() => handleClick(() => {
                 setActiveTab('info');
                 setIsEditing(false);
-              }}
+              })}
               className={cn(
                 "px-4 py-2 text-sm font-medium transition-all",
                 activeTab === 'info' 
@@ -139,7 +151,7 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
               👤 My Info
             </button>
             <button
-              onClick={() => setActiveTab('progress')}
+              onClick={() => handleClick(() => setActiveTab('progress'))}
               className={cn(
                 "px-4 py-2 text-sm font-medium transition-all",
                 activeTab === 'progress' 
@@ -148,17 +160,6 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
               )}
             >
               📈 Progress
-            </button>
-            <button
-              onClick={() => setActiveTab('about')}
-              className={cn(
-                "px-4 py-2 text-sm font-medium transition-all",
-                activeTab === 'about' 
-                  ? "text-purple-600 border-b-2 border-purple-600" 
-                  : "text-gray-600 hover:text-purple-600"
-              )}
-            >
-              ℹ️ About
             </button>
           </div>
 
@@ -174,7 +175,7 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
                       <div className="flex justify-between items-start mb-4">
                         <h3 className="font-bold text-lg">Personal Information</h3>
                         <Button
-                          onClick={() => setIsEditing(true)}
+                          onClick={() => handleClick(() => setIsEditing(true))}
                           size="sm"
                           className="bg-purple-600 hover:bg-purple-700"
                         >
@@ -251,17 +252,17 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
                       </div>
                       <div className="flex gap-2">
                         <Button
-                          onClick={handleEditSubmit}
+                          onClick={() => handleClick(handleEditSubmit)}
                           disabled={saving}
                           className="flex-1 bg-purple-600 hover:bg-purple-700"
                         >
                           {saving ? 'Saving...' : '💾 Save Changes'}
                         </Button>
                         <Button
-                          onClick={() => {
+                          onClick={() => handleClick(() => {
                             setIsEditing(false);
                             setEditForm(userInfo);
-                          }}
+                          })}
                           variant="outline"
                           className="flex-1"
                         >
@@ -413,37 +414,12 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
                 )}
               </div>
             )}
-
-            {/* About Tab */}
-            {activeTab === 'about' && (
-              <div className="space-y-4">
-                <div className="p-4 bg-white/70 rounded-xl shadow-md">
-                  <h3 className="font-bold text-lg mb-2">🎓 OrganQuest</h3>
-                  <p className="text-sm text-gray-700 mb-3">
-                    An interactive anatomy learning platform designed to make studying human organs fun and engaging.
-                  </p>
-                  <h4 className="font-semibold text-sm mb-1">Created by:</h4>
-                  <p className="text-sm text-purple-600 font-medium">OrganQuest Development Team</p>
-                  <p className="text-xs text-gray-500 mt-2">Version 2.0 © 2025</p>
-                </div>
-                <div className="p-4 bg-white/70 rounded-xl shadow-md">
-                  <h4 className="font-semibold text-sm mb-2">Features:</h4>
-                  <ul className="text-sm text-gray-700 space-y-1">
-                    <li>✓ Interactive 3D organ models</li>
-                    <li>✓ AR scanning & exploration</li>
-                    <li>✓ Multiple quiz modes</li>
-                    <li>✓ Progress tracking</li>
-                    <li>✓ Educational games</li>
-                  </ul>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Logout Button */}
           <div className="px-4 pt-2">
             <Button
-              onClick={handleLogout}
+              onClick={() => handleClick(handleLogout)}
               variant="destructive"
               className="w-full text-sm font-semibold gap-2"
             >
