@@ -46,13 +46,6 @@ const AdminDashboard = ({ userData, onLogout }) => {
     studentName: ''
   });
   
-  // Delete confirmation dialog state
-  const [deleteConfirmDialog, setDeleteConfirmDialog] = useState({
-    isOpen: false,
-    studentId: null,
-    studentName: ''
-  });
-  
   // Registration URL Modal state
   const [showRegistrationModal, setShowRegistrationModal] = useState(false);
   const [registrationModalData, setRegistrationModalData] = useState({
