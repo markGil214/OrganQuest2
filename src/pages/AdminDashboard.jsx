@@ -1370,7 +1370,14 @@ const AdminDashboard = ({ userData, onLogout }) => {
                       </tr>
                     </thead>
                     <tbody>
-                      {studentQuizDetails.quizResults.slice(0, 10).map((result, index) => (
+                      {/* Sort chronologically (oldest first) to match chart, then show most recent 10 */}
+                      {[...studentQuizDetails.quizResults]
+                        .sort((a, b) => {
+                          const dateA = new Date(a.completedAt || a.timestamp || 0);
+                          const dateB = new Date(b.completedAt || b.timestamp || 0);
+                          return dateA - dateB;
+                        })
+                        .map((result, index, arr) => (
                         <tr key={index} className={`border-b hover:bg-purple-50 ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
                           <td className="px-4 py-3 text-sm font-semibold text-gray-600">#{index + 1}</td>
                           <td className="px-4 py-3 text-sm font-medium">{result.quizType || 'Unknown'}</td>
