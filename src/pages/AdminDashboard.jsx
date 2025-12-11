@@ -1270,12 +1270,28 @@ const AdminDashboard = ({ userData, onLogout }) => {
                 </h3>
                 <div className="border-2 border-blue-100 rounded-lg p-4 bg-gradient-to-br from-blue-50 to-white">
                   <ResponsiveContainer width="100%" height={350}>
-                    <LineChart data={studentQuizDetails.quizResults.map((result, index) => ({
-                      attempt: index + 1,
-                      score: result.percentage || 0,
-                      date: result.timestamp ? new Date(result.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : `Attempt ${index + 1}`,
-                      type: result.quizType
-                    }))}>
+                    <LineChart data={(() => {
+                      // Sort quiz results by timestamp or use original order
+                      const sortedResults = [...studentQuizDetails.quizResults].sort((a, b) => {
+                        if (a.timestamp && b.timestamp) {
+                          return new Date(a.timestamp) - new Date(b.timestamp);
+                        }
+                        return 0;
+                      });
+                      
+                      return sortedResults.map((result, index) => {
+                        const scoreValue = result.percentage || result.score || 0;
+                        return {
+                          attempt: index + 1,
+                          score: scoreValue,
+                          date: result.timestamp 
+                            ? new Date(result.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) 
+                            : `Attempt ${index + 1}`,
+                          type: result.quizType || 'Quiz',
+                          fullDate: result.timestamp ? new Date(result.timestamp).toLocaleString() : 'Unknown'
+                        };
+                      });
+                    })()}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                       <XAxis 
                         dataKey="date" 
@@ -1291,7 +1307,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
                         formatter={(value, name) => [`${value}%`, 'Score']}
                         labelFormatter={(label, payload) => {
                           if (payload && payload[0]) {
-                            return `${label} - ${payload[0].payload.type}`;
+                            return `${payload[0].payload.fullDate} - ${payload[0].payload.type}`;
                           }
                           return label;
                         }}
