@@ -19,21 +19,21 @@ const MemoryMatchingGame = () => {
     addMontserratFont();
   }, []);
 
-  // Memory card pairs - organs with SVG image and text
+  // Memory card pairs - organs with images
   const organs = [
-    { key: 'heart', label: 'Heart', icon: '❤️' },
-    { key: 'brain', label: 'Brain', icon: '🧠' },
-    { key: 'lungs', label: 'Lungs', icon: '🫁' },
-    { key: 'liver', label: 'Liver', icon: '🫀' },
-    { key: 'kidney', label: 'Kidneys', icon: '🫘' }
+    { key: 'heart', label: 'Heart', image: '/organs/heart.png' },
+    { key: 'brain', label: 'Brain', image: '/organs/brain.png' },
+    { key: 'lungs', label: 'Lungs', image: '/organs/lungs.png' },
+    { key: 'liver', label: 'Liver', image: '/organs/liver.png' },
+    { key: 'kidney', label: 'Kidneys', image: '/organs/kidney.png' }
   ];
 
-  // Build card pairs: one emoji card, one text card for each organ
+  // Build card pairs: one image card, one text card for each organ
   const cardPairs = organs.flatMap((org, i) => [
     {
       id: i * 2 + 1,
-      type: 'emoji',
-      icon: org.icon,
+      type: 'visual',
+      image: org.image,
       matchId: org.key
     },
     {
@@ -330,7 +330,7 @@ const MemoryMatchingGame = () => {
                 background: isCardFlipped(card.id)
                   ? (isCardMatched(card.id)
                     ? 'linear-gradient(135deg, #4ECDC4, #44A08D)'
-                    : card.type === 'emoji'
+                    : card.type === 'visual'
                     ? 'linear-gradient(135deg, #FF6B6B, #FF8E53)'
                     : 'linear-gradient(135deg, #667eea, #764ba2)')
                   : 'linear-gradient(135deg, #34495e, #2c3e50)',
@@ -362,10 +362,17 @@ const MemoryMatchingGame = () => {
             >
               {isCardFlipped(card.id) ? (
                 <>
-                  {card.type === 'emoji' ? (
-                    <span style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }} role="img" aria-label={card.matchId}>
-                      {card.icon}
-                    </span>
+                  {card.type === 'visual' ? (
+                    <img 
+                      src={card.image} 
+                      alt={card.matchId}
+                      style={{ 
+                        width: '60px', 
+                        height: '60px', 
+                        objectFit: 'contain',
+                        filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
+                      }} 
+                    />
                   ) : (
                     <div style={{
                       fontSize: '1.2rem',
