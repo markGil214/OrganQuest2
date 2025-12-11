@@ -1411,9 +1411,9 @@ const AdminDashboard = ({ userData, onLogout }) => {
                             return sortedResults.map((result, index) => {
                               let scoreValue = 0;
                               if (result.percentage && result.percentage > 0) {
-                                scoreValue = result.percentage;
+                                scoreValue = Math.min(result.percentage, 100);
                               } else if (result.score !== undefined && result.totalQuestions) {
-                                scoreValue = Math.round((result.score / result.totalQuestions) * 100);
+                                scoreValue = Math.min(Math.round((result.score / result.totalQuestions) * 100), 100);
                               }
                               return {
                                 attempt: index + 1,
