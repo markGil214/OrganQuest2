@@ -1429,7 +1429,8 @@ const AdminDashboard = ({ userData, onLogout }) => {
                               tick={{ fontSize: 12 }}
                             />
                             <YAxis 
-                              domain={[0, 100]} 
+                              domain={[0, 100]}
+                              allowDataOverflow={false}
                               label={{ value: 'Score (%)', angle: -90, position: 'insideLeft' }}
                               stroke="#6b7280"
                             />

@@ -386,7 +386,8 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout }) => {
                                 tick={{ fontSize: 11 }}
                               />
                               <YAxis 
-                                domain={[0, 100]} 
+                                domain={[0, 100]}
+                                allowDataOverflow={false}
                                 label={{ value: 'Score (%)', angle: -90, position: 'insideLeft', style: { fontSize: 11 } }}
                                 stroke="#6b7280"
                                 tick={{ fontSize: 11 }}
