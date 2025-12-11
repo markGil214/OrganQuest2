@@ -1322,9 +1322,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
                           attempt: index + 1,
                           score: scoreValue,
                           scoreDisplay: scoreValue,
-                          date: resultDate 
-                            ? new Date(resultDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) 
-                            : `Attempt ${index + 1}`,
+                          attemptLabel: `Attempt ${index + 1}`,
                           type: result.quizType || 'Quiz',
                           fullDate: resultDate ? new Date(resultDate).toLocaleString() : 'Unknown'
                         };
@@ -1332,7 +1330,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
                     })()}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                       <XAxis 
-                        dataKey="date" 
+                        dataKey="attemptLabel" 
                         stroke="#6b7280"
                         tick={{ fontSize: 12 }}
                       />
