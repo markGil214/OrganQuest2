@@ -1341,19 +1341,6 @@ const AdminDashboard = ({ userData, onLogout }) => {
                         label={{ value: 'Score (%)', angle: -90, position: 'insideLeft' }}
                         stroke="#6b7280"
                       />
-                      <Tooltip 
-                        formatter={(value, name, props) => {
-                          // Use the scoreDisplay from the data point
-                          const displayScore = props?.payload?.scoreDisplay ?? value;
-                          return [`${displayScore}%`, 'Score'];
-                        }}
-                        labelFormatter={(label, payload) => {
-                          if (payload && payload[0]) {
-                            return `${payload[0].payload.fullDate} - ${payload[0].payload.type}`;
-                          }
-                          return label;
-                        }}
-                      />
                       <Legend />
                       <Line 
                         type="monotone" 
