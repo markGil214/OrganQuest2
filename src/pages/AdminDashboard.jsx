@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '../components/ui/Card';
+import AdminSidebar from '../components/ui/AdminSidebar';
 import { Button } from '../components/ui/Button';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import QuizAssignmentManager from '../components/QuizAssignmentManager';
@@ -480,6 +481,8 @@ const AdminDashboard = ({ userData, onLogout }) => {
 
   return (
     <div className="min-h-screen p-6" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+      {/* Admin Sidebar (fixed on md+) */}
+      <AdminSidebar analytics={analytics} classes={classes} students={students} />
       {/* Class Details View */}
       {currentView === 'class-details' && selectedClassData ? (
         <div className="max-w-7xl mx-auto">
