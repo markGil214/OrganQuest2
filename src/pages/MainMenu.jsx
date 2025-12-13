@@ -85,18 +85,7 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
 
   return (
     <div className="min-h-screen overflow-hidden relative" style={{ backgroundImage: 'url(/school/bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
-      {/* Animated background patterns */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-0 left-0 w-full h-full" style={{
-          backgroundImage: `radial-gradient(circle at 20% 50%, white 2px, transparent 2px),
-                           radial-gradient(circle at 80% 80%, white 2px, transparent 2px),
-                           radial-gradient(circle at 40% 20%, white 1px, transparent 1px)`,
-          backgroundSize: '100px 100px, 150px 150px, 80px 80px',
-          animation: 'float 20s ease-in-out infinite'
-        }} />
-      </div>
-
-      {/* Language Toggle Button - Bottom Right */}
+      {/* Language Toggle Button - Bottom Right */
       <div className="fixed bottom-6 right-6 z-50">
         <button
           onClick={() => { playClickSound(); changeLanguage(language === 'english' ? 'filipino' : 'english'); }}

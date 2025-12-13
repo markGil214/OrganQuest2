@@ -212,12 +212,6 @@ const ScanExploreMenu = () => {
   if (isScanning) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden" style={{ backgroundImage: 'url(/school/bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
-        {/* Animated circles */}
-        <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-1/4 w-32 h-32 rounded-full bg-white/10 animate-ping" style={{ animationDuration: '2s' }} />
-          <div className="absolute bottom-1/4 right-1/4 w-40 h-40 rounded-full bg-white/10 animate-ping" style={{ animationDuration: '2.5s' }} />
-        </div>
-        
         <div className="text-center space-y-8 animate-fade-in relative z-10">
           <div className="relative">
             <div className="text-9xl animate-pulse drop-shadow-2xl">🔍</div>
@@ -245,15 +239,6 @@ const ScanExploreMenu = () => {
   if (selectedOrgan) {
     return (
       <div className="min-h-screen p-6 relative overflow-hidden" style={{ backgroundImage: 'url(/school/bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
-        {/* Animated background patterns */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute w-full h-full" style={{
-            backgroundImage: `radial-gradient(circle, white 2px, transparent 2px)`,
-            backgroundSize: '60px 60px',
-            animation: 'float 15s ease-in-out infinite'
-          }} />
-        </div>
-        
         <div className="max-w-2xl mx-auto space-y-6 relative z-10">
           <Button
             onClick={handleCloseOrganDetail}
@@ -328,25 +313,7 @@ const ScanExploreMenu = () => {
 
   return (
     <div className="min-h-screen p-6 relative overflow-hidden" style={{ backgroundImage: 'url(/school/bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
-      {/* Animated background elements */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute w-full h-full" style={{
-          backgroundImage: `radial-gradient(circle at 25% 25%, white 3px, transparent 3px),
-                           radial-gradient(circle at 75% 75%, white 2px, transparent 2px)`,
-          backgroundSize: '100px 100px, 80px 80px',
-          animation: 'float 20s ease-in-out infinite'
-        }} />
-      </div>
-      
-      {/* Floating decorations */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-20 left-10 text-5xl animate-float opacity-20" style={{ animationDelay: '0s' }}>⭐</div>
-        <div className="absolute top-40 right-16 text-4xl animate-float opacity-20" style={{ animationDelay: '1s' }}>✨</div>
-        <div className="absolute bottom-32 left-20 text-5xl animate-float opacity-20" style={{ animationDelay: '2s' }}>💫</div>
-        <div className="absolute bottom-48 right-24 text-4xl animate-float opacity-20" style={{ animationDelay: '1.5s' }}>🌟</div>
-      </div>
-      
-      {/* Header */}
+      {/* Header */
       <div className="max-w-3xl mx-auto mb-6 relative z-10">
         <Button
           onClick={handleBack}
