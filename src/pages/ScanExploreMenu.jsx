@@ -576,8 +576,6 @@ const ScanExploreMenu = () => {
           100% { transform: scale(1); }
         }
       `}</style>
-      </div>
-    </div>
 
       {/* Profile Modal */}
       {showProfileModal && (
@@ -589,6 +587,7 @@ const ScanExploreMenu = () => {
           playClickSound={playClickSound}
         />
       )}
+      </div>
     </div>
   );
 };
