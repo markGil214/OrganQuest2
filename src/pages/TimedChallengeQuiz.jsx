@@ -3,6 +3,7 @@ import { timedChallengeQuestions } from '../data/timedChallengeQuestions';
 import { Button } from '../components/ui/Button';
 import { cn } from '../lib/utils';
 import api from '../lib/api';
+import ProfileModal from '../components/ProfileModal';
 
 const TimedChallengeQuiz = () => {
 
@@ -14,6 +15,9 @@ const TimedChallengeQuiz = () => {
 
   const [assignmentId, setAssignmentId] = useState(getAssignmentId());
   const [assignmentData, setAssignmentData] = useState(null);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const username = localStorage.getItem('username') || 'Explorer';
+  const userAvatar = localStorage.getItem('userAvatar') || '/avatars/avatar-1.svg';
 
   // Shuffle function
   const shuffleArray = (array) => {
@@ -42,6 +46,20 @@ const TimedChallengeQuiz = () => {
 
   const handleBackClick = () => {
     window.location.href = '#quiz';
+  };
+
+  const handleProfileClick = () => {
+    setShowProfileModal(true);
+  };
+
+  const closeProfileModal = () => {
+    setShowProfileModal(false);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('username');
+    localStorage.removeItem('userAvatar');
+    window.location.href = '/';
   };
 
   // Initialize shuffled questions
@@ -463,6 +481,73 @@ const TimedChallengeQuiz = () => {
       position: 'relative',
       overflow: 'hidden'
     }}>
+      {/* Header with ProfileModal */}
+      <header style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '1rem',
+        background: '#2563eb',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+        position: 'relative',
+        zIndex: 10
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <img 
+            src="/school/dcslogo.jpg" 
+            alt="DCS Logo" 
+            style={{ width: '48px', height: '48px', objectFit: 'contain' }}
+          />
+          <h1 style={{ fontSize: '1.5rem', fontWeight: '900', color: 'white', margin: 0 }}>OrganQuest</h1>
+        </div>
+
+        <button
+          onClick={handleProfileClick}
+          style={{
+            position: 'relative',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 0
+          }}
+        >
+          <div style={{
+            width: '48px',
+            height: '48px',
+            borderRadius: '50%',
+            overflow: 'hidden',
+            border: '4px solid white',
+            boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)',
+            transition: 'all 0.3s ease'
+          }}>
+            <img 
+              src={userAvatar} 
+              alt={`${username}'s avatar`}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          </div>
+          <div style={{
+            position: 'absolute',
+            top: '-4px',
+            right: '-4px',
+            width: '16px',
+            height: '16px',
+            background: '#4ade80',
+            border: '2px solid white',
+            borderRadius: '50%',
+            animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+          }} />
+        </button>
+      </header>
+
+      <ProfileModal 
+        isOpen={showProfileModal}
+        onClose={closeProfileModal}
+        username={username}
+        userAvatar={userAvatar}
+        onLogout={handleLogout}
+      />
+
       {/* Floating background elements */}
       <div style={{
         position: 'absolute',
@@ -481,14 +566,12 @@ const TimedChallengeQuiz = () => {
         animation: 'float 4s ease-in-out infinite reverse'
       }}>🏃‍♂️</div>
 
-      {/* Header with Timer */}
+      {/* Back Button and Game Stats */}
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.75rem, 3vw, 2rem)',
-        background: 'rgba(0, 0, 0, 0.2)',
-        backdropFilter: 'blur(10px)',
         flexWrap: 'wrap',
         gap: '0.5rem',
         position: 'relative'
