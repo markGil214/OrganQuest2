@@ -127,13 +127,55 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout, playClickSound 
     }
   };
 
-  // Handle avatar file change
+  // Handle avatar file change with compression
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
     if (file && file.type.startsWith('image/')) {
+      // Check file size (limit to 5MB before compression)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image is too large. Please select an image smaller than 5MB.');
+        return;
+      }
+
+      // Resize and compress the image
+      const img = new Image();
       const reader = new FileReader();
-      reader.onload = async (ev) => {
-        const avatarData = ev.target.result;
+      
+      reader.onload = (e) => {
+        img.src = e.target.result;
+      };
+      
+      img.onload = async () => {
+        // Create canvas to resize image
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Set max dimensions (200x200 for avatar)
+        const maxSize = 200;
+        let width = img.width;
+        let height = img.height;
+        
+        if (width > height) {
+          if (width > maxSize) {
+            height *= maxSize / width;
+            width = maxSize;
+          }
+        } else {
+          if (height > maxSize) {
+            width *= maxSize / height;
+            height = maxSize;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        // Draw resized image
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        // Convert to base64 with compression (0.7 quality for JPEG)
+        const avatarData = canvas.toDataURL('image/jpeg', 0.7);
+        
         setAvatarPreview(avatarData);
         localStorage.setItem('userAvatar', avatarData);
         
@@ -152,14 +194,19 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout, playClickSound 
             
             if (response.ok) {
               console.log('Avatar uploaded to database successfully');
+              alert('Avatar updated successfully!');
             } else {
-              console.error('Failed to upload avatar to database');
+              const errorData = await response.json();
+              console.error('Failed to upload avatar to database:', errorData);
+              alert('Failed to upload avatar. Please try a smaller image.');
             }
           }
         } catch (error) {
           console.error('Error uploading avatar:', error);
+          alert('Error uploading avatar. Please try again.');
         }
       };
+      
       reader.readAsDataURL(file);
     }
   };
