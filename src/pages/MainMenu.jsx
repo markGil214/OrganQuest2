@@ -84,20 +84,9 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
   };
 
   return (
-    <div className="min-h-screen overflow-hidden relative" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
-      {/* Language Toggle Button - Bottom Right */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <button
-          onClick={() => { playClickSound(); changeLanguage(language === 'english' ? 'filipino' : 'english'); }}
-          className="bg-white hover:bg-gray-50 px-5 py-3 rounded-2xl shadow-lg text-sm font-bold text-indigo-600 transition-all hover:scale-105 hover:shadow-xl active:scale-95 border-2 border-indigo-200"
-        >
-          <span className="text-lg mr-1">{language === 'english' ? '🇵🇭' : '🇬🇧'}</span>
-          {language === 'english' ? 'Filipino' : 'English'}
-        </button>
-      </div>
-
+    <div className="min-h-screen overflow-hidden">
       {/* Header Section with Logo */}
-      <header className="flex justify-between items-center p-6 md:p-8 bg-blue-600 shadow-lg sticky top-0 z-20">
+      <header className="flex justify-between items-center p-6 md:p-8 bg-blue-600 shadow-lg">
         <div className="flex items-center gap-4">
           <img 
             src="/school/dcslogo.jpg" 
@@ -122,30 +111,44 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
         </button>
       </header>
 
-      {/* Greeting Section */}
-      <div className="px-6 md:px-8 py-4 relative z-10">
-        <h2 className="text-2xl md:text-3xl font-black text-white drop-shadow-lg">{menuText.greeting}, {username}!</h2>
-        <p className="text-white/95 text-base md:text-lg font-medium drop-shadow">{menuText.subtitle}</p>
-      </div>
+      {/* Main Content with Background */}
+      <div className="min-h-screen relative" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+        {/* Language Toggle Button - Bottom Right */}
+        <div className="fixed bottom-6 right-6 z-50">
+          <button
+            onClick={() => { playClickSound(); changeLanguage(language === 'english' ? 'filipino' : 'english'); }}
+            className="bg-white hover:bg-gray-50 px-5 py-3 rounded-2xl shadow-lg text-sm font-bold text-indigo-600 transition-all hover:scale-105 hover:shadow-xl active:scale-95 border-2 border-indigo-200"
+          >
+            <span className="text-lg mr-1">{language === 'english' ? '🇵🇭' : '🇬🇧'}</span>
+            {language === 'english' ? 'Filipino' : 'English'}
+          </button>
+        </div>
 
-      {/* Menu Buttons Grid */}
-      <div className="max-w-5xl mx-auto px-6 md:px-8 pb-12 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-          {menuOptions.map((option, index) => (
-            <div
-              key={option.id}
-              className="animate-slide-in"
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              <MenuButton
-                icon={option.icon}
-                title={option.title}
-                subtitle={option.subtitle}
-                color={option.color}
-                onClick={() => handleMenuClick(option.route)}
-              />
-            </div>
-          ))}
+        {/* Greeting Section */}
+        <div className="px-6 md:px-8 py-4 relative z-10">
+          <h2 className="text-2xl md:text-3xl font-black text-white drop-shadow-lg">{menuText.greeting}, {username}!</h2>
+          <p className="text-white/95 text-base md:text-lg font-medium drop-shadow">{menuText.subtitle}</p>
+        </div>
+
+        {/* Menu Buttons Grid */}
+        <div className="max-w-5xl mx-auto px-6 md:px-8 pb-12 relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            {menuOptions.map((option, index) => (
+              <div
+                key={option.id}
+                className="animate-slide-in"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <MenuButton
+                  icon={option.icon}
+                  title={option.title}
+                  subtitle={option.subtitle}
+                  color={option.color}
+                  onClick={() => handleMenuClick(option.route)}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
