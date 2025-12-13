@@ -96,7 +96,7 @@ const QuizMenu = () => {
   }
 
   return (
-    <div className="h-screen overflow-hidden">
+    <div className="h-screen overflow-hidden flex flex-col">
       {/* Header */}
       <Header 
         onProfileClick={handleProfileClick}
@@ -105,12 +105,16 @@ const QuizMenu = () => {
       />
 
       {/* Main Content */}
-      <div className="h-full relative overflow-hidden" style={{ 
-        backgroundImage: 'url(/school/bg.png)', 
-        backgroundSize: 'cover', 
-        backgroundPosition: 'center', 
-        backgroundRepeat: 'no-repeat' 
-      }}>
+      <div
+        className="flex-1 relative overflow-y-auto"
+        style={{
+          backgroundImage: 'url(/school/bg.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundAttachment: 'fixed',
+        }}
+      >
         <div className="pt-8 pb-6 px-6">
           <Button
             onClick={handleBackClick}
