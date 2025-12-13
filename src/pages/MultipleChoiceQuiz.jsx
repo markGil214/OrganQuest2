@@ -6,3 +6,4 @@ const MultipleChoiceQuiz = () => {
 };
 
 export default MultipleChoiceQuiz;
+

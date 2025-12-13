@@ -170,3 +170,4 @@ const LoginPageTranslated = ({ onLoginSuccess }) => {
 };
 
 export default LoginPageTranslated;
+

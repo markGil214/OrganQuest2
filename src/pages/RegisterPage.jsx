@@ -109,7 +109,7 @@ const RegisterPage = ({ onRegistrationComplete }) => {
   ];
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6" style={{ backgroundImage: 'url(/school/bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+    <div className="min-h-screen flex items-center justify-center p-6" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       {/* Language Toggle Button - Bottom Right */}
       <div className="fixed bottom-6 right-6 z-50">
         <button
@@ -120,7 +120,7 @@ const RegisterPage = ({ onRegistrationComplete }) => {
         </button>
       </div>
 
-      <Card className="w-full max-w-md bg-white/20 backdrop-blur-md border-2 border-white/30">
+      <div className="w-full max-w-md">
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
           {/* Profile Picture */}
           <div className="flex justify-center">
@@ -315,9 +315,10 @@ const RegisterPage = ({ onRegistrationComplete }) => {
             )}
           </Button>
         </form>
-      </Card>
+      </div>
     </div>
   );
 };
 
 export default RegisterPage;
+

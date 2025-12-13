@@ -684,3 +684,4 @@ const TimedChallengeQuiz = () => {
 };
 
 export default TimedChallengeQuiz;
+

@@ -31,3 +31,4 @@ describe('MultipleChoiceQuiz Component', () => {
     expect(container).toBeInTheDocument();
   });
 });
+

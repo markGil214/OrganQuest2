@@ -157,7 +157,7 @@ const TeacherRegister = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundImage: 'url(/school/bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
         <div className="text-white text-xl">Verifying registration link...</div>
       </div>
     );
@@ -165,7 +165,7 @@ const TeacherRegister = () => {
 
   if (error && !teacherInfo) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6" style={{ backgroundImage: 'url(/school/bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+      <div className="min-h-screen flex items-center justify-center p-6" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
         <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center">
           <div className="text-6xl mb-4">⚠️</div>
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Invalid Registration Link</h2>
@@ -303,3 +303,4 @@ const TeacherRegister = () => {
 };
 
 export default TeacherRegister;
+

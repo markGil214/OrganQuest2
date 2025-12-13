@@ -447,3 +447,4 @@ const ARScanner = () => {
 };
 
 export default ARScanner;
+

@@ -77,7 +77,7 @@ const QuizMenu = () => {
   }
 
   return (
-    <div className="min-h-screen overflow-hidden relative" style={{ backgroundImage: 'url(/school/bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+    <div className="min-h-screen overflow-hidden relative" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       {/* Header */}
       <div className="relative z-10 pt-8 pb-6 px-6">
         <Button
@@ -125,3 +125,4 @@ const QuizMenu = () => {
 };
 
 export default QuizMenu;
+

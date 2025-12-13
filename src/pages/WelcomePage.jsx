@@ -13,7 +13,7 @@ const WelcomePage = ({ username = 'User' }) => {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden" style={{ backgroundImage: 'url(/school/bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+    <div className="relative min-h-screen overflow-hidden" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       {/* Main content */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen text-center px-6">
         <div className="animate-scale-in space-y-8">
@@ -49,3 +49,4 @@ const WelcomePage = ({ username = 'User' }) => {
 };
 
 export default WelcomePage;
+
