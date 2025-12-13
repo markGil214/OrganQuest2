@@ -180,18 +180,7 @@ const LoginPage = ({ onLoginSuccess }) => {
             )}
           </Button>
 
-          {/* Register Link */}
-          <div className="text-center pt-4 border-t-2 border-gray-200">
-            <p className="text-gray-600 text-xs mb-2">{loginText.noAccount}</p>
-            <Button
-              type="button"
-              onClick={handleRegisterClick}
-              variant="outline"
-              className="w-full border-2 border-purple-500 text-purple-600 hover:bg-purple-50 font-semibold text-sm"
-            >
-              {loginText.createAccount}
-            </Button>
-          </div>
+          {/* Register Link removed per request */}
         </form>
       </Card>
     </div>
