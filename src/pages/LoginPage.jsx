@@ -67,17 +67,17 @@ const LoginPage = ({ onLoginSuccess }) => {
           onClick={() => changeLanguage(language === 'english' ? 'filipino' : 'english')}
           className="bg-white/90 hover:bg-white px-4 py-2 rounded-lg shadow-lg text-sm font-semibold text-purple-600 transition-all hover:scale-105"
         >
-          {language === 'english' ? '🇵🇭 Filipino' : '🇬🇧 English'}
+          {language === 'english' ? 'Filipino' : 'English'}
         </button>
       </div>
 
-      <div className="w-full max-w-md">
+      <Card className="w-full max-w-md bg-white/95 backdrop-blur-sm border-0">
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
           {/* Logo/Icon */}
           <div className="flex justify-center">
             <div className="relative">
               <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center shadow-2xl">
-                <div className="text-4xl">🔬</div>
+                <div className="text-4xl"></div>
               </div>
               <div className="absolute inset-0 rounded-full border-4 border-purple-300 animate-ping opacity-30"></div>
             </div>
@@ -164,7 +164,7 @@ const LoginPage = ({ onLoginSuccess }) => {
             </Button>
           </div>
         </form>
-      </div>
+      </Card>
     </div>
   );
 };
