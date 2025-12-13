@@ -3,6 +3,7 @@ import { baseQuizQuestions } from '../../data/quizQuestions';
 import api from '../../lib/api';
 import { randomizeQuiz, formatTime, calculatePercentage } from '../../lib/quizUtils';
 import QuizResultsPage from '../QuizResultsPage';
+import Header from '../../components/Header';
 
 // Add Montserrat font
 const addMontserratFont = () => {
@@ -12,7 +13,9 @@ const addMontserratFont = () => {
   document.head.appendChild(link);
 };
 
-const QuizContainer = () => {
+const QuizContainer = ({ useSiteHeader = false }) => {
+  const username = localStorage.getItem('username') || 'Explorer';
+  const userAvatar = localStorage.getItem('userAvatar') || '/avatars/avatar-1.svg';
   // Add font on component mount
   useEffect(() => {
     addMontserratFont();
@@ -361,7 +364,10 @@ const QuizContainer = () => {
     return (
       <div style={{ 
         minHeight: '100vh', 
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        backgroundImage: 'url(/school/bg.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center'
@@ -387,7 +393,10 @@ const QuizContainer = () => {
     return (
       <div style={{ 
         minHeight: '100vh', 
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        backgroundImage: 'url(/school/bg.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
@@ -439,7 +448,10 @@ const QuizContainer = () => {
     return (
       <div style={{ 
         minHeight: '100vh', 
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        backgroundImage: 'url(/school/bg.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
         display: 'flex', 
         flexDirection: 'column',
         alignItems: 'center', 
@@ -556,7 +568,10 @@ const QuizContainer = () => {
   return (
     <div style={{ 
       minHeight: '100vh', 
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      backgroundImage: 'url(/school/bg.png)',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
       display: 'flex', 
       flexDirection: 'column',
       color: 'white',
@@ -591,14 +606,75 @@ const QuizContainer = () => {
       }}>💪</div>
 
       {/* Header */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '1rem 2rem',
-        background: 'rgba(255, 255, 255, 0.1)',
-        backdropFilter: 'blur(10px)'
-      }}>
+      {useSiteHeader ? (
+        <>
+          <Header onProfileClick={() => {}} userAvatar={userAvatar} username={username} />
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '0.75rem 2rem'
+          }}>
+            <button 
+              onClick={handleBackClick}
+              style={{
+                background: 'rgba(255, 255, 255, 0.12)',
+                border: 'none',
+                borderRadius: '25px',
+                padding: 'clamp(0.6rem, 2vw, 0.75rem) clamp(1rem, 3vw, 1.5rem)',
+                color: 'white',
+                cursor: 'pointer',
+                fontSize: 'clamp(0.85rem, 2.5vw, 1.1rem)',
+                fontWeight: '600',
+                transition: 'all 0.3s ease',
+                fontFamily: 'inherit'
+              }}
+              onMouseOver={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.2)'}
+              onMouseOut={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.12)'}
+            >
+              ← Back to Quiz Menu
+            </button>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 'clamp(2rem, 5vw, 2.2rem)', marginBottom: '0.25rem' }}>🎯</div>
+              <div style={{ fontSize: 'clamp(1rem, 3vw, 1.3rem)', fontWeight: '600' }}>
+                Question {currentQuestion + 1} of {quizQuestions.length}
+              </div>
+            </div>
+            <div style={{ 
+              textAlign: 'center',
+              background: timeRemaining < 60 ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255, 255, 255, 0.12)',
+              borderRadius: '15px',
+              padding: '0.5rem 1rem'
+            }}>
+              <div style={{ fontSize: '0.75rem', opacity: 0.9, marginBottom: '0.15rem' }}>Time Left</div>
+              <div style={{ 
+                fontSize: 'clamp(1rem, 3vw, 1.1rem)', 
+                fontWeight: '700',
+                color: timeRemaining < 60 ? '#FCA5A5' : 'white'
+              }}>
+                ⏱️ {formatTime(timeRemaining)}
+              </div>
+            </div>
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.12)',
+              borderRadius: '25px',
+              padding: 'clamp(0.4rem, 1.2vw, 0.5rem) clamp(0.8rem, 2.4vw, 1rem)',
+              fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)',
+              fontWeight: '600'
+            }}>
+              Score: {score}
+            </div>
+          </div>
+        </>
+      ) : (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '1rem 2rem',
+          background: 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(10px)'
+        }}>
         <button 
           onClick={handleBackClick}
           style={{
