@@ -212,36 +212,7 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
         </div>
       )}
 
-      {/* Decorative Elements */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        {/* Floating organs */}
-        <div className="absolute top-32 left-10 text-4xl animate-float opacity-20 drop-shadow-lg" style={{ animationDelay: '0s' }}>💖</div>
-        <div className="absolute top-48 right-20 text-5xl animate-float opacity-20 drop-shadow-lg" style={{ animationDelay: '1s' }}>🧠</div>
-        <div className="absolute bottom-48 left-24 text-4xl animate-float opacity-20 drop-shadow-lg" style={{ animationDelay: '2s' }}>🫁</div>
-        <div className="absolute top-1/2 right-16 text-3xl animate-float opacity-20 drop-shadow-lg" style={{ animationDelay: '1.5s' }}>🫘</div>
-        <div className="absolute bottom-32 right-1/3 text-4xl animate-float opacity-20 drop-shadow-lg" style={{ animationDelay: '0.5s' }}>⭐</div>
-        
-        {/* Sparkles */}
-        <div className="absolute top-24 right-1/4 text-3xl animate-twinkle opacity-30" style={{ animationDelay: '0s' }}>✨</div>
-        <div className="absolute bottom-24 left-1/4 text-2xl animate-twinkle opacity-30" style={{ animationDelay: '1s' }}>✨</div>
-        <div className="absolute top-1/3 left-1/3 text-2xl animate-twinkle opacity-30" style={{ animationDelay: '2s' }}>💫</div>
-        
-        {/* Circles */}
-        <div className="absolute top-20 right-10 w-32 h-32 rounded-full bg-white/5 animate-pulse" style={{ animationDelay: '0s' }} />
-        <div className="absolute bottom-20 left-10 w-40 h-40 rounded-full bg-white/5 animate-pulse" style={{ animationDelay: '1.5s' }} />
-      </div>
-
       <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-20px) rotate(5deg); }
-        }
-        
-        @keyframes twinkle {
-          0%, 100% { opacity: 0.3; transform: scale(1); }
-          50% { opacity: 0.8; transform: scale(1.2); }
-        }
-        
         @keyframes slide-in {
           0% { 
             transform: translateY(20px); 
@@ -251,14 +222,6 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
             transform: translateY(0); 
             opacity: 1; 
           }
-        }
-
-        .animate-float {
-          animation: float 3s ease-in-out infinite;
-        }
-
-        .animate-twinkle {
-          animation: twinkle 2s ease-in-out infinite;
         }
         
         .animate-slide-in {
