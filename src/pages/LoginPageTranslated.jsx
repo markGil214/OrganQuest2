@@ -38,6 +38,13 @@ const LoginPageTranslated = ({ onLoginSuccess }) => {
       if (response.data.token) {
         localStorage.setItem('authToken', response.data.token);
         localStorage.setItem('userData', JSON.stringify(response.data.user));
+        
+        // Sync avatar from backend
+        const avatar = response.data.user.avatar;
+        if (avatar) {
+          const avatarToUse = typeof avatar === 'string' ? avatar : `/avatars/avatar-${avatar}.svg`;
+          localStorage.setItem('userAvatar', avatarToUse);
+        }
       }
 
       if (onLoginSuccess) {

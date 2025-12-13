@@ -31,8 +31,18 @@ router.post('/register',
       .isIn(['A', 'B', 'C'])
       .withMessage('Section must be A, B, or C'),
     body('avatar')
-      .isInt({ min: 1, max: 4 })
-      .withMessage('Avatar must be between 1 and 4'),
+      .optional()
+      .custom((value) => {
+        // Accept numbers 1-4 or strings (base64/URL)
+        if (typeof value === 'number') {
+          return value >= 1 && value <= 4;
+        }
+        if (typeof value === 'string') {
+          return value.length > 0;
+        }
+        return false;
+      })
+      .withMessage('Avatar must be a number between 1-4 or a valid string'),
     body('language')
       .isIn(['english', 'filipino', 'spanish', 'mandarin'])
       .withMessage('Invalid language selection')
@@ -228,7 +238,17 @@ router.put('/profile', authMiddleware,
       .isInt({ min: 1, max: 120 }),
     body('avatar')
       .optional()
-      .isInt({ min: 1, max: 4 }),
+      .custom((value) => {
+        // Accept numbers 1-4 or strings (base64/URL)
+        if (typeof value === 'number') {
+          return value >= 1 && value <= 4;
+        }
+        if (typeof value === 'string') {
+          return value.length > 0;
+        }
+        return false;
+      })
+      .withMessage('Avatar must be a number between 1-4 or a valid string'),
     body('language')
       .optional()
       .isIn(['english', 'filipino', 'spanish', 'mandarin'])

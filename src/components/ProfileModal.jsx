@@ -50,6 +50,16 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout, playClickSound 
           return;
         }
 
+        // Fetch full profile to get avatar
+        const profileResponse = await api.getProfile(token);
+        if (profileResponse.success && profileResponse.data.avatar) {
+          const dbAvatar = profileResponse.data.avatar;
+          // If avatar is a string (custom upload), use it; if number, convert to path
+          const avatarToUse = typeof dbAvatar === 'string' ? dbAvatar : `/avatars/avatar-${dbAvatar}.svg`;
+          setAvatarPreview(avatarToUse);
+          localStorage.setItem('userAvatar', avatarToUse);
+        }
+
         const response = await api.getStats(token);
         if (response.success) {
           const data = response.data;
@@ -118,13 +128,37 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout, playClickSound 
   };
 
   // Handle avatar file change
-  const handleAvatarChange = (e) => {
+  const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
     if (file && file.type.startsWith('image/')) {
       const reader = new FileReader();
-      reader.onload = (ev) => {
-        setAvatarPreview(ev.target.result);
-        localStorage.setItem('userAvatar', ev.target.result);
+      reader.onload = async (ev) => {
+        const avatarData = ev.target.result;
+        setAvatarPreview(avatarData);
+        localStorage.setItem('userAvatar', avatarData);
+        
+        // Upload to backend
+        try {
+          const token = localStorage.getItem('authToken');
+          if (token) {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/profile`, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+              body: JSON.stringify({ avatar: avatarData }),
+            });
+            
+            if (response.ok) {
+              console.log('Avatar uploaded to database successfully');
+            } else {
+              console.error('Failed to upload avatar to database');
+            }
+          }
+        } catch (error) {
+          console.error('Error uploading avatar:', error);
+        }
       };
       reader.readAsDataURL(file);
     }

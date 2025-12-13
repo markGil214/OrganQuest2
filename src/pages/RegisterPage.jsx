@@ -89,6 +89,13 @@ const RegisterPage = ({ onRegistrationComplete }) => {
         };
         localStorage.setItem('userData', JSON.stringify(userData));
         console.log('User data saved with language:', language);
+        
+        // Sync avatar from backend
+        const avatar = response.data.user.avatar;
+        if (avatar) {
+          const avatarToUse = typeof avatar === 'string' ? avatar : `/avatars/avatar-${avatar}.svg`;
+          localStorage.setItem('userAvatar', avatarToUse);
+        }
       }
 
       // Call the completion callback (handles navigation to welcome page)

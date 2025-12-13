@@ -62,10 +62,15 @@ const userSchema = new mongoose.Schema({
     uppercase: true
   },
   avatar: {
-    type: Number,
-    min: 1,
-    max: 4,
-    default: 1
+    type: mongoose.Schema.Types.Mixed,
+    default: 1,
+    validate: {
+      validator: function(v) {
+        // Accept numbers 1-4 (preset avatars) or strings (custom avatars)
+        return (typeof v === 'number' && v >= 1 && v <= 4) || (typeof v === 'string' && v.length > 0);
+      },
+      message: 'Avatar must be a number between 1-4 or a valid string'
+    }
   },
   language: {
     type: String,

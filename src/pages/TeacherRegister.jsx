@@ -121,6 +121,13 @@ const TeacherRegister = () => {
           // Also set userData for immediate app state update
           localStorage.setItem('userData', JSON.stringify(loginData.data.user));
           
+          // Sync avatar from backend
+          const avatar = loginData.data.user.avatar;
+          if (avatar) {
+            const avatarToUse = typeof avatar === 'string' ? avatar : `/avatars/avatar-${avatar}.svg`;
+            localStorage.setItem('userAvatar', avatarToUse);
+          }
+          
           // Set cookie for persistent auth
           const setCookie = (name, value, days = 7) => {
             const expires = new Date();
