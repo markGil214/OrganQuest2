@@ -286,7 +286,7 @@ const ScanExploreMenu = () => {
             onClick={handleCloseOrganDetail}
             className="bg-white hover:bg-gray-50 text-gray-800 font-bold border-2 border-white/50 shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95 rounded-2xl"
           >
-            <span className="mr-2 text-xl">←</span> {commonText.back}
+            <span className="mr-2 text-xl">← Back</span> {commonText.back}
           </Button>
 
           <Card className="bg-white/95 backdrop-blur-lg border-4 border-white/50 shadow-2xl rounded-3xl p-8 space-y-6">
