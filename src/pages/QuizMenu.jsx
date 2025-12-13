@@ -77,27 +77,40 @@ const QuizMenu = () => {
   }
 
   return (
-    <div className="min-h-screen overflow-hidden relative" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+    <div className="h-screen overflow-hidden">
       {/* Header */}
-      <div className="relative z-10 p-4">
+      <header className="flex justify-between items-center p-4 bg-blue-600 shadow-lg relative z-10">
+        <div className="flex items-center gap-4">
+          <img 
+            src="/school/dcslogo.jpg" 
+            alt="DCS Logo" 
+            className="w-12 h-12 object-contain"
+          />
+          <h1 className="text-2xl font-black text-white">OrganQuest</h1>
+        </div>
+        
         <Button
           onClick={handleBackClick}
           variant="outline"
-          className="mb-4 bg-white/90 hover:bg-white border-0 text-gray-800 shadow-lg text-sm"
+          className="bg-white/90 hover:bg-white border-0 text-gray-800 shadow-lg text-sm"
         >
           <span className="text-lg mr-2">←</span>
           {commonText.back}
         </Button>
-        
-        <div className="text-center space-y-2">
-          <div className="text-4xl">🎮</div>
-          <h1 className="text-3xl font-bold text-white drop-shadow-2xl">{quizText.title}</h1>
-          <p className="text-base text-white/90">{quizText.subtitle}</p>
-        </div>
-      </div>
+      </header>
 
-      {/* Quiz Cards Grid */}
-      <div className="max-w-6xl mx-auto px-6 pb-20 relative z-10">
+      {/* Main Content */}
+      <div className="h-full overflow-auto relative" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+        <div className="pt-8 pb-6 px-6">
+          <div className="text-center space-y-2 mb-8">
+            <div className="text-4xl">🎮</div>
+            <h1 className="text-3xl font-bold text-white drop-shadow-2xl">{quizText.title}</h1>
+            <p className="text-base text-white/90">{quizText.subtitle}</p>
+          </div>
+        </div>
+
+        {/* Quiz Cards Grid */}
+        <div className="max-w-6xl mx-auto px-6 pb-20 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {quizTypes.map((quiz) => (
             <QuizTypeCard
@@ -110,15 +123,15 @@ const QuizMenu = () => {
             />
           ))}
         </div>
-      </div>
 
-      {/* Floating Decorations */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-24 left-10 text-3xl animate-float opacity-20" style={{ animationDelay: '0s' }}>❓</div>
-        <div className="absolute top-1/3 right-16 text-4xl animate-float opacity-20" style={{ animationDelay: '1s' }}>💡</div>
-        <div className="absolute bottom-32 left-1/4 text-3xl animate-float opacity-20" style={{ animationDelay: '2s' }}>🏆</div>
-        <div className="absolute top-1/2 left-20 text-2xl animate-float opacity-20" style={{ animationDelay: '1.5s' }}>⭐</div>
-        <div className="absolute bottom-40 right-1/4 text-3xl animate-float opacity-20" style={{ animationDelay: '0.5s' }}>🧠</div>
+        {/* Floating Decorations */}
+        <div className="fixed inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-24 left-10 text-3xl animate-float opacity-20" style={{ animationDelay: '0s' }}>❓</div>
+          <div className="absolute top-1/3 right-16 text-4xl animate-float opacity-20" style={{ animationDelay: '1s' }}>💡</div>
+          <div className="absolute bottom-32 left-1/4 text-3xl animate-float opacity-20" style={{ animationDelay: '2s' }}>🏆</div>
+          <div className="absolute top-1/2 left-20 text-2xl animate-float opacity-20" style={{ animationDelay: '1.5s' }}>⭐</div>
+          <div className="absolute bottom-40 right-1/4 text-3xl animate-float opacity-20" style={{ animationDelay: '0.5s' }}>🧠</div>
+        </div>
       </div>
     </div>
   );
