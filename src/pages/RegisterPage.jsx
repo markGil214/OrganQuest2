@@ -120,7 +120,7 @@ const RegisterPage = ({ onRegistrationComplete }) => {
         </button>
       </div>
 
-      <Card className="w-full max-w-md bg-white/95 backdrop-blur-sm border-0">
+      <Card className="w-full max-w-md bg-white/20 backdrop-blur-md border-2 border-white/30">
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
           {/* Profile Picture */}
           <div className="flex justify-center">
