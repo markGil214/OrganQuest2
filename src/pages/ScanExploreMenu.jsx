@@ -436,7 +436,7 @@ const ScanExploreMenu = () => {
       </div>
 
       {/* Organs List - Card Style */}
-      <div className="max-w-3xl mx-auto space-y-4 pb-20 relative z-10">
+      <div className="max-w-3xl mx-auto space-y-4 pb-32 relative z-10">
         {organs.map((organ, index) => (
           <button
             key={organ.id}
