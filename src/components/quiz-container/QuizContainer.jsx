@@ -728,6 +728,7 @@ const QuizContainer = ({ useSiteHeader = false }) => {
           Score: {score}
         </div>
       </div>
+      )}
 
       {/* Progress Bar */}
       <div style={{
