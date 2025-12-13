@@ -3,6 +3,7 @@ import { timedChallengeQuestions } from '../data/timedChallengeQuestions';
 import { Button } from '../components/ui/Button';
 import { cn } from '../lib/utils';
 import api from '../lib/api';
+import Header from '../components/Header';
 
 const TimedChallengeQuiz = () => {
 
@@ -14,6 +15,9 @@ const TimedChallengeQuiz = () => {
 
   const [assignmentId, setAssignmentId] = useState(getAssignmentId());
   const [assignmentData, setAssignmentData] = useState(null);
+
+  const username = localStorage.getItem('username') || 'Explorer';
+  const userAvatar = localStorage.getItem('userAvatar') || '/avatars/avatar-1.svg';
 
   // Shuffle function
   const shuffleArray = (array) => {
@@ -196,7 +200,10 @@ const TimedChallengeQuiz = () => {
     return (
       <div style={{
         height: '100vh',
-        background: 'linear-gradient(135deg, #f39c12 0%, #e67e22 100%)',
+        backgroundImage: 'url(/school/bg.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -206,6 +213,7 @@ const TimedChallengeQuiz = () => {
         position: 'relative',
         overflow: 'hidden'
       }}>
+        <Header onProfileClick={() => {}} userAvatar={userAvatar} username={username} />
         {/* Animated background elements */}
         <div style={{
           position: 'absolute',
@@ -335,7 +343,10 @@ const TimedChallengeQuiz = () => {
     return (
       <div style={{
         height: '100vh',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        backgroundImage: 'url(/school/bg.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -344,6 +355,7 @@ const TimedChallengeQuiz = () => {
         fontFamily: '"Montserrat", sans-serif',
         padding: '2rem'
       }}>
+        <Header onProfileClick={() => {}} userAvatar={userAvatar} username={username} />
         <div style={{
           background: 'rgba(255, 255, 255, 0.1)',
           backdropFilter: 'blur(10px)',
