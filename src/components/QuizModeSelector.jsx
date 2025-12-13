@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import Header from './Header';
 import '../styles/QuizModeSelector.css';
 
 const QuizModeSelector = ({ quizType, onModeSelect, onBack }) => {
@@ -7,6 +8,8 @@ const QuizModeSelector = ({ quizType, onModeSelect, onBack }) => {
   const [teacherCode, setTeacherCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const username = localStorage.getItem('username') || 'Explorer';
+  const userAvatar = localStorage.getItem('userAvatar') || '/avatars/avatar-1.svg';
 
   // Map frontend quiz type to backend quiz type
   const quizTypeMap = {
@@ -85,7 +88,16 @@ const QuizModeSelector = ({ quizType, onModeSelect, onBack }) => {
   };
 
   return (
-    <div className="quiz-mode-selector">
+    <div className="quiz-mode-selector" style={{
+      backgroundImage: 'url(/school/bg.png)',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column'
+    }}>
+      <Header onProfileClick={() => {}} userAvatar={userAvatar} username={username} />
       <div className="mode-selector-container">
         <button className="back-btn" onClick={onBack}>
           ← Back

@@ -480,7 +480,10 @@ const TimedChallengeQuiz = () => {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #f39c12 0%, #e67e22 100%)',
+      backgroundImage: 'url(/school/bg.png)',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
       display: 'flex',
       flexDirection: 'column',
       color: 'white',
@@ -488,6 +491,7 @@ const TimedChallengeQuiz = () => {
       position: 'relative',
       overflow: 'hidden'
     }}>
+      <Header onProfileClick={() => {}} userAvatar={userAvatar} username={username} />
       {/* Floating background elements */}
       <div style={{
         position: 'absolute',
