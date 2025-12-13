@@ -97,7 +97,7 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
       </div>
 
       {/* Header Section with Logo */}
-      <header className="flex justify-between items-center p-6 md:p-8 relative z-10">
+      <header className="flex justify-between items-center p-6 md:p-8 relative z-10 bg-blue-600 shadow-lg">
         <div className="flex items-center gap-4">
           <img 
             src="/school/dcslogo.jpg" 
