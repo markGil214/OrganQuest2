@@ -240,27 +240,27 @@ const ScanExploreMenu = () => {
   if (isScanning) {
     return (
       <div className="h-screen overflow-hidden">
-        <header className="flex justify-between items-center px-6 md:px-8 py-5 md:py-7 bg-blue-600 shadow-lg relative z-10">
+        <header className="flex justify-between items-center p-4 bg-blue-600 shadow-lg relative z-10">
           <div className="flex items-center gap-4">
             <img 
               src="/school/dcslogo.jpg" 
               alt="DCS Logo" 
-              className="w-12 h-12 md:w-16 md:h-16 object-contain"
+              className="w-12 h-12 object-contain"
             />
-            <h1 className="text-3xl md:text-4xl font-black text-white drop-shadow-2xl tracking-tight">OrganQuest</h1>
+            <h1 className="text-2xl font-black text-white">OrganQuest</h1>
           </div>
           <button
             onClick={handleProfileClick}
             className="relative group flex-shrink-0"
           >
-            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden border-4 border-white shadow-2xl transition-all duration-300 group-hover:scale-110 group-hover:border-yellow-300 group-active:scale-95">
+            <div className="w-12 h-12 rounded-full overflow-hidden border-4 border-white shadow-2xl transition-all duration-300 group-hover:scale-110">
               <img 
                 src={userAvatar} 
                 alt={`${username}'s avatar`}
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-400 border-3 border-white rounded-full animate-pulse" />
+            <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 border-2 border-white rounded-full animate-pulse" />
           </button>
         </header>
         <div className="h-full flex items-center justify-center p-6 relative" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
@@ -292,27 +292,27 @@ const ScanExploreMenu = () => {
   if (selectedOrgan) {
     return (
       <div className="h-screen overflow-hidden">
-        <header className="flex justify-between items-center px-6 md:px-8 py-5 md:py-7 bg-blue-600 shadow-lg relative z-10">
+        <header className="flex justify-between items-center p-4 bg-blue-600 shadow-lg relative z-10">
           <div className="flex items-center gap-4">
             <img 
               src="/school/dcslogo.jpg" 
               alt="DCS Logo" 
-              className="w-12 h-12 md:w-16 md:h-16 object-contain"
+              className="w-12 h-12 object-contain"
             />
-            <h1 className="text-3xl md:text-4xl font-black text-white drop-shadow-2xl tracking-tight">OrganQuest</h1>
+            <h1 className="text-2xl font-black text-white">OrganQuest</h1>
           </div>
           <button
             onClick={handleProfileClick}
             className="relative group flex-shrink-0"
           >
-            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden border-4 border-white shadow-2xl transition-all duration-300 group-hover:scale-110 group-hover:border-yellow-300 group-active:scale-95">
+            <div className="w-12 h-12 rounded-full overflow-hidden border-4 border-white shadow-2xl transition-all duration-300 group-hover:scale-110">
               <img 
                 src={userAvatar} 
                 alt={`${username}'s avatar`}
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-400 border-3 border-white rounded-full animate-pulse" />
+            <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 border-2 border-white rounded-full animate-pulse" />
           </button>
         </header>
         <div className="h-full p-6 relative overflow-y-auto" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
@@ -391,27 +391,27 @@ const ScanExploreMenu = () => {
 
   return (
     <div className="h-screen overflow-hidden">
-      <header className="flex justify-between items-center px-6 md:px-8 py-5 md:py-7 bg-blue-600 shadow-lg relative z-10">
+      <header className="flex justify-between items-center p-4 bg-blue-600 shadow-lg relative z-10">
         <div className="flex items-center gap-4">
           <img 
             src="/school/dcslogo.jpg" 
             alt="DCS Logo" 
-            className="w-12 h-12 md:w-16 md:h-16 object-contain"
+            className="w-12 h-12 object-contain"
           />
-          <h1 className="text-3xl md:text-4xl font-black text-white drop-shadow-2xl tracking-tight">OrganQuest</h1>
+          <h1 className="text-2xl font-black text-white">OrganQuest</h1>
         </div>
         <button
           onClick={handleProfileClick}
           className="relative group flex-shrink-0"
         >
-          <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden border-4 border-white shadow-2xl transition-all duration-300 group-hover:scale-110 group-hover:border-yellow-300 group-active:scale-95">
+          <div className="w-12 h-12 rounded-full overflow-hidden border-4 border-white shadow-2xl transition-all duration-300 group-hover:scale-110">
             <img 
               src={userAvatar} 
               alt={`${username}'s avatar`}
               className="w-full h-full object-cover"
             />
           </div>
-          <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-400 border-3 border-white rounded-full animate-pulse" />
+          <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 border-2 border-white rounded-full animate-pulse" />
         </button>
       </header>
       <div className="h-full p-6 relative overflow-y-auto" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
