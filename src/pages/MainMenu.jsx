@@ -84,7 +84,7 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
   };
 
   return (
-    <div className="min-h-screen overflow-hidden relative">
+    <div className="min-h-screen overflow-hidden relative" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       {/* Language Toggle Button - Bottom Right */}
       <div className="fixed bottom-6 right-6 z-50">
         <button
@@ -97,7 +97,7 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
       </div>
 
       {/* Header Section with Logo */}
-      <header className="flex justify-between items-center p-6 md:p-8 relative z-10 bg-blue-600 shadow-lg">
+      <header className="flex justify-between items-center p-6 md:p-8 bg-blue-600 shadow-lg sticky top-0 z-20">
         <div className="flex items-center gap-4">
           <img 
             src="/school/dcslogo.jpg" 
@@ -122,10 +122,8 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
         </button>
       </header>
 
-      {/* Content Area with Background */}
-      <div className="min-h-screen" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
-        {/* Greeting Section */}
-      <div className="px-6 md:px-8 pb-4 relative z-10">
+      {/* Greeting Section */}
+      <div className="px-6 md:px-8 py-4 relative z-10">
         <h2 className="text-2xl md:text-3xl font-black text-white drop-shadow-lg">{menuText.greeting}, {username}!</h2>
         <p className="text-white/95 text-base md:text-lg font-medium drop-shadow">{menuText.subtitle}</p>
       </div>
@@ -149,7 +147,6 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
             </div>
           ))}
         </div>
-      </div>
       </div>
 
       {/* Profile Modal */}
