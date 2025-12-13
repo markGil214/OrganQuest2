@@ -84,7 +84,7 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
   };
 
   return (
-    <div className="min-h-screen overflow-hidden relative" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+    <div className="min-h-screen overflow-hidden relative">
       {/* Language Toggle Button - Bottom Right */}
       <div className="fixed bottom-6 right-6 z-50">
         <button
@@ -122,7 +122,9 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
         </button>
       </header>
 
-      {/* Greeting Section */}
+      {/* Content Area with Background */}
+      <div className="min-h-screen" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+        {/* Greeting Section */}
       <div className="px-6 md:px-8 pb-4 relative z-10">
         <h2 className="text-2xl md:text-3xl font-black text-white drop-shadow-lg">{menuText.greeting}, {username}!</h2>
         <p className="text-white/95 text-base md:text-lg font-medium drop-shadow">{menuText.subtitle}</p>
@@ -147,6 +149,7 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
             </div>
           ))}
         </div>
+      </div>
       </div>
 
       {/* Profile Modal */}
