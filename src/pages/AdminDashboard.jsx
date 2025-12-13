@@ -4,33 +4,580 @@ import AdminSidebar from '../components/ui/AdminSidebar';
 import { Button } from '../components/ui/Button';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import QuizAssignmentManager from '../components/QuizAssignmentManager';
-      {/* Simplified Dashboard Overview */}
-      <div className="max-w-7xl mx-auto mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="p-6 bg-gradient-to-br from-yellow-200 to-yellow-100">
-            <div className="text-sm text-gray-600">Students</div>
-            <div className="text-4xl font-bold mt-2">{(analytics && analytics.totalStudents) || (students && students.length) || 0}</div>
-          </Card>
+import { useToast } from '../contexts/ToastContext';
 
-          <Card className="p-6 bg-gradient-to-br from-green-200 to-green-100">
-            <div className="text-sm text-gray-600">Teachers</div>
-            <div className="text-4xl font-bold mt-2">{classes ? classes.length : 0}</div>
-          </Card>
+const AdminDashboard = ({ userData, onLogout }) => {
+  const toast = useToast();
+  const [students, setStudents] = useState([]);
+  const [classes, setClasses] = useState([]);
+  const [currentView, setCurrentView] = useState('classes'); // 'classes' or 'class-details'
+  const [selectedClassData, setSelectedClassData] = useState(null);
+  const [classStudents, setClassStudents] = useState([]);
+  const [showCreateClassModal, setShowCreateClassModal] = useState(false);
+  const [classFormData, setClassFormData] = useState({
+    fullName: '',
+    email: '',
+    assignedGrade: '4th',
+    section: 'A'
+  });
+  const [createClassLoading, setCreateClassLoading] = useState(false);
+  const [createClassError, setCreateClassError] = useState(null);
+  const [analytics, setAnalytics] = useState(null);
+  const [quizAnalytics, setQuizAnalytics] = useState(null);
+  const [filters, setFilters] = useState({
+    search: '',
+    performanceLevel: '',
+    activityLevel: '',
+    grade: '',
+    section: ''
+  });
+  const [loading, setLoading] = useState(true);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [studentQuizDetails, setStudentQuizDetails] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination] = useState(null);
+  const [activeTab, setActiveTab] = useState('classes'); // classes, analytics, quiz-management
+  const [questionPage, setQuestionPage] = useState(1);
+  const questionsPerPage = 10;
+  
+  // Delete confirmation dialog state
+  const [deleteConfirmDialog, setDeleteConfirmDialog] = useState({
+    isOpen: false,
+    studentId: null,
+    studentName: ''
+  });
+  
+  // Registration URL Modal state
+  const [showRegistrationModal, setShowRegistrationModal] = useState(false);
+  const [registrationModalData, setRegistrationModalData] = useState({
+    teacherName: '',
+    registrationUrl: '',
+    emailSent: false
+  });
 
-          <Card className="p-6 bg-gradient-to-br from-purple-200 to-pink-100">
-            <div className="text-sm text-gray-600">Classes</div>
-            <div className="text-4xl font-bold mt-2">{classes ? classes.length : 0}</div>
-          </Card>
-        </div>
+  const API_URL = import.meta.env.VITE_API_URL || 'https://organquest2.onrender.com';
+
+  // Auto-populate grade filter for teachers on mount
+  useEffect(() => {
+    if (userData?.role === 'teacher') {
+      const updates = {};
+      if (userData?.assignedGrade) {
+        updates.grade = userData.assignedGrade;
+      }
+      if (userData?.assignedSection) {
+        updates.section = userData.assignedSection;
+      }
+      if (Object.keys(updates).length > 0) {
+        setFilters(prev => ({ ...prev, ...updates }));
+      }
+    }
+  }, [userData]);
+
+  useEffect(() => {
+    fetchStudents();
+    fetchClasses();
+    fetchAnalytics();
+    fetchQuizAnalytics();
+  }, [filters, currentPage]);
+
+  const fetchClasses = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${API_URL}/api/admin/classes`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+      if (data.success && data.data && Array.isArray(data.data.classes)) {
+        setClasses(data.data.classes);
+      } else {
+        setClasses([]);
+      }
+    } catch (error) {
+      console.error('Error fetching classes:', error);
+      setClasses([]);
+    }
+  };
+
+  const fetchStudents = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('authToken');
+      
+      const queryParams = new URLSearchParams({
+        page: currentPage,
+        limit: 20,
+        ...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v))
+      });
+
+      const response = await fetch(`${API_URL}/api/admin/students?${queryParams}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setStudents(data.data.students);
+        setPagination(data.data.pagination);
+      }
+    } catch (error) {
+      console.error('Error fetching students:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchAnalytics = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${API_URL}/api/admin/analytics`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setAnalytics(data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching analytics:', error);
+    }
+  };
+
+  const fetchQuizAnalytics = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${API_URL}/api/admin/quiz-analytics`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+      console.log('Quiz Analytics Response:', data);
+      
+      if (data.success && data.data) {
+        // Keep quizTypeStats as the original object structure from backend
+        const transformed = {
+          ...data.data,
+          performanceTrends: data.data.performanceTrends || {},
+          quizTypeStats: data.data.quizTypeStats || {}, // Keep as object, don't transform to array
+          questionDifficulty: data.data.questionDifficulty?.hardestQuestions || [],
+          badgeStats: {
+            mostEarned: data.data.badgeStats && data.data.badgeStats.length > 0 
+              ? data.data.badgeStats[0].name 
+              : 'None',
+            leastEarned: data.data.badgeStats && data.data.badgeStats.length > 0 
+              ? data.data.badgeStats[data.data.badgeStats.length - 1].name 
+              : 'None'
+          }
+        };
+        console.log('Transformed Quiz Analytics:', transformed);
+        console.log('Quiz Type Stats:', transformed.quizTypeStats);
+        setQuizAnalytics(transformed);
+      } else {
+        console.error('Failed to fetch analytics:', data.message);
+        // Set empty state to stop loading
+        setQuizAnalytics({
+          quizTypeStats: {},
+          performanceTrends: {},
+          questionDifficulty: [],
+          badgeStats: { mostEarned: 'None', leastEarned: 'None' }
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching quiz analytics:', error);
+      // Set empty state to stop loading
+      setQuizAnalytics({
+        quizTypeStats: {},
+        performanceTrends: {},
+        questionDifficulty: [],
+        badgeStats: { mostEarned: 'None', leastEarned: 'None' }
+      });
+    }
+  };
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    setCurrentPage(1);
+  };
+
+  const viewStudentDetails = async (studentId) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const [studentResponse, quizResponse] = await Promise.all([
+        fetch(`${API_URL}/api/admin/students/${studentId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }),
+        fetch(`${API_URL}/api/admin/students/${studentId}/quiz-details`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+      ]);
+
+      const studentData = await studentResponse.json();
+      const quizData = await quizResponse.json();
+      
+      console.log('Student Data:', studentData);
+      console.log('Quiz Details Data:', quizData);
+      
+      if (studentData.success) {
+        setSelectedStudent(studentData.data.student);
+      }
+      if (quizData.success) {
+        setStudentQuizDetails(quizData.data);
+        console.log('Quiz attempts:', quizData.data.quizAttempts);
+      } else {
+        console.error('Failed to fetch quiz details:', quizData.message);
+      }
+    } catch (error) {
+      console.error('Error fetching student details:', error);
+    }
+  };
+
+  const handleDeleteStudent = (studentId, studentName) => {
+    setDeleteConfirmDialog({
+      isOpen: true,
+      studentId,
+      studentName
+    });
+  };
+
+  const confirmDeleteStudent = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${API_URL}/api/admin/students/${deleteConfirmDialog.studentId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      if (data.success) {
+        toast?.success(`Student ${deleteConfirmDialog.studentName} deleted successfully`);
+        setDeleteConfirmDialog({ isOpen: false, studentId: null, studentName: '' });
+        fetchStudents();
+      } else {
+        toast?.error(data.message || 'Failed to delete student');
+      }
+    } catch (error) {
+      console.error('Error deleting student:', error);
+      toast?.error('Failed to delete student');
+    }
+  };
+
+  const handleBulkDeleteStudents = () => {
+    const message = userData?.role === 'teacher' && userData?.assignedSection && userData?.assignedSection !== 'all'
+      ? `Are you sure you want to delete ALL students from Section ${userData.assignedSection}? This action cannot be undone!`
+      : 'Are you sure you want to delete ALL students? This action cannot be undone!';
+    
+    if (!window.confirm(message)) return;
+    
+    // Double confirmation
+    if (!window.confirm('⚠️ FINAL WARNING: This will permanently delete all student accounts and their data. Are you absolutely sure?')) return;
+    
+    bulkDeleteStudents();
+  };
+
+  const bulkDeleteStudents = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${API_URL}/api/admin/students/bulk/all`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      if (data.success) {
+        toast?.success(data.message || `Successfully deleted ${data.deletedCount} student(s)`);
+        fetchStudents();
+        if (selectedClassData) {
+          // Refresh class students list
+          setClassStudents([]);
+        }
+      } else {
+        toast?.error(data.message || 'Failed to delete students');
+      }
+    } catch (error) {
+      console.error('Error bulk deleting students:', error);
+      toast?.error('Failed to delete students');
+    }
+  };
+
+  const viewClassDetails = async (classData) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      
+      // Fetch students for this specific class (grade + section)
+      // Note: classData is a teacher object with assignedGrade and assignedSection
+      const response = await fetch(`${API_URL}/api/admin/students?grade=${classData.assignedGrade}&section=${classData.assignedSection}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setSelectedClassData(classData);
+        setClassStudents(data.data.students || []);
+        setCurrentView('class-details');
+      }
+    } catch (error) {
+      console.error('Error fetching class details:', error);
+      toast.error('Error loading class details');
+    }
+  };
+
+  const deleteClass = async (classId) => {
+    if (!confirm('Are you sure you want to delete this class? This will remove the teacher assignment.')) return;
+
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${API_URL}/api/admin/classes/${classId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        toast.success('Class deleted successfully');
+        fetchClasses();
+      } else {
+        toast.error(data.message || 'Failed to delete class');
+      }
+    } catch (error) {
+      console.error('Error deleting class:', error);
+      toast.error('Error deleting class');
+    }
+  };
+
+  const handleClassFormChange = (e) => {
+    const { name, value } = e.target;
+    
+    if (name === 'assignedGrade') {
+      // Auto-select first available section when grade changes
+      const sections = ['A', 'B', 'C'];
+      const occupied = classes.filter(c => c.assignedGrade === value).map(c => c.section);
+      const availableSection = sections.find(sec => !occupied.includes(sec));
+      
+      setClassFormData(prev => ({
+        ...prev,
+        assignedGrade: value,
+        section: availableSection || prev.section
+      }));
+    } else {
+      setClassFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+  };
+
+  const isCombinationAvailable = (grade, section) => {
+    return !classes.some(c => c.assignedGrade === grade && c.section === section);
+  };
+
+  const handleCreateClass = async (e) => {
+    e.preventDefault();
+    setCreateClassLoading(true);
+    setCreateClassError(null);
+
+    // Check if combination is available
+    if (!isCombinationAvailable(classFormData.assignedGrade, classFormData.section)) {
+      setCreateClassError(`${classFormData.assignedGrade} Grade Section ${classFormData.section} already has a teacher assigned`);
+      setCreateClassLoading(false);
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${API_URL}/api/admin/create-class`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(classFormData)
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        if (data.emailSent) {
+          toast.success('✅ Class created! Invitation email sent to teacher.');
+        } else {
+          toast.warning('⚠️ Class created but email failed to send!', { duration: 5000 });
+        }
+        
+        // Always show registration URL
+        if (data.registrationUrl) {
+          // Copy to clipboard
+          navigator.clipboard.writeText(data.registrationUrl);
+          
+          // Show modal with registration URL
+          setRegistrationModalData({
+            teacherName: classFormData.fullName,
+            registrationUrl: data.registrationUrl,
+            emailSent: data.emailSent
+          });
+          setShowRegistrationModal(true);
+        }
+        
+        setShowCreateClassModal(false);
+        setClassFormData({ fullName: '', email: '', assignedGrade: '4th', section: 'A' });
+        fetchClasses();
+      } else {
+        setCreateClassError(data.message || 'Failed to create class');
+      }
+    } catch (error) {
+      setCreateClassError('Error creating class');
+      console.error('Error creating class:', error);
+    } finally {
+      setCreateClassLoading(false);
+    }
+  };
+
+  const resetQuizAttempts = async (studentId, quizType = 'all') => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${API_URL}/api/admin/students/${studentId}/reset-quiz-attempts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ quizType })
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        toast.success(data.message);
+        // Refresh student details
+        viewStudentDetails(studentId);
+        fetchStudents(); // Refresh list
+      } else {
+        toast.error(data.message || 'Failed to reset attempts');
+      }
+    } catch (error) {
+      console.error('Error resetting quiz attempts:', error);
+      toast.error('Error resetting quiz attempts');
+    }
+  };
+
+  if (loading && !students.length) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+        <div className="text-white text-xl">Loading dashboard...</div>
       </div>
+    );
+  }
 
-      {/* Students Summary (totals only) */}
-      <div className="max-w-7xl mx-auto mb-6">
-        <Card className="p-6">
-          <h3 className="text-2xl font-bold text-gray-800 mb-2">👥 Students</h3>
-          <div className="text-3xl font-bold text-gray-700">Total Students: {(analytics && analytics.totalStudents) || (students && students.length) || 0}</div>
-        </Card>
-      </div>
+  return (
+    <div className="min-h-screen p-6" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+      {/* Admin Sidebar (fixed on md+) */}
+      <AdminSidebar analytics={analytics} classes={classes} students={students} />
+      {/* Class Details View */}
+      {currentView === 'class-details' && selectedClassData ? (
+        <div className="max-w-7xl mx-auto">
+          {/* Back Button */}
+          <Button
+            onClick={() => {
+              setCurrentView('classes');
+              setSelectedClassData(null);
+              setClassStudents([]);
+            }}
+            variant="outline"
+            className="mb-6"
+          >
+            ← Back to Classes
+          </Button>
+
+          {/* Class Header */}
+          <Card className="p-6 mb-6">
+            <h1 className="text-4xl font-bold text-gray-800 mb-4">
+              {selectedClassData.assignedGrade} Grade - Section {selectedClassData.assignedSection}
+            </h1>
+            
+            {/* Teacher Info */}
+            <div className="p-4 bg-purple-50 rounded-lg">
+              <h3 className="text-xl font-bold mb-3 text-purple-800">👨‍🏫 Class Teacher</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <div className="text-sm text-gray-600">Name</div>
+                  <div className="text-lg font-semibold">{selectedClassData.fullName}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600">Username</div>
+                  <div className="text-lg font-semibold">@{selectedClassData.username}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600">Email</div>
+                  <div className="text-lg font-semibold">{selectedClassData.email || 'N/A'}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600">Teacher Code</div>
+                  <div className="text-lg font-semibold font-mono">{selectedClassData.teacherCode}</div>
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          {/* Students List */}
+          <Card className="p-6">
+            <h3 className="text-2xl font-bold mb-4">👥 Students ({classStudents.length})</h3>
+            {classStudents.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">
+                <p className="text-lg">No students enrolled in this class yet</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full bg-white rounded-lg overflow-hidden">
+                  <thead className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+                    <tr>
+                      <th className="px-6 py-4 text-left font-bold">Student Name</th>
+                      <th className="px-6 py-4 text-left font-bold">Grade</th>
+                      <th className="px-6 py-4 text-left font-bold">Section</th>
+                      <th className="px-6 py-4 text-left font-bold">Total Quizzes</th>
+                      <th className="px-6 py-4 text-left font-bold">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {classStudents.map((student, index) => (
+                      <tr 
+                        key={student._id} 
+                        className={`border-b hover:bg-purple-50 transition-colors ${
+                          index % 2 === 0 ? 'bg-gray-50' : 'bg-white'
+                        }`}
+                      >
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-bold">
+                              {student.fullName.charAt(0)}
+                            </div>
+                            <div>
+                              <div className="font-semibold text-gray-800">{student.fullName}</div>
+                              <div className="text-sm text-gray-500">@{student.username}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-gray-700">{student.grade}</td>
+                        <td className="px-6 py-4 text-gray-700">{student.section || '-'}</td>
+                        <td className="px-6 py-4 text-gray-700">{student.stats.totalQuizzesTaken || 0}</td>
+                        <td className="px-6 py-4 flex gap-2">
+                          <Button
+                            onClick={() => viewStudentDetails(student._id)}
+                            className="bg-blue-500 hover:bg-blue-600 text-white text-sm"
+                          >
+                            📊 View Progress
+                          </Button>
+                          <Button
                             onClick={() => handleDeleteStudent(student._id, student.fullName)}
                             className="bg-red-500 hover:bg-red-600 text-white text-sm"
                           >
