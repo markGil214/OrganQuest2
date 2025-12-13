@@ -211,7 +211,18 @@ const ScanExploreMenu = () => {
 
   if (isScanning) {
     return (
-      <div className="h-screen flex items-center justify-center p-6 relative overflow-hidden" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
+      <div className="h-screen overflow-hidden">
+        <header className="flex justify-between items-center p-6 md:p-8 bg-blue-600 shadow-lg relative z-10">
+          <div className="flex items-center gap-4">
+            <img 
+              src="/school/dcslogo.jpg" 
+              alt="DCS Logo" 
+              className="w-12 h-12 md:w-16 md:h-16 object-contain"
+            />
+            <h1 className="text-3xl md:text-4xl font-black text-white drop-shadow-2xl tracking-tight">OrganQuest</h1>
+          </div>
+        </header>
+        <div className="h-full flex items-center justify-center p-6 relative" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
         <div className="text-center space-y-8 animate-fade-in relative z-10">
           <div className="relative">
             <div className="text-9xl animate-pulse drop-shadow-2xl">🔍</div>
@@ -238,7 +249,18 @@ const ScanExploreMenu = () => {
 
   if (selectedOrgan) {
     return (
-      <div className="h-screen p-6 relative overflow-y-auto" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
+      <div className="h-screen overflow-hidden">
+        <header className="flex justify-between items-center p-6 md:p-8 bg-blue-600 shadow-lg relative z-10">
+          <div className="flex items-center gap-4">
+            <img 
+              src="/school/dcslogo.jpg" 
+              alt="DCS Logo" 
+              className="w-12 h-12 md:w-16 md:h-16 object-contain"
+            />
+            <h1 className="text-3xl md:text-4xl font-black text-white drop-shadow-2xl tracking-tight">OrganQuest</h1>
+          </div>
+        </header>
+        <div className="h-full p-6 relative overflow-y-auto" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
         <div className="max-w-2xl mx-auto space-y-6 relative z-10">
           <Button
             onClick={handleCloseOrganDetail}
@@ -312,7 +334,18 @@ const ScanExploreMenu = () => {
   }
 
   return (
-    <div className="h-screen p-6 relative overflow-y-auto" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
+    <div className="h-screen overflow-hidden">
+      <header className="flex justify-between items-center p-6 md:p-8 bg-blue-600 shadow-lg relative z-10">
+        <div className="flex items-center gap-4">
+          <img 
+            src="/school/dcslogo.jpg" 
+            alt="DCS Logo" 
+            className="w-12 h-12 md:w-16 md:h-16 object-contain"
+          />
+          <h1 className="text-3xl md:text-4xl font-black text-white drop-shadow-2xl tracking-tight">OrganQuest</h1>
+        </div>
+      </header>
+      <div className="h-full p-6 relative overflow-y-auto" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
       {/* Header */}
       <div className="max-w-3xl mx-auto mb-6 relative z-10">
         <Button
