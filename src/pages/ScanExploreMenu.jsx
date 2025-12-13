@@ -369,7 +369,7 @@ const ScanExploreMenu = () => {
           variant="outline"
           className="mb-4 bg-white/90 hover:bg-white border-0 text-gray-800 shadow-lg"
         >
-          ← {scanText.backButton}
+          ← Back{scanText.backButton}
         </Button>
         <p className="text-center text-lg font-semibold mb-2 px-6 py-3 bg-white/80 rounded-2xl shadow-lg text-gray-700">
           {scanText.tapDiscover}
