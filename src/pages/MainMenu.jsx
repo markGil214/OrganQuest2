@@ -112,7 +112,7 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
       </header>
 
       {/* Main Content */}
-      <div className="relative min-h-screen" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
+      <div className="relative" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
         {/* Language Toggle Button - Bottom Right */}
         <div className="fixed bottom-6 right-6 z-50">
           <button
@@ -131,7 +131,7 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
         </div>
 
         {/* Menu Buttons Grid */}
-        <div className="max-w-5xl mx-auto px-6 md:px-8 pb-12 relative z-10">
+        <div className="max-w-5xl mx-auto px-6 md:px-8 pb-8 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             {menuOptions.map((option, index) => (
               <div
