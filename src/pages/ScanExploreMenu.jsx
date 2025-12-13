@@ -211,7 +211,7 @@ const ScanExploreMenu = () => {
 
   if (isScanning) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+      <div className="h-screen flex items-center justify-center p-6 relative overflow-hidden" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
         <div className="text-center space-y-8 animate-fade-in relative z-10">
           <div className="relative">
             <div className="text-9xl animate-pulse drop-shadow-2xl">🔍</div>
@@ -238,7 +238,7 @@ const ScanExploreMenu = () => {
 
   if (selectedOrgan) {
     return (
-      <div className="min-h-screen p-6 relative overflow-hidden" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+      <div className="h-screen p-6 relative overflow-y-auto" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
         <div className="max-w-2xl mx-auto space-y-6 relative z-10">
           <Button
             onClick={handleCloseOrganDetail}
@@ -312,7 +312,7 @@ const ScanExploreMenu = () => {
   }
 
   return (
-    <div className="min-h-screen p-6 relative overflow-hidden" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+    <div className="h-screen p-6 relative overflow-y-auto" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
       {/* Header */}
       <div className="max-w-3xl mx-auto mb-6 relative z-10">
         <Button
