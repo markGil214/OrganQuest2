@@ -3,6 +3,7 @@ import QuizTypeCard from '../components/QuizTypeCard';
 import { Button } from '../components/ui/Button';
 import QuizModeSelector from '../components/QuizModeSelector';
 import { useLanguage } from '../contexts/LanguageContext';
+import ProfileModal from '../components/ProfileModal';
 
 const QuizMenu = () => {
   // Language hook for translations
@@ -11,6 +12,23 @@ const QuizMenu = () => {
   const commonText = ts('common');
   const [showModeSelector, setShowModeSelector] = useState(false);
   const [selectedQuizType, setSelectedQuizType] = useState(null);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const username = localStorage.getItem('username') || 'Explorer';
+  const userAvatar = localStorage.getItem('userAvatar') || '/avatars/avatar-1.svg';
+
+  const handleProfileClick = () => {
+    setShowProfileModal(true);
+  };
+
+  const closeProfileModal = () => {
+    setShowProfileModal(false);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('username');
+    localStorage.removeItem('userAvatar');
+    window.location.href = '/';
+  };
   
   const quizTypes = [
     {
@@ -88,15 +106,31 @@ const QuizMenu = () => {
           />
           <h1 className="text-2xl font-black text-white">OrganQuest</h1>
         </div>
+
+        <div className="flex items-center gap-4">
+          <button
+            onClick={handleProfileClick}
+            className="relative group flex-shrink-0"
+          >
+            <div className="w-12 h-12 rounded-full overflow-hidden border-4 border-white shadow-2xl transition-all duration-300 group-hover:scale-110">
+              <img 
+                src={userAvatar} 
+                alt={`${username}'s avatar`}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 border-2 border-white rounded-full animate-pulse" />
+          </button>
         
-        <Button
-          onClick={handleBackClick}
-          variant="outline"
-          className="bg-white/90 hover:bg-white border-0 text-gray-800 shadow-lg text-sm"
-        >
-          <span className="text-lg mr-2">←</span>
-          {commonText.back}
-        </Button>
+          <Button
+            onClick={handleBackClick}
+            variant="outline"
+            className="bg-white/90 hover:bg-white border-0 text-gray-800 shadow-lg text-sm"
+          >
+            <span className="text-lg mr-2">←</span>
+            {commonText.back}
+          </Button>
+        </div>
       </header>
 
       {/* Main Content */}
@@ -134,6 +168,15 @@ const QuizMenu = () => {
           <div className="absolute bottom-40 right-1/4 text-3xl animate-float opacity-20" style={{ animationDelay: '0.5s' }}>🧠</div>
         </div>
       </div>
+
+      {showProfileModal && (
+        <ProfileModal
+          username={username}
+          userAvatar={userAvatar}
+          onClose={closeProfileModal}
+          onLogout={handleLogout}
+        />
+      )}
     </div>
   );
 };
