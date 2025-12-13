@@ -3,6 +3,7 @@ import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { cn } from '../lib/utils';
 import { useLanguage } from '../contexts/LanguageContext';
+import ProfileModal from '../components/ProfileModal';
 
 const ScanExploreMenu = () => {
   // Language hook for translations
@@ -15,6 +16,33 @@ const ScanExploreMenu = () => {
   const [isScanning, setIsScanning] = useState(false);
   const [exploredOrgans, setExploredOrgans] = useState([]);
   const [showBadge, setShowBadge] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+
+  // Get user data from localStorage
+  const username = localStorage.getItem('username') || 'Explorer';
+  const userAvatar = localStorage.getItem('userAvatar') || '/avatars/avatar-1.svg';
+
+  const playClickSound = () => {
+    const audio = new Audio('/sounds/pop.mp3');
+    audio.volume = 0.5;
+    audio.play().catch(e => console.log('Audio play failed:', e));
+  };
+
+  const handleProfileClick = () => {
+    playClickSound();
+    setShowProfileModal(true);
+  };
+
+  const closeProfileModal = () => {
+    playClickSound();
+    setShowProfileModal(false);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('username');
+    localStorage.removeItem('userAvatar');
+    window.location.href = '/';
+  };
 
   const organs = [
     {
@@ -221,6 +249,19 @@ const ScanExploreMenu = () => {
             />
             <h1 className="text-3xl md:text-4xl font-black text-white drop-shadow-2xl tracking-tight">OrganQuest</h1>
           </div>
+          <button
+            onClick={handleProfileClick}
+            className="relative group flex-shrink-0"
+          >
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden border-4 border-white shadow-2xl transition-all duration-300 group-hover:scale-110 group-hover:border-yellow-300 group-active:scale-95">
+              <img 
+                src={userAvatar} 
+                alt={`${username}'s avatar`}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-400 border-3 border-white rounded-full animate-pulse" />
+          </button>
         </header>
         <div className="h-full flex items-center justify-center p-6 relative" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
           <div className="text-center space-y-8 animate-fade-in relative z-10">
@@ -260,9 +301,22 @@ const ScanExploreMenu = () => {
             />
             <h1 className="text-3xl md:text-4xl font-black text-white drop-shadow-2xl tracking-tight">OrganQuest</h1>
           </div>
+          <button
+            onClick={handleProfileClick}
+            className="relative group flex-shrink-0"
+          >
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden border-4 border-white shadow-2xl transition-all duration-300 group-hover:scale-110 group-hover:border-yellow-300 group-active:scale-95">
+              <img 
+                src={userAvatar} 
+                alt={`${username}'s avatar`}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-400 border-3 border-white rounded-full animate-pulse" />
+          </button>
         </header>
         <div className="h-full p-6 relative overflow-y-auto" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
-        <div className="max-w-2xl mx-auto space-y-6 relative z-10">
+        <div className="max-w-2xl mx-auto space-y-6 relative z-10 pb-8">
           <Button
             onClick={handleCloseOrganDetail}
             className="bg-white hover:bg-gray-50 text-gray-800 font-bold border-2 border-white/50 shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95 rounded-2xl"
@@ -346,6 +400,19 @@ const ScanExploreMenu = () => {
           />
           <h1 className="text-3xl md:text-4xl font-black text-white drop-shadow-2xl tracking-tight">OrganQuest</h1>
         </div>
+        <button
+          onClick={handleProfileClick}
+          className="relative group flex-shrink-0"
+        >
+          <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden border-4 border-white shadow-2xl transition-all duration-300 group-hover:scale-110 group-hover:border-yellow-300 group-active:scale-95">
+            <img 
+              src={userAvatar} 
+              alt={`${username}'s avatar`}
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-400 border-3 border-white rounded-full animate-pulse" />
+        </button>
       </header>
       <div className="h-full p-6 relative overflow-y-auto" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
       {/* Header */}
@@ -510,6 +577,18 @@ const ScanExploreMenu = () => {
         }
       `}</style>
       </div>
+    </div>
+
+      {/* Profile Modal */}
+      {showProfileModal && (
+        <ProfileModal
+          username={username}
+          userAvatar={userAvatar}
+          onClose={closeProfileModal}
+          onLogout={handleLogout}
+          playClickSound={playClickSound}
+        />
+      )}
     </div>
   );
 };
