@@ -112,7 +112,7 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
       </header>
 
       {/* Main Content */}
-      <div className="relative" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
+      <div className="relative min-h-screen" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
         {/* Language Toggle Button - Bottom Right */}
         <div className="fixed bottom-6 right-6 z-50">
           <button
