@@ -5,6 +5,7 @@ import lungsImg from '../assets/images/lungs.svg';
 import kidneyImg from '../assets/images/kidney.svg';
 import liverImg from '../assets/images/liver.svg';
 import soundManager from '../lib/soundManager';
+import Header from '../components/Header';
 
 const MemoryMatchingGame = () => {
   // Add Montserrat font
@@ -61,6 +62,9 @@ const MemoryMatchingGame = () => {
   const [moves, setMoves] = useState(0);
   const [gameCompleted, setGameCompleted] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
+
+  const username = localStorage.getItem('username') || 'Explorer';
+  const userAvatar = localStorage.getItem('userAvatar') || '/avatars/avatar-1.svg';
 
   const handleBackClick = () => {
     window.location.href = '#quiz';
@@ -128,15 +132,24 @@ const MemoryMatchingGame = () => {
     return (
       <div style={{
         height: '100vh',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        backgroundImage: 'url(/school/bg.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
         color: 'white',
         fontFamily: '"Montserrat", sans-serif',
-        padding: '2rem'
+        padding: 0
       }}>
+        <Header onProfileClick={() => {}} userAvatar={userAvatar} username={username} />
+        <div style={{
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '2rem'
+        }}>
         <div style={{
           background: 'rgba(255, 255, 255, 0.1)',
           backdropFilter: 'blur(10px)',
@@ -204,6 +217,7 @@ const MemoryMatchingGame = () => {
             </button>
           </div>
         </div>
+        </div>
 
         <style jsx>{`
           @keyframes celebrationPulse {
@@ -223,7 +237,10 @@ const MemoryMatchingGame = () => {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)',
+      backgroundImage: 'url(/school/bg.png)',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
       display: 'flex',
       flexDirection: 'column',
       color: 'white',
@@ -231,6 +248,7 @@ const MemoryMatchingGame = () => {
       position: 'relative',
       overflow: 'hidden'
     }}>
+      <Header onProfileClick={() => {}} userAvatar={userAvatar} username={username} />
       {/* Floating Background Elements */}
       <div style={{
         position: 'absolute',
