@@ -107,35 +107,33 @@ const QuizMenu = () => {
           <h1 className="text-2xl font-black text-white">OrganQuest</h1>
         </div>
 
-        <div className="flex items-center gap-4">
-          <button
-            onClick={handleProfileClick}
-            className="relative group flex-shrink-0"
-          >
-            <div className="w-12 h-12 rounded-full overflow-hidden border-4 border-white shadow-2xl transition-all duration-300 group-hover:scale-110">
-              <img 
-                src={userAvatar} 
-                alt={`${username}'s avatar`}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 border-2 border-white rounded-full animate-pulse" />
-          </button>
-        
-          <Button
-            onClick={handleBackClick}
-            variant="outline"
-            className="bg-white/90 hover:bg-white border-0 text-gray-800 shadow-lg text-sm"
-          >
-            <span className="text-lg mr-2">←</span>
-            {commonText.back}
-          </Button>
-        </div>
+        <button
+          onClick={handleProfileClick}
+          className="relative group flex-shrink-0"
+        >
+          <div className="w-12 h-12 rounded-full overflow-hidden border-4 border-white shadow-2xl transition-all duration-300 group-hover:scale-110">
+            <img 
+              src={userAvatar} 
+              alt={`${username}'s avatar`}
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 border-2 border-white rounded-full animate-pulse" />
+        </button>
       </header>
 
       {/* Main Content */}
       <div className="h-full overflow-auto relative" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
         <div className="pt-8 pb-6 px-6">
+          <Button
+            onClick={handleBackClick}
+            variant="outline"
+            className="mb-4 bg-white/90 hover:bg-white border-0 text-gray-800 shadow-lg text-sm"
+          >
+            <span className="text-lg mr-2">←</span>
+            {commonText.back}
+          </Button>
+          
           <div className="text-center space-y-2 mb-8">
             <div className="text-4xl">🎮</div>
             <h1 className="text-3xl font-bold text-white drop-shadow-2xl">{quizText.title}</h1>
