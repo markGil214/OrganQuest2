@@ -206,14 +206,20 @@ const TimedChallengeQuiz = () => {
         backgroundRepeat: 'no-repeat',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
         color: 'white',
         fontFamily: '"Montserrat", sans-serif',
         position: 'relative',
         overflow: 'hidden'
       }}>
         <Header onProfileClick={() => {}} userAvatar={userAvatar} username={username} />
+        <div style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative'
+        }}>
         {/* Animated background elements */}
         <div style={{
           position: 'absolute',
@@ -319,6 +325,7 @@ const TimedChallengeQuiz = () => {
             🚀 START CHALLENGE
           </button>
         </div>
+        </div>
 
         <style jsx>{`
           @keyframes pulse {
@@ -349,13 +356,18 @@ const TimedChallengeQuiz = () => {
         backgroundRepeat: 'no-repeat',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
         color: 'white',
         fontFamily: '"Montserrat", sans-serif',
-        padding: '2rem'
+        padding: 0
       }}>
         <Header onProfileClick={() => {}} userAvatar={userAvatar} username={username} />
+        <div style={{
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '2rem'
+        }}>
         <div style={{
           background: 'rgba(255, 255, 255, 0.1)',
           backdropFilter: 'blur(10px)',
@@ -443,6 +455,7 @@ const TimedChallengeQuiz = () => {
               🏠 Back to Menu
             </button>
           </div>
+        </div>
         </div>
 
         <style jsx>{`
