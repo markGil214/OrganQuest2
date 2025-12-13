@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/Dialog';
 import { Button } from './ui/Button';
 import { cn } from '../lib/utils';
@@ -25,6 +25,8 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout, playClickSound 
     section: ''
   });
   const [saving, setSaving] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState(userAvatar);
+  const fileInputRef = useRef(null);
 
   // Play sound helper - use passed function or create new
   const handleClick = (callback) => {
@@ -115,6 +117,24 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout, playClickSound 
     }
   };
 
+  // Handle avatar file change
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        setAvatarPreview(ev.target.result);
+        localStorage.setItem('userAvatar', ev.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Open file input dialog
+  const triggerAvatarUpload = () => {
+    if (fileInputRef.current) fileInputRef.current.click();
+  };
+
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-purple-50 to-pink-50 border-0">
@@ -127,9 +147,25 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout, playClickSound 
           <div className="flex flex-col items-center gap-3">
             <div className="relative">
               <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-xl">
-                <img src={userAvatar} alt={`${username}'s avatar`} className="w-full h-full object-cover" />
+                <img src={avatarPreview} alt={`${username}'s avatar`} className="w-full h-full object-cover" />
               </div>
               <div className="absolute inset-0 rounded-full border-4 border-purple-500/30 animate-pulse" />
+              <button
+                type="button"
+                onClick={triggerAvatarUpload}
+                className="absolute bottom-0 right-0 bg-purple-600 hover:bg-purple-700 text-white rounded-full p-1 shadow-lg border-2 border-white text-xs"
+                style={{ transform: 'translate(25%, 25%)' }}
+                title="Change Avatar"
+              >
+                <span role="img" aria-label="Change Avatar">🖼️</span>
+              </button>
+              <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                style={{ display: 'none' }}
+                onChange={handleAvatarChange}
+              />
             </div>
             <div className="text-center">
               <h2 className="text-lg font-bold text-gray-800">{userInfo.fullName || username}</h2>
