@@ -84,9 +84,9 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
   };
 
   return (
-    <div className="min-h-screen overflow-hidden">
+    <div className="min-h-screen overflow-hidden relative" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       {/* Header Section with Logo */}
-      <header className="flex justify-between items-center p-6 md:p-8 bg-blue-600 shadow-lg">
+      <header className="flex justify-between items-center p-6 md:p-8 bg-blue-600 shadow-lg relative z-10">
         <div className="flex items-center gap-4">
           <img 
             src="/school/dcslogo.jpg" 
@@ -111,8 +111,8 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
         </button>
       </header>
 
-      {/* Main Content with Background */}
-      <div className="min-h-screen relative" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+      {/* Main Content */}
+      <div className="relative">
         {/* Language Toggle Button - Bottom Right */}
         <div className="fixed bottom-6 right-6 z-50">
           <button
