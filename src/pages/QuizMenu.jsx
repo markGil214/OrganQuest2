@@ -111,17 +111,18 @@ const QuizMenu = () => {
 
         {/* Quiz Cards Grid */}
         <div className="max-w-6xl mx-auto px-6 pb-20 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {quizTypes.map((quiz) => (
-            <QuizTypeCard
-              key={quiz.id}
-              icon={quiz.icon}
-              title={quiz.title}
-              description={quiz.description}
-              color={quiz.color}
-              onClick={() => handleCardClick(quiz)}
-            />
-          ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {quizTypes.map((quiz) => (
+              <QuizTypeCard
+                key={quiz.id}
+                icon={quiz.icon}
+                title={quiz.title}
+                description={quiz.description}
+                color={quiz.color}
+                onClick={() => handleCardClick(quiz)}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Floating Decorations */}
