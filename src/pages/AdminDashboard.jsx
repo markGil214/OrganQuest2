@@ -598,7 +598,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
             <h1 className="text-4xl font-bold text-gray-800">Admin Dashboard</h1>
             <p className="text-gray-600 mt-2">
               Welcome, {userData?.fullName} 
-              {userData?.role === 'superuser' && ' (Superuser)'}
+              {userData?.role === 'admin' && ' (Admin)'}
               {userData?.role === 'teacher' && userData.assignedGrade && (
                 ` - ${userData.assignedGrade} Grade${userData.assignedSection && userData.assignedSection !== 'all' ? ` - Section ${userData.assignedSection}` : ''}`
               )}
@@ -642,7 +642,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
           >
             📈 Quiz Analytics
           </button>
-          {userData?.role !== 'superuser' && (
+          {userData?.role !== 'admin' && (
             <button
               onClick={() => setActiveTab('quiz-management')}
               className={`flex-1 py-3 px-6 rounded-lg font-semibold transition-all ${
@@ -1046,7 +1046,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
             <h3 className="text-2xl font-bold text-gray-800">
               {userData?.role === 'teacher' ? '👨‍🎓 My Students' : '🏫 My Classes'}
             </h3>
-            {userData?.role === 'superuser' && (
+            {userData?.role === 'admin' && (
               <Button
                 onClick={() => setShowCreateClassModal(true)}
                 className="bg-purple-600 hover:bg-purple-700"
@@ -1118,7 +1118,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
               </div>
             )
           ) : (
-            /* Show Classes for Superuser */
+            /* Show Classes for Admin */
             classes.length === 0 ? (
             <div className="text-center py-12 text-gray-500">
               <p className="text-lg">No classes found</p>

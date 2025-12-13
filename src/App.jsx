@@ -196,7 +196,7 @@ function App() {
       targetHash = `#${redirectUrl}`;
     } else {
       // Redirect based on role and replace history to prevent back navigation
-      targetHash = (userData.role === 'teacher' || userData.role === 'superuser') 
+      targetHash = (userData.role === 'teacher' || userData.role === 'admin') 
         ? '#admin/dashboard' 
         : '#main-menu';
     }

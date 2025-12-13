@@ -25,7 +25,7 @@ export const authMiddleware = async (req, res, next) => {
   }
 };
 
-// Teacher middleware - requires teacher or superuser role
+// Teacher middleware - requires teacher or admin role
 export const teacherMiddleware = async (req, res, next) => {
   try {
     const user = await User.findById(req.userId);
@@ -37,7 +37,7 @@ export const teacherMiddleware = async (req, res, next) => {
       });
     }
 
-    if (user.role !== 'teacher' && user.role !== 'superuser') {
+    if (user.role !== 'teacher' && user.role !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Teacher privileges required.'
@@ -57,8 +57,8 @@ export const teacherMiddleware = async (req, res, next) => {
   }
 };
 
-// Superuser middleware - requires superuser role only
-export const superuserMiddleware = async (req, res, next) => {
+// Admin middleware - requires admin role only
+export const adminMiddleware = async (req, res, next) => {
   try {
     const user = await User.findById(req.userId);
     
@@ -69,10 +69,10 @@ export const superuserMiddleware = async (req, res, next) => {
       });
     }
 
-    if (user.role !== 'superuser') {
+    if (user.role !== 'admin') {
       return res.status(403).json({
         success: false,
-        message: 'Access denied. Superuser privileges required.'
+        message: 'Access denied. Admin privileges required.'
       });
     }
 
@@ -80,7 +80,7 @@ export const superuserMiddleware = async (req, res, next) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error checking superuser privileges'
+      message: 'Server error checking admin privileges'
     });
   }
 };

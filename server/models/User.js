@@ -79,7 +79,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['student', 'teacher', 'superuser'],
+    enum: ['student', 'teacher', 'admin'],
     default: 'student'
   },
   assignedGrade: {
@@ -102,7 +102,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['pending', 'active'],
     default: function() {
-      // Students and superusers are active by default, teachers start as pending
+      // Students and admins are active by default, teachers start as pending
       return this.role === 'teacher' ? 'pending' : 'active';
     }
   },
