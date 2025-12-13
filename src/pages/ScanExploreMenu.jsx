@@ -223,24 +223,25 @@ const ScanExploreMenu = () => {
           </div>
         </header>
         <div className="h-full flex items-center justify-center p-6 relative" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
-        <div className="text-center space-y-8 animate-fade-in relative z-10">
-          <div className="relative">
-            <div className="text-9xl animate-pulse drop-shadow-2xl">🔍</div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-40 h-40 border-4 border-white/60 rounded-full animate-ping"></div>
+          <div className="text-center space-y-8 animate-fade-in relative z-10">
+            <div className="relative">
+              <div className="text-9xl animate-pulse drop-shadow-2xl">🔍</div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-40 h-40 border-4 border-white/60 rounded-full animate-ping"></div>
+              </div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-32 h-32 border-4 border-white/40 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
+              </div>
             </div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-32 h-32 border-4 border-white/40 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
+            <div className="space-y-3">
+              <h2 className="text-5xl font-black text-white drop-shadow-lg">{scanText.scanningBody}</h2>
+              <p className="text-2xl text-white/95 font-semibold drop-shadow">{scanText.findingOrgans} ✨</p>
             </div>
-          </div>
-          <div className="space-y-3">
-            <h2 className="text-5xl font-black text-white drop-shadow-lg">{scanText.scanningBody}</h2>
-            <p className="text-2xl text-white/95 font-semibold drop-shadow">{scanText.findingOrgans} ✨</p>
-          </div>
-          <div className="flex justify-center gap-3 text-5xl">
-            <span className="animate-bounce" style={{ animationDelay: '0s' }}>🫀</span>
-            <span className="animate-bounce" style={{ animationDelay: '0.1s' }}>🧠</span>
-            <span className="animate-bounce" style={{ animationDelay: '0.2s' }}>🫁</span>
+            <div className="flex justify-center gap-3 text-5xl">
+              <span className="animate-bounce" style={{ animationDelay: '0s' }}>🫀</span>
+              <span className="animate-bounce" style={{ animationDelay: '0.1s' }}>🧠</span>
+              <span className="animate-bounce" style={{ animationDelay: '0.2s' }}>🫁</span>
+            </div>
           </div>
         </div>
       </div>
@@ -328,6 +329,7 @@ const ScanExploreMenu = () => {
               </Button>
             )}
           </Card>
+        </div>
         </div>
       </div>
     );
@@ -507,6 +509,7 @@ const ScanExploreMenu = () => {
           100% { transform: scale(1); }
         }
       `}</style>
+      </div>
     </div>
   );
 };
