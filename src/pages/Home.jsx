@@ -49,7 +49,7 @@ const Home = () => {
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-600 overflow-hidden">
+    <div className="relative min-h-screen overflow-hidden" style={{ backgroundImage: 'url(/school/bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       {/* Floating organ images */}
       {organs.map((organ, index) => (
         <Organ

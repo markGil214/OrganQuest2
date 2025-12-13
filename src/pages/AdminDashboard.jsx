@@ -472,14 +472,14 @@ const AdminDashboard = ({ userData, onLogout }) => {
 
   if (loading && !students.length) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundImage: 'url(/school/bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
         <div className="text-white text-xl">Loading dashboard...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-6">
+    <div className="min-h-screen p-6" style={{ backgroundImage: 'url(/school/bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       {/* Class Details View */}
       {currentView === 'class-details' && selectedClassData ? (
         <div className="max-w-7xl mx-auto">

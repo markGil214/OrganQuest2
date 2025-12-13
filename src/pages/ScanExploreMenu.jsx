@@ -211,7 +211,7 @@ const ScanExploreMenu = () => {
 
   if (isScanning) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-teal-400 to-blue-500 flex items-center justify-center p-6 relative overflow-hidden">
+      <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden" style={{ backgroundImage: 'url(/school/bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
         {/* Animated circles */}
         <div className="absolute inset-0">
           <div className="absolute top-1/4 left-1/4 w-32 h-32 rounded-full bg-white/10 animate-ping" style={{ animationDuration: '2s' }} />
@@ -244,7 +244,7 @@ const ScanExploreMenu = () => {
 
   if (selectedOrgan) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-400 via-purple-400 to-indigo-500 p-6 relative overflow-hidden">
+      <div className="min-h-screen p-6 relative overflow-hidden" style={{ backgroundImage: 'url(/school/bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
         {/* Animated background patterns */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute w-full h-full" style={{
@@ -327,7 +327,7 @@ const ScanExploreMenu = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-400 via-cyan-400 to-blue-500 p-6 relative overflow-hidden">
+    <div className="min-h-screen p-6 relative overflow-hidden" style={{ backgroundImage: 'url(/school/bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       {/* Animated background elements */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute w-full h-full" style={{

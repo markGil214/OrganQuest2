@@ -84,7 +84,7 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-400 via-blue-400 to-indigo-500 overflow-hidden relative">
+    <div className="min-h-screen overflow-hidden relative" style={{ backgroundImage: 'url(/school/bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       {/* Animated background patterns */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-0 left-0 w-full h-full" style={{

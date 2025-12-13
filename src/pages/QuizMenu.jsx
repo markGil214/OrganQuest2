@@ -77,7 +77,7 @@ const QuizMenu = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 overflow-hidden relative">
+    <div className="min-h-screen overflow-hidden relative" style={{ backgroundImage: 'url(/school/bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       {/* Header */}
       <div className="relative z-10 pt-8 pb-6 px-6">
         <Button

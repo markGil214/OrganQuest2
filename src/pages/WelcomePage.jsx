@@ -54,7 +54,7 @@ const WelcomePage = ({ username = 'User' }) => {
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-green-400 via-teal-500 to-blue-600 overflow-hidden">
+    <div className="relative min-h-screen overflow-hidden" style={{ backgroundImage: 'url(/school/bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       {/* Floating organ images */}
       {organs.map((organ, index) => (
         <Organ
