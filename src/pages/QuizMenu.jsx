@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import QuizTypeCard from '../components/QuizTypeCard';
 import { Button } from '../components/ui/Button';
 import QuizModeSelector from '../components/QuizModeSelector';
@@ -15,7 +15,15 @@ const QuizMenu = () => {
   const [selectedQuizType, setSelectedQuizType] = useState(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const username = localStorage.getItem('username') || 'Explorer';
-  const userAvatar = localStorage.getItem('userAvatar') || '/avatars/avatar-1.svg';
+  const [userAvatar, setUserAvatar] = useState(localStorage.getItem('userAvatar') || '/avatars/avatar-1.svg');
+
+  // Update avatar from localStorage when profile modal opens
+  useEffect(() => {
+    const storedAvatar = localStorage.getItem('userAvatar');
+    if (storedAvatar) {
+      setUserAvatar(storedAvatar);
+    }
+  }, [showProfileModal]);
 
   const handleProfileClick = () => {
     setShowProfileModal(true);
@@ -164,6 +172,7 @@ const QuizMenu = () => {
           userAvatar={userAvatar}
           onClose={closeProfileModal}
           onLogout={handleLogout}
+          onAvatarUpdate={(newAvatar) => setUserAvatar(newAvatar)}
         />
       )}
     </div>

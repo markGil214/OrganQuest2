@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MenuButton from '../components/MenuButton';
 import ProfileModal from '../components/ProfileModal';
 import Header from '../components/Header';
 import LearnMoreModal from '../components/LearnMoreModal';
 import { useLanguage } from '../contexts/LanguageContext';
 
-const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg', onLogout }) => {
+const MainMenu = ({ username = 'Explorer', userAvatar: initialAvatar = '/avatars/avatar-1.svg', onLogout }) => {
   // Language hook for translations
   const { ts, language, changeLanguage } = useLanguage();
   const menuText = ts('mainMenu');
@@ -13,6 +13,15 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showLearnMoreModal, setShowLearnMoreModal] = useState(false);
   const [showAboutModal, setShowAboutModal] = useState(false);
+  const [userAvatar, setUserAvatar] = useState(initialAvatar);
+
+  // Update avatar from localStorage on mount and when modal opens
+  useEffect(() => {
+    const storedAvatar = localStorage.getItem('userAvatar');
+    if (storedAvatar) {
+      setUserAvatar(storedAvatar);
+    }
+  }, [showProfileModal]);
 
   const menuOptions = [
     {
@@ -142,6 +151,7 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
           onClose={closeProfileModal}
           onLogout={onLogout}
           playClickSound={playClickSound}
+          onAvatarUpdate={(newAvatar) => setUserAvatar(newAvatar)}
         />
       )}
 

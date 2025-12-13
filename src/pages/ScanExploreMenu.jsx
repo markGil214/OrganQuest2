@@ -21,7 +21,15 @@ const ScanExploreMenu = () => {
 
   // Get user data from localStorage
   const username = localStorage.getItem('username') || 'Explorer';
-  const userAvatar = localStorage.getItem('userAvatar') || '/avatars/avatar-1.svg';
+  const [userAvatar, setUserAvatar] = useState(localStorage.getItem('userAvatar') || '/avatars/avatar-1.svg');
+
+  // Update avatar from localStorage when profile modal opens
+  useEffect(() => {
+    const storedAvatar = localStorage.getItem('userAvatar');
+    if (storedAvatar) {
+      setUserAvatar(storedAvatar);
+    }
+  }, [showProfileModal]);
 
   const playClickSound = () => {
     const audio = new Audio('/sounds/pop.mp3');
@@ -526,6 +534,7 @@ const ScanExploreMenu = () => {
           onClose={closeProfileModal}
           onLogout={handleLogout}
           playClickSound={playClickSound}
+          onAvatarUpdate={(newAvatar) => setUserAvatar(newAvatar)}
         />
       )}
       </div>

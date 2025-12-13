@@ -5,7 +5,7 @@ import { cn } from '../lib/utils';
 import api from '../lib/api';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from 'recharts';
 
-const ProfileModal = ({ username, userAvatar, onClose, onLogout, playClickSound }) => {
+const ProfileModal = ({ username, userAvatar, onClose, onLogout, playClickSound, onAvatarUpdate }) => {
   const [activeTab, setActiveTab] = useState('info'); // 'info', 'progress'
   const [quizResults, setQuizResults] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -195,6 +195,10 @@ const ProfileModal = ({ username, userAvatar, onClose, onLogout, playClickSound 
             if (response.ok) {
               console.log('Avatar uploaded to database successfully');
               alert('Avatar updated successfully!');
+              // Notify parent component to update header
+              if (onAvatarUpdate) {
+                onAvatarUpdate(avatarData);
+              }
             } else {
               const errorData = await response.json();
               console.error('Failed to upload avatar to database:', errorData);
