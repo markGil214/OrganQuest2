@@ -96,11 +96,15 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
         </button>
       </div>
 
-      {/* Header Section */}
-      <header className="flex justify-between items-start p-6 md:p-8 relative z-10">
-        <div className="space-y-2">
-          <h2 className="text-2xl md:text-3xl font-black text-white drop-shadow-lg">{menuText.greeting}, {username}! 👋</h2>
-          <p className="text-white/95 text-base md:text-lg font-medium drop-shadow">{menuText.subtitle}</p>
+      {/* Header Section with Logo */}
+      <header className="flex justify-between items-center p-6 md:p-8 relative z-10">
+        <div className="flex items-center gap-4">
+          <img 
+            src="/school/dcslogo.jpg" 
+            alt="DCS Logo" 
+            className="w-12 h-12 md:w-16 md:h-16 object-contain"
+          />
+          <h1 className="text-3xl md:text-4xl font-black text-white drop-shadow-2xl tracking-tight">OrganQuest</h1>
         </div>
         
         <button
@@ -118,13 +122,10 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
         </button>
       </header>
 
-      {/* Logo and Title Section */}
-      <div className="flex flex-col items-center gap-3 py-4 md:py-6 relative z-10">
-        <div className="flex flex-col items-center">
-          <div className="text-6xl md:text-7xl animate-float drop-shadow-lg">🫀</div>
-          <h1 className="text-4xl md:text-5xl font-black text-white drop-shadow-2xl mt-4 tracking-tight">{menuText.appTitle}</h1>
-          <p className="text-white/95 text-lg md:text-xl font-semibold mt-2 drop-shadow">{menuText.tagline}</p>
-        </div>
+      {/* Greeting Section */}
+      <div className="px-6 md:px-8 pb-4 relative z-10">
+        <h2 className="text-2xl md:text-3xl font-black text-white drop-shadow-lg">{menuText.greeting}, {username}!</h2>
+        <p className="text-white/95 text-base md:text-lg font-medium drop-shadow">{menuText.subtitle}</p>
       </div>
 
       {/* Menu Buttons Grid */}
