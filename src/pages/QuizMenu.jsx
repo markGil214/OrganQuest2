@@ -79,7 +79,7 @@ const QuizMenu = () => {
   return (
     <div className="min-h-screen overflow-hidden relative" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       {/* Header */}
-      <div className="relative z-10 pt-8 pb-6 px-6">
+      <div className="relative z-10 p-4">
         <Button
           onClick={handleBackClick}
           variant="outline"
