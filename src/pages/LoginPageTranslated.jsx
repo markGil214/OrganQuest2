@@ -83,10 +83,11 @@ const LoginPageTranslated = ({ onLoginSuccess }) => {
           {/* Logo/Icon */}
           <div className="flex justify-center">
             <div className="relative">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center shadow-2xl">
-                <div className="text-4xl">🔬</div>
-              </div>
-              <div className="absolute inset-0 rounded-full border-4 border-purple-300 animate-ping opacity-30"></div>
+              <img 
+                src="/school/dcslogo.jpg" 
+                alt="DCS Logo" 
+                className="w-24 h-24 rounded-full object-cover shadow-2xl"
+              />
             </div>
           </div>
 
