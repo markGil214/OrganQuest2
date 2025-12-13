@@ -240,7 +240,7 @@ const ScanExploreMenu = () => {
   if (isScanning) {
     return (
       <div className="h-screen overflow-hidden">
-        <header className="flex justify-between items-center p-4 bg-blue-600 shadow-lg relative z-10">
+        <header className="flex justify-between items-center px-6 md:px-8 py-5 md:py-7 bg-blue-600 shadow-lg relative z-10">
           <div className="flex items-center gap-4">
             <img 
               src="/school/dcslogo.jpg" 
@@ -292,7 +292,7 @@ const ScanExploreMenu = () => {
   if (selectedOrgan) {
     return (
       <div className="h-screen overflow-hidden">
-        <header className="flex justify-between items-center p-4 bg-blue-600 shadow-lg relative z-10">
+        <header className="flex justify-between items-center px-6 md:px-8 py-5 md:py-7 bg-blue-600 shadow-lg relative z-10">
           <div className="flex items-center gap-4">
             <img 
               src="/school/dcslogo.jpg" 
@@ -391,7 +391,7 @@ const ScanExploreMenu = () => {
 
   return (
     <div className="h-screen overflow-hidden">
-      <header className="flex justify-between items-center p-4 bg-blue-600 shadow-lg relative z-10">
+      <header className="flex justify-between items-center px-6 md:px-8 py-5 md:py-7 bg-blue-600 shadow-lg relative z-10">
         <div className="flex items-center gap-4">
           <img 
             src="/school/dcslogo.jpg" 
