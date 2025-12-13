@@ -4,6 +4,7 @@ import { Card } from '../components/ui/Card';
 import { cn } from '../lib/utils';
 import { useLanguage } from '../contexts/LanguageContext';
 import ProfileModal from '../components/ProfileModal';
+import Header from '../components/Header';
 
 const ScanExploreMenu = () => {
   // Language hook for translations
