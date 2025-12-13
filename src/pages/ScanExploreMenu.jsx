@@ -365,7 +365,7 @@ const ScanExploreMenu = () => {
       {/* Header */}
       <div className="max-w-3xl mx-auto mb-6 relative z-10">
         <Button
-          onClick={handleBackClick}
+          onClick={handleBack}
           variant="outline"
           className="mb-4 bg-white/90 hover:bg-white border-0 text-gray-800 shadow-lg"
         >
