@@ -84,7 +84,7 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
   };
 
   return (
-    <div className="min-h-screen overflow-hidden">
+    <div className="h-screen overflow-hidden">
       {/* Header Section with Logo */}
       <header className="flex justify-between items-center p-6 md:p-8 bg-blue-600 shadow-lg relative z-10">
         <div className="flex items-center gap-4">
@@ -112,7 +112,7 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
       </header>
 
       {/* Main Content */}
-      <div className="relative min-h-screen" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
+      <div className="relative h-full" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
         {/* Language Toggle Button - Bottom Right */}
         <div className="fixed bottom-6 right-6 z-50">
           <button
