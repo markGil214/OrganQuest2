@@ -313,7 +313,7 @@ const ScanExploreMenu = () => {
 
   return (
     <div className="min-h-screen p-6 relative overflow-hidden" style={{ backgroundImage: 'url(/school/bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
-      {/* Header */
+      {/* Header */}
       <div className="max-w-3xl mx-auto mb-6 relative z-10">
         <Button
           onClick={handleBack}

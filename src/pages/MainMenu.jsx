@@ -85,7 +85,7 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
 
   return (
     <div className="min-h-screen overflow-hidden relative" style={{ backgroundImage: 'url(/school/bg.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
-      {/* Language Toggle Button - Bottom Right */
+      {/* Language Toggle Button - Bottom Right */}
       <div className="fixed bottom-6 right-6 z-50">
         <button
           onClick={() => { playClickSound(); changeLanguage(language === 'english' ? 'filipino' : 'english'); }}
