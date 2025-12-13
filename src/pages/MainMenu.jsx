@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import MenuButton from '../components/MenuButton';
 import ProfileModal from '../components/ProfileModal';
+import Header from '../components/Header';
 import LearnMoreModal from '../components/LearnMoreModal';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -86,30 +87,11 @@ const MainMenu = ({ username = 'Explorer', userAvatar = '/avatars/avatar-1.svg',
   return (
     <div className="h-screen overflow-hidden">
       {/* Header Section with Logo */}
-      <header className="flex justify-between items-center p-4 bg-blue-600 shadow-lg relative z-10">
-        <div className="flex items-center gap-4">
-          <img 
-            src="/school/dcslogo.jpg" 
-            alt="DCS Logo" 
-            className="w-12 h-12 object-contain"
-          />
-          <h1 className="text-2xl font-black text-white">OrganQuest</h1>
-        </div>
-        
-        <button
-          onClick={handleProfileClick}
-          className="relative group flex-shrink-0"
-        >
-          <div className="w-12 h-12 rounded-full overflow-hidden border-4 border-white shadow-2xl transition-all duration-300 group-hover:scale-110">
-            <img 
-              src={userAvatar} 
-              alt={`${username}'s avatar`}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 border-2 border-white rounded-full animate-pulse" />
-        </button>
-      </header>
+      <Header 
+        onProfileClick={handleProfileClick}
+        userAvatar={userAvatar}
+        username={username}
+      />
 
       {/* Main Content */}
       <div className="relative h-full" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>

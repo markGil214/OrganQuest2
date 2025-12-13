@@ -240,29 +240,11 @@ const ScanExploreMenu = () => {
   if (isScanning) {
     return (
       <div className="h-screen overflow-hidden">
-        <header className="flex justify-between items-center p-4 bg-blue-600 shadow-lg relative z-10">
-          <div className="flex items-center gap-4">
-            <img 
-              src="/school/dcslogo.jpg" 
-              alt="DCS Logo" 
-              className="w-12 h-12 object-contain"
-            />
-            <h1 className="text-2xl font-black text-white">OrganQuest</h1>
-          </div>
-          <button
-            onClick={handleProfileClick}
-            className="relative group flex-shrink-0"
-          >
-            <div className="w-12 h-12 rounded-full overflow-hidden border-4 border-white shadow-2xl transition-all duration-300 group-hover:scale-110">
-              <img 
-                src={userAvatar} 
-                alt={`${username}'s avatar`}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 border-2 border-white rounded-full animate-pulse" />
-          </button>
-        </header>
+        <Header 
+          onProfileClick={handleProfileClick}
+          userAvatar={userAvatar}
+          username={username}
+        />
         <div className="h-full flex items-center justify-center p-6 relative" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
           <div className="text-center space-y-8 animate-fade-in relative z-10">
             <div className="relative">
@@ -292,29 +274,11 @@ const ScanExploreMenu = () => {
   if (selectedOrgan) {
     return (
       <div className="h-screen overflow-hidden">
-        <header className="flex justify-between items-center p-4 bg-blue-600 shadow-lg relative z-10">
-          <div className="flex items-center gap-4">
-            <img 
-              src="/school/dcslogo.jpg" 
-              alt="DCS Logo" 
-              className="w-12 h-12 object-contain"
-            />
-            <h1 className="text-2xl font-black text-white">OrganQuest</h1>
-          </div>
-          <button
-            onClick={handleProfileClick}
-            className="relative group flex-shrink-0"
-          >
-            <div className="w-12 h-12 rounded-full overflow-hidden border-4 border-white shadow-2xl transition-all duration-300 group-hover:scale-110">
-              <img 
-                src={userAvatar} 
-                alt={`${username}'s avatar`}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 border-2 border-white rounded-full animate-pulse" />
-          </button>
-        </header>
+        <Header 
+          onProfileClick={handleProfileClick}
+          userAvatar={userAvatar}
+          username={username}
+        />
         <div className="h-full p-6 relative overflow-y-auto" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
         <div className="max-w-2xl mx-auto space-y-6 relative z-10 pb-8">
           <Button
@@ -391,46 +355,22 @@ const ScanExploreMenu = () => {
 
   return (
     <div className="h-screen overflow-hidden">
-      <header className="flex justify-between items-center p-4 bg-blue-600 shadow-lg relative z-10">
-        <div className="flex items-center gap-4">
-          <img 
-            src="/school/dcslogo.jpg" 
-            alt="DCS Logo" 
-            className="w-12 h-12 object-contain"
-          />
-          <h1 className="text-2xl font-black text-white">OrganQuest</h1>
-        </div>
-        <button
-          onClick={handleProfileClick}
-          className="relative group flex-shrink-0"
-        >
-          <div className="w-12 h-12 rounded-full overflow-hidden border-4 border-white shadow-2xl transition-all duration-300 group-hover:scale-110">
-            <img 
-              src={userAvatar} 
-              alt={`${username}'s avatar`}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 border-2 border-white rounded-full animate-pulse" />
-        </button>
-      </header>
+      <Header 
+        onProfileClick={handleProfileClick}
+        userAvatar={userAvatar}
+        username={username}
+      />
       <div className="h-full p-6 relative overflow-y-auto" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
       {/* Header */}
       <div className="max-w-3xl mx-auto mb-6 relative z-10">
         <Button
-          onClick={handleBack}
-          className="bg-white hover:bg-gray-50 text-gray-800 font-bold border-2 border-white/50 shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95 rounded-2xl"
+          onClick={handleBackClick}
+          variant="outline"
+          className="mb-4 bg-white/90 hover:bg-white border-0 text-gray-800 shadow-lg"
         >
-          <span className="mr-2 text-xl">←</span> {scanText.backToMenu}
+          ← {scanText.backButton}
         </Button>
-      </div>
-
-      {/* Title */}
-      <div className="text-center mb-6 space-y-2 relative z-10">
-        <h1 className="text-4xl md:text-5xl font-black text-white drop-shadow-2xl">
-          🌟 {scanText.chooseOrgan} 🌟
-        </h1>
-        <p className="text-xl md:text-2xl text-white/95 font-bold drop-shadow-lg">
+        <p className="text-center text-lg font-semibold mb-2 px-6 py-3 bg-white/80 rounded-2xl shadow-lg text-gray-700">
           {scanText.tapDiscover}
         </p>
       </div>
