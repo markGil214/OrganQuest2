@@ -312,6 +312,139 @@ router.get('/teachers', authMiddleware, adminMiddleware, async (req, res) => {
   }
 });
 
+// @route   POST /api/admin/send-teacher-invitation
+// @desc    Send teacher invitation email (Admin only)
+// @access  Admin
+router.post('/send-teacher-invitation',
+  authMiddleware,
+  adminMiddleware,
+  [
+    body('fullName').trim().notEmpty().withMessage('Full name is required'),
+    body('email').isEmail().withMessage('Valid email is required'),
+    body('phone').trim().optional(),
+    body('assignedGrade').isIn(['4th', '5th', '6th', 'all']).withMessage('Invalid grade assignment')
+  ],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          success: false,
+          errors: errors.array()
+        });
+      }
+
+      const { fullName, email, phone, assignedGrade } = req.body;
+
+      console.log('Sending teacher invitation:', { fullName, email, assignedGrade });
+
+      // Check if email already exists
+      const existingUser = await User.findOne({ email, role: 'teacher' });
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: 'A teacher with this email already exists'
+        });
+      }
+
+      // Generate unique teacher code
+      const generateTeacherCode = async () => {
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let code;
+        let exists = true;
+
+        while (exists) {
+          code = 'T-';
+          for (let i = 0; i < 6; i++) {
+            code += characters.charAt(Math.floor(Math.random() * characters.length));
+          }
+
+          const existingTeacher = await User.findOne({ teacherCode: code });
+          exists = !!existingTeacher;
+        }
+
+        return code;
+      };
+
+      const teacherCode = await generateTeacherCode();
+
+      // Generate registration token
+      const registrationToken = crypto.randomBytes(32).toString('hex');
+      const tokenExpiry = new Date();
+      tokenExpiry.setHours(tokenExpiry.getHours() + 24); // Token expires in 24 hours
+
+      // Create teacher user with pending status
+      const teacher = new User({
+        fullName,
+        email,
+        phone: phone || '',
+        role: 'teacher',
+        assignedGrade,
+        teacherCode,
+        age: 30, // Default for teacher
+        grade: '4th', // Required but not used for teachers
+        avatar: 1,
+        language: 'english',
+        accountStatus: 'pending',
+        registrationToken,
+        tokenExpiry
+      });
+
+      await teacher.save();
+
+      console.log('Teacher invitation created:', {
+        id: teacher._id,
+        email: teacher.email,
+        teacherCode: teacher.teacherCode,
+        registrationToken: teacher.registrationToken
+      });
+
+      // Send invitation email
+      try {
+        const registrationUrl = `${process.env.CLIENT_URL || 'http://localhost:5173'}/teacher-registration?token=${registrationToken}`;
+
+        await sendTeacherInvitationEmail({
+          email: teacher.email,
+          fullName: teacher.fullName,
+          teacherCode: teacher.teacherCode,
+          assignedGrade: teacher.assignedGrade,
+          section: teacher.assignedSection || 'All',
+          registrationToken: registrationToken
+        });
+
+        console.log('Invitation email sent to:', teacher.email);
+      } catch (emailError) {
+        console.error('Failed to send invitation email:', emailError);
+        // Don't fail the request if email fails, but log it
+      }
+
+      res.status(201).json({
+        success: true,
+        message: 'Teacher invitation sent successfully',
+        data: {
+          teacher: {
+            _id: teacher._id,
+            fullName: teacher.fullName,
+            email: teacher.email,
+            phone: teacher.phone,
+            assignedGrade: teacher.assignedGrade,
+            teacherCode: teacher.teacherCode,
+            accountStatus: teacher.accountStatus,
+            createdAt: teacher.createdAt
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Send teacher invitation error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server error sending teacher invitation',
+        error: error.message
+      });
+    }
+  }
+);
+
 // @route   POST /api/admin/create-teacher
 // @desc    Create a new teacher (Admin only)
 // @access  Admin

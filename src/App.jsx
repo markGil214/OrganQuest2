@@ -155,6 +155,8 @@ function App() {
         setCurrentPage('interactive-viewer');
       } else if (hash.startsWith('teacher-register/')) {
         setCurrentPage('teacher-register');
+      } else if (hash === 'teacher-registration') {
+        setCurrentPage('teacher-register');
       } else if (hash.startsWith('ar-scanner/')) {
         setCurrentPage('ar-scanner');
       } else if (hash === 'admin/dashboard') {

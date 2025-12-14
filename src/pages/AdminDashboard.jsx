@@ -75,8 +75,6 @@ const AdminDashboard = ({ onLogout }) => {
     fullName: '',
     email: '',
     phone: '',
-    username: '',
-    password: '',
     assignedGrade: '4th',
   });
   const [teacherError, setTeacherError] = useState('');
@@ -125,14 +123,14 @@ const AdminDashboard = ({ onLogout }) => {
     e.preventDefault();
     
     // Validate required fields
-    if (!newTeacher.fullName || !newTeacher.email || !newTeacher.username || !newTeacher.password) {
-      setTeacherError('Full name, email, username, and password are required.');
+    if (!newTeacher.fullName || !newTeacher.email) {
+      setTeacherError('Full name and email are required.');
       return;
     }
 
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`${API_URL}/api/admin/create-teacher`, {
+      const response = await fetch(`${API_URL}/api/admin/send-teacher-invitation`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -142,8 +140,6 @@ const AdminDashboard = ({ onLogout }) => {
           fullName: newTeacher.fullName,
           email: newTeacher.email,
           phone: newTeacher.phone,
-          username: newTeacher.username,
-          password: newTeacher.password,
           assignedGrade: newTeacher.assignedGrade
         })
       });
@@ -151,18 +147,16 @@ const AdminDashboard = ({ onLogout }) => {
       const data = await response.json();
 
       if (!response.ok) {
-        setTeacherError(data.message || 'Failed to add teacher');
+        setTeacherError(data.message || 'Failed to send invitation email');
         return;
       }
 
-      setTeacherSuccess('Teacher added successfully!');
+      setTeacherSuccess('Invitation email sent successfully!');
       setShowAddModal(false);
       setNewTeacher({
         fullName: '',
         email: '',
         phone: '',
-        username: '',
-        password: '',
         assignedGrade: '4th'
       });
       setTeacherError('');
@@ -174,8 +168,8 @@ const AdminDashboard = ({ onLogout }) => {
         setTeacherSuccess('');
       }, 3000);
     } catch (error) {
-      console.error('Error adding teacher:', error);
-      setTeacherError('Error adding teacher: ' + error.message);
+      console.error('Error sending invitation:', error);
+      setTeacherError('Error sending invitation email: ' + error.message);
     }
   };
 
@@ -497,30 +491,6 @@ const AdminDashboard = ({ onLogout }) => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Username</label>
-                      <input
-                        type="text"
-                        name="username"
-                        value={newTeacher.username}
-                        onChange={handleTeacherInputChange}
-                        className="border rounded px-3 py-2 w-full"
-                        placeholder="Enter username"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Password</label>
-                      <input
-                        type="password"
-                        name="password"
-                        value={newTeacher.password}
-                        onChange={handleTeacherInputChange}
-                        className="border rounded px-3 py-2 w-full"
-                        placeholder="Enter password"
-                        required
-                      />
-                    </div>
-                    <div>
                       <label className="block text-sm font-medium mb-1">Assigned Grade</label>
                       <select
                         name="assignedGrade"
@@ -536,7 +506,7 @@ const AdminDashboard = ({ onLogout }) => {
                     </div>
                     {teacherError && <div className="text-red-600 text-sm font-semibold">{teacherError}</div>}
                     {teacherSuccess && <div className="text-green-600 text-sm font-semibold">{teacherSuccess}</div>}
-                    <button type="submit" className="w-full bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800">Add Teacher</button>
+                    <button type="submit" className="w-full bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800">Send Invitation Email</button>
                   </form>
                 </div>
               </div>

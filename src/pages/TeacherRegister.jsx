@@ -4,8 +4,9 @@ import { toast } from 'react-hot-toast';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const TeacherRegister = () => {
-  // Extract token from hash URL: #teacher-register/:token
-  const token = window.location.hash.split('/')[1];
+  // Extract token from URL query parameters: ?token=...
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
   
   const [loading, setLoading] = useState(true);
   const [teacherInfo, setTeacherInfo] = useState(null);
