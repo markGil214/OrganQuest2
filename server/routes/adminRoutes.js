@@ -321,7 +321,8 @@ router.post('/send-teacher-invitation',
   [
     body('fullName').trim().notEmpty().withMessage('Full name is required'),
     body('email').isEmail().withMessage('Valid email is required'),
-    body('phone').trim().optional()
+    body('phone').trim().optional(),
+    body('teacherId').trim().optional()
   ],
   async (req, res) => {
     try {
@@ -333,7 +334,7 @@ router.post('/send-teacher-invitation',
         });
       }
 
-      const { fullName, email, phone } = req.body;
+      const { fullName, email, phone, teacherId } = req.body;
 
       console.log('Sending teacher invitation:', { fullName, email });
 
@@ -416,6 +417,7 @@ router.post('/send-teacher-invitation',
         password,
         role: 'teacher',
         teacherCode,
+        teacherId: teacherId || '', // Add teacher ID
         age: 30, // Default for teacher
         grade: '4th', // Required but not used for teachers
         avatar: 1,
@@ -458,6 +460,7 @@ router.post('/send-teacher-invitation',
             email: teacher.email,
             phone: teacher.phone,
             username: teacher.username,
+            teacherId: teacher.teacherId,
             teacherCode: teacher.teacherCode,
             accountStatus: teacher.accountStatus,
             createdAt: teacher.createdAt

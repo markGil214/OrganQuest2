@@ -75,6 +75,7 @@ const AdminDashboard = ({ onLogout }) => {
     fullName: '',
     email: '',
     phone: '',
+    teacherId: '',
   });
   const [teacherError, setTeacherError] = useState('');
   const [teacherSuccess, setTeacherSuccess] = useState('');
@@ -175,7 +176,8 @@ const AdminDashboard = ({ onLogout }) => {
         body: JSON.stringify({
           fullName: newTeacher.fullName,
           email: newTeacher.email,
-          phone: newTeacher.phone
+          phone: newTeacher.phone,
+          teacherId: newTeacher.teacherId
         })
       });
 
@@ -191,7 +193,7 @@ const AdminDashboard = ({ onLogout }) => {
 
       if (data.success) {
         setTeacherSuccess('Teacher invitation sent successfully!');
-        setNewTeacher({ fullName: '', email: '', phone: '' });
+        setNewTeacher({ fullName: '', email: '', phone: '', teacherId: '' });
         setShowAddTeacherModal(false);
         // Refresh teachers list
         fetchTeachers();
@@ -548,6 +550,18 @@ const AdminDashboard = ({ onLogout }) => {
                         placeholder="Enter phone number"
                       />
                     </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Teacher ID</label>
+                      <input
+                        type="text"
+                        name="teacherId"
+                        value={newTeacher.teacherId}
+                        onChange={handleTeacherInputChange}
+                        className="border rounded px-3 py-2 w-full"
+                        placeholder="e.g., 25-0001-dcs"
+                        required
+                      />
+                    </div>
                     {teacherError && <div className="text-red-600 text-sm font-semibold">{teacherError}</div>}
                     {teacherSuccess && <div className="text-green-600 text-sm font-semibold">{teacherSuccess}</div>}
                     <button type="submit" className="w-full bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800">Send Invitation Email</button>
@@ -560,6 +574,7 @@ const AdminDashboard = ({ onLogout }) => {
               <table className="min-w-full bg-white rounded shadow">
                 <thead>
                   <tr>
+                    <th className="px-4 py-2 border-b text-left">Teacher ID</th>
                     <th className="px-4 py-2 border-b text-left">Full Name</th>
                     <th className="px-4 py-2 border-b text-left">Email</th>
                     <th className="px-4 py-2 border-b text-left">Phone Number</th>
@@ -597,6 +612,7 @@ const AdminDashboard = ({ onLogout }) => {
                       const displayStatus_formatted = displayStatus.charAt(0).toUpperCase() + displayStatus.slice(1);
                       return (
                         <tr key={teacher._id}>
+                          <td className="px-4 py-2 border-b">{teacher.teacherId || '-'}</td>
                           <td className="px-4 py-2 border-b">{teacher.fullName}</td>
                           <td className="px-4 py-2 border-b">{teacher.email}</td>
                           <td className="px-4 py-2 border-b">{teacher.phone || '-'}</td>

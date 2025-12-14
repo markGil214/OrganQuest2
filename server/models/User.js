@@ -98,6 +98,11 @@ const userSchema = new mongoose.Schema({
     unique: true,
     sparse: true // Only for teachers
   },
+  teacherId: {
+    type: String,
+    sparse: true, // Only for teachers
+    unique: true
+  },
   accountStatus: {
     type: String,
     enum: ['pending', 'active'],
