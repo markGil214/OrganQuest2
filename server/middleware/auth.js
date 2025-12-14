@@ -11,6 +11,10 @@ export const authMiddleware = async (req, res, next) => {
       token = req.header('Authorization')?.replace('Bearer ', '');
     }
 
+    // Debug logging
+    console.log('Auth middleware - Cookies:', Object.keys(req.cookies || {}));
+    console.log('Auth middleware - Token found:', !!token);
+
     if (!token) {
       return res.status(401).json({
         success: false,

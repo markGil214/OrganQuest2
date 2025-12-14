@@ -166,8 +166,8 @@ router.post('/login',
       // Set HTTP-only cookie with the token
       res.cookie('token', token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        secure: true, // Always secure for production
+        sameSite: 'none', // Required for cross-origin requests
         maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
       });
 
