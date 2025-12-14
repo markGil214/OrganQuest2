@@ -549,16 +549,7 @@ const AdminDashboard = () => {
                         </td>
                       </tr>
                     ))}
-                          // Sort By state for Teacher Management
-                          const [teacherSortBy, setTeacherSortBy] = useState('name-asc');
-                        // Phone filter state for Teacher Management
-                        const [teacherPhoneFilter, setTeacherPhoneFilter] = useState('');
-                      // Email filter state for Teacher Management
-                      const [teacherEmailFilter, setTeacherEmailFilter] = useState('');
-                    // Name/ID search state for Teacher Management
-                    const [teacherNameIdSearch, setTeacherNameIdSearch] = useState('');
-                  // Status filter state for Teacher Management
-                  const [teacherStatusFilter, setTeacherStatusFilter] = useState('All');
+
                 </tbody>
               </table>
             </div>
