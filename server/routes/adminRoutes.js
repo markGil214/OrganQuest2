@@ -289,6 +289,151 @@ router.get('/analytics', authMiddleware, teacherMiddleware, async (req, res) => 
   }
 });
 
+// @route   GET /api/admin/teachers
+// @desc    Get all teachers (Admin only)
+// @access  Admin
+router.get('/teachers', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const teachers = await User.find({ role: 'teacher' })
+      .select('-password -__v')
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      data: { teachers }
+    });
+  } catch (error) {
+    console.error('Get teachers error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error fetching teachers',
+      error: error.message
+    });
+  }
+});
+
+// @route   POST /api/admin/create-teacher
+// @desc    Create a new teacher (Admin only)
+// @access  Admin
+router.post('/create-teacher', 
+  authMiddleware, 
+  adminMiddleware,
+  [
+    body('fullName').trim().notEmpty().withMessage('Full name is required'),
+    body('email').isEmail().withMessage('Valid email is required'),
+    body('phone').trim().optional(),
+    body('username').trim().isLength({ min: 3 }).withMessage('Username must be at least 3 characters'),
+    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+    body('assignedGrade').isIn(['4th', '5th', '6th', 'all']).withMessage('Invalid grade assignment')
+  ],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          success: false,
+          errors: errors.array()
+        });
+      }
+
+      const { fullName, email, phone, username, password, assignedGrade } = req.body;
+
+      console.log('Creating teacher with data:', { fullName, email, username, assignedGrade });
+
+      // Check if username exists
+      const existingUser = await User.findOne({ username });
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: 'Username already taken'
+        });
+      }
+
+      // Check if email exists
+      const existingEmail = await User.findOne({ email, role: 'teacher' });
+      if (existingEmail) {
+        return res.status(400).json({
+          success: false,
+          message: 'Email already registered'
+        });
+      }
+
+      // Generate unique teacher code
+      const generateTeacherCode = async () => {
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let code;
+        let exists = true;
+        
+        while (exists) {
+          code = 'T-';
+          for (let i = 0; i < 6; i++) {
+            code += characters.charAt(Math.floor(Math.random() * characters.length));
+          }
+          
+          const existingTeacher = await User.findOne({ teacherCode: code });
+          exists = !!existingTeacher;
+        }
+        
+        return code;
+      };
+
+      const teacherCode = await generateTeacherCode();
+
+      // Create teacher user
+      const teacher = new User({
+        fullName,
+        email,
+        phone: phone || '',
+        username,
+        password,
+        role: 'teacher',
+        assignedGrade,
+        teacherCode,
+        age: 30, // Default for teacher
+        grade: '4th', // Required but not used for teachers
+        avatar: 1,
+        language: 'english',
+        accountStatus: 'active'
+      });
+
+      await teacher.save();
+
+      console.log('Teacher created successfully:', {
+        id: teacher._id,
+        role: teacher.role,
+        teacherCode: teacher.teacherCode,
+        assignedGrade: teacher.assignedGrade
+      });
+
+      res.status(201).json({
+        success: true,
+        message: 'Teacher created successfully',
+        data: {
+          teacher: {
+            _id: teacher._id,
+            fullName: teacher.fullName,
+            email: teacher.email,
+            phone: teacher.phone,
+            username: teacher.username,
+            role: teacher.role,
+            assignedGrade: teacher.assignedGrade,
+            teacherCode: teacher.teacherCode,
+            status: teacher.accountStatus,
+            createdAt: teacher.createdAt
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Create teacher error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server error creating teacher',
+        error: error.message
+      });
+    }
+  }
+);
+
 // @route   GET /api/Teacher/admins
 // @desc    Get all admins (Admin only)
 // @access  Admin
