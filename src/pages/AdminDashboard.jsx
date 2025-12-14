@@ -116,6 +116,37 @@ const AdminDashboard = () => {
   const showTeacherManagement = activeSidebar === 'User Management' && activeSubSidebar === 'Teacher Management';
   const showStudentManagement = activeSidebar === 'User Management' && activeSubSidebar === 'Student Management';
   const showClassSectionManagement = activeSidebar === 'Class & Section Management';
+  const showEnrollmentManagement = activeSidebar === 'Enrollment Management';
+
+  // Enrollment Management State (UI only)
+  const [selectedClassId, setSelectedClassId] = useState('');
+  const [selectedStudentId, setSelectedStudentId] = useState('');
+
+  // Get class options for dropdown
+  const classOptions = classes ? classes.map(cls => ({ id: cls.id, label: `${cls.grade} - ${cls.section}` })) : [];
+  // Get student options for dropdown
+  const studentOptions = students ? students.map(stud => ({ id: stud.id, label: stud.name })) : [];
+
+  // Dummy enrolled students per class (UI only, not persistent)
+  const [enrollments, setEnrollments] = useState({}); // { classId: [studentId, ...] }
+
+  // UI handlers (no backend logic)
+  const handleEnrollStudent = (e) => {
+    e.preventDefault();
+    if (!selectedClassId || !selectedStudentId) return;
+    setEnrollments(prev => ({
+      ...prev,
+      [selectedClassId]: prev[selectedClassId] ? [...new Set([...prev[selectedClassId], selectedStudentId])] : [selectedStudentId],
+    }));
+    setSelectedStudentId('');
+  };
+
+  const handleRemoveStudent = (classId, studentId) => {
+    setEnrollments(prev => ({
+      ...prev,
+      [classId]: prev[classId].filter(id => id !== studentId),
+    }));
+  };
 
   // Class & Section Management State
   const [classes, setClasses] = useState([
@@ -605,6 +636,80 @@ const AdminDashboard = () => {
                       <td className="px-4 py-2 border-b">{cls.section}</td>
                       <td className="px-4 py-2 border-b">{cls.teacher}</td>
                       <td className="px-4 py-2 border-b">{cls.subject}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ) : showEnrollmentManagement ? (
+          <div>
+            <h1 className="text-3xl font-bold mb-6">Enrollment Management</h1>
+            <form onSubmit={handleEnrollStudent} className="mb-8 flex flex-wrap gap-4 items-end">
+              <div>
+                <label className="block text-sm font-medium mb-1">Select Class</label>
+                <select
+                  className="border rounded px-3 py-2 w-48"
+                  value={selectedClassId}
+                  onChange={e => setSelectedClassId(e.target.value)}
+                  required
+                >
+                  <option value="">Select Class</option>
+                  {classOptions.map(cls => (
+                    <option key={cls.id} value={cls.id}>{cls.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Select Student</label>
+                <select
+                  className="border rounded px-3 py-2 w-64"
+                  value={selectedStudentId}
+                  onChange={e => setSelectedStudentId(e.target.value)}
+                  required
+                  disabled={!selectedClassId}
+                >
+                  <option value="">Select Student</option>
+                  {studentOptions.map(stud => (
+                    <option key={stud.id} value={stud.id}>{stud.label}</option>
+                  ))}
+                </select>
+              </div>
+              <button type="submit" className="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800" disabled={!selectedClassId || !selectedStudentId}>Enroll Student</button>
+            </form>
+
+            {/* Class Lists */}
+            <div className="overflow-x-auto">
+              <table className="min-w-full bg-white rounded shadow">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-2 border-b text-left">Class</th>
+                    <th className="px-4 py-2 border-b text-left">Enrolled Students</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {classOptions.map(cls => (
+                    <tr key={cls.id}>
+                      <td className="px-4 py-2 border-b align-top font-semibold">{cls.label}</td>
+                      <td className="px-4 py-2 border-b">
+                        <ul className="list-disc ml-5">
+                          {(enrollments[cls.id] || []).length === 0 && <li className="text-gray-400 italic">No students enrolled</li>}
+                          {(enrollments[cls.id] || []).map(studId => {
+                            const stud = students.find(s => s.id === studId);
+                            return (
+                              <li key={studId} className="flex items-center gap-2">
+                                <span>{stud ? stud.name : studId}</span>
+                                <button
+                                  className="ml-2 text-xs bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
+                                  onClick={() => handleRemoveStudent(cls.id, studId)}
+                                >
+                                  Remove
+                                </button>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
