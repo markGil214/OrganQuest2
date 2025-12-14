@@ -248,14 +248,16 @@ const AdminDashboard = () => {
 
   // Student Management State
   const [students, setStudents] = useState([
-    { id: '2025-0001', name: 'Juan Dela Cruz', email: 'juan@example.com', phone: '09171234567', status: 'Active', enrolled: ['Grade 7 - A - Math'] },
-    { id: '2025-0002', name: 'Maria Santos', email: 'maria@example.com', phone: '09179876543', status: 'Pending', enrolled: [] },
-    { id: '2025-0003', name: 'Carlos Reyes', email: 'carlos@example.com', phone: '09170001122', status: 'Disabled', enrolled: ['Grade 8 - B - Science'] },
+    { id: '2025-0001', name: 'Juan Dela Cruz', dob: '2010-05-15', gender: 'Male', email: 'juan@example.com', phone: '09171234567', status: 'Active', enrolled: ['Grade 7 - A - Math'] },
+    { id: '2025-0002', name: 'Maria Santos', dob: '2010-08-20', gender: 'Female', email: 'maria@example.com', phone: '09179876543', status: 'Pending', enrolled: [] },
+    { id: '2025-0003', name: 'Carlos Reyes', dob: '2009-11-02', gender: 'Male', email: 'carlos@example.com', phone: '09170001122', status: 'Disabled', enrolled: ['Grade 8 - B - Science'] },
   ]);
   const [showAddStudentModal, setShowAddStudentModal] = useState(false);
   const [newStudent, setNewStudent] = useState({
     id: '',
     name: '',
+    dob: '',
+    gender: '',
     email: '',
     phone: '',
     status: 'Pending',
@@ -712,6 +714,8 @@ const AdminDashboard = () => {
                   <tr>
                     <th className="px-4 py-2 border-b text-left">ID</th>
                     <th className="px-4 py-2 border-b text-left">Full Name</th>
+                    <th className="px-4 py-2 border-b text-left">DOB</th>
+                    <th className="px-4 py-2 border-b text-left">Gender</th>
                     <th className="px-4 py-2 border-b text-left">Email</th>
                     <th className="px-4 py-2 border-b text-left">Phone</th>
                     <th className="px-4 py-2 border-b text-left">Status</th>
@@ -737,6 +741,8 @@ const AdminDashboard = () => {
                       <tr key={student.id}>
                         <td className="px-4 py-2 border-b">{student.id}</td>
                         <td className="px-4 py-2 border-b">{student.name}</td>
+                        <td className="px-4 py-2 border-b">{student.dob}</td>
+                        <td className="px-4 py-2 border-b">{student.gender}</td>
                         <td className="px-4 py-2 border-b">{student.email}</td>
                         <td className="px-4 py-2 border-b">{student.phone}</td>
                         <td className="px-4 py-2 border-b">{student.status}</td>
@@ -752,7 +758,7 @@ const AdminDashboard = () => {
                       (student.phone || '').includes(searchStudentPhone)
                     ).length === 0 && (
                     <tr>
-                      <td colSpan="6" className="px-4 py-2 border-b text-center text-gray-500">No students found</td>
+                      <td colSpan="8" className="px-4 py-2 border-b text-center text-gray-500">No students found</td>
                     </tr>
                   )}
                 </tbody>
