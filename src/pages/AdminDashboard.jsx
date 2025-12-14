@@ -284,12 +284,13 @@ const AdminDashboard = () => {
 
   const handleAddStudent = (e) => {
     e.preventDefault();
-    if (!newStudent.name || !newStudent.age || !newStudent.sex || !newStudent.section) return;
+    // Validate required fields for new structure
+    if (!newStudent.name || !newStudent.dob || !newStudent.gender || !newStudent.email || !newStudent.phone) return;
     setStudents([
       ...students,
-      { ...newStudent, id: getNextStudentId(), status: 'Active' },
+      { ...newStudent, id: getNextStudentId(), status: 'Active', enrolled: [] },
     ]);
-    setNewStudent({ id: '', name: '', age: '', sex: '', section: '' });
+    setNewStudent({ id: '', name: '', dob: '', gender: '', email: '', phone: '', status: 'Pending', enrolled: [] });
     setShowAddStudentModal(false);
   };
 
@@ -680,6 +681,32 @@ const AdminDashboard = () => {
                       />
                     </div>
                     <div>
+                      <label className="block text-sm font-medium mb-1">Date of Birth</label>
+                      <input
+                        type="date"
+                        name="dob"
+                        value={newStudent.dob}
+                        onChange={handleStudentInputChange}
+                        className="border rounded px-3 py-2 w-full"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Gender</label>
+                      <select
+                        name="gender"
+                        value={newStudent.gender}
+                        onChange={handleStudentInputChange}
+                        className="border rounded px-3 py-2 w-full"
+                        required
+                      >
+                        <option value="">Select gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                    <div>
                       <label className="block text-sm font-medium mb-1">Email</label>
                       <input
                         type="email"
@@ -700,6 +727,7 @@ const AdminDashboard = () => {
                         onChange={handleStudentInputChange}
                         className="border rounded px-3 py-2 w-full"
                         placeholder="Enter phone number"
+                        required
                       />
                     </div>
                     <button type="submit" className="w-full bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800">Add Student</button>
