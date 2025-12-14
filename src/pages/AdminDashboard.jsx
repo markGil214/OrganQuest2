@@ -72,33 +72,57 @@ const AdminDashboard = () => {
 
   // Dummy teacher data for demonstration
 
+
+  // Teacher Management State
   const [teachers, setTeachers] = useState([
-    { id: '25-0001-dcs', name: 'Mr. Smith', age: 35, sex: 'Male', email: 'smith@example.com', phone: '09171234567', status: 'Pending' },
-    { id: '25-0002-dcs', name: 'Ms. Lee', age: 29, sex: 'Female', email: 'lee@example.com', phone: '09179876543', status: 'Active' },
+    { id: '25-0001-dcs', name: 'Mr. Smith', email: 'smith@example.com', phone: '09171234567', status: 'Pending' },
+    { id: '25-0002-dcs', name: 'Ms. Lee', email: 'lee@example.com', phone: '09179876543', status: 'Active' },
   ]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newTeacher, setNewTeacher] = useState({
     id: '',
     name: '',
-    age: '',
-    sex: '',
     email: '',
     phone: '',
   });
+  const [teacherError, setTeacherError] = useState('');
 
-  const handleInputChange = (e) => {
+  // Generate next teacher ID
+  const getNextTeacherId = () => {
+    if (teachers.length === 0) return '25-0001-dcs';
+    const last = teachers[teachers.length - 1].id;
+    const num = parseInt(last.split('-')[1], 10) + 1;
+    return `25-${num.toString().padStart(4, '0')}-dcs`;
+  };
+
+  const handleTeacherInputChange = (e) => {
     setNewTeacher({ ...newTeacher, [e.target.name]: e.target.value });
+    setTeacherError('');
   };
 
   const handleAddTeacher = (e) => {
     e.preventDefault();
-    if (!newTeacher.id || !newTeacher.name || !newTeacher.age || !newTeacher.sex || !newTeacher.email || !newTeacher.phone) return;
+    // Validate required fields
+    if (!newTeacher.name || !newTeacher.email) {
+      setTeacherError('Full name and email are required.');
+      return;
+    }
+    // Validate unique email
+    if (teachers.some(t => t.email.toLowerCase() === newTeacher.email.toLowerCase())) {
+      setTeacherError('Email already exists.');
+      return;
+    }
+    // Add teacher
     setTeachers([
       ...teachers,
-      { ...newTeacher, status: 'Pending' },
+      { ...newTeacher, id: getNextTeacherId(), status: 'Pending' },
     ]);
-    setNewTeacher({ id: '', name: '', age: '', sex: '', email: '', phone: '' });
     setShowAddModal(false);
+    setNewTeacher({ id: '', name: '', email: '', phone: '' });
+    setTeacherError('');
+    setTimeout(() => {
+      alert('Activation email sent!');
+    }, 300);
   };
 
   const handleActivate = (id) => {
@@ -289,12 +313,60 @@ const AdminDashboard = () => {
                 <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative">
                   <button
                     className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
-                    onClick={() => setShowAddModal(false)}
+                    onClick={() => { setShowAddModal(false); setTeacherError(''); }}
                   >
                     &times;
                   </button>
                   <h2 className="text-xl font-bold mb-4">Add Teacher</h2>
-                  {/* Add Teacher form will be implemented in the next step */}
+                  <form onSubmit={handleAddTeacher} className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Teacher ID <span className="text-xs text-gray-500">(auto-generated)</span></label>
+                      <input
+                        type="text"
+                        name="id"
+                        value={getNextTeacherId()}
+                        readOnly
+                        className="border rounded px-3 py-2 w-full bg-gray-100 cursor-not-allowed"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Full Name</label>
+                      <input
+                        type="text"
+                        name="name"
+                        value={newTeacher.name}
+                        onChange={handleTeacherInputChange}
+                        className="border rounded px-3 py-2 w-full"
+                        placeholder="Enter teacher name"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Email</label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={newTeacher.email}
+                        onChange={handleTeacherInputChange}
+                        className="border rounded px-3 py-2 w-full"
+                        placeholder="Enter teacher email"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Phone Number <span className="text-xs text-gray-500">(optional)</span></label>
+                      <input
+                        type="text"
+                        name="phone"
+                        value={newTeacher.phone}
+                        onChange={handleTeacherInputChange}
+                        className="border rounded px-3 py-2 w-full"
+                        placeholder="Enter phone number"
+                      />
+                    </div>
+                    {teacherError && <div className="text-red-600 text-sm font-semibold">{teacherError}</div>}
+                    <button type="submit" className="w-full bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800">Add Teacher</button>
+                  </form>
                 </div>
               </div>
             )}
