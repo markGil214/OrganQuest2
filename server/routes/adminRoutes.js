@@ -151,7 +151,7 @@ router.get('/students/:id', authMiddleware, teacherMiddleware, async (req, res) 
     }
 
     // Check if teacher has access to this student's grade
-    if (req.userRole !== 'superadmin' && req.userRole === 'admin' && req.assignedGrade && req.assignedGrade !== 'all') {
+    if (req.userRole !== 'super_admin' && req.userRole === 'admin' && req.assignedGrade && req.assignedGrade !== 'all') {
       if (student.grade !== req.assignedGrade) {
         return res.status(403).json({
           success: false,
@@ -716,7 +716,7 @@ router.post('/teachers/:id/resend-activation',
 // @access  Admin
 router.get('/admins', authMiddleware, adminMiddleware, async (req, res) => {
   try {
-    const teachers = await User.find({ role: { $in: ['teacher', 'admin'] } })
+    const teachers = await User.find({ role: { $in: ['teacher', 'admin', 'super_admin'] } })
       .select('-password -__v')
       .sort({ createdAt: -1 });
 
@@ -850,7 +850,7 @@ router.put('/admins/:id',
       const { assignedGrade, password } = req.body;
       const teacher = await User.findById(req.params.id);
 
-      if (!admin || (teacher.role !== 'teacher' && teacher.role !== 'admin')) {
+      if (!admin || (teacher.role !== 'teacher' && teacher.role !== 'admin' && teacher.role !== 'super_admin')) {
         return res.status(404).json({
           success: false,
           message: 'Teacher not found'
@@ -968,15 +968,15 @@ router.delete('/admins/:id',
     try {
       const teacher = await User.findById(req.params.id);
 
-      if (!teacher || (teacher.role !== 'teacher' && teacher.role !== 'admin')) {
+      if (!teacher || (teacher.role !== 'teacher' && teacher.role !== 'admin' && teacher.role !== 'super_admin')) {
         return res.status(404).json({
           success: false,
           message: 'Teacher not found'
         });
       }
 
-      // Prevent deleting admin
-      if (teacher.role === 'admin') {
+      // Prevent deleting admin or super_admin
+      if (teacher.role === 'admin' || teacher.role === 'super_admin') {
         return res.status(403).json({
           success: false,
           message: 'Cannot delete admin'

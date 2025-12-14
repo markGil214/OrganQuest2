@@ -92,7 +92,7 @@ const AdminDashboard = ({ onLogout }) => {
 
     try {
       const user = JSON.parse(userData);
-      if (user.role !== 'admin' && user.role !== 'superadmin') {
+      if (user.role !== 'admin' && user.role !== 'super_admin') {
         console.error('User is not an admin or superadmin, redirecting to login');
         window.location.hash = 'login';
         return;

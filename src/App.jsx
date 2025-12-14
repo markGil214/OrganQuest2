@@ -206,7 +206,7 @@ function App() {
       targetHash = `#${redirectUrl}`;
     } else {
       // Redirect based on role and replace history to prevent back navigation
-      targetHash = (userData.role === 'admin' || userData.role === 'superadmin') 
+      targetHash = (userData.role === 'admin' || userData.role === 'super_admin') 
         ? '#admin/dashboard' 
         : (userData.role === 'teacher')
         ? '#teacher/dashboard'
