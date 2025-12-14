@@ -351,7 +351,7 @@ const AdminDashboard = () => {
         {showTeacherManagement ? (
           <div>
             <h1 className="text-3xl font-bold mb-6">Teacher Management</h1>
-            {/* Status Filter & Name/ID Search */}
+            {/* Status Filter, Name/ID Search, Email Filter */}
             <div className="flex flex-wrap items-center gap-4 mb-4">
               <label className="font-semibold">Status Filter:</label>
               <select
@@ -371,7 +371,16 @@ const AdminDashboard = () => {
                 placeholder="Enter name or ID..."
                 value={teacherNameIdSearch}
                 onChange={e => setTeacherNameIdSearch(e.target.value)}
-                style={{ minWidth: 180 }}
+                style={{ minWidth: 140 }}
+              />
+              <label className="font-semibold ml-4">Email Filter:</label>
+              <input
+                type="text"
+                className="border rounded px-3 py-2"
+                placeholder="Enter email..."
+                value={teacherEmailFilter}
+                onChange={e => setTeacherEmailFilter(e.target.value)}
+                style={{ minWidth: 140 }}
               />
               <button
                 className="ml-auto bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800"
@@ -468,6 +477,11 @@ const AdminDashboard = () => {
                             t.id.toLowerCase().includes(teacherNameIdSearch.trim().toLowerCase())
                           )
                     )
+                    .filter(t =>
+                      teacherEmailFilter.trim() === ''
+                        ? true
+                        : t.email.toLowerCase().includes(teacherEmailFilter.trim().toLowerCase())
+                    )
                     .map((teacher) => (
                       <tr key={teacher.id}>
                         <td className="px-4 py-2 border-b">{teacher.id}</td>
@@ -497,6 +511,8 @@ const AdminDashboard = () => {
                         </td>
                       </tr>
                     ))}
+                      // Email filter state for Teacher Management
+                      const [teacherEmailFilter, setTeacherEmailFilter] = useState('');
                     // Name/ID search state for Teacher Management
                     const [teacherNameIdSearch, setTeacherNameIdSearch] = useState('');
                   // Status filter state for Teacher Management
