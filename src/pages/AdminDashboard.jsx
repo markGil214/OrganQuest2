@@ -99,8 +99,8 @@ const AdminDashboard = ({ onLogout }) => {
       }
 
       const data = await response.json();
-      if (data.success && data.data) {
-        setTeachers(data.data);
+      if (data.success && data.data && data.data.teachers) {
+        setTeachers(data.data.teachers);
       }
     } catch (error) {
       console.error('Error fetching teachers:', error);
