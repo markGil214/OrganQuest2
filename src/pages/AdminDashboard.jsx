@@ -566,7 +566,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
         </div>
       </div>
 
-      {/* Overview Cards */}
+      {/* Admin Overview - simplified */}
       <div className="max-w-7xl mx-auto mb-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <Card className="p-6 text-center">
@@ -575,17 +575,60 @@ const AdminDashboard = ({ userData, onLogout }) => {
           </Card>
           <Card className="p-6 text-center">
             <h3 className="text-lg font-semibold text-gray-600">Teachers</h3>
-            <p className="text-3xl font-bold text-purple-600">{classes.length}</p>
+            <p className="text-3xl font-bold text-purple-600">{analytics?.totalTeachers ?? 0}</p>
           </Card>
           <Card className="p-6 text-center">
             <h3 className="text-lg font-semibold text-gray-600">Classes</h3>
             <p className="text-3xl font-bold text-purple-600">{classes.length}</p>
           </Card>
         </div>
-        <Card className="p-6">
-          <h3 className="text-2xl font-bold text-gray-800 mb-4">Students Summary</h3>
-          <p className="text-lg">Total Students: {analytics?.totalStudents ?? students.length ?? 0}</p>
-        </Card>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="p-6 md:col-span-2">
+            <h3 className="text-xl font-bold mb-3">Recent Activities</h3>
+            <div className="space-y-4">
+              <div>
+                <div className="text-sm text-gray-600">Newly created classes</div>
+                {classes && classes.length > 0 ? (
+                  <ul className="mt-2 list-disc list-inside text-sm text-gray-800">
+                    {classes.slice(0,5).map((c) => (
+                      <li key={c._id || `${c.assignedGrade}-${c.assignedSection}`}>{c.assignedGrade} - Section {c.assignedSection} ({c.fullName || 'Teacher'})</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-2 text-sm text-gray-500">No recent classes</p>
+                )}
+              </div>
+
+              <div>
+                <div className="text-sm text-gray-600">Pending teacher activations</div>
+                {analytics?.pendingTeacherActivations && analytics.pendingTeacherActivations.length > 0 ? (
+                  <ul className="mt-2 list-disc list-inside text-sm text-gray-800">
+                    {analytics.pendingTeacherActivations.slice(0,5).map((t, idx) => (
+                      <li key={t._id || idx}>{t.fullName || t.email || 'Pending teacher'}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-2 text-sm text-gray-500">No pending activations</p>
+                )}
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-6">
+            <h3 className="text-xl font-bold mb-3">System Notifications</h3>
+            {analytics?.notifications && analytics.notifications.length > 0 ? (
+              <ul className="mt-2 list-disc list-inside text-sm text-gray-800">
+                {analytics.notifications.slice(0,5).map((n, i) => (
+                  <li key={i}>{n}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-gray-500">No notifications</p>
+            )}
+            <p className="text-xs text-gray-400 mt-3">Panel note: Dashboard is informational only.</p>
+          </Card>
+        </div>
       </div>
 
       {/* Quiz Analytics Tab Content */}
