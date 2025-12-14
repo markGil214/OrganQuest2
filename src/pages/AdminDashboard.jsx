@@ -114,6 +114,48 @@ const AdminDashboard = () => {
   };
 
   const showTeacherManagement = activeSidebar === 'User Management' && activeSubSidebar === 'Teacher Management';
+  const showStudentManagement = activeSidebar === 'User Management' && activeSubSidebar === 'Student Management';
+
+  // Student Management State
+  const [students, setStudents] = useState([
+    { id: '25-0001-stud', name: 'Juan Dela Cruz', age: 13, sex: 'Male', section: 'Grade 7 - A', status: 'Active' },
+    { id: '25-0002-stud', name: 'Maria Santos', age: 14, sex: 'Female', section: 'Grade 8 - B', status: 'Inactive' },
+  ]);
+  const [showAddStudentModal, setShowAddStudentModal] = useState(false);
+  const [newStudent, setNewStudent] = useState({
+    id: '',
+    name: '',
+    age: '',
+    sex: '',
+    section: '',
+  });
+
+  // Generate next student ID
+  const getNextStudentId = () => {
+    if (students.length === 0) return '25-0001-stud';
+    const last = students[students.length - 1].id;
+    const num = parseInt(last.split('-')[1], 10) + 1;
+    return `25-${num.toString().padStart(4, '0')}-stud`;
+  };
+
+  const handleStudentInputChange = (e) => {
+    setNewStudent({ ...newStudent, [e.target.name]: e.target.value });
+  };
+
+  const handleAddStudent = (e) => {
+    e.preventDefault();
+    if (!newStudent.name || !newStudent.age || !newStudent.sex || !newStudent.section) return;
+    setStudents([
+      ...students,
+      { ...newStudent, id: getNextStudentId(), status: 'Active' },
+    ]);
+    setNewStudent({ id: '', name: '', age: '', sex: '', section: '' });
+    setShowAddStudentModal(false);
+  };
+
+  const handleStudentActivate = (id) => {
+    setStudents(students.map(s => s.id === id ? { ...s, status: s.status === 'Active' ? 'Inactive' : 'Active' } : s));
+  };
 
   return (
     <div className="flex min-h-screen" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
@@ -301,7 +343,136 @@ const AdminDashboard = () => {
               </table>
             </div>
           </div>
-        ) : (
+        ) : showStudentManagement ? (
+          <div>
+            <h1 className="text-3xl font-bold mb-6">Student Management</h1>
+            <button
+              className="mb-6 bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800"
+              onClick={() => {
+                setNewStudent({ id: getNextStudentId(), name: '', age: '', sex: '', section: '' });
+                setShowAddStudentModal(true);
+              }}
+            >
+              Add Student
+            </button>
+
+            {/* Modal for Add Student */}
+            {showAddStudentModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative">
+                  <button
+                    className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
+                    onClick={() => setShowAddStudentModal(false)}
+                  >
+                    &times;
+                  </button>
+                  <h2 className="text-xl font-bold mb-4">Add Student</h2>
+                  <form onSubmit={handleAddStudent} className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">ID <span className="text-xs text-gray-500">(auto-generated)</span></label>
+                      <input
+                        type="text"
+                        name="id"
+                        value={newStudent.id}
+                        readOnly
+                        className="border rounded px-3 py-2 w-full bg-gray-100 cursor-not-allowed"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Full Name</label>
+                      <input
+                        type="text"
+                        name="name"
+                        value={newStudent.name}
+                        onChange={handleStudentInputChange}
+                        className="border rounded px-3 py-2 w-full"
+                        placeholder="Enter student name"
+                        required
+                      />
+                    </div>
+                    <div className="flex gap-4">
+                      <div className="flex-1">
+                        <label className="block text-sm font-medium mb-1">Age</label>
+                        <input
+                          type="number"
+                          name="age"
+                          value={newStudent.age}
+                          onChange={handleStudentInputChange}
+                          className="border rounded px-3 py-2 w-full"
+                          placeholder="Age"
+                          required
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <label className="block text-sm font-medium mb-1">Sex</label>
+                        <select
+                          name="sex"
+                          value={newStudent.sex}
+                          onChange={handleStudentInputChange}
+                          className="border rounded px-3 py-2 w-full"
+                          required
+                        >
+                          <option value="">Select</option>
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Section</label>
+                      <input
+                        type="text"
+                        name="section"
+                        value={newStudent.section}
+                        onChange={handleStudentInputChange}
+                        className="border rounded px-3 py-2 w-full"
+                        placeholder="e.g. Grade 7 - A"
+                        required
+                      />
+                    </div>
+                    <button type="submit" className="w-full bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800">Add Student</button>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            <div className="overflow-x-auto">
+              <table className="min-w-full bg-white rounded shadow">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-2 border-b text-left">ID</th>
+                    <th className="px-4 py-2 border-b text-left">Full Name</th>
+                    <th className="px-4 py-2 border-b text-left">Age</th>
+                    <th className="px-4 py-2 border-b text-left">Sex</th>
+                    <th className="px-4 py-2 border-b text-left">Section</th>
+                    <th className="px-4 py-2 border-b text-left">Status</th>
+                    <th className="px-4 py-2 border-b text-left">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {students.map((student) => (
+                    <tr key={student.id}>
+                      <td className="px-4 py-2 border-b">{student.id}</td>
+                      <td className="px-4 py-2 border-b">{student.name}</td>
+                      <td className="px-4 py-2 border-b">{student.age}</td>
+                      <td className="px-4 py-2 border-b">{student.sex}</td>
+                      <td className="px-4 py-2 border-b">{student.section}</td>
+                      <td className="px-4 py-2 border-b">{student.status}</td>
+                      <td className="px-4 py-2 border-b flex gap-2">
+                        <button
+                          className={`px-2 py-1 rounded text-xs text-white ${student.status === 'Active' ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-blue-600 hover:bg-blue-700'}`}
+                          onClick={() => handleStudentActivate(student.id)}
+                        >
+                          {student.status === 'Active' ? 'Deactivate' : 'Activate'}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
           <>
             <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
             {/* Info Cards */}
