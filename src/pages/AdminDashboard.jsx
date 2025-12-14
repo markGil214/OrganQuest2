@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const sidebarItems = [
   {
@@ -36,13 +36,17 @@ const RecentActivity = ({ title, items }) => (
   </div>
 );
 
-const AdminDashboard = () => {
+const AdminDashboard = ({ onLogout }) => {
   // Teacher Management filters and sort state
   const [statusFilter, setStatusFilter] = useState('All');
   const [searchNameID, setSearchNameID] = useState('');
   const [searchEmail, setSearchEmail] = useState('');
   const [searchPhone, setSearchPhone] = useState('');
   const [sortBy, setSortBy] = useState('id');
+  
+  // API Configuration
+  const API_URL = import.meta.env.VITE_API_URL || 'https://organquest2.onrender.com';
+  
   // Dummy data for demonstration
   const stats = [
     { title: 'Students', value: 1200 },
@@ -63,63 +67,116 @@ const AdminDashboard = () => {
     setActiveSubSidebar(subTitle);
   };
 
-  // Dummy teacher data for demonstration
-
-
   // Teacher Management State
-  const [teachers, setTeachers] = useState([
-    { id: '25-0001-dcs', name: 'Mr. Smith', email: 'smith@example.com', phone: '09171234567', status: 'Pending', grade: 'Grade 7', section: 'A', subject: 'Math', log: [] },
-    { id: '25-0002-dcs', name: 'Ms. Lee', email: 'lee@example.com', phone: '09179876543', status: 'Active', grade: 'Grade 8', section: 'B', subject: 'Science', log: [] },
-  ]);
+  const [teachers, setTeachers] = useState([]);
+  const [loadingTeachers, setLoadingTeachers] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newTeacher, setNewTeacher] = useState({
-    id: '',
-    name: '',
+    fullName: '',
     email: '',
     phone: '',
-    grade: '',
-    section: '',
-    subject: '',
+    username: '',
+    password: '',
+    assignedGrade: '4th',
   });
   const [teacherError, setTeacherError] = useState('');
+  const [teacherSuccess, setTeacherSuccess] = useState('');
 
-  // Generate next teacher ID
-  const getNextTeacherId = () => {
-    if (teachers.length === 0) return '25-0001-dcs';
-    const last = teachers[teachers.length - 1].id;
-    const num = parseInt(last.split('-')[1], 10) + 1;
-    return `25-${num.toString().padStart(4, '0')}-dcs`;
+  // Fetch teachers from API
+  const fetchTeachers = async () => {
+    try {
+      setLoadingTeachers(true);
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${API_URL}/api/admin/teachers`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch teachers');
+      }
+
+      const data = await response.json();
+      if (data.success && data.data) {
+        setTeachers(data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching teachers:', error);
+      setTeachers([]);
+    } finally {
+      setLoadingTeachers(false);
+    }
   };
+
+  // Load teachers on component mount
+  useEffect(() => {
+    fetchTeachers();
+  }, []);
 
   const handleTeacherInputChange = (e) => {
     setNewTeacher({ ...newTeacher, [e.target.name]: e.target.value });
     setTeacherError('');
+    setTeacherSuccess('');
   };
 
-  const handleAddTeacher = (e) => {
+  const handleAddTeacher = async (e) => {
     e.preventDefault();
+    
     // Validate required fields
-    if (!newTeacher.name || !newTeacher.email) {
-      setTeacherError('Full name and email are required.');
+    if (!newTeacher.fullName || !newTeacher.email || !newTeacher.username || !newTeacher.password) {
+      setTeacherError('Full name, email, username, and password are required.');
       return;
     }
-    // Validate unique email
-    if (teachers.some(t => t.email.toLowerCase() === newTeacher.email.toLowerCase())) {
-      setTeacherError('Email already exists.');
-      return;
+
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${API_URL}/api/admin/create-teacher`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          fullName: newTeacher.fullName,
+          email: newTeacher.email,
+          phone: newTeacher.phone,
+          username: newTeacher.username,
+          password: newTeacher.password,
+          assignedGrade: newTeacher.assignedGrade
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setTeacherError(data.message || 'Failed to add teacher');
+        return;
+      }
+
+      setTeacherSuccess('Teacher added successfully!');
+      setShowAddModal(false);
+      setNewTeacher({
+        fullName: '',
+        email: '',
+        phone: '',
+        username: '',
+        password: '',
+        assignedGrade: '4th'
+      });
+      setTeacherError('');
+      
+      // Refresh teachers list
+      await fetchTeachers();
+      
+      setTimeout(() => {
+        setTeacherSuccess('');
+      }, 3000);
+    } catch (error) {
+      console.error('Error adding teacher:', error);
+      setTeacherError('Error adding teacher: ' + error.message);
     }
-    // Add teacher
-    const newId = getNextTeacherId();
-    setTeachers([
-      ...teachers,
-      { ...newTeacher, id: newId, status: 'Pending', log: [`[${new Date().toLocaleString()}] Teacher added. Activation email sent.`] },
-    ]);
-    setShowAddModal(false);
-    setNewTeacher({ id: '', name: '', email: '', phone: '', section: '' });
-    setTeacherError('');
-    setTimeout(() => {
-      alert('Activation email sent!');
-    }, 300);
   };
 
   // Status-based actions
@@ -348,28 +405,18 @@ const AdminDashboard = () => {
                 <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative">
                   <button
                     className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
-                    onClick={() => { setShowAddModal(false); setTeacherError(''); }}
+                    onClick={() => { setShowAddModal(false); setTeacherError(''); setTeacherSuccess(''); }}
                   >
                     &times;
                   </button>
                   <h2 className="text-xl font-bold mb-4">Add Teacher</h2>
                   <form onSubmit={handleAddTeacher} className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium mb-1">Teacher ID</label>
-                      <input
-                        type="text"
-                        name="id"
-                        value={getNextTeacherId()}
-                        readOnly
-                        className="border rounded px-3 py-2 w-full bg-gray-100 cursor-not-allowed"
-                      />
-                    </div>
-                    <div>
                       <label className="block text-sm font-medium mb-1">Full Name</label>
                       <input
                         type="text"
-                        name="name"
-                        value={newTeacher.name}
+                        name="fullName"
+                        value={newTeacher.fullName}
                         onChange={handleTeacherInputChange}
                         className="border rounded px-3 py-2 w-full"
                         placeholder="Enter teacher name"
@@ -400,17 +447,45 @@ const AdminDashboard = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Section</label>
+                      <label className="block text-sm font-medium mb-1">Username</label>
                       <input
                         type="text"
-                        name="section"
-                        value={newTeacher.section}
+                        name="username"
+                        value={newTeacher.username}
                         onChange={handleTeacherInputChange}
                         className="border rounded px-3 py-2 w-full"
-                        placeholder="e.g. A, B, C"
+                        placeholder="Enter username"
+                        required
                       />
                     </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Password</label>
+                      <input
+                        type="password"
+                        name="password"
+                        value={newTeacher.password}
+                        onChange={handleTeacherInputChange}
+                        className="border rounded px-3 py-2 w-full"
+                        placeholder="Enter password"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Assigned Grade</label>
+                      <select
+                        name="assignedGrade"
+                        value={newTeacher.assignedGrade}
+                        onChange={handleTeacherInputChange}
+                        className="border rounded px-3 py-2 w-full"
+                      >
+                        <option value="4th">4th</option>
+                        <option value="5th">5th</option>
+                        <option value="6th">6th</option>
+                        <option value="all">All</option>
+                      </select>
+                    </div>
                     {teacherError && <div className="text-red-600 text-sm font-semibold">{teacherError}</div>}
+                    {teacherSuccess && <div className="text-green-600 text-sm font-semibold">{teacherSuccess}</div>}
                     <button type="submit" className="w-full bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800">Add Teacher</button>
                   </form>
                 </div>
@@ -421,13 +496,11 @@ const AdminDashboard = () => {
               <table className="min-w-full bg-white rounded shadow">
                 <thead>
                   <tr>
-                    <th className="px-4 py-2 border-b text-left">Teacher ID</th>
                     <th className="px-4 py-2 border-b text-left">Full Name</th>
                     <th className="px-4 py-2 border-b text-left">Email</th>
                     <th className="px-4 py-2 border-b text-left">Phone Number</th>
-                    <th className="px-4 py-2 border-b text-left">Grade</th>
-                    <th className="px-4 py-2 border-b text-left">Section</th>
-                    <th className="px-4 py-2 border-b text-left">Subject</th>
+                    <th className="px-4 py-2 border-b text-left">Username</th>
+                    <th className="px-4 py-2 border-b text-left">Assigned Grade</th>
                     <th className="px-4 py-2 border-b text-left">Status</th>
                     <th className="px-4 py-2 border-b text-left">Actions</th>
                   </tr>
@@ -436,45 +509,43 @@ const AdminDashboard = () => {
                   {teachers
                     .filter((teacher) =>
                       (statusFilter === 'All' || teacher.status === statusFilter) &&
-                      (teacher.name.toLowerCase().includes(searchNameID.toLowerCase()) ||
-                        teacher.id.toLowerCase().includes(searchNameID.toLowerCase())) &&
+                      (teacher.fullName.toLowerCase().includes(searchNameID.toLowerCase()) ||
+                        teacher.username.toLowerCase().includes(searchNameID.toLowerCase())) &&
                       teacher.email.toLowerCase().includes(searchEmail.toLowerCase()) &&
                       (teacher.phone || '').includes(searchPhone)
                     )
                     .sort((a, b) => {
-                      if (sortBy === 'name') return a.name.localeCompare(b.name);
-                      if (sortBy === 'id') return a.id.localeCompare(b.id);
+                      if (sortBy === 'name') return a.fullName.localeCompare(b.fullName);
+                      if (sortBy === 'id') return a.username.localeCompare(b.username);
                       if (sortBy === 'status') return a.status.localeCompare(b.status);
                       return 0;
                     })
                     .map((teacher) => (
-                      <tr key={teacher.id}>
-                        <td className="px-4 py-2 border-b">{teacher.id}</td>
-                        <td className="px-4 py-2 border-b">{teacher.name}</td>
+                      <tr key={teacher._id}>
+                        <td className="px-4 py-2 border-b">{teacher.fullName}</td>
                         <td className="px-4 py-2 border-b">{teacher.email}</td>
                         <td className="px-4 py-2 border-b">{teacher.phone || '-'}</td>
-                        <td className="px-4 py-2 border-b">{teacher.grade || '-'}</td>
-                        <td className="px-4 py-2 border-b">{teacher.section || '-'}</td>
-                        <td className="px-4 py-2 border-b">{teacher.subject || '-'}</td>
+                        <td className="px-4 py-2 border-b">{teacher.username}</td>
+                        <td className="px-4 py-2 border-b">{teacher.assignedGrade || '-'}</td>
                         <td className="px-4 py-2 border-b">{teacher.status}</td>
                         <td className="px-4 py-2 border-b flex gap-2">
                           {teacher.status === 'Pending' && (
                             <button
                               className="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700"
-                              onClick={() => handleResendActivation(teacher.id)}
-                            >Resend Activation Email</button>
+                              onClick={() => handleResendActivation(teacher._id)}
+                            >Resend Activation</button>
                           )}
                           {teacher.status === 'Active' && (
                             <button
                               className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700"
-                              onClick={() => handleDisableAccount(teacher.id)}
-                            >Disable Account</button>
+                              onClick={() => handleDisableAccount(teacher._id)}
+                            >Disable</button>
                           )}
                           {teacher.status === 'Disabled' && (
                             <button
                               className="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700"
-                              onClick={() => handleEnableAccount(teacher.id)}
-                            >Enable Account</button>
+                              onClick={() => handleEnableAccount(teacher._id)}
+                            >Enable</button>
                           )}
                         </td>
                       </tr>
@@ -482,13 +553,13 @@ const AdminDashboard = () => {
                   {teachers
                     .filter((teacher) =>
                       (statusFilter === 'All' || teacher.status === statusFilter) &&
-                      (teacher.name.toLowerCase().includes(searchNameID.toLowerCase()) ||
-                        teacher.id.toLowerCase().includes(searchNameID.toLowerCase())) &&
+                      (teacher.fullName.toLowerCase().includes(searchNameID.toLowerCase()) ||
+                        teacher.username.toLowerCase().includes(searchNameID.toLowerCase())) &&
                       teacher.email.toLowerCase().includes(searchEmail.toLowerCase()) &&
                       (teacher.phone || '').includes(searchPhone)
                     ).length === 0 && (
                     <tr>
-                      <td colSpan="9" className="px-4 py-2 border-b text-center text-gray-500">No teachers found</td>
+                      <td colSpan="7" className="px-4 py-2 border-b text-center text-gray-500">No teachers found</td>
                     </tr>
                   )}
                 </tbody>
