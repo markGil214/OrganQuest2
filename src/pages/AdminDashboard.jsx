@@ -473,7 +473,8 @@ const AdminDashboard = () => {
               </table>
             </div>
           </div>
-          <>
+        ) : (
+          <div>
             <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
             {/* Info Cards */}
             <div className="flex gap-6 mb-8">
@@ -488,7 +489,7 @@ const AdminDashboard = () => {
               <RecentActivity title="Pending Teacher Activations" items={pendingTeachers} />
               <RecentActivity title="System Notifications" items={notifications} />
             </div>
-          </>
+          </div>
         )}
       </main>
     </div>
