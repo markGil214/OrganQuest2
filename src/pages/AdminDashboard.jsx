@@ -176,8 +176,8 @@ const AdminDashboard = () => {
 
   // Student Management State
   const [students, setStudents] = useState([
-    { id: '25-0001-stud', name: 'Juan Dela Cruz', age: 13, sex: 'Male', section: 'Grade 7 - A', status: 'Active' },
-    { id: '25-0002-stud', name: 'Maria Santos', age: 14, sex: 'Female', section: 'Grade 8 - B', status: 'Inactive' },
+    { id: '25-0001-stud', name: 'Juan Dela Cruz', age: 13, sex: 'Male', section: 'Grade 7 - A', status: 'Active', enrolledClassId: undefined },
+    { id: '25-0002-stud', name: 'Maria Santos', age: 14, sex: 'Female', section: 'Grade 8 - B', status: 'Inactive', enrolledClassId: undefined },
   ]);
   const [showAddStudentModal, setShowAddStudentModal] = useState(false);
   const [newStudent, setNewStudent] = useState({
@@ -205,7 +205,7 @@ const AdminDashboard = () => {
     if (!newStudent.name || !newStudent.age || !newStudent.sex || !newStudent.section) return;
     setStudents([
       ...students,
-      { ...newStudent, id: getNextStudentId(), status: 'Active' },
+      { ...newStudent, id: getNextStudentId(), status: 'Active', enrolledClassId: undefined },
     ]);
     setNewStudent({ id: '', name: '', age: '', sex: '', section: '' });
     setShowAddStudentModal(false);
