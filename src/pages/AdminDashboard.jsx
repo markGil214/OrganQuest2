@@ -75,7 +75,6 @@ const AdminDashboard = ({ onLogout }) => {
     fullName: '',
     email: '',
     phone: '',
-    assignedGrade: '4th',
   });
   const [teacherError, setTeacherError] = useState('');
   const [teacherSuccess, setTeacherSuccess] = useState('');
@@ -139,8 +138,7 @@ const AdminDashboard = ({ onLogout }) => {
         body: JSON.stringify({
           fullName: newTeacher.fullName,
           email: newTeacher.email,
-          phone: newTeacher.phone,
-          assignedGrade: newTeacher.assignedGrade
+          phone: newTeacher.phone
         })
       });
 
@@ -156,8 +154,7 @@ const AdminDashboard = ({ onLogout }) => {
       setNewTeacher({
         fullName: '',
         email: '',
-        phone: '',
-        assignedGrade: '4th'
+        phone: ''
       });
       setTeacherError('');
       
@@ -489,20 +486,6 @@ const AdminDashboard = ({ onLogout }) => {
                         className="border rounded px-3 py-2 w-full"
                         placeholder="Enter phone number"
                       />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Assigned Grade</label>
-                      <select
-                        name="assignedGrade"
-                        value={newTeacher.assignedGrade}
-                        onChange={handleTeacherInputChange}
-                        className="border rounded px-3 py-2 w-full"
-                      >
-                        <option value="4th">4th</option>
-                        <option value="5th">5th</option>
-                        <option value="6th">6th</option>
-                        <option value="all">All</option>
-                      </select>
                     </div>
                     {teacherError && <div className="text-red-600 text-sm font-semibold">{teacherError}</div>}
                     {teacherSuccess && <div className="text-green-600 text-sm font-semibold">{teacherSuccess}</div>}

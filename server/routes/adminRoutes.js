@@ -321,8 +321,7 @@ router.post('/send-teacher-invitation',
   [
     body('fullName').trim().notEmpty().withMessage('Full name is required'),
     body('email').isEmail().withMessage('Valid email is required'),
-    body('phone').trim().optional(),
-    body('assignedGrade').isIn(['4th', '5th', '6th', 'all']).withMessage('Invalid grade assignment')
+    body('phone').trim().optional()
   ],
   async (req, res) => {
     try {
@@ -334,9 +333,9 @@ router.post('/send-teacher-invitation',
         });
       }
 
-      const { fullName, email, phone, assignedGrade } = req.body;
+      const { fullName, email, phone } = req.body;
 
-      console.log('Sending teacher invitation:', { fullName, email, assignedGrade });
+      console.log('Sending teacher invitation:', { fullName, email });
 
       // Check if email already exists
       const existingUser = await User.findOne({ email, role: 'teacher' });
@@ -379,7 +378,6 @@ router.post('/send-teacher-invitation',
         email,
         phone: phone || '',
         role: 'teacher',
-        assignedGrade,
         teacherCode,
         age: 30, // Default for teacher
         grade: '4th', // Required but not used for teachers
@@ -407,8 +405,8 @@ router.post('/send-teacher-invitation',
           email: teacher.email,
           fullName: teacher.fullName,
           teacherCode: teacher.teacherCode,
-          assignedGrade: teacher.assignedGrade,
-          section: teacher.assignedSection || 'All',
+          assignedGrade: 'All',
+          section: 'All',
           registrationToken: registrationToken
         });
 
@@ -427,7 +425,6 @@ router.post('/send-teacher-invitation',
             fullName: teacher.fullName,
             email: teacher.email,
             phone: teacher.phone,
-            assignedGrade: teacher.assignedGrade,
             teacherCode: teacher.teacherCode,
             accountStatus: teacher.accountStatus,
             createdAt: teacher.createdAt
