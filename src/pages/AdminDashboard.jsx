@@ -555,7 +555,7 @@ const AdminDashboard = ({ onLogout }) => {
                       <input
                         type="text"
                         name="teacherId"
-                        value={newTeacher.teacherId}
+                        value={newTeacher.teacherId.toUpperCase()}
                         onChange={handleTeacherInputChange}
                         readOnly
                         className="border rounded px-3 py-2 w-full bg-gray-100 cursor-not-allowed"
@@ -613,7 +613,7 @@ const AdminDashboard = ({ onLogout }) => {
                       const displayStatus_formatted = displayStatus.charAt(0).toUpperCase() + displayStatus.slice(1);
                       return (
                         <tr key={teacher._id}>
-                          <td className="px-4 py-2 border-b">{teacher.teacherId || '-'}</td>
+                          <td className="px-4 py-2 border-b">{teacher.teacherId ? teacher.teacherId.toUpperCase() : '-'}</td>
                           <td className="px-4 py-2 border-b">{teacher.fullName}</td>
                           <td className="px-4 py-2 border-b">{teacher.email}</td>
                           <td className="px-4 py-2 border-b">{teacher.phone || '-'}</td>
