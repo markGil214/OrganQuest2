@@ -42,6 +42,8 @@ const RecentActivity = ({ title, items }) => (
 );
 
 const AdminDashboard = () => {
+  // Teacher Management status filter state
+  const [statusFilter, setStatusFilter] = useState('All');
   // Dummy data for demonstration
   const stats = [
     { title: 'Students', value: 1200 },
@@ -351,26 +353,26 @@ const AdminDashboard = () => {
         {showTeacherManagement ? (
           <div>
             <h1 className="text-3xl font-bold mb-6">Teacher Management</h1>
-            {/* Status Filter */}
-            <div className="flex items-center gap-4 mb-4">
-              <label className="font-semibold">Status Filter:</label>
+            {/* Status Filter Dropdown */}
+            <div className="mb-4">
+              <label className="mr-2 font-medium">Filter by Status:</label>
               <select
-                className="border rounded px-3 py-2"
-                value={teacherStatusFilter}
-                onChange={e => setTeacherStatusFilter(e.target.value)}
+                value={statusFilter}
+                onChange={e => setStatusFilter(e.target.value)}
+                className="border px-2 py-1 rounded text-black"
               >
                 <option value="All">All</option>
                 <option value="Pending">Pending</option>
                 <option value="Active">Active</option>
                 <option value="Disabled">Disabled</option>
               </select>
-              <button
-                className="ml-auto bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800"
-                onClick={() => setShowAddModal(true)}
-              >
-                Add Teacher
-              </button>
             </div>
+            <button
+              className="mb-6 bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800"
+              onClick={() => setShowAddModal(true)}
+            >
+              Add Teacher
+            </button>
 
             {/* Modal for Add Teacher */}
             {showAddModal && (
@@ -449,43 +451,45 @@ const AdminDashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {teachers
-                    .filter(t => teacherStatusFilter === 'All' ? true : t.status === teacherStatusFilter)
-                    .map((teacher) => (
-                      <tr key={teacher.id}>
-                        <td className="px-4 py-2 border-b">{teacher.id}</td>
-                        <td className="px-4 py-2 border-b">{teacher.name}</td>
-                        <td className="px-4 py-2 border-b">{teacher.email}</td>
-                        <td className="px-4 py-2 border-b">{teacher.phone || '-'}</td>
-                        <td className="px-4 py-2 border-b">{teacher.status}</td>
-                        <td className="px-4 py-2 border-b flex gap-2">
-                          {teacher.status === 'Pending' && (
-                            <button
-                              className="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700"
-                              onClick={() => handleResendActivation(teacher.id)}
-                            >Resend Activation Email</button>
-                          )}
-                          {teacher.status === 'Active' && (
-                            <button
-                              className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700"
-                              onClick={() => handleDisableAccount(teacher.id)}
-                            >Disable Account</button>
-                          )}
-                          {teacher.status === 'Disabled' && (
-                            <button
-                              className="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700"
-                              onClick={() => handleEnableAccount(teacher.id)}
-                            >Enable Account</button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  // Status filter state for Teacher Management
-                  const [teacherStatusFilter, setTeacherStatusFilter] = useState('All');
+                  {(statusFilter === 'All' ? teachers : teachers.filter(t => t.status === statusFilter)).map((teacher) => (
+                    <tr key={teacher.id}>
+                      <td className="px-4 py-2 border-b">{teacher.id}</td>
+                      <td className="px-4 py-2 border-b">{teacher.name}</td>
+                      <td className="px-4 py-2 border-b">{teacher.email}</td>
+                      <td className="px-4 py-2 border-b">{teacher.phone || '-'}</td>
+                      <td className="px-4 py-2 border-b">{teacher.status}</td>
+                      <td className="px-4 py-2 border-b flex gap-2">
+                        {teacher.status === 'Pending' && (
+                          <button
+                            className="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700"
+                            onClick={() => handleResendActivation(teacher.id)}
+                          >Resend Activation Email</button>
+                        )}
+                        {teacher.status === 'Active' && (
+                          <button
+                            className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700"
+                            onClick={() => handleDisableAccount(teacher.id)}
+                          >Disable Account</button>
+                        )}
+                        {teacher.status === 'Disabled' && (
+                          <button
+                            className="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700"
+                            onClick={() => handleEnableAccount(teacher.id)}
+                          >Enable Account</button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                  {(statusFilter === 'All' ? teachers : teachers.filter(t => t.status === statusFilter)).length === 0 && (
+                    <tr>
+                      <td colSpan="6" className="px-4 py-2 border-b text-center text-gray-500">No teachers found</td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
           </div>
+        // ...existing code...
         ) : showStudentManagement ? (
           <div>
             <h1 className="text-3xl font-bold mb-6">Student Management</h1>
