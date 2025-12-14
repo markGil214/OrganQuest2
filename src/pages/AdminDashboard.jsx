@@ -351,7 +351,7 @@ const AdminDashboard = () => {
         {showTeacherManagement ? (
           <div>
             <h1 className="text-3xl font-bold mb-6">Teacher Management</h1>
-            {/* Status Filter, Name/ID Search, Email Filter */}
+            {/* Status Filter, Name/ID Search, Email Filter, Phone Filter */}
             <div className="flex flex-wrap items-center gap-4 mb-4">
               <label className="font-semibold">Status Filter:</label>
               <select
@@ -371,7 +371,7 @@ const AdminDashboard = () => {
                 placeholder="Enter name or ID..."
                 value={teacherNameIdSearch}
                 onChange={e => setTeacherNameIdSearch(e.target.value)}
-                style={{ minWidth: 140 }}
+                style={{ minWidth: 120 }}
               />
               <label className="font-semibold ml-4">Email Filter:</label>
               <input
@@ -380,7 +380,16 @@ const AdminDashboard = () => {
                 placeholder="Enter email..."
                 value={teacherEmailFilter}
                 onChange={e => setTeacherEmailFilter(e.target.value)}
-                style={{ minWidth: 140 }}
+                style={{ minWidth: 120 }}
+              />
+              <label className="font-semibold ml-4">Phone Filter:</label>
+              <input
+                type="text"
+                className="border rounded px-3 py-2"
+                placeholder="Enter phone..."
+                value={teacherPhoneFilter}
+                onChange={e => setTeacherPhoneFilter(e.target.value)}
+                style={{ minWidth: 120 }}
               />
               <button
                 className="ml-auto bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800"
@@ -482,6 +491,11 @@ const AdminDashboard = () => {
                         ? true
                         : t.email.toLowerCase().includes(teacherEmailFilter.trim().toLowerCase())
                     )
+                    .filter(t =>
+                      teacherPhoneFilter.trim() === ''
+                        ? true
+                        : (t.phone || '').toLowerCase().includes(teacherPhoneFilter.trim().toLowerCase())
+                    )
                     .map((teacher) => (
                       <tr key={teacher.id}>
                         <td className="px-4 py-2 border-b">{teacher.id}</td>
@@ -511,6 +525,8 @@ const AdminDashboard = () => {
                         </td>
                       </tr>
                     ))}
+                        // Phone filter state for Teacher Management
+                        const [teacherPhoneFilter, setTeacherPhoneFilter] = useState('');
                       // Email filter state for Teacher Management
                       const [teacherEmailFilter, setTeacherEmailFilter] = useState('');
                     // Name/ID search state for Teacher Management
