@@ -124,22 +124,47 @@ const AdminDashboard = () => {
 
   // Get students enrolled in selected class
   const getEnrolledStudents = () => {
-    if (!selectedClassId) return [];
-    // For demo, add a property to students: enrolledClassId
-    return students.filter(s => s.enrolledClassId === selectedClassId);
+    try {
+      if (!selectedClassId) return [];
+      const enrolled = students.filter(s => s.enrolledClassId === selectedClassId);
+      // Debug log
+      console.log('Enrolled Students for class', selectedClassId, enrolled);
+      return enrolled;
+    } catch (err) {
+      console.error('Error in getEnrolledStudents:', err);
+      return [];
+    }
   };
 
   // Get students not enrolled in selected class
   const getAvailableStudents = () => {
-    return students.filter(s => !s.enrolledClassId || s.enrolledClassId !== selectedClassId);
+    try {
+      const available = students.filter(s => !s.enrolledClassId || s.enrolledClassId !== selectedClassId);
+      // Debug log
+      console.log('Available Students for class', selectedClassId, available);
+      return available;
+    } catch (err) {
+      console.error('Error in getAvailableStudents:', err);
+      return [];
+    }
   };
 
   const handleEnrollStudent = (studentId) => {
-    setStudents(students.map(s => s.id === studentId ? { ...s, enrolledClassId: selectedClassId } : s));
+    try {
+      setStudents(students.map(s => s.id === studentId ? { ...s, enrolledClassId: selectedClassId } : s));
+      console.log('Enrolled student', studentId, 'to class', selectedClassId);
+    } catch (err) {
+      console.error('Error in handleEnrollStudent:', err);
+    }
   };
 
   const handleRemoveStudent = (studentId) => {
-    setStudents(students.map(s => s.id === studentId ? { ...s, enrolledClassId: undefined } : s));
+    try {
+      setStudents(students.map(s => s.id === studentId ? { ...s, enrolledClassId: undefined } : s));
+      console.log('Removed student', studentId, 'from class', selectedClassId);
+    } catch (err) {
+      console.error('Error in handleRemoveStudent:', err);
+    }
   };
 
   // Class & Section Management State
