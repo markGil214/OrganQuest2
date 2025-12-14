@@ -9,21 +9,13 @@ const sidebarItems = [
     title: 'User Management',
     description: 'Manage all system users',
     subItems: [
-      {
-        title: 'Teacher Management',
-      },
-      {
-        title: 'Student Management',
-      },
+      { title: 'Teacher Management' },
+      { title: 'Student Management' },
     ],
   },
   {
     title: 'Class & Section Management',
     description: 'Organize academic structure',
-  },
-  {
-    title: 'Subject Management',
-    description: 'Manage academic subjects',
   },
   {
     title: 'Enrollment Management',
@@ -296,30 +288,60 @@ const AdminDashboard = () => {
         <div className="text-2xl font-bold mb-8">School Admin</div>
         <nav className="flex-1">
           <ul>
-            {sidebarItems.map((item, idx) => (
-              <li key={item.title} className="mb-4">
-                <button
-                  className={`w-full text-left font-semibold text-lg px-2 py-1 rounded transition-colors ${activeSidebar === item.title && !activeSubSidebar ? 'bg-blue-700' : 'hover:bg-blue-800'}`}
-                  onClick={() => handleSidebarClick(item.title)}
-                >
-                  {item.title}
-                </button>
-                {item.subItems && (
-                  <ul className="ml-6 mt-2">
-                    {item.subItems.map((sub, subIdx) => (
-                      <li key={sub.title} className="mb-1">
-                        <button
-                          className={`w-full text-left text-base px-2 py-1 rounded transition-colors ${activeSidebar === item.title && activeSubSidebar === sub.title ? 'bg-blue-700' : 'hover:bg-blue-800'}`}
-                          onClick={() => handleSubSidebarClick(item.title, sub.title)}
-                        >
-                          {sub.title}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </li>
-            ))}
+            {/* Dashboard */}
+            <li className="mb-4">
+              <button
+                className={`w-full text-left font-semibold text-lg px-2 py-1 rounded transition-colors ${activeSidebar === 'Dashboard' ? 'bg-blue-700' : 'hover:bg-blue-800'}`}
+                onClick={() => handleSidebarClick('Dashboard')}
+              >
+                Dashboard
+              </button>
+            </li>
+            <hr className="border-white mb-4" />
+            {/* User Management (unclickable) */}
+            <li className="mb-0">
+              <div className="w-full text-left font-semibold text-lg px-2 py-1 rounded opacity-60 cursor-not-allowed select-none">
+                User Management
+              </div>
+              <ul className="ml-6 mt-2">
+                <li className="mb-1">
+                  <button
+                    className={`w-full text-left text-base px-2 py-1 rounded transition-colors ${activeSidebar === 'User Management' && activeSubSidebar === 'Teacher Management' ? 'bg-blue-700' : 'hover:bg-blue-800'}`}
+                    onClick={() => handleSubSidebarClick('User Management', 'Teacher Management')}
+                  >
+                    Teacher Management
+                  </button>
+                </li>
+                <li className="mb-1">
+                  <button
+                    className={`w-full text-left text-base px-2 py-1 rounded transition-colors ${activeSidebar === 'User Management' && activeSubSidebar === 'Student Management' ? 'bg-blue-700' : 'hover:bg-blue-800'}`}
+                    onClick={() => handleSubSidebarClick('User Management', 'Student Management')}
+                  >
+                    Student Management
+                  </button>
+                </li>
+              </ul>
+            </li>
+            <hr className="border-white mb-4 mt-2" />
+            {/* Class & Section Management */}
+            <li className="mb-4">
+              <button
+                className={`w-full text-left font-semibold text-lg px-2 py-1 rounded transition-colors ${activeSidebar === 'Class & Section Management' ? 'bg-blue-700' : 'hover:bg-blue-800'}`}
+                onClick={() => handleSidebarClick('Class & Section Management')}
+              >
+                Class & Section Management
+              </button>
+            </li>
+            <hr className="border-white mb-4 mt-0" />
+            {/* Enrollment Management */}
+            <li className="mb-4">
+              <button
+                className={`w-full text-left font-semibold text-lg px-2 py-1 rounded transition-colors ${activeSidebar === 'Enrollment Management' ? 'bg-blue-700' : 'hover:bg-blue-800'}`}
+                onClick={() => handleSidebarClick('Enrollment Management')}
+              >
+                Enrollment Management
+              </button>
+            </li>
           </ul>
         </nav>
       </aside>
