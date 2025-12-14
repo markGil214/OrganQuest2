@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import QuizAssignmentManager from '../components/QuizAssignmentManager';
 
 const sidebarItems = [
   {
@@ -13,6 +14,10 @@ const sidebarItems = [
   {
     title: 'Progress Tracking',
     description: 'Track student progress and analytics',
+  },
+  {
+    title: 'Quiz Management',
+    description: 'Create and manage quiz assignments',
   },
 ];
 
@@ -738,6 +743,7 @@ const TeacherDashboard = () => {
 
   const showClassesView = activeSidebar === 'Classes';
   const showProgressView = activeSidebar === 'Progress Tracking';
+  const showQuizView = activeSidebar === 'Quiz Management';
 
   return (
     <div className="flex min-h-screen" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
@@ -1093,6 +1099,8 @@ const TeacherDashboard = () => {
               </div>
             </div>
           )
+        ) : showQuizView ? (
+          <QuizAssignmentManager />
         ) : (
           <div>
             <h1 className="text-3xl font-bold mb-10">Teacher Dashboard</h1>
