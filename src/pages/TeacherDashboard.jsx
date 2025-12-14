@@ -77,7 +77,6 @@ const TeacherDashboard = () => {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [overallStats, setOverallStats] = useState({
     totalStudents: 0,
-    averageOrgansExplored: 0,
     averageQuizScore: 0,
     totalQuizzesTaken: 0
   });
@@ -143,7 +142,6 @@ const TeacherDashboard = () => {
         {
           id: '25-0001-stud',
           name: 'Juan Dela Cruz',
-          organsExplored: 8,
           totalQuizzes: 12,
           averageScore: 85,
           lastActivity: '2025-12-10',
@@ -167,7 +165,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0002-stud',
           name: 'Maria Santos',
-          organsExplored: 12,
+
           totalQuizzes: 15,
           averageScore: 92,
           lastActivity: '2025-12-12',
@@ -194,7 +192,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0003-stud',
           name: 'Carlos Reyes',
-          organsExplored: 5,
+
           totalQuizzes: 8,
           averageScore: 78,
           lastActivity: '2025-12-08',
@@ -214,7 +212,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0004-stud',
           name: 'Rosa Garcia',
-          organsExplored: 10,
+
           totalQuizzes: 14,
           averageScore: 88,
           lastActivity: '2025-12-11',
@@ -240,7 +238,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0005-stud',
           name: 'Miguel Torres',
-          organsExplored: 7,
+
           totalQuizzes: 10,
           averageScore: 82,
           lastActivity: '2025-12-09',
@@ -262,7 +260,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0006-stud',
           name: 'Ana Lopez',
-          organsExplored: 11,
+
           totalQuizzes: 13,
           averageScore: 89,
           lastActivity: '2025-12-13',
@@ -287,7 +285,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0007-stud',
           name: 'Pedro Martinez',
-          organsExplored: 9,
+
           totalQuizzes: 11,
           averageScore: 84,
           lastActivity: '2025-12-07',
@@ -310,7 +308,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0008-stud',
           name: 'Sofia Ramirez',
-          organsExplored: 13,
+
           totalQuizzes: 16,
           averageScore: 94,
           lastActivity: '2025-12-14',
@@ -338,7 +336,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0009-stud',
           name: 'Diego Fernandez',
-          organsExplored: 6,
+
           totalQuizzes: 9,
           averageScore: 76,
           lastActivity: '2025-12-06',
@@ -359,7 +357,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0010-stud',
           name: 'Isabella Gonzalez',
-          organsExplored: 14,
+
           totalQuizzes: 17,
           averageScore: 96,
           lastActivity: '2025-12-13',
@@ -388,7 +386,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0011-stud',
           name: 'Lucas Morales',
-          organsExplored: 8,
+
           totalQuizzes: 12,
           averageScore: 83,
           lastActivity: '2025-12-11',
@@ -412,7 +410,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0012-stud',
           name: 'Valentina Ruiz',
-          organsExplored: 10,
+
           totalQuizzes: 14,
           averageScore: 87,
           lastActivity: '2025-12-10',
@@ -438,7 +436,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0013-stud',
           name: 'Mateo Jimenez',
-          organsExplored: 7,
+
           totalQuizzes: 10,
           averageScore: 81,
           lastActivity: '2025-12-08',
@@ -460,7 +458,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0014-stud',
           name: 'Camila Silva',
-          organsExplored: 12,
+
           totalQuizzes: 15,
           averageScore: 91,
           lastActivity: '2025-12-12',
@@ -487,7 +485,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0015-stud',
           name: 'Sebastian Castro',
-          organsExplored: 9,
+
           totalQuizzes: 13,
           averageScore: 85,
           lastActivity: '2025-12-09',
@@ -512,7 +510,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0016-stud',
           name: 'Luna Vargas',
-          organsExplored: 11,
+
           totalQuizzes: 14,
           averageScore: 88,
           lastActivity: '2025-12-11',
@@ -522,7 +520,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0017-stud',
           name: 'Leonardo Mendoza',
-          organsExplored: 5,
+
           totalQuizzes: 8,
           averageScore: 74,
           lastActivity: '2025-12-05',
@@ -532,7 +530,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0018-stud',
           name: 'Emma Delgado',
-          organsExplored: 13,
+
           totalQuizzes: 16,
           averageScore: 93,
           lastActivity: '2025-12-14',
@@ -542,7 +540,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0019-stud',
           name: 'Gabriel Ortiz',
-          organsExplored: 8,
+
           totalQuizzes: 11,
           averageScore: 82,
           lastActivity: '2025-12-07',
@@ -552,7 +550,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0020-stud',
           name: 'Victoria Herrera',
-          organsExplored: 10,
+
           totalQuizzes: 13,
           averageScore: 86,
           lastActivity: '2025-12-10',
@@ -562,7 +560,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0021-stud',
           name: 'Daniel Aguilar',
-          organsExplored: 6,
+
           totalQuizzes: 9,
           averageScore: 77,
           lastActivity: '2025-12-06',
@@ -572,7 +570,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0022-stud',
           name: 'Natalia Medina',
-          organsExplored: 12,
+
           totalQuizzes: 15,
           averageScore: 90,
           lastActivity: '2025-12-12',
@@ -582,7 +580,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0023-stud',
           name: 'Alexander Chavez',
-          organsExplored: 9,
+
           totalQuizzes: 12,
           averageScore: 84,
           lastActivity: '2025-12-08',
@@ -592,7 +590,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0024-stud',
           name: 'Mia Flores',
-          organsExplored: 11,
+
           totalQuizzes: 14,
           averageScore: 89,
           lastActivity: '2025-12-11',
@@ -602,7 +600,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0025-stud',
           name: 'Adrian Guerrero',
-          organsExplored: 7,
+
           totalQuizzes: 10,
           averageScore: 80,
           lastActivity: '2025-12-07',
@@ -612,7 +610,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0026-stud',
           name: 'Zoe Sanchez',
-          organsExplored: 14,
+
           totalQuizzes: 17,
           averageScore: 95,
           lastActivity: '2025-12-13',
@@ -622,7 +620,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0027-stud',
           name: 'Ethan Rivera',
-          organsExplored: 8,
+
           totalQuizzes: 11,
           averageScore: 83,
           lastActivity: '2025-12-09',
@@ -632,7 +630,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0028-stud',
           name: 'Samantha Torres',
-          organsExplored: 10,
+
           totalQuizzes: 13,
           averageScore: 87,
           lastActivity: '2025-12-10',
@@ -642,7 +640,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0029-stud',
           name: 'Noah Castillo',
-          organsExplored: 6,
+
           totalQuizzes: 9,
           averageScore: 75,
           lastActivity: '2025-12-05',
@@ -652,7 +650,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0030-stud',
           name: 'Ava Morales',
-          organsExplored: 13,
+
           totalQuizzes: 16,
           averageScore: 92,
           lastActivity: '2025-12-12',
@@ -662,7 +660,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0031-stud',
           name: 'Liam Reyes',
-          organsExplored: 9,
+
           totalQuizzes: 12,
           averageScore: 85,
           lastActivity: '2025-12-08',
@@ -672,7 +670,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0032-stud',
           name: 'Isabella Diaz',
-          organsExplored: 11,
+
           totalQuizzes: 14,
           averageScore: 88,
           lastActivity: '2025-12-11',
@@ -682,7 +680,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0033-stud',
           name: 'Mason Alvarez',
-          organsExplored: 7,
+
           totalQuizzes: 10,
           averageScore: 81,
           lastActivity: '2025-12-06',
@@ -692,7 +690,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0034-stud',
           name: 'Harper Gomez',
-          organsExplored: 12,
+
           totalQuizzes: 15,
           averageScore: 90,
           lastActivity: '2025-12-13',
@@ -702,7 +700,7 @@ const TeacherDashboard = () => {
         {
           id: '25-0035-stud',
           name: 'Elijah Vasquez',
-          organsExplored: 8,
+
           totalQuizzes: 11,
           averageScore: 84,
           lastActivity: '2025-12-09',
@@ -715,13 +713,11 @@ const TeacherDashboard = () => {
 
       // Calculate overall stats
       const totalStudents = mockProgressData.length;
-      const averageOrgansExplored = Math.round(mockProgressData.reduce((sum, student) => sum + student.organsExplored, 0) / totalStudents);
       const averageQuizScore = Math.round(mockProgressData.reduce((sum, student) => sum + student.averageScore, 0) / totalStudents);
       const totalQuizzesTaken = mockProgressData.reduce((sum, student) => sum + student.totalQuizzes, 0);
 
       setOverallStats({
         totalStudents,
-        averageOrgansExplored,
         averageQuizScore,
         totalQuizzesTaken
       });
@@ -798,14 +794,10 @@ const TeacherDashboard = () => {
             ) : (
               <>
                 {/* Overall Statistics Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                   <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-6 shadow-lg">
                     <div className="text-3xl font-bold mb-2">{overallStats.totalStudents}</div>
                     <div className="text-sm opacity-90">Total Students</div>
-                  </div>
-                  <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-6 shadow-lg">
-                    <div className="text-3xl font-bold mb-2">{overallStats.averageOrgansExplored}</div>
-                    <div className="text-sm opacity-90">Avg Organs Explored</div>
                   </div>
                   <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl p-6 shadow-lg">
                     <div className="text-3xl font-bold mb-2">{overallStats.averageQuizScore}%</div>
@@ -877,7 +869,6 @@ const TeacherDashboard = () => {
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student ID</th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Grade</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Organs Explored</th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Quizzes</th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avg Score</th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Activity</th>
@@ -895,11 +886,6 @@ const TeacherDashboard = () => {
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">{student.id}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{student.name}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{student.grade} - {student.section}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                {student.organsExplored}/15
-                              </span>
-                            </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{student.totalQuizzes}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
