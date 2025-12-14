@@ -42,7 +42,7 @@ export const teacherMiddleware = async (req, res, next) => {
       });
     }
 
-    if (user.role !== 'teacher' && user.role !== 'admin') {
+    if (user.role !== 'teacher' && user.role !== 'admin' && user.role !== 'superadmin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Teacher privileges required.'
@@ -74,7 +74,7 @@ export const adminMiddleware = async (req, res, next) => {
       });
     }
 
-    if (user.role !== 'admin') {
+    if (user.role !== 'admin' && user.role !== 'superadmin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin privileges required.'

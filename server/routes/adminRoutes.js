@@ -151,7 +151,7 @@ router.get('/students/:id', authMiddleware, teacherMiddleware, async (req, res) 
     }
 
     // Check if teacher has access to this student's grade
-    if (req.userRole === 'admin' && req.assignedGrade && req.assignedGrade !== 'all') {
+    if (req.userRole !== 'superadmin' && req.userRole === 'admin' && req.assignedGrade && req.assignedGrade !== 'all') {
       if (student.grade !== req.assignedGrade) {
         return res.status(403).json({
           success: false,
