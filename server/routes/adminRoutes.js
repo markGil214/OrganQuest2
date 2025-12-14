@@ -367,25 +367,60 @@ router.post('/send-teacher-invitation',
 
       const teacherCode = await generateTeacherCode();
 
+      // Generate incremental username
+      const generateUsername = async () => {
+        const currentYear = new Date().getFullYear().toString().slice(-2); // Get last 2 digits of year
+        let counter = 1;
+        let username;
+        let exists = true;
+
+        while (exists) {
+          const paddedCounter = counter.toString().padStart(4, '0');
+          username = `${currentYear}-${paddedCounter}-DCS`;
+
+          const existingUser = await User.findOne({ username });
+          exists = !!existingUser;
+
+          if (exists) {
+            counter++;
+          }
+        }
+
+        return username;
+      };
+
+      // Generate random password
+      const generatePassword = () => {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+        let password = '';
+        for (let i = 0; i < 12; i++) {
+          password += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return password;
+      };
+
+      const username = await generateUsername();
+      const password = generatePassword();
+
       // Generate registration token
       const registrationToken = crypto.randomBytes(32).toString('hex');
       const tokenExpiry = new Date();
       tokenExpiry.setHours(tokenExpiry.getHours() + 24); // Token expires in 24 hours
 
-      // Create teacher user with pending status
+      // Create teacher user with active status (since credentials are provided)
       const teacher = new User({
         fullName,
         email,
         phone: phone || '',
+        username,
+        password,
         role: 'teacher',
         teacherCode,
         age: 30, // Default for teacher
         grade: '4th', // Required but not used for teachers
         avatar: 1,
         language: 'english',
-        accountStatus: 'pending',
-        registrationToken,
-        tokenExpiry
+        accountStatus: 'active' // Active since credentials are provided
       });
 
       await teacher.save();
@@ -397,20 +432,17 @@ router.post('/send-teacher-invitation',
         registrationToken: teacher.registrationToken
       });
 
-      // Send invitation email
+      // Send invitation email with credentials
       try {
-        const registrationUrl = `${process.env.CLIENT_URL || 'http://localhost:5173'}/teacher-registration?token=${registrationToken}`;
-
         await sendTeacherInvitationEmail({
           email: teacher.email,
           fullName: teacher.fullName,
-          teacherCode: teacher.teacherCode,
-          assignedGrade: 'All',
-          section: 'All',
-          registrationToken: registrationToken
+          username: teacher.username,
+          password: password, // Send plain password
+          teacherCode: teacher.teacherCode
         });
 
-        console.log('Invitation email sent to:', teacher.email);
+        console.log('Invitation email with credentials sent to:', teacher.email);
       } catch (emailError) {
         console.error('Failed to send invitation email:', emailError);
         // Don't fail the request if email fails, but log it
@@ -425,6 +457,7 @@ router.post('/send-teacher-invitation',
             fullName: teacher.fullName,
             email: teacher.email,
             phone: teacher.phone,
+            username: teacher.username,
             teacherCode: teacher.teacherCode,
             accountStatus: teacher.accountStatus,
             createdAt: teacher.createdAt

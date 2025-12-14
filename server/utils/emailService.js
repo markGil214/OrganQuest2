@@ -27,7 +27,7 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
       return { success: false, error };
     }
 
-    const { email, fullName, teacherCode, assignedGrade, section, registrationToken } = teacherData;
+    const { email, fullName, teacherCode, username, password } = teacherData;
 
     // Generate registration URL (use environment variable or default)
     const baseUrl = process.env.CLIENT_URL || 'https://organ-quest2.vercel.app';
@@ -58,15 +58,15 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
           </div>
           <div class="content">
             <h2>Hello ${fullName},</h2>
-            <p>You've been assigned as a teacher for <strong>${assignedGrade} Grade - Section ${section}</strong> in the OrganQuest Learning Platform!</p>
+            <p>You've been assigned as a teacher in the OrganQuest Learning Platform!</p>
             
             <div class="info-box">
-              <h3>📋 Your Class Assignment</h3>
+              <h3>🔐 Your Login Credentials</h3>
               <div class="credential">
-                <span class="label">Grade:</span> <span class="value">${assignedGrade}</span>
+                <span class="label">Username:</span> <span class="value">${username}</span>
               </div>
               <div class="credential">
-                <span class="label">Section:</span> <span class="value">${section}</span>
+                <span class="label">Password:</span> <span class="value">${password}</span>
               </div>
               <div class="credential">
                 <span class="label">Teacher Code:</span> <span class="value">${teacherCode}</span>
@@ -74,24 +74,22 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
             </div>
 
             <div class="info-box">
-              <h3>🎯 Complete Your Registration</h3>
-              <p>To access your teacher dashboard, you need to complete your account registration by creating a username and password.</p>
+              <h3>🚀 Getting Started</h3>
+              <p>Your account is now active and ready to use! You can log in to the teacher dashboard using the credentials above.</p>
               <p style="text-align: center;">
-                <a href="${registrationUrl}" class="button">Complete Registration</a>
+                <a href="${baseUrl}/#teacher-login" class="button">Access Teacher Dashboard</a>
               </p>
-              <p style="font-size: 12px; color: #666;">Or copy this link: ${registrationUrl}</p>
             </div>
 
             <div class="warning">
-              <strong>⏰ Important:</strong> This registration link will expire in 7 days. Please complete your registration as soon as possible.
+              <strong>🔒 Security Notice:</strong> Please change your password after your first login for better security. Keep your credentials safe and do not share them with others.
             </div>
 
             <div class="info-box">
               <h3>📚 What's Next?</h3>
               <ol>
-                <li>Click the registration button above</li>
-                <li>Create your unique username and secure password</li>
-                <li>Access your teacher dashboard</li>
+                <li>Use the credentials above to log in to your teacher dashboard</li>
+                <li>Change your password for better security</li>
                 <li>Share your <strong>Teacher Code</strong> with your students</li>
                 <li>Manage quizzes, track progress, and view analytics</li>
               </ol>
@@ -118,9 +116,9 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
     const emailParams = new EmailParams()
       .setFrom(sentFrom)
       .setTo(recipients)
-      .setSubject(`Complete Your Teacher Registration - ${assignedGrade} Grade Section ${section}`)
+      .setSubject(`Your Teacher Account Credentials - OrganQuest`)
       .setHtml(emailHtml)
-      .setText(`Hello ${fullName}, Please complete your teacher registration at: ${registrationUrl}`);
+      .setText(`Hello ${fullName}, Your teacher account is ready! Username: ${username}, Password: ${password}, Teacher Code: ${teacherCode}. Please log in at: ${baseUrl}/#teacher-login`);
 
     console.log('📤 Sending email via MailerSend...');
     console.log('   From:', process.env.MAILERSEND_FROM_EMAIL || 'MS_D578ie@test-nrw7gymez1kg2k8e.mlsender.net');

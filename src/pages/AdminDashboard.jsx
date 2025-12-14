@@ -145,11 +145,17 @@ const AdminDashboard = ({ onLogout }) => {
       const data = await response.json();
 
       if (!response.ok) {
-        setTeacherError(data.message || 'Failed to send invitation email');
+        setTeacherError(data.message || 'Failed to create teacher account');
         return;
       }
 
-      setTeacherSuccess('Invitation email sent successfully!');
+      // Show success message with generated username if available
+      const username = data.data?.teacher?.username;
+      const successMessage = username 
+        ? `Teacher account created successfully! Username: ${username}. Credentials sent via email.`
+        : 'Teacher account created successfully! Credentials sent via email.';
+      
+      setTeacherSuccess(successMessage);
       setShowAddModal(false);
       setNewTeacher({
         fullName: '',
