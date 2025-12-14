@@ -68,7 +68,7 @@ function App() {
       }
       // Auto-redirect to main menu if user exists and no specific hash is present
       // But don't redirect if on teacher-register page
-      if ((!currentHash || currentHash === 'home' || currentHash === 'login') && 
+      if ((!currentHash || currentHash === 'home') && 
           !currentHash.startsWith('teacher-register/')) {
         window.location.hash = 'main-menu';
       }
