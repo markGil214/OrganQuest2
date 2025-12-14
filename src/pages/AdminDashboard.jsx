@@ -273,7 +273,6 @@ const AdminDashboard = ({ userData, onLogout }) => {
       if (data.success) {
         setSelectedClassData(classData);
         setClassStudents(data.data.students || []);
-        setCurrentView('class-details');
       }
     } catch (error) {
       console.error('Error fetching class details:', error);
@@ -430,12 +429,11 @@ const AdminDashboard = ({ userData, onLogout }) => {
       {/* Admin Sidebar (fixed on md+) */}
       <AdminSidebar analytics={analytics} classes={classes} students={students} />
       {/* Class Details View */}
-      {currentView === 'class-details' && selectedClassData ? (
+      {false ? (
         <div className="max-w-7xl mx-auto">
           {/* Back Button */}
           <Button
             onClick={() => {
-              setCurrentView('classes');
               setSelectedClassData(null);
               setClassStudents([]);
             }}
