@@ -270,8 +270,9 @@ const AdminDashboard = ({ onLogout }) => {
 
   // Class & Section Management State
   const [classes, setClasses] = useState([
-    { id: 1, grade: 'Grade 7', section: 'A', teacher: 'Mr. Smith', subject: 'Math' },
-    { id: 2, grade: 'Grade 8', section: 'B', teacher: 'Ms. Lee', subject: 'Science' },
+    { id: 1, grade: '4th', section: 'A', teacher: 'Mr. Smith', subject: 'Math' },
+    { id: 2, grade: '5th', section: 'B', teacher: 'Ms. Lee', subject: 'Science' },
+    { id: 3, grade: '6th', section: 'C', teacher: 'Mrs. Johnson', subject: 'English' },
   ]);
   const [showAddClassModal, setShowAddClassModal] = useState(false);
   const [newClass, setNewClass] = useState({
@@ -283,7 +284,7 @@ const AdminDashboard = ({ onLogout }) => {
 
 
   // Dummy teacher and subject options for assignment
-  const teacherOptions = teachers ? teachers.map(t => t.name) : [];
+  const teacherOptions = teachers ? teachers.map(t => t.fullName) : [];
   const subjectOptions = ['Math', 'Science', 'English', 'Filipino', 'Araling Panlipunan'];
 
   const handleClassInputChange = (e) => {
@@ -650,28 +651,34 @@ const AdminDashboard = ({ onLogout }) => {
                   <h2 className="text-xl font-bold mb-4">{editClassId !== undefined ? 'Edit Class' : 'Create Class'}</h2>
                   <form onSubmit={editClassId !== undefined ? handleEditClass : handleAddClass} className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium mb-1">Grade Level / Year</label>
-                      <input
-                        type="text"
+                      <label className="block text-sm font-medium mb-1">Grade Level</label>
+                      <select
                         name="grade"
                         value={editClassId !== undefined ? editClass.grade : newClass.grade}
                         onChange={editClassId !== undefined ? handleEditClassInputChange : handleClassInputChange}
                         className="border rounded px-3 py-2 w-full"
-                        placeholder="e.g. Grade 7 or Year 1"
                         required
-                      />
+                      >
+                        <option value="">Select Grade</option>
+                        <option value="4th">4th Grade</option>
+                        <option value="5th">5th Grade</option>
+                        <option value="6th">6th Grade</option>
+                      </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Section Name</label>
-                      <input
-                        type="text"
+                      <label className="block text-sm font-medium mb-1">Section</label>
+                      <select
                         name="section"
                         value={editClassId !== undefined ? editClass.section : newClass.section}
                         onChange={editClassId !== undefined ? handleEditClassInputChange : handleClassInputChange}
                         className="border rounded px-3 py-2 w-full"
-                        placeholder="e.g. A, B, C"
                         required
-                      />
+                      >
+                        <option value="">Select Section</option>
+                        <option value="A">Section A</option>
+                        <option value="B">Section B</option>
+                        <option value="C">Section C</option>
+                      </select>
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-1">Assign Teacher</label>
@@ -713,16 +720,20 @@ const AdminDashboard = ({ onLogout }) => {
               <table className="min-w-full bg-white rounded shadow">
                 <thead>
                   <tr>
+                    <th className="px-4 py-2 border-b text-left">Grade</th>
                     <th className="px-4 py-2 border-b text-left">Section</th>
                     <th className="px-4 py-2 border-b text-left">Teacher</th>
+                    <th className="px-4 py-2 border-b text-left">Subject</th>
                     <th className="px-4 py-2 border-b text-left">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {classes.map((cls) => (
                     <tr key={cls.id}>
-                      <td className="px-4 py-2 border-b">{cls.section}</td>
+                      <td className="px-4 py-2 border-b">{cls.grade === '4th' ? '4th Grade' : cls.grade === '5th' ? '5th Grade' : cls.grade === '6th' ? '6th Grade' : cls.grade}</td>
+                      <td className="px-4 py-2 border-b">Section {cls.section}</td>
                       <td className="px-4 py-2 border-b">{cls.teacher}</td>
+                      <td className="px-4 py-2 border-b">{cls.subject}</td>
                       <td className="px-4 py-2 border-b">
                         <button
                           className="bg-blue-700 text-white px-3 py-1 rounded hover:bg-blue-800 text-xs"
