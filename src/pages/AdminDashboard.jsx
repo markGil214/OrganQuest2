@@ -42,8 +42,12 @@ const RecentActivity = ({ title, items }) => (
 );
 
 const AdminDashboard = () => {
-  // Teacher Management status filter state
+  // Teacher Management filters and sort state
   const [statusFilter, setStatusFilter] = useState('All');
+  const [searchNameID, setSearchNameID] = useState('');
+  const [searchEmail, setSearchEmail] = useState('');
+  const [searchPhone, setSearchPhone] = useState('');
+  const [sortBy, setSortBy] = useState('id');
   // Dummy data for demonstration
   const stats = [
     { title: 'Students', value: 1200 },
@@ -353,19 +357,68 @@ const AdminDashboard = () => {
         {showTeacherManagement ? (
           <div>
             <h1 className="text-3xl font-bold mb-6">Teacher Management</h1>
-            {/* Status Filter Dropdown */}
-            <div className="mb-4">
-              <label className="mr-2 font-medium">Filter by Status:</label>
-              <select
-                value={statusFilter}
-                onChange={e => setStatusFilter(e.target.value)}
-                className="border px-2 py-1 rounded text-black"
-              >
-                <option value="All">All</option>
-                <option value="Pending">Pending</option>
-                <option value="Active">Active</option>
-                <option value="Disabled">Disabled</option>
-              </select>
+            {/* Filters */}
+            <div className="flex flex-wrap gap-4 mb-4">
+              {/* Status Filter */}
+              <div>
+                <label className="mr-2 font-medium">Status:</label>
+                <select
+                  value={statusFilter}
+                  onChange={e => setStatusFilter(e.target.value)}
+                  className="border px-2 py-1 rounded text-black"
+                >
+                  <option value="All">All</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Active">Active</option>
+                  <option value="Disabled">Disabled</option>
+                </select>
+              </div>
+              {/* Name / ID Search */}
+              <div>
+                <label className="mr-2 font-medium">Search Name/ID:</label>
+                <input
+                  type="text"
+                  value={searchNameID}
+                  onChange={e => setSearchNameID(e.target.value)}
+                  placeholder="Enter name or ID"
+                  className="border px-2 py-1 rounded text-black"
+                />
+              </div>
+              {/* Email Search */}
+              <div>
+                <label className="mr-2 font-medium">Email:</label>
+                <input
+                  type="text"
+                  value={searchEmail}
+                  onChange={e => setSearchEmail(e.target.value)}
+                  placeholder="Enter email"
+                  className="border px-2 py-1 rounded text-black"
+                />
+              </div>
+              {/* Phone Search */}
+              <div>
+                <label className="mr-2 font-medium">Phone:</label>
+                <input
+                  type="text"
+                  value={searchPhone}
+                  onChange={e => setSearchPhone(e.target.value)}
+                  placeholder="Enter phone"
+                  className="border px-2 py-1 rounded text-black"
+                />
+              </div>
+              {/* Sort By */}
+              <div>
+                <label className="mr-2 font-medium">Sort By:</label>
+                <select
+                  value={sortBy}
+                  onChange={e => setSortBy(e.target.value)}
+                  className="border px-2 py-1 rounded text-black"
+                >
+                  <option value="id">ID</option>
+                  <option value="name">Name</option>
+                  <option value="status">Status</option>
+                </select>
+              </div>
             </div>
             <button
               className="mb-6 bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800"
@@ -451,36 +504,57 @@ const AdminDashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {(statusFilter === 'All' ? teachers : teachers.filter(t => t.status === statusFilter)).map((teacher) => (
-                    <tr key={teacher.id}>
-                      <td className="px-4 py-2 border-b">{teacher.id}</td>
-                      <td className="px-4 py-2 border-b">{teacher.name}</td>
-                      <td className="px-4 py-2 border-b">{teacher.email}</td>
-                      <td className="px-4 py-2 border-b">{teacher.phone || '-'}</td>
-                      <td className="px-4 py-2 border-b">{teacher.status}</td>
-                      <td className="px-4 py-2 border-b flex gap-2">
-                        {teacher.status === 'Pending' && (
-                          <button
-                            className="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700"
-                            onClick={() => handleResendActivation(teacher.id)}
-                          >Resend Activation Email</button>
-                        )}
-                        {teacher.status === 'Active' && (
-                          <button
-                            className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700"
-                            onClick={() => handleDisableAccount(teacher.id)}
-                          >Disable Account</button>
-                        )}
-                        {teacher.status === 'Disabled' && (
-                          <button
-                            className="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700"
-                            onClick={() => handleEnableAccount(teacher.id)}
-                          >Enable Account</button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                  {(statusFilter === 'All' ? teachers : teachers.filter(t => t.status === statusFilter)).length === 0 && (
+                  {teachers
+                    .filter((teacher) =>
+                      (statusFilter === 'All' || teacher.status === statusFilter) &&
+                      (teacher.name.toLowerCase().includes(searchNameID.toLowerCase()) ||
+                        teacher.id.toLowerCase().includes(searchNameID.toLowerCase())) &&
+                      teacher.email.toLowerCase().includes(searchEmail.toLowerCase()) &&
+                      (teacher.phone || '').includes(searchPhone)
+                    )
+                    .sort((a, b) => {
+                      if (sortBy === 'name') return a.name.localeCompare(b.name);
+                      if (sortBy === 'id') return a.id.localeCompare(b.id);
+                      if (sortBy === 'status') return a.status.localeCompare(b.status);
+                      return 0;
+                    })
+                    .map((teacher) => (
+                      <tr key={teacher.id}>
+                        <td className="px-4 py-2 border-b">{teacher.id}</td>
+                        <td className="px-4 py-2 border-b">{teacher.name}</td>
+                        <td className="px-4 py-2 border-b">{teacher.email}</td>
+                        <td className="px-4 py-2 border-b">{teacher.phone || '-'}</td>
+                        <td className="px-4 py-2 border-b">{teacher.status}</td>
+                        <td className="px-4 py-2 border-b flex gap-2">
+                          {teacher.status === 'Pending' && (
+                            <button
+                              className="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700"
+                              onClick={() => handleResendActivation(teacher.id)}
+                            >Resend Activation Email</button>
+                          )}
+                          {teacher.status === 'Active' && (
+                            <button
+                              className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700"
+                              onClick={() => handleDisableAccount(teacher.id)}
+                            >Disable Account</button>
+                          )}
+                          {teacher.status === 'Disabled' && (
+                            <button
+                              className="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700"
+                              onClick={() => handleEnableAccount(teacher.id)}
+                            >Enable Account</button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  {teachers
+                    .filter((teacher) =>
+                      (statusFilter === 'All' || teacher.status === statusFilter) &&
+                      (teacher.name.toLowerCase().includes(searchNameID.toLowerCase()) ||
+                        teacher.id.toLowerCase().includes(searchNameID.toLowerCase())) &&
+                      teacher.email.toLowerCase().includes(searchEmail.toLowerCase()) &&
+                      (teacher.phone || '').includes(searchPhone)
+                    ).length === 0 && (
                     <tr>
                       <td colSpan="6" className="px-4 py-2 border-b text-center text-gray-500">No teachers found</td>
                     </tr>
