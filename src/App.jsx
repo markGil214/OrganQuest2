@@ -213,7 +213,7 @@ function App() {
       const userRole = userData?.role?.trim().toLowerCase();
       console.log('Normalized role for comparison:', userRole);
       
-      const isAdmin = userRole === 'admin' || userRole === 'super_admin';
+      const isAdmin = userRole === 'admin' || userRole === 'superuser';
       const isTeacher = userRole === 'teacher';
       
       console.log('Is admin/super_admin:', isAdmin);
