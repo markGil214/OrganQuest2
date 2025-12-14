@@ -38,7 +38,10 @@ const LoginPage = ({ onLoginSuccess }) => {
 
       console.log('Login successful:', response);
       
-      // Store user data in localStorage (token is in HTTP-only cookie)
+      // Store token and user data in localStorage
+      if (response.data.token) {
+        localStorage.setItem('authToken', response.data.token);
+      }
       if (response.data.user) {
         localStorage.setItem('userData', JSON.stringify(response.data.user));
         

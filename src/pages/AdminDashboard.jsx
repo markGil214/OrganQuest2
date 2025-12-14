@@ -109,18 +109,18 @@ const AdminDashboard = ({ onLogout }) => {
   const fetchTeachers = async () => {
     try {
       setLoadingTeachers(true);
+      const token = localStorage.getItem('authToken');
       
       const response = await fetch(`${API_URL}/api/admin/teachers`, {
         method: 'GET',
-        credentials: 'include', // Include cookies in request
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` })
         }
       });
 
       if (response.status === 401) {
         console.error('Unauthorized - token may be invalid or expired');
-        // Clear invalid token and redirect to login
         localStorage.removeItem('authToken');
         localStorage.removeItem('userData');
         window.location.hash = 'login';
@@ -164,11 +164,13 @@ const AdminDashboard = ({ onLogout }) => {
     }
 
     try {
+      const token = localStorage.getItem('authToken');
+      
       const response = await fetch(`${API_URL}/api/admin/send-teacher-invitation`, {
         method: 'POST',
-        credentials: 'include', // Include cookies in request
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` })
         },
         body: JSON.stringify({
           fullName: newTeacher.fullName,
@@ -205,11 +207,13 @@ const AdminDashboard = ({ onLogout }) => {
   // Status-based actions
   const handleResendActivation = async (id) => {
     try {
+      const token = localStorage.getItem('authToken');
+      
       const response = await fetch(`${API_URL}/api/admin/teachers/${id}/resend-activation`, {
         method: 'POST',
-        credentials: 'include', // Include cookies in request
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` })
         }
       });
 
@@ -236,11 +240,13 @@ const AdminDashboard = ({ onLogout }) => {
 
   const handleDisableAccount = async (id) => {
     try {
+      const token = localStorage.getItem('authToken');
+      
       const response = await fetch(`${API_URL}/api/admin/teachers/${id}/status`, {
         method: 'PUT',
-        credentials: 'include', // Include cookies in request
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` })
         },
         body: JSON.stringify({ accountStatus: 'disabled' })
       });
@@ -269,11 +275,13 @@ const AdminDashboard = ({ onLogout }) => {
 
   const handleEnableAccount = async (id) => {
     try {
+      const token = localStorage.getItem('authToken');
+      
       const response = await fetch(`${API_URL}/api/admin/teachers/${id}/status`, {
         method: 'PUT',
-        credentials: 'include', // Include cookies in request
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` })
         },
         body: JSON.stringify({ accountStatus: 'active' })
       });

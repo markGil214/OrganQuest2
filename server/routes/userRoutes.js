@@ -175,6 +175,7 @@ router.post('/login',
         success: true,
         message: 'Login successful',
         data: {
+          token: token, // Return token in response body for localStorage
           user: {
             id: user._id,
             fullName: user.fullName,
