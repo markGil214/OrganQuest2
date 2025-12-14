@@ -151,6 +151,7 @@ const AdminDashboard = () => {
     subject: '',
   });
 
+
   // Dummy teacher and subject options for assignment
   const teacherOptions = teachers ? teachers.map(t => t.name) : [];
   const subjectOptions = ['Math', 'Science', 'English', 'Filipino', 'Araling Panlipunan'];
@@ -167,6 +168,30 @@ const AdminDashboard = () => {
       { id: Date.now(), ...newClass },
     ]);
     setNewClass({ grade: '', section: '', teacher: '', subject: '' });
+    setShowAddClassModal(false);
+  };
+
+  // Edit class state and handlers (moved to top level)
+  const [editClassId, setEditClassId] = useState();
+  const [editClass, setEditClass] = useState({ grade: '', section: '', teacher: '', subject: '' });
+
+  const handleEditClassOpen = (id) => {
+    const cls = classes.find(c => c.id === id);
+    setEditClassId(id);
+    setEditClass({ grade: cls.grade, section: cls.section, teacher: cls.teacher, subject: cls.subject });
+  };
+
+  const handleEditClassInputChange = (e) => {
+    setEditClass({ ...editClass, [e.target.name]: e.target.value });
+  };
+
+  const handleEditClass = (e) => {
+    e.preventDefault();
+    setClasses(classes.map(c =>
+      c.id === editClassId ? { ...c, ...editClass } : c
+    ));
+    setEditClassId(undefined);
+    setEditClass({ grade: '', section: '', teacher: '', subject: '' });
     setShowAddClassModal(false);
   };
 
@@ -534,28 +559,28 @@ const AdminDashboard = () => {
               className="mb-6 bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800"
               onClick={() => setShowAddClassModal(true)}
             >
-              Create Class / Section
+              Create Class
             </button>
 
-            {/* Modal for Add Class/Section */}
-            {showAddClassModal && (
+            {/* Modal for Add/Edit Class/Section */}
+            {(showAddClassModal || editClassId !== undefined) && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
                 <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative">
                   <button
                     className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
-                    onClick={() => setShowAddClassModal(false)}
+                    onClick={() => { setShowAddClassModal(false); setEditClassId(undefined); }}
                   >
                     &times;
                   </button>
-                  <h2 className="text-xl font-bold mb-4">Create Class / Section</h2>
-                  <form onSubmit={handleAddClass} className="space-y-4">
+                  <h2 className="text-xl font-bold mb-4">{editClassId !== undefined ? 'Edit Class' : 'Create Class'}</h2>
+                  <form onSubmit={editClassId !== undefined ? handleEditClass : handleAddClass} className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium mb-1">Grade Level / Year</label>
                       <input
                         type="text"
                         name="grade"
-                        value={newClass.grade}
-                        onChange={handleClassInputChange}
+                        value={editClassId !== undefined ? editClass.grade : newClass.grade}
+                        onChange={editClassId !== undefined ? handleEditClassInputChange : handleClassInputChange}
                         className="border rounded px-3 py-2 w-full"
                         placeholder="e.g. Grade 7 or Year 1"
                         required
@@ -566,8 +591,8 @@ const AdminDashboard = () => {
                       <input
                         type="text"
                         name="section"
-                        value={newClass.section}
-                        onChange={handleClassInputChange}
+                        value={editClassId !== undefined ? editClass.section : newClass.section}
+                        onChange={editClassId !== undefined ? handleEditClassInputChange : handleClassInputChange}
                         className="border rounded px-3 py-2 w-full"
                         placeholder="e.g. A, B, C"
                         required
@@ -577,8 +602,8 @@ const AdminDashboard = () => {
                       <label className="block text-sm font-medium mb-1">Assign Teacher</label>
                       <select
                         name="teacher"
-                        value={newClass.teacher}
-                        onChange={handleClassInputChange}
+                        value={editClassId !== undefined ? editClass.teacher : newClass.teacher}
+                        onChange={editClassId !== undefined ? handleEditClassInputChange : handleClassInputChange}
                         className="border rounded px-3 py-2 w-full"
                         required
                       >
@@ -592,8 +617,8 @@ const AdminDashboard = () => {
                       <label className="block text-sm font-medium mb-1">Assign Subject</label>
                       <select
                         name="subject"
-                        value={newClass.subject}
-                        onChange={handleClassInputChange}
+                        value={editClassId !== undefined ? editClass.subject : newClass.subject}
+                        onChange={editClassId !== undefined ? handleEditClassInputChange : handleClassInputChange}
                         className="border rounded px-3 py-2 w-full"
                         required
                       >
@@ -603,7 +628,7 @@ const AdminDashboard = () => {
                         ))}
                       </select>
                     </div>
-                    <button type="submit" className="w-full bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800">Create</button>
+                    <button type="submit" className="w-full bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800">{editClassId !== undefined ? 'Save Changes' : 'Create'}</button>
                   </form>
                 </div>
               </div>
@@ -617,6 +642,7 @@ const AdminDashboard = () => {
                     <th className="px-4 py-2 border-b text-left">Section</th>
                     <th className="px-4 py-2 border-b text-left">Teacher</th>
                     <th className="px-4 py-2 border-b text-left">Subject</th>
+                    <th className="px-4 py-2 border-b text-left">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -626,6 +652,12 @@ const AdminDashboard = () => {
                       <td className="px-4 py-2 border-b">{cls.section}</td>
                       <td className="px-4 py-2 border-b">{cls.teacher}</td>
                       <td className="px-4 py-2 border-b">{cls.subject}</td>
+                      <td className="px-4 py-2 border-b">
+                        <button
+                          className="bg-blue-700 text-white px-3 py-1 rounded hover:bg-blue-800 text-xs"
+                          onClick={() => handleEditClassOpen(cls.id)}
+                        >View / Edit</button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
