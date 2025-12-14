@@ -121,37 +121,21 @@ const AdminDashboard = () => {
   const [selectedClassId, setSelectedClassId] = useState(null);
   const [selectedStudents, setSelectedStudents] = useState([]);
 
-  // Helper to get students for a class
-  const getClassStudents = (cls) => students.filter(s => s.section === `${cls.grade} - ${cls.section}`);
-
-  // Helper to get students not in a class
-  const getAvailableStudents = (cls) => students.filter(s => s.section !== `${cls.grade} - ${cls.section}`);
+  // Helper to check if student is enrolled in a class
+  const isStudentEnrolled = (student, cls) => student.section === `${cls.grade} - ${cls.section}`;
 
   const handleOpenEnrollModal = (clsId) => {
     setSelectedClassId(clsId);
-    setSelectedStudents([]);
     setShowEnrollModal(true);
   };
 
-  const handleSelectStudent = (studentId) => {
-    setSelectedStudents((prev) =>
-      prev.includes(studentId)
-        ? prev.filter((id) => id !== studentId)
-        : [...prev, studentId]
-    );
-  };
-
-  const handleEnrollStudents = () => {
-    const cls = classes.find(c => c.id === selectedClassId);
+  const handleAddStudentToClass = (studentId, cls) => {
     setStudents(students.map(s =>
-      selectedStudents.includes(s.id)
-        ? { ...s, section: `${cls.grade} - ${cls.section}` }
-        : s
+      s.id === studentId ? { ...s, section: `${cls.grade} - ${cls.section}` } : s
     ));
-    setShowEnrollModal(false);
   };
 
-  const handleRemoveStudent = (studentId, cls) => {
+  const handleRemoveStudentFromClass = (studentId) => {
     setStudents(students.map(s =>
       s.id === studentId ? { ...s, section: '' } : s
     ));
@@ -654,7 +638,7 @@ const AdminDashboard = () => {
         ) : showEnrollmentManagement ? (
           <div>
             <h1 className="text-3xl font-bold mb-6">Enrollment Management</h1>
-            <h2 className="text-xl font-semibold mb-4">Class Lists</h2>
+            <h2 className="text-xl font-semibold mb-4">Select Class</h2>
             <div className="overflow-x-auto mb-6">
               <table className="min-w-full bg-white rounded shadow">
                 <thead>
@@ -663,7 +647,6 @@ const AdminDashboard = () => {
                     <th className="px-4 py-2 border-b text-left">Section</th>
                     <th className="px-4 py-2 border-b text-left">Teacher</th>
                     <th className="px-4 py-2 border-b text-left">Subject</th>
-                    <th className="px-4 py-2 border-b text-left">Students</th>
                     <th className="px-4 py-2 border-b text-left">Actions</th>
                   </tr>
                 </thead>
@@ -674,19 +657,6 @@ const AdminDashboard = () => {
                       <td className="px-4 py-2 border-b">{cls.section}</td>
                       <td className="px-4 py-2 border-b">{cls.teacher}</td>
                       <td className="px-4 py-2 border-b">{cls.subject}</td>
-                      <td className="px-4 py-2 border-b">
-                        <ul className="list-disc ml-4">
-                          {getClassStudents(cls).map(s => (
-                            <li key={s.id} className="flex items-center justify-between">
-                              <span>{s.name}</span>
-                              <button
-                                className="ml-2 text-xs bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
-                                onClick={() => handleRemoveStudent(s.id, cls)}
-                              >Remove</button>
-                            </li>
-                          ))}
-                        </ul>
-                      </td>
                       <td className="px-4 py-2 border-b">
                         <button
                           className="bg-blue-700 text-white px-3 py-1 rounded hover:bg-blue-800 text-xs"
@@ -704,41 +674,60 @@ const AdminDashboard = () => {
             {/* Enroll Students Modal */}
             {showEnrollModal && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-                <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative">
+                <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-2xl relative">
                   <button
                     className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
                     onClick={() => setShowEnrollModal(false)}
                   >
                     &times;
                   </button>
-                  <h2 className="text-xl font-bold mb-4">Enroll Students</h2>
-                  <div className="mb-4 text-sm text-gray-700">Select students to enroll in this class.</div>
-                  <div className="max-h-60 overflow-y-auto mb-4">
-                    {getAvailableStudents(classes.find(c => c.id === selectedClassId)).length === 0 ? (
-                      <div className="text-gray-500">No available students to enroll.</div>
-                    ) : (
-                      <ul>
-                        {getAvailableStudents(classes.find(c => c.id === selectedClassId)).map(s => (
-                          <li key={s.id} className="flex items-center mb-2">
-                            <input
-                              type="checkbox"
-                              checked={selectedStudents.includes(s.id)}
-                              onChange={() => handleSelectStudent(s.id)}
-                              className="mr-2"
-                            />
-                            <span>{s.name} ({s.id})</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                  <button
-                    className="w-full bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800"
-                    onClick={handleEnrollStudents}
-                    disabled={selectedStudents.length === 0}
-                  >
-                    Enroll Selected
-                  </button>
+                  {(() => {
+                    const cls = classes.find(c => c.id === selectedClassId);
+                    if (!cls) return null;
+                    return (
+                      <>
+                        <h2 className="text-xl font-bold mb-4">Enroll Students</h2>
+                        <div className="mb-2 text-sm text-gray-700 font-semibold">
+                          Selected Class: {cls.grade} – Section {cls.section} – {cls.subject}
+                        </div>
+                        <div className="max-h-80 overflow-y-auto">
+                          <table className="min-w-full bg-white rounded shadow">
+                            <thead>
+                              <tr>
+                                <th className="px-4 py-2 border-b text-left">Student Name</th>
+                                <th className="px-4 py-2 border-b text-left">Status</th>
+                                <th className="px-4 py-2 border-b text-left">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {students.map((s) => {
+                                const enrolled = isStudentEnrolled(s, cls);
+                                return (
+                                  <tr key={s.id}>
+                                    <td className="px-4 py-2 border-b">{s.name}</td>
+                                    <td className="px-4 py-2 border-b">{enrolled ? 'Enrolled' : 'Not Enrolled'}</td>
+                                    <td className="px-4 py-2 border-b">
+                                      {enrolled ? (
+                                        <button
+                                          className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-xs"
+                                          onClick={() => handleRemoveStudentFromClass(s.id)}
+                                        >Remove</button>
+                                      ) : (
+                                        <button
+                                          className="bg-blue-700 text-white px-3 py-1 rounded hover:bg-blue-800 text-xs"
+                                          onClick={() => handleAddStudentToClass(s.id, cls)}
+                                        >Add</button>
+                                      )}
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
             )}
