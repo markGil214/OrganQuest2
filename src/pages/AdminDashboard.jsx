@@ -32,9 +32,9 @@ const sidebarItems = [
 ];
 
 const InfoCard = ({ title, value }) => (
-  <div className="flex flex-col items-center justify-center bg-white rounded-lg shadow p-4 min-w-[160px]">
-    <div className="text-2xl font-bold mb-2">{value}</div>
-    <div className="text-gray-600 text-sm">{title}</div>
+  <div className="flex flex-col items-center justify-center bg-blue-700 text-white rounded-xl shadow-lg p-8 min-w-[220px] min-h-[160px]">
+    <div className="text-5xl font-extrabold mb-4">{value}</div>
+    <div className="text-xl font-semibold">{title}</div>
   </div>
 );
 
@@ -56,9 +56,6 @@ const AdminDashboard = () => {
     { title: 'Teachers', value: 45 },
     { title: 'Classes', value: 36 },
   ];
-  const recentClasses = ['Grade 7 - Section A', 'Grade 8 - Section B'];
-  const pendingTeachers = ['Mr. Smith (Pending Activation)', 'Ms. Lee (Pending Activation)'];
-  const notifications = ['System update scheduled for Dec 20', 'New subject added: Robotics'];
 
   // Sidebar active state
   const [activeSidebar, setActiveSidebar] = useState('Dashboard');
@@ -734,19 +731,11 @@ const AdminDashboard = () => {
           </div>
         ) : (
           <div>
-            <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
-            {/* Info Cards */}
-            <div className="flex gap-6 mb-8">
+            <h1 className="text-3xl font-bold mb-10">Admin Dashboard</h1>
+            <div className="flex gap-12 justify-center mb-12">
               {stats.map((stat) => (
                 <InfoCard key={stat.title} {...stat} />
               ))}
-            </div>
-
-            {/* Recent Activities */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <RecentActivity title="Newly Created Classes" items={recentClasses} />
-              <RecentActivity title="Pending Teacher Activations" items={pendingTeachers} />
-              <RecentActivity title="System Notifications" items={notifications} />
             </div>
           </div>
         )}
