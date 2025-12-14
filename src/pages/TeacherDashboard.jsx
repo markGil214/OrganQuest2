@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 
 const sidebarItems = [
   {
@@ -74,6 +74,7 @@ const TeacherDashboard = () => {
 
   // Progress tracking state
   const [progressData, setProgressData] = useState([]);
+  const [selectedStudent, setSelectedStudent] = useState(null);
   const [overallStats, setOverallStats] = useState({
     totalStudents: 0,
     averageOrgansExplored: 0,
@@ -147,7 +148,21 @@ const TeacherDashboard = () => {
           averageScore: 85,
           lastActivity: '2025-12-10',
           grade: 'Grade 7',
-          section: 'A'
+          section: 'A',
+          attempts: [
+            { attempt: 1, score: 75 },
+            { attempt: 2, score: 80 },
+            { attempt: 3, score: 82 },
+            { attempt: 4, score: 85 },
+            { attempt: 5, score: 87 },
+            { attempt: 6, score: 88 },
+            { attempt: 7, score: 90 },
+            { attempt: 8, score: 92 },
+            { attempt: 9, score: 85 },
+            { attempt: 10, score: 87 },
+            { attempt: 11, score: 89 },
+            { attempt: 12, score: 91 }
+          ]
         },
         {
           id: '25-0002-stud',
@@ -157,7 +172,24 @@ const TeacherDashboard = () => {
           averageScore: 92,
           lastActivity: '2025-12-12',
           grade: 'Grade 7',
-          section: 'A'
+          section: 'A',
+          attempts: [
+            { attempt: 1, score: 85 },
+            { attempt: 2, score: 87 },
+            { attempt: 3, score: 89 },
+            { attempt: 4, score: 91 },
+            { attempt: 5, score: 93 },
+            { attempt: 6, score: 90 },
+            { attempt: 7, score: 92 },
+            { attempt: 8, score: 94 },
+            { attempt: 9, score: 95 },
+            { attempt: 10, score: 93 },
+            { attempt: 11, score: 91 },
+            { attempt: 12, score: 94 },
+            { attempt: 13, score: 96 },
+            { attempt: 14, score: 92 },
+            { attempt: 15, score: 95 }
+          ]
         },
         {
           id: '25-0003-stud',
@@ -167,7 +199,17 @@ const TeacherDashboard = () => {
           averageScore: 78,
           lastActivity: '2025-12-08',
           grade: 'Grade 7',
-          section: 'A'
+          section: 'A',
+          attempts: [
+            { attempt: 1, score: 65 },
+            { attempt: 2, score: 70 },
+            { attempt: 3, score: 75 },
+            { attempt: 4, score: 78 },
+            { attempt: 5, score: 80 },
+            { attempt: 6, score: 82 },
+            { attempt: 7, score: 79 },
+            { attempt: 8, score: 81 }
+          ]
         },
         {
           id: '25-0004-stud',
@@ -177,7 +219,23 @@ const TeacherDashboard = () => {
           averageScore: 88,
           lastActivity: '2025-12-11',
           grade: 'Grade 8',
-          section: 'B'
+          section: 'B',
+          attempts: [
+            { attempt: 1, score: 78 },
+            { attempt: 2, score: 82 },
+            { attempt: 3, score: 85 },
+            { attempt: 4, score: 87 },
+            { attempt: 5, score: 89 },
+            { attempt: 6, score: 86 },
+            { attempt: 7, score: 88 },
+            { attempt: 8, score: 90 },
+            { attempt: 9, score: 92 },
+            { attempt: 10, score: 89 },
+            { attempt: 11, score: 91 },
+            { attempt: 12, score: 93 },
+            { attempt: 13, score: 87 },
+            { attempt: 14, score: 90 }
+          ]
         },
         {
           id: '25-0005-stud',
@@ -187,7 +245,19 @@ const TeacherDashboard = () => {
           averageScore: 82,
           lastActivity: '2025-12-09',
           grade: 'Grade 8',
-          section: 'B'
+          section: 'B',
+          attempts: [
+            { attempt: 1, score: 72 },
+            { attempt: 2, score: 75 },
+            { attempt: 3, score: 78 },
+            { attempt: 4, score: 80 },
+            { attempt: 5, score: 82 },
+            { attempt: 6, score: 84 },
+            { attempt: 7, score: 81 },
+            { attempt: 8, score: 83 },
+            { attempt: 9, score: 85 },
+            { attempt: 10, score: 87 }
+          ]
         },
         {
           id: '25-0006-stud',
@@ -197,7 +267,22 @@ const TeacherDashboard = () => {
           averageScore: 89,
           lastActivity: '2025-12-13',
           grade: 'Grade 7',
-          section: 'A'
+          section: 'A',
+          attempts: [
+            { attempt: 1, score: 80 },
+            { attempt: 2, score: 83 },
+            { attempt: 3, score: 85 },
+            { attempt: 4, score: 87 },
+            { attempt: 5, score: 89 },
+            { attempt: 6, score: 91 },
+            { attempt: 7, score: 88 },
+            { attempt: 8, score: 90 },
+            { attempt: 9, score: 92 },
+            { attempt: 10, score: 89 },
+            { attempt: 11, score: 91 },
+            { attempt: 12, score: 93 },
+            { attempt: 13, score: 90 }
+          ]
         },
         {
           id: '25-0007-stud',
@@ -207,7 +292,20 @@ const TeacherDashboard = () => {
           averageScore: 84,
           lastActivity: '2025-12-07',
           grade: 'Grade 7',
-          section: 'A'
+          section: 'A',
+          attempts: [
+            { attempt: 1, score: 75 },
+            { attempt: 2, score: 78 },
+            { attempt: 3, score: 80 },
+            { attempt: 4, score: 82 },
+            { attempt: 5, score: 84 },
+            { attempt: 6, score: 86 },
+            { attempt: 7, score: 83 },
+            { attempt: 8, score: 85 },
+            { attempt: 9, score: 87 },
+            { attempt: 10, score: 84 },
+            { attempt: 11, score: 86 }
+          ]
         },
         {
           id: '25-0008-stud',
@@ -217,7 +315,25 @@ const TeacherDashboard = () => {
           averageScore: 94,
           lastActivity: '2025-12-14',
           grade: 'Grade 8',
-          section: 'B'
+          section: 'B',
+          attempts: [
+            { attempt: 1, score: 88 },
+            { attempt: 2, score: 90 },
+            { attempt: 3, score: 92 },
+            { attempt: 4, score: 94 },
+            { attempt: 5, score: 96 },
+            { attempt: 6, score: 93 },
+            { attempt: 7, score: 95 },
+            { attempt: 8, score: 97 },
+            { attempt: 9, score: 98 },
+            { attempt: 10, score: 95 },
+            { attempt: 11, score: 93 },
+            { attempt: 12, score: 96 },
+            { attempt: 13, score: 98 },
+            { attempt: 14, score: 94 },
+            { attempt: 15, score: 97 },
+            { attempt: 16, score: 99 }
+          ]
         },
         {
           id: '25-0009-stud',
@@ -227,7 +343,18 @@ const TeacherDashboard = () => {
           averageScore: 76,
           lastActivity: '2025-12-06',
           grade: 'Grade 7',
-          section: 'A'
+          section: 'A',
+          attempts: [
+            { attempt: 1, score: 68 },
+            { attempt: 2, score: 71 },
+            { attempt: 3, score: 74 },
+            { attempt: 4, score: 76 },
+            { attempt: 5, score: 78 },
+            { attempt: 6, score: 75 },
+            { attempt: 7, score: 77 },
+            { attempt: 8, score: 79 },
+            { attempt: 9, score: 81 }
+          ]
         },
         {
           id: '25-0010-stud',
@@ -237,7 +364,26 @@ const TeacherDashboard = () => {
           averageScore: 96,
           lastActivity: '2025-12-13',
           grade: 'Grade 8',
-          section: 'B'
+          section: 'B',
+          attempts: [
+            { attempt: 1, score: 88 },
+            { attempt: 2, score: 91 },
+            { attempt: 3, score: 93 },
+            { attempt: 4, score: 95 },
+            { attempt: 5, score: 97 },
+            { attempt: 6, score: 94 },
+            { attempt: 7, score: 96 },
+            { attempt: 8, score: 98 },
+            { attempt: 9, score: 99 },
+            { attempt: 10, score: 96 },
+            { attempt: 11, score: 94 },
+            { attempt: 12, score: 97 },
+            { attempt: 13, score: 99 },
+            { attempt: 14, score: 95 },
+            { attempt: 15, score: 98 },
+            { attempt: 16, score: 100 },
+            { attempt: 17, score: 97 }
+          ]
         },
         {
           id: '25-0011-stud',
@@ -247,7 +393,21 @@ const TeacherDashboard = () => {
           averageScore: 83,
           lastActivity: '2025-12-11',
           grade: 'Grade 7',
-          section: 'A'
+          section: 'A',
+          attempts: [
+            { attempt: 1, score: 75 },
+            { attempt: 2, score: 78 },
+            { attempt: 3, score: 80 },
+            { attempt: 4, score: 82 },
+            { attempt: 5, score: 84 },
+            { attempt: 6, score: 81 },
+            { attempt: 7, score: 83 },
+            { attempt: 8, score: 85 },
+            { attempt: 9, score: 87 },
+            { attempt: 10, score: 84 },
+            { attempt: 11, score: 86 },
+            { attempt: 12, score: 88 }
+          ]
         },
         {
           id: '25-0012-stud',
@@ -257,7 +417,23 @@ const TeacherDashboard = () => {
           averageScore: 87,
           lastActivity: '2025-12-10',
           grade: 'Grade 8',
-          section: 'B'
+          section: 'B',
+          attempts: [
+            { attempt: 1, score: 78 },
+            { attempt: 2, score: 81 },
+            { attempt: 3, score: 83 },
+            { attempt: 4, score: 85 },
+            { attempt: 5, score: 87 },
+            { attempt: 6, score: 89 },
+            { attempt: 7, score: 86 },
+            { attempt: 8, score: 88 },
+            { attempt: 9, score: 90 },
+            { attempt: 10, score: 87 },
+            { attempt: 11, score: 89 },
+            { attempt: 12, score: 91 },
+            { attempt: 13, score: 85 },
+            { attempt: 14, score: 88 }
+          ]
         },
         {
           id: '25-0013-stud',
@@ -267,7 +443,19 @@ const TeacherDashboard = () => {
           averageScore: 81,
           lastActivity: '2025-12-08',
           grade: 'Grade 7',
-          section: 'A'
+          section: 'A',
+          attempts: [
+            { attempt: 1, score: 72 },
+            { attempt: 2, score: 75 },
+            { attempt: 3, score: 77 },
+            { attempt: 4, score: 79 },
+            { attempt: 5, score: 81 },
+            { attempt: 6, score: 83 },
+            { attempt: 7, score: 80 },
+            { attempt: 8, score: 82 },
+            { attempt: 9, score: 84 },
+            { attempt: 10, score: 86 }
+          ]
         },
         {
           id: '25-0014-stud',
@@ -277,7 +465,24 @@ const TeacherDashboard = () => {
           averageScore: 91,
           lastActivity: '2025-12-12',
           grade: 'Grade 8',
-          section: 'B'
+          section: 'B',
+          attempts: [
+            { attempt: 1, score: 83 },
+            { attempt: 2, score: 86 },
+            { attempt: 3, score: 88 },
+            { attempt: 4, score: 90 },
+            { attempt: 5, score: 92 },
+            { attempt: 6, score: 89 },
+            { attempt: 7, score: 91 },
+            { attempt: 8, score: 93 },
+            { attempt: 9, score: 95 },
+            { attempt: 10, score: 92 },
+            { attempt: 11, score: 90 },
+            { attempt: 12, score: 93 },
+            { attempt: 13, score: 95 },
+            { attempt: 14, score: 91 },
+            { attempt: 15, score: 94 }
+          ]
         },
         {
           id: '25-0015-stud',
@@ -287,7 +492,22 @@ const TeacherDashboard = () => {
           averageScore: 85,
           lastActivity: '2025-12-09',
           grade: 'Grade 7',
-          section: 'A'
+          section: 'A',
+          attempts: [
+            { attempt: 1, score: 76 },
+            { attempt: 2, score: 79 },
+            { attempt: 3, score: 81 },
+            { attempt: 4, score: 83 },
+            { attempt: 5, score: 85 },
+            { attempt: 6, score: 87 },
+            { attempt: 7, score: 84 },
+            { attempt: 8, score: 86 },
+            { attempt: 9, score: 88 },
+            { attempt: 10, score: 85 },
+            { attempt: 11, score: 87 },
+            { attempt: 12, score: 89 },
+            { attempt: 13, score: 86 }
+          ]
         },
         {
           id: '25-0016-stud',
@@ -599,18 +819,49 @@ const TeacherDashboard = () => {
 
                 {/* Charts Section */}
                 <div className="grid grid-cols-1 gap-8 mb-8">
-                  {/* Quiz Scores Chart */}
+                  {/* Student Progress Over Attempts Chart */}
                   <div className="bg-white rounded-xl shadow-lg p-6">
-                    <h3 className="text-xl font-bold mb-4 text-gray-800">Average Quiz Score per Student</h3>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <BarChart data={progressData}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        <YAxis domain={[0, 100]} />
-                        <Tooltip />
-                        <Bar dataKey="averageScore" fill="#10B981" />
-                      </BarChart>
-                    </ResponsiveContainer>
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-xl font-bold text-gray-800">
+                        {selectedStudent ? `${selectedStudent.name} - Progress Over Attempts` : 'Student Progress Over Attempts'}
+                      </h3>
+                      {selectedStudent && (
+                        <button
+                          onClick={() => setSelectedStudent(null)}
+                          className="text-sm text-blue-600 hover:text-blue-800 underline"
+                        >
+                          Clear Selection
+                        </button>
+                      )}
+                    </div>
+                    {selectedStudent ? (
+                      <ResponsiveContainer width="100%" height={300}>
+                        <LineChart data={selectedStudent.attempts}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="attempt" label={{ value: 'Attempt #', position: 'insideBottom', offset: -5 }} />
+                          <YAxis domain={[0, 100]} label={{ value: 'Score', angle: -90, position: 'insideLeft' }} />
+                          <Tooltip
+                            formatter={(value, name) => [`${value}%`, 'Score']}
+                            labelFormatter={(label) => `Attempt ${label}`}
+                          />
+                          <Line
+                            type="monotone"
+                            dataKey="score"
+                            stroke="#10B981"
+                            strokeWidth={3}
+                            dot={{ fill: '#10B981', strokeWidth: 2, r: 6 }}
+                            activeDot={{ r: 8, stroke: '#10B981', strokeWidth: 2, fill: '#fff' }}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="flex items-center justify-center h-64 text-gray-500">
+                        <div className="text-center">
+                          <div className="text-4xl mb-2">📈</div>
+                          <p className="text-lg">Click on a student in the table below to view their progress over attempts</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -634,7 +885,13 @@ const TeacherDashboard = () => {
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
                         {progressData.map((student) => (
-                          <tr key={student.id} className="hover:bg-gray-50">
+                          <tr
+                            key={student.id}
+                            className={`hover:bg-gray-50 cursor-pointer transition-colors ${
+                              selectedStudent?.id === student.id ? 'bg-blue-50 border-l-4 border-blue-500' : ''
+                            }`}
+                            onClick={() => setSelectedStudent(student)}
+                          >
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">{student.id}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{student.name}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{student.grade} - {student.section}</td>
