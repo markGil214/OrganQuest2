@@ -115,6 +115,39 @@ const AdminDashboard = () => {
 
   const showTeacherManagement = activeSidebar === 'User Management' && activeSubSidebar === 'Teacher Management';
   const showStudentManagement = activeSidebar === 'User Management' && activeSubSidebar === 'Student Management';
+  const showClassSectionManagement = activeSidebar === 'Class & Section Management';
+
+  // Class & Section Management State
+  const [classes, setClasses] = useState([
+    { id: 1, grade: 'Grade 7', section: 'A', teacher: 'Mr. Smith', subject: 'Math' },
+    { id: 2, grade: 'Grade 8', section: 'B', teacher: 'Ms. Lee', subject: 'Science' },
+  ]);
+  const [showAddClassModal, setShowAddClassModal] = useState(false);
+  const [newClass, setNewClass] = useState({
+    grade: '',
+    section: '',
+    teacher: '',
+    subject: '',
+  });
+
+  // Dummy teacher and subject options for assignment
+  const teacherOptions = teachers ? teachers.map(t => t.name) : [];
+  const subjectOptions = ['Math', 'Science', 'English', 'Filipino', 'Araling Panlipunan'];
+
+  const handleClassInputChange = (e) => {
+    setNewClass({ ...newClass, [e.target.name]: e.target.value });
+  };
+
+  const handleAddClass = (e) => {
+    e.preventDefault();
+    if (!newClass.grade || !newClass.section || !newClass.teacher || !newClass.subject) return;
+    setClasses([
+      ...classes,
+      { id: Date.now(), ...newClass },
+    ]);
+    setNewClass({ grade: '', section: '', teacher: '', subject: '' });
+    setShowAddClassModal(false);
+  };
 
   // Student Management State
   const [students, setStudents] = useState([
@@ -473,7 +506,111 @@ const AdminDashboard = () => {
               </table>
             </div>
           </div>
-        ) : (
+        ) : showClassSectionManagement ? (
+          <div>
+            <h1 className="text-3xl font-bold mb-6">Class & Section Management</h1>
+            <button
+              className="mb-6 bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800"
+              onClick={() => setShowAddClassModal(true)}
+            >
+              Create Class / Section
+            </button>
+
+            {/* Modal for Add Class/Section */}
+            {showAddClassModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative">
+                  <button
+                    className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
+                    onClick={() => setShowAddClassModal(false)}
+                  >
+                    &times;
+                  </button>
+                  <h2 className="text-xl font-bold mb-4">Create Class / Section</h2>
+                  <form onSubmit={handleAddClass} className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Grade Level / Year</label>
+                      <input
+                        type="text"
+                        name="grade"
+                        value={newClass.grade}
+                        onChange={handleClassInputChange}
+                        className="border rounded px-3 py-2 w-full"
+                        placeholder="e.g. Grade 7 or Year 1"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Section Name</label>
+                      <input
+                        type="text"
+                        name="section"
+                        value={newClass.section}
+                        onChange={handleClassInputChange}
+                        className="border rounded px-3 py-2 w-full"
+                        placeholder="e.g. A, B, C"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Assign Teacher</label>
+                      <select
+                        name="teacher"
+                        value={newClass.teacher}
+                        onChange={handleClassInputChange}
+                        className="border rounded px-3 py-2 w-full"
+                        required
+                      >
+                        <option value="">Select Teacher</option>
+                        {teacherOptions.map((t, idx) => (
+                          <option key={idx} value={t}>{t}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Assign Subject</label>
+                      <select
+                        name="subject"
+                        value={newClass.subject}
+                        onChange={handleClassInputChange}
+                        className="border rounded px-3 py-2 w-full"
+                        required
+                      >
+                        <option value="">Select Subject</option>
+                        {subjectOptions.map((s, idx) => (
+                          <option key={idx} value={s}>{s}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <button type="submit" className="w-full bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800">Create</button>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            <div className="overflow-x-auto">
+              <table className="min-w-full bg-white rounded shadow">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-2 border-b text-left">Grade/Year</th>
+                    <th className="px-4 py-2 border-b text-left">Section</th>
+                    <th className="px-4 py-2 border-b text-left">Teacher</th>
+                    <th className="px-4 py-2 border-b text-left">Subject</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {classes.map((cls) => (
+                    <tr key={cls.id}>
+                      <td className="px-4 py-2 border-b">{cls.grade}</td>
+                      <td className="px-4 py-2 border-b">{cls.section}</td>
+                      <td className="px-4 py-2 border-b">{cls.teacher}</td>
+                      <td className="px-4 py-2 border-b">{cls.subject}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
           <div>
             <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
             {/* Info Cards */}
