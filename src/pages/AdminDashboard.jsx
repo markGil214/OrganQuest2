@@ -351,7 +351,7 @@ const AdminDashboard = () => {
         {showTeacherManagement ? (
           <div>
             <h1 className="text-3xl font-bold mb-6">Teacher Management</h1>
-            {/* Status Filter, Name/ID Search, Email Filter, Phone Filter */}
+            {/* Status Filter, Name/ID Search, Email Filter, Phone Filter, Sort By */}
             <div className="flex flex-wrap items-center gap-4 mb-4">
               <label className="font-semibold">Status Filter:</label>
               <select
@@ -391,6 +391,19 @@ const AdminDashboard = () => {
                 onChange={e => setTeacherPhoneFilter(e.target.value)}
                 style={{ minWidth: 120 }}
               />
+              <label className="font-semibold ml-4">Sort By:</label>
+              <select
+                className="border rounded px-3 py-2"
+                value={teacherSortBy}
+                onChange={e => setTeacherSortBy(e.target.value)}
+                style={{ minWidth: 120 }}
+              >
+                <option value="name-asc">Full Name (A–Z)</option>
+                <option value="name-desc">Full Name (Z–A)</option>
+                <option value="status">Status (Pending → Active → Disabled)</option>
+                <option value="id-asc">Teacher ID (Ascending)</option>
+                <option value="id-desc">Teacher ID (Descending)</option>
+              </select>
               <button
                 className="ml-auto bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800"
                 onClick={() => setShowAddModal(true)}
@@ -496,6 +509,17 @@ const AdminDashboard = () => {
                         ? true
                         : (t.phone || '').toLowerCase().includes(teacherPhoneFilter.trim().toLowerCase())
                     )
+                    .sort((a, b) => {
+                      if (teacherSortBy === 'name-asc') return a.name.localeCompare(b.name);
+                      if (teacherSortBy === 'name-desc') return b.name.localeCompare(a.name);
+                      if (teacherSortBy === 'id-asc') return a.id.localeCompare(b.id);
+                      if (teacherSortBy === 'id-desc') return b.id.localeCompare(a.id);
+                      if (teacherSortBy === 'status') {
+                        const order = { 'Pending': 0, 'Active': 1, 'Disabled': 2 };
+                        return order[a.status] - order[b.status];
+                      }
+                      return 0;
+                    })
                     .map((teacher) => (
                       <tr key={teacher.id}>
                         <td className="px-4 py-2 border-b">{teacher.id}</td>
@@ -525,6 +549,8 @@ const AdminDashboard = () => {
                         </td>
                       </tr>
                     ))}
+                          // Sort By state for Teacher Management
+                          const [teacherSortBy, setTeacherSortBy] = useState('name-asc');
                         // Phone filter state for Teacher Management
                         const [teacherPhoneFilter, setTeacherPhoneFilter] = useState('');
                       // Email filter state for Teacher Management
