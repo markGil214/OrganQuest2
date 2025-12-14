@@ -61,7 +61,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
     registrationUrl: '',
     emailSent: false
   });
-  const [activeTab, setActiveTab] = useState('classes'); // classes, analytics, quiz-management
+  const [activeTab, setActiveTab] = useState('dashboard'); // dashboard, classes, analytics, quiz-management
 
   const API_URL = import.meta.env.VITE_API_URL || 'https://organquest2.onrender.com';
 
@@ -564,91 +564,174 @@ const AdminDashboard = ({ userData, onLogout }) => {
             <Button onClick={onLogout} variant="outline" className="border-red-500 text-red-600 hover:bg-red-50">🚪 Logout</Button>
           </div>
         </div>
-      </div>
-
-      {/* Top metric cards (colored) */}
+      {/* Tab Navigation */}
       <div className="max-w-7xl mx-auto mb-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="rounded-lg p-5 text-white bg-gradient-to-br from-indigo-600 to-indigo-400">
-            <div className="text-sm">Students</div>
-            <div className="text-3xl font-bold mt-2">{analytics?.totalStudents ?? students.length ?? 0}</div>
-            <div className="text-xs mt-2 opacity-80">Members online</div>
-          </div>
-
-          <div className="rounded-lg p-5 text-white bg-gradient-to-br from-sky-500 to-sky-300">
-            <div className="text-sm">Teachers</div>
-            <div className="text-3xl font-bold mt-2">{analytics?.totalTeachers ?? classes.length ?? 0}</div>
-            <div className="text-xs mt-2 opacity-80">Active</div>
-          </div>
-
-          <div className="rounded-lg p-5 text-white bg-gradient-to-br from-yellow-400 to-yellow-300">
-            <div className="text-sm">Classes</div>
-            <div className="text-3xl font-bold mt-2">{classes.length}</div>
-            <div className="text-xs mt-2 opacity-80">Assigned</div>
-          </div>
-
-          <div className="rounded-lg p-5 text-white bg-gradient-to-br from-rose-500 to-rose-400">
-            <div className="text-sm">Notifications</div>
-            <div className="text-3xl font-bold mt-2">{analytics?.notifications?.length ?? 0}</div>
-            <div className="text-xs mt-2 opacity-80">Unread</div>
-          </div>
+        <div className="flex gap-2 border-b border-gray-200">
+          <button
+            onClick={() => setActiveTab('dashboard')}
+            className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${
+              activeTab === 'dashboard'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            📊 Dashboard
+          </button>
+          <button
+            onClick={() => setActiveTab('classes')}
+            className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${
+              activeTab === 'classes'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            👨‍🏫 Classes
+          </button>
+          <button
+            onClick={() => setActiveTab('students')}
+            className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${
+              activeTab === 'students'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            👥 Students
+          </button>
+          <button
+            onClick={() => setActiveTab('analytics')}
+            className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${
+              activeTab === 'analytics'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            📈 Analytics
+          </button>
+          <button
+            onClick={() => setActiveTab('quiz-management')}
+            className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${
+              activeTab === 'quiz-management'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            🎯 Quiz Management
+          </button>
         </div>
       </div>
 
-      {/* Main area: left widgets + traffic chart (right) — mirror image style from attachments */}
-      <div className="max-w-7xl mx-auto mb-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="space-y-6">
-            <Card className="p-4">
-              <h4 className="font-semibold mb-2">Admin Overview</h4>
-              <div className="text-sm text-gray-600">Students<br /><span className="font-bold text-lg">{analytics?.totalStudents ?? students.length ?? 0}</span></div>
-              <div className="text-sm text-gray-600 mt-2">Teachers<br /><span className="font-bold text-lg">{analytics?.totalTeachers ?? classes.length ?? 0}</span></div>
-              <div className="text-sm text-gray-600 mt-2">Classes<br /><span className="font-bold text-lg">{classes.length}</span></div>
-            </Card>
+      {/* Dashboard Tab Content */}
+      {activeTab === 'dashboard' && (
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="space-y-6">
+              <Card className="p-4">
+                <h4 className="text-lg font-semibold mb-3">System Overview</h4>
+                <div className="grid gap-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-sm text-gray-500">Students</div>
+                      <div className="text-2xl font-bold">{analytics?.totalStudents ?? students.length ?? 0}</div>
+                    </div>
+                  </div>
 
-            <Card className="p-4">
-              <h4 className="font-semibold mb-2">Recent Activities</h4>
-              {classes && classes.length > 0 ? (
-                <ul className="text-sm list-disc list-inside">
-                  {classes.slice(0,5).map((c) => (
-                    <li key={c._id || `${c.assignedGrade}-${c.assignedSection}`}>{c.assignedGrade} - Section {c.assignedSection} ({c.fullName || 'Teacher'})</li>
-                  ))}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-sm text-gray-500">Teachers</div>
+                      <div className="text-2xl font-bold">{analytics?.totalTeachers ?? classes.length ?? 0}</div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-sm text-gray-500">Classes</div>
+                      <div className="text-2xl font-bold">{classes.length}</div>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-4">
+                <h4 className="text-lg font-semibold mb-3">Recent Activities</h4>
+                <div className="text-sm text-gray-600 mb-2">Newly created classes</div>
+                <ul className="space-y-2 mb-3">
+                  {classes.length === 0 ? (
+                    <li className="text-xs text-gray-400">No recent classes</li>
+                  ) : (
+                    [...classes]
+                      .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+                      .slice(0, 5)
+                      .map(rc => (
+                        <li key={rc._id} className="text-sm">
+                          <div className="font-medium">{rc.fullName || 'Teacher'}</div>
+                          <div className="text-xs text-gray-500">{rc.assignedGrade} Grade · Section {rc.section || '-'}</div>
+                        </li>
+                      ))
+                  )}
                 </ul>
-              ) : (
-                <p className="text-sm text-gray-500">No recent classes</p>
-              )}
-            </Card>
 
-            <Card className="p-4">
-              <h4 className="font-semibold mb-2">System Notifications</h4>
-              {analytics?.notifications && analytics.notifications.length > 0 ? (
-                <ul className="text-sm list-disc list-inside">
-                  {analytics.notifications.slice(0,5).map((n, i) => (<li key={i}>{n}</li>))}
+                <div className="text-sm text-gray-600 mb-2">Pending teacher activations</div>
+                <ul className="space-y-2">
+                  {classes.filter(c => c.accountStatus === 'pending').length === 0 ? (
+                    <li className="text-xs text-gray-400">No pending activations</li>
+                  ) : (
+                    classes
+                      .filter(c => c.accountStatus === 'pending')
+                      .slice(0, 5)
+                      .map(p => (
+                        <li key={p._id} className="text-sm">
+                          <div className="font-medium">{p.fullName}</div>
+                          <div className="text-xs text-gray-500">{p.assignedGrade} · {p.section || '-'}</div>
+                        </li>
+                      ))
+                  )}
                 </ul>
-              ) : (
-                <p className="text-sm text-gray-500">No notifications</p>
-              )}
-            </Card>
-          </div>
+              </Card>
 
-          <div className="lg:col-span-2">
-            <Card className="p-6">
-              <h3 className="text-2xl font-bold text-gray-800 mb-4">Traffic</h3>
-              <div style={{ height: 320 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={trafficData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="name" stroke="#6b7280" />
-                    <YAxis stroke="#6b7280" />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={2} dot={false} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
+              <Card className="p-4">
+                <h4 className="text-lg font-semibold mb-3">System Notifications</h4>
+                {analytics?.notifications && analytics.notifications.length > 0 ? (
+                  <ul className="space-y-2 text-sm text-gray-700">
+                    {analytics.notifications.slice(0, 5).map((n, idx) => (
+                      <li key={idx} className="text-sm">{n}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="text-xs text-gray-400">No notifications</div>
+                )}
+              </Card>
+            </div>
+
+            <div className="lg:col-span-2">
+              <Card className="p-6">
+                <h3 className="text-2xl font-bold text-gray-800 mb-4">Welcome to Admin Dashboard</h3>
+                <p className="text-gray-600 mb-4">
+                  This dashboard provides an overview of the system. Use the tabs above to manage classes, students, view analytics, and manage quizzes.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 bg-blue-50 rounded-lg">
+                    <h4 className="font-semibold text-blue-800 mb-2">Quick Actions</h4>
+                    <ul className="text-sm text-blue-700 space-y-1">
+                      <li>• Switch to Classes tab to manage teachers</li>
+                      <li>• Switch to Students tab to view student data</li>
+                      <li>• Switch to Analytics tab for detailed insights</li>
+                      <li>• Switch to Quiz Management for quiz assignments</li>
+                    </ul>
+                  </div>
+                  <div className="p-4 bg-green-50 rounded-lg">
+                    <h4 className="font-semibold text-green-800 mb-2">System Status</h4>
+                    <ul className="text-sm text-green-700 space-y-1">
+                      <li>• All systems operational</li>
+                      <li>• Database connected</li>
+                      <li>• Email service ready</li>
+                    </ul>
+                  </div>
+                </div>
+              </Card>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Quiz Analytics Tab Content */}
       {activeTab === 'analytics' && (
