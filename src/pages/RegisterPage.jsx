@@ -78,24 +78,20 @@ const RegisterPage = ({ onRegistrationComplete }) => {
 
       console.log('Registration successful:', response);
       
-      // Store the token and user data in localStorage
-      if (response.data.token) {
-        localStorage.setItem('authToken', response.data.token);
-        
-        // Ensure user data has the correct language
-        const userData = {
-          ...response.data.user,
-          language: language
-        };
-        localStorage.setItem('userData', JSON.stringify(userData));
-        console.log('User data saved with language:', language);
-        
-        // Sync avatar from backend
-        const avatar = response.data.user.avatar;
-        if (avatar) {
-          const avatarToUse = typeof avatar === 'string' ? avatar : `/avatars/avatar-${avatar}.svg`;
-          localStorage.setItem('userAvatar', avatarToUse);
-        }
+      // Store user data in localStorage (but not the token since it's now handled by cookies)
+      // Ensure user data has the correct language
+      const userData = {
+        ...response.data.user,
+        language: language
+      };
+      localStorage.setItem('userData', JSON.stringify(userData));
+      console.log('User data saved with language:', language);
+      
+      // Sync avatar from backend
+      const avatar = response.data.user.avatar;
+      if (avatar) {
+        const avatarToUse = typeof avatar === 'string' ? avatar : `/avatars/avatar-${avatar}.svg`;
+        localStorage.setItem('userAvatar', avatarToUse);
       }
 
       // Call the completion callback (handles navigation to welcome page)

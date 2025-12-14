@@ -36,17 +36,14 @@ const LoginPageTranslated = ({ onLoginSuccess }) => {
 
       console.log('Login successful:', response);
       
-      if (response.data.token) {
-        localStorage.setItem('authToken', response.data.token);
-        localStorage.setItem('userData', JSON.stringify(response.data.user));
-        
-        // Sync avatar from backend
-        const avatar = response.data.user.avatar;
-        if (avatar) {
-          const avatarToUse = typeof avatar === 'string' ? avatar : `/avatars/avatar-${avatar}.svg`;
-          localStorage.setItem('userAvatar', avatarToUse);
-        }
-      }
+      // Store user data in localStorage (but not the token since it's now handled by cookies)
+      localStorage.setItem('userData', JSON.stringify(response.data.user));
+      
+      // Sync avatar from backend
+      const avatar = response.data.user.avatar;
+      if (avatar) {
+        const avatarToUse = typeof avatar === 'string' ? avatar : `/avatars/avatar-${avatar}.svg`;
+        localStorage.setItem('userAvatar', avatarToUse);
 
       if (onLoginSuccess) {
         onLoginSuccess(response.data.user);

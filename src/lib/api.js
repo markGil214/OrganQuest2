@@ -70,11 +70,9 @@ export const api = {
     return data;
   },
 
-  async getProfile(token) {
+  async getProfile() {
     const response = await fetch(`${API_URL}/users/profile`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
+      credentials: 'include',
     });
     const data = await response.json();
     
@@ -85,13 +83,13 @@ export const api = {
     return data;
   },
 
-  async updateProfile(token, updates) {
+  async updateProfile(updates) {
     const response = await fetch(`${API_URL}/users/profile`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
       },
+      credentials: 'include',
       body: JSON.stringify(updates),
     });
     const data = await response.json();
@@ -103,11 +101,9 @@ export const api = {
     return data;
   },
 
-  async getStats(token) {
+  async getStats() {
     const response = await fetch(`${API_URL}/users/stats`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
+      credentials: 'include',
     });
     const data = await response.json();
     
@@ -119,13 +115,13 @@ export const api = {
   },
 
   // Quiz endpoints
-  async submitQuiz(token, quizData) {
+  async submitQuiz(quizData) {
     const response = await fetchWithTimeout(`${API_URL}/quiz/submit`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
       },
+      credentials: 'include',
       body: JSON.stringify(quizData),
     });
     const data = await response.json();
@@ -137,11 +133,9 @@ export const api = {
     return data;
   },
 
-  async getQuizAttempts(token, quizType) {
+  async getQuizAttempts(quizType) {
     const response = await fetchWithTimeout(`${API_URL}/quiz/attempts/${quizType}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
+      credentials: 'include',
     }, 10000); // 10 second timeout for attempt check
     const data = await response.json();
     
@@ -152,26 +146,9 @@ export const api = {
     return data;
   },
 
-  async getQuizHistory(token) {
+  async getQuizHistory() {
     const response = await fetchWithTimeout(`${API_URL}/quiz/history`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-    });
-    const data = await response.json();
-    
-    if (!response.ok) {
-      throw new Error(data.message || 'Failed to submit quiz');
-    }
-    
-    return data;
-  },
-
-  async getQuizHistory(token) {
-    const response = await fetch(`${API_URL}/quiz/history`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
+      credentials: 'include',
     });
     const data = await response.json();
     
@@ -182,12 +159,28 @@ export const api = {
     return data;
   },
 
-  async getLeaderboard(limit = 10) {
-    const response = await fetch(`${API_URL}/quiz/leaderboard?limit=${limit}`);
+  async markOrganExplored(organName) {
+    const response = await fetch(`${API_URL}/users/organ-explored/${organName}`, {
+      method: 'POST',
+      credentials: 'include',
+    });
     const data = await response.json();
     
     if (!response.ok) {
-      throw new Error(data.message || 'Failed to fetch leaderboard');
+      throw new Error(data.message || 'Failed to mark organ as explored');
+    }
+    
+    return data;
+  },
+
+  async getOrganProgress() {
+    const response = await fetch(`${API_URL}/users/organ-progress`, {
+      credentials: 'include',
+    });
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to fetch organ progress');
     }
     
     return data;

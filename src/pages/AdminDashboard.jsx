@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const sidebarItems = [
   {
@@ -37,18 +37,7 @@ const RecentActivity = ({ title, items }) => (
 );
 
 const AdminDashboard = () => {
-  // Teacher Management filters and sort state
-  const [statusFilter, setStatusFilter] = useState('All');
-  const [searchNameID, setSearchNameID] = useState('');
-  const [searchEmail, setSearchEmail] = useState('');
-  const [searchPhone, setSearchPhone] = useState('');
-  const [sortBy, setSortBy] = useState('id');
-  // Dummy data for demonstration
-  const stats = [
-    { title: 'Students', value: 1200 },
-    { title: 'Teachers', value: 45 },
-    { title: 'Classes', value: 36 },
-  ];
+  const API_URL = import.meta.env.VITE_API_URL || 'https://organquest2.onrender.com';
 
   // Sidebar active state
   const [activeSidebar, setActiveSidebar] = useState('Dashboard');
@@ -63,25 +52,80 @@ const AdminDashboard = () => {
     setActiveSubSidebar(subTitle);
   };
 
-  // Dummy teacher data for demonstration
-
+  // Dummy data for demonstration
+  const stats = [
+    { title: 'Students', value: 1200 },
+    { title: 'Teachers', value: 45 },
+    { title: 'Classes', value: 36 },
+  ];
 
   // Teacher Management State
-  const [teachers, setTeachers] = useState([
-    { id: '25-0001-dcs', name: 'Mr. Smith', email: 'smith@example.com', phone: '09171234567', status: 'Pending', grade: 'Grade 7', section: 'A', subject: 'Math', log: [] },
-    { id: '25-0002-dcs', name: 'Ms. Lee', email: 'lee@example.com', phone: '09179876543', status: 'Active', grade: 'Grade 8', section: 'B', subject: 'Science', log: [] },
-  ]);
+  const [teachers, setTeachers] = useState([]);
+  const [loadingTeachers, setLoadingTeachers] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newTeacher, setNewTeacher] = useState({
-    id: '',
-    name: '',
-    email: '',
-    phone: '',
-    grade: '',
-    section: '',
-    subject: '',
+    fullName: '',
+    username: '',
+    password: '',
+    assignedGrade: 'all'
   });
   const [teacherError, setTeacherError] = useState('');
+  const [submittingTeacher, setSubmittingTeacher] = useState(false);
+
+  // Fetch teachers from API
+  const fetchTeachers = async () => {
+    setLoadingTeachers(true);
+    try {
+      const response = await fetch(`${API_URL}/api/admin/admins`, {
+        method: 'GET',
+        credentials: 'include', // Include cookies in the request
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch teachers');
+      }
+      
+      const data = await response.json();
+      setTeachers(data.teachers || []);
+    } catch (error) {
+      console.error('Error fetching teachers:', error);
+      setTeacherError('Failed to load teachers. Please try again.');
+    } finally {
+      setLoadingTeachers(false);
+    }
+  };
+
+  // Load teachers on component mount
+  useEffect(() => {
+    fetchTeachers();
+  }, []);
+
+  // Logout function
+  const handleLogout = async () => {
+    try {
+      const response = await fetch(`${API_URL}/users/logout`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        // Redirect to login page or handle logout on frontend
+        window.location.href = '/login';
+      } else {
+        console.error('Logout failed');
+      }
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Still redirect even if logout request fails
+      window.location.href = '/login';
+    }
+  };
 
   // Generate next teacher ID
   const getNextTeacherId = () => {
@@ -96,30 +140,59 @@ const AdminDashboard = () => {
     setTeacherError('');
   };
 
-  const handleAddTeacher = (e) => {
+  const handleAddTeacher = async (e) => {
     e.preventDefault();
-    // Validate required fields
-    if (!newTeacher.name || !newTeacher.email) {
-      setTeacherError('Full name and email are required.');
-      return;
-    }
-    // Validate unique email
-    if (teachers.some(t => t.email.toLowerCase() === newTeacher.email.toLowerCase())) {
-      setTeacherError('Email already exists.');
-      return;
-    }
-    // Add teacher
-    const newId = getNextTeacherId();
-    setTeachers([
-      ...teachers,
-      { ...newTeacher, id: newId, status: 'Pending', log: [`[${new Date().toLocaleString()}] Teacher added. Activation email sent.`] },
-    ]);
-    setShowAddModal(false);
-    setNewTeacher({ id: '', name: '', email: '', phone: '', grade: '', section: '', subject: '' });
+    setSubmittingTeacher(true);
     setTeacherError('');
-    setTimeout(() => {
-      alert('Activation email sent!');
-    }, 300);
+
+    // Validate required fields
+    if (!newTeacher.fullName || !newTeacher.username || !newTeacher.password) {
+      setTeacherError('Full name, username, and password are required.');
+      setSubmittingTeacher(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/api/admin/create-admin`, {
+        method: 'POST',
+        credentials: 'include', // Include cookies in the request
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          fullName: newTeacher.fullName,
+          username: newTeacher.username,
+          password: newTeacher.password,
+          assignedGrade: newTeacher.assignedGrade
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create teacher');
+      }
+
+      const data = await response.json();
+      
+      // Refresh teachers list
+      await fetchTeachers();
+      
+      // Reset form and close modal
+      setShowAddModal(false);
+      setNewTeacher({
+        fullName: '',
+        username: '',
+        password: '',
+        assignedGrade: 'all'
+      });
+      
+      alert('Teacher created successfully! Activation email has been sent.');
+    } catch (error) {
+      console.error('Error creating teacher:', error);
+      setTeacherError(error.message || 'Failed to create teacher. Please try again.');
+    } finally {
+      setSubmittingTeacher(false);
+    }
   };
 
   // Status-based actions
@@ -265,6 +338,16 @@ const AdminDashboard = () => {
             <hr className="border-white mb-4 mt-0" />
           </ul>
         </nav>
+        
+        {/* Logout Button */}
+        <div className="mt-auto">
+          <button
+            className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded transition-colors"
+            onClick={handleLogout}
+          >
+            🚪 Logout
+          </button>
+        </div>
       </aside>
 
       {/* Main Content */}
@@ -299,25 +382,14 @@ const AdminDashboard = () => {
                   className="border px-2 py-1 rounded text-black"
                 />
               </div>
-              {/* Email Search */}
+              {/* Username Search */}
               <div>
-                <label className="mr-2 font-medium">Email:</label>
+                <label className="mr-2 font-medium">Username:</label>
                 <input
                   type="text"
                   value={searchEmail}
                   onChange={e => setSearchEmail(e.target.value)}
-                  placeholder="Enter email"
-                  className="border px-2 py-1 rounded text-black"
-                />
-              </div>
-              {/* Phone Search */}
-              <div>
-                <label className="mr-2 font-medium">Phone:</label>
-                <input
-                  type="text"
-                  value={searchPhone}
-                  onChange={e => setSearchPhone(e.target.value)}
-                  placeholder="Enter phone"
+                  placeholder="Enter username"
                   className="border px-2 py-1 rounded text-black"
                 />
               </div>
@@ -368,139 +440,125 @@ const AdminDashboard = () => {
                       <label className="block text-sm font-medium mb-1">Full Name</label>
                       <input
                         type="text"
-                        name="name"
-                        value={newTeacher.name}
+                        name="fullName"
+                        value={newTeacher.fullName}
                         onChange={handleTeacherInputChange}
                         className="border rounded px-3 py-2 w-full"
-                        placeholder="Enter teacher name"
+                        placeholder="Enter full name"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Email</label>
+                      <label className="block text-sm font-medium mb-1">Username</label>
                       <input
-                        type="email"
-                        name="email"
-                        value={newTeacher.email}
+                        type="text"
+                        name="username"
+                        value={newTeacher.username}
                         onChange={handleTeacherInputChange}
                         className="border rounded px-3 py-2 w-full"
-                        placeholder="Enter teacher email"
+                        placeholder="Enter username"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Phone Number</label>
+                      <label className="block text-sm font-medium mb-1">Password</label>
                       <input
-                        type="text"
-                        name="phone"
-                        value={newTeacher.phone}
+                        type="password"
+                        name="password"
+                        value={newTeacher.password}
                         onChange={handleTeacherInputChange}
                         className="border rounded px-3 py-2 w-full"
-                        placeholder="Enter phone number"
+                        placeholder="Enter password"
+                        required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Grade / Year</label>
-                      <input
-                        type="text"
-                        name="grade"
-                        value={newTeacher.grade}
-                        onChange={handleTeacherInputChange}
-                        className="border rounded px-3 py-2 w-full"
-                        placeholder="e.g. Grade 7 or Year 1"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Section</label>
-                      <input
-                        type="text"
-                        name="section"
-                        value={newTeacher.section}
-                        onChange={handleTeacherInputChange}
-                        className="border rounded px-3 py-2 w-full"
-                        placeholder="e.g. A, B, C"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Subject</label>
+                      <label className="block text-sm font-medium mb-1">Assigned Grade</label>
                       <select
-                        name="subject"
-                        value={newTeacher.subject}
+                        name="assignedGrade"
+                        value={newTeacher.assignedGrade}
                         onChange={handleTeacherInputChange}
                         className="border rounded px-3 py-2 w-full"
                       >
-                        <option value="">Select Subject</option>
-                        <option value="Math">Math</option>
-                        <option value="Science">Science</option>
-                        <option value="English">English</option>
-                        <option value="Filipino">Filipino</option>
-                        <option value="Araling Panlipunan">Araling Panlipunan</option>
+                        <option value="all">All Grades</option>
+                        <option value="Grade 7">Grade 7</option>
+                        <option value="Grade 8">Grade 8</option>
+                        <option value="Grade 9">Grade 9</option>
+                        <option value="Grade 10">Grade 10</option>
                       </select>
                     </div>
+
                     {teacherError && <div className="text-red-600 text-sm font-semibold">{teacherError}</div>}
-                    <button type="submit" className="w-full bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800">Add Teacher</button>
+                    <button 
+                      type="submit" 
+                      disabled={submittingTeacher}
+                      className="w-full bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800 disabled:bg-blue-400 disabled:cursor-not-allowed"
+                    >
+                      {submittingTeacher ? 'Creating Teacher...' : 'Add Teacher'}
+                    </button>
                   </form>
                 </div>
               </div>
             )}
 
-            <div className="overflow-x-auto">
-              <table className="min-w-full bg-white rounded shadow">
-                <thead>
-                  <tr>
-                    <th className="px-4 py-2 border-b text-left">Teacher ID</th>
-                    <th className="px-4 py-2 border-b text-left">Full Name</th>
-                    <th className="px-4 py-2 border-b text-left">Email</th>
-                    <th className="px-4 py-2 border-b text-left">Phone Number</th>
-                    <th className="px-4 py-2 border-b text-left">Grade</th>
-                    <th className="px-4 py-2 border-b text-left">Section</th>
-                    <th className="px-4 py-2 border-b text-left">Subject</th>
-                    <th className="px-4 py-2 border-b text-left">Status</th>
-                    <th className="px-4 py-2 border-b text-left">Actions</th>
-                  </tr>
-                </thead>
+            {loadingTeachers ? (
+              <div className="text-center py-8">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <p className="mt-2 text-gray-600">Loading teachers...</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full bg-white rounded shadow">
+                  <thead>
+                    <tr>
+                      <th className="px-4 py-2 border-b text-left">Teacher ID</th>
+                      <th className="px-4 py-2 border-b text-left">Full Name</th>
+                      <th className="px-4 py-2 border-b text-left">Username</th>
+                      <th className="px-4 py-2 border-b text-left">Assigned Grade</th>
+                      <th className="px-4 py-2 border-b text-left">Status</th>
+                      <th className="px-4 py-2 border-b text-left">Actions</th>
+                    </tr>
+                  </thead>
                 <tbody>
                   {teachers
                     .filter((teacher) =>
-                      (statusFilter === 'All' || teacher.status === statusFilter) &&
-                      (teacher.name.toLowerCase().includes(searchNameID.toLowerCase()) ||
-                        teacher.id.toLowerCase().includes(searchNameID.toLowerCase())) &&
-                      teacher.email.toLowerCase().includes(searchEmail.toLowerCase()) &&
-                      (teacher.phone || '').includes(searchPhone)
+                      (statusFilter === 'All' || (teacher.status || 'Active') === statusFilter) &&
+                      ((teacher.fullName || teacher.name || '').toLowerCase().includes(searchNameID.toLowerCase()) ||
+                        (teacher.id || teacher._id || '').toLowerCase().includes(searchNameID.toLowerCase())) &&
+                      (teacher.username || '').toLowerCase().includes(searchEmail.toLowerCase())
                     )
                     .sort((a, b) => {
-                      if (sortBy === 'name') return a.name.localeCompare(b.name);
-                      if (sortBy === 'id') return a.id.localeCompare(b.id);
-                      if (sortBy === 'status') return a.status.localeCompare(b.status);
+                      const nameA = a.fullName || a.name || '';
+                      const nameB = b.fullName || b.name || '';
+                      if (sortBy === 'name') return nameA.localeCompare(nameB);
+                      if (sortBy === 'id') return (a.id || a._id || '').localeCompare(b.id || b._id || '');
+                      if (sortBy === 'status') return (a.status || 'Active').localeCompare(b.status || 'Active');
                       return 0;
                     })
                     .map((teacher) => (
-                      <tr key={teacher.id}>
-                        <td className="px-4 py-2 border-b">{teacher.id}</td>
-                        <td className="px-4 py-2 border-b">{teacher.name}</td>
-                        <td className="px-4 py-2 border-b">{teacher.email}</td>
-                        <td className="px-4 py-2 border-b">{teacher.phone || '-'}</td>
-                        <td className="px-4 py-2 border-b">{teacher.grade || '-'}</td>
-                        <td className="px-4 py-2 border-b">{teacher.section || '-'}</td>
-                        <td className="px-4 py-2 border-b">{teacher.subject || '-'}</td>
-                        <td className="px-4 py-2 border-b">{teacher.status}</td>
+                      <tr key={teacher.id || teacher._id}>
+                        <td className="px-4 py-2 border-b">{teacher.id || teacher._id}</td>
+                        <td className="px-4 py-2 border-b">{teacher.fullName || teacher.name}</td>
+                        <td className="px-4 py-2 border-b">{teacher.username}</td>
+                        <td className="px-4 py-2 border-b">{teacher.assignedGrade || 'All Grades'}</td>
+                        <td className="px-4 py-2 border-b">{teacher.status || 'Active'}</td>
                         <td className="px-4 py-2 border-b flex gap-2">
-                          {teacher.status === 'Pending' && (
+                          {(teacher.status === 'Pending' || !teacher.status) && (
                             <button
                               className="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700"
-                              onClick={() => handleResendActivation(teacher.id)}
+                              onClick={() => handleResendActivation(teacher.id || teacher._id)}
                             >Resend Activation Email</button>
                           )}
                           {teacher.status === 'Active' && (
                             <button
                               className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700"
-                              onClick={() => handleDisableAccount(teacher.id)}
+                              onClick={() => handleDisableAccount(teacher.id || teacher._id)}
                             >Disable Account</button>
                           )}
                           {teacher.status === 'Disabled' && (
                             <button
                               className="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700"
-                              onClick={() => handleEnableAccount(teacher.id)}
+                              onClick={() => handleEnableAccount(teacher.id || teacher._id)}
                             >Enable Account</button>
                           )}
                         </td>
@@ -515,12 +573,13 @@ const AdminDashboard = () => {
                       (teacher.phone || '').includes(searchPhone)
                     ).length === 0 && (
                     <tr>
-                      <td colSpan="9" className="px-4 py-2 border-b text-center text-gray-500">No teachers found</td>
+                      <td colSpan="6" className="px-4 py-2 border-b text-center text-gray-500">No teachers found</td>
                     </tr>
                   )}
                 </tbody>
               </table>
             </div>
+            )}
           </div>
         ) : showClassSectionManagement ? (
           <div>

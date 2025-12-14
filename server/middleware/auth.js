@@ -3,8 +3,13 @@ import User from '../models/User.js';
 
 export const authMiddleware = async (req, res, next) => {
   try {
-    // Get token from header
-    const token = req.header('Authorization')?.replace('Bearer ', '');
+    // Get token from cookie first, then header as fallback
+    let token = req.cookies?.token;
+
+    // Fallback to Authorization header for backward compatibility
+    if (!token) {
+      token = req.header('Authorization')?.replace('Bearer ', '');
+    }
 
     if (!token) {
       return res.status(401).json({

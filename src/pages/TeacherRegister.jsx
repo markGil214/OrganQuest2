@@ -114,7 +114,7 @@ const TeacherRegister = () => {
         }
 
         if (loginData.success && loginData.data && loginData.data.user) {
-          localStorage.setItem('authToken', loginData.data.token);
+          // Store user data in localStorage (but not the token since it's now handled by cookies)
           localStorage.setItem('userRole', loginData.data.user.role);
           console.log('Auth data saved. Redirecting to dashboard...');
           

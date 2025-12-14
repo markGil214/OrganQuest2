@@ -6,12 +6,6 @@ import api from './api';
  */
 export const trackOrganExploration = async (organName) => {
   try {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      console.log('No auth token found, skipping organ tracking');
-      return null;
-    }
-
     // Normalize organ name (remove special characters, convert to lowercase)
     const normalizedOrganName = organName
       .toLowerCase()
@@ -20,7 +14,7 @@ export const trackOrganExploration = async (organName) => {
 
     console.log(`Tracking organ exploration: ${normalizedOrganName}`);
     
-    const response = await api.markOrganExplored(token, normalizedOrganName);
+    const response = await api.markOrganExplored(normalizedOrganName);
     console.log('Organ tracking response:', response);
     
     return response;
@@ -35,13 +29,7 @@ export const trackOrganExploration = async (organName) => {
  */
 export const getOrganProgress = async () => {
   try {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      console.log('No auth token found');
-      return null;
-    }
-
-    const response = await api.getOrganProgress(token);
+    const response = await api.getOrganProgress();
     return response;
   } catch (error) {
     console.error('Failed to get organ progress:', error);

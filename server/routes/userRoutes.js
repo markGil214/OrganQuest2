@@ -163,6 +163,14 @@ router.post('/login',
       // Generate JWT token
       const token = generateToken(user._id);
 
+      // Set HTTP-only cookie with the token
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+      });
+
       res.json({
         success: true,
         message: 'Login successful',
@@ -181,8 +189,7 @@ router.post('/login',
             assignedSection: user.assignedSection,
             stats: user.stats,
             createdAt: user.createdAt
-          },
-          token
+          }
         }
       });
     } catch (error) {
@@ -195,6 +202,32 @@ router.post('/login',
     }
   }
 );
+
+// @route   POST /api/users/logout
+// @desc    Logout user by clearing the authentication cookie
+// @access  Private
+router.post('/logout', (req, res) => {
+  try {
+    // Clear the authentication cookie
+    res.clearCookie('token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict'
+    });
+
+    res.json({
+      success: true,
+      message: 'Logout successful'
+    });
+  } catch (error) {
+    console.error('Logout error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error during logout',
+      error: error.message
+    });
+  }
+});
 
 // @route   GET /api/users/profile
 // @desc    Get user profile
