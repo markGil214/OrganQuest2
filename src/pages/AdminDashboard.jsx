@@ -116,56 +116,6 @@ const AdminDashboard = () => {
   const showTeacherManagement = activeSidebar === 'User Management' && activeSubSidebar === 'Teacher Management';
   const showStudentManagement = activeSidebar === 'User Management' && activeSubSidebar === 'Student Management';
   const showClassSectionManagement = activeSidebar === 'Class & Section Management';
-  const showEnrollmentManagement = activeSidebar === 'Enrollment Management';
-
-  // Enrollment Management State
-  const [selectedClassId, setSelectedClassId] = useState(classes.length > 0 ? classes[0].id : '');
-  // For demo, assume students and classes already exist
-
-  // Get students enrolled in selected class
-  const getEnrolledStudents = () => {
-    try {
-      if (!selectedClassId) return [];
-      const enrolled = students.filter(s => s.enrolledClassId === selectedClassId);
-      // Debug log
-      console.log('Enrolled Students for class', selectedClassId, enrolled);
-      return enrolled;
-    } catch (err) {
-      console.error('Error in getEnrolledStudents:', err);
-      return [];
-    }
-  };
-
-  // Get students not enrolled in selected class
-  const getAvailableStudents = () => {
-    try {
-      const available = students.filter(s => !s.enrolledClassId || s.enrolledClassId !== selectedClassId);
-      // Debug log
-      console.log('Available Students for class', selectedClassId, available);
-      return available;
-    } catch (err) {
-      console.error('Error in getAvailableStudents:', err);
-      return [];
-    }
-  };
-
-  const handleEnrollStudent = (studentId) => {
-    try {
-      setStudents(students.map(s => s.id === studentId ? { ...s, enrolledClassId: selectedClassId } : s));
-      console.log('Enrolled student', studentId, 'to class', selectedClassId);
-    } catch (err) {
-      console.error('Error in handleEnrollStudent:', err);
-    }
-  };
-
-  const handleRemoveStudent = (studentId) => {
-    try {
-      setStudents(students.map(s => s.id === studentId ? { ...s, enrolledClassId: undefined } : s));
-      console.log('Removed student', studentId, 'from class', selectedClassId);
-    } catch (err) {
-      console.error('Error in handleRemoveStudent:', err);
-    }
-  };
 
   // Class & Section Management State
   const [classes, setClasses] = useState([
@@ -201,8 +151,8 @@ const AdminDashboard = () => {
 
   // Student Management State
   const [students, setStudents] = useState([
-    { id: '25-0001-stud', name: 'Juan Dela Cruz', age: 13, sex: 'Male', section: 'Grade 7 - A', status: 'Active', enrolledClassId: undefined },
-    { id: '25-0002-stud', name: 'Maria Santos', age: 14, sex: 'Female', section: 'Grade 8 - B', status: 'Inactive', enrolledClassId: undefined },
+    { id: '25-0001-stud', name: 'Juan Dela Cruz', age: 13, sex: 'Male', section: 'Grade 7 - A', status: 'Active' },
+    { id: '25-0002-stud', name: 'Maria Santos', age: 14, sex: 'Female', section: 'Grade 8 - B', status: 'Inactive' },
   ]);
   const [showAddStudentModal, setShowAddStudentModal] = useState(false);
   const [newStudent, setNewStudent] = useState({
@@ -230,7 +180,7 @@ const AdminDashboard = () => {
     if (!newStudent.name || !newStudent.age || !newStudent.sex || !newStudent.section) return;
     setStudents([
       ...students,
-      { ...newStudent, id: getNextStudentId(), status: 'Active', enrolledClassId: undefined },
+      { ...newStudent, id: getNextStudentId(), status: 'Active' },
     ]);
     setNewStudent({ id: '', name: '', age: '', sex: '', section: '' });
     setShowAddStudentModal(false);
@@ -659,84 +609,6 @@ const AdminDashboard = () => {
                   ))}
                 </tbody>
               </table>
-            </div>
-          </div>
-        ) : showEnrollmentManagement ? (
-          <div>
-            <h1 className="text-3xl font-bold mb-6">Enrollment Management</h1>
-            <div className="mb-6">
-              <label className="block text-sm font-medium mb-1">Select Class</label>
-              <select
-                className="border rounded px-3 py-2 w-full max-w-xs"
-                value={selectedClassId}
-                onChange={e => setSelectedClassId(e.target.value)}
-              >
-                {classes.map(cls => (
-                  <option key={cls.id} value={cls.id}>{cls.grade} - {cls.section} ({cls.subject})</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Enrolled Students */}
-              <div>
-                <h2 className="text-xl font-semibold mb-2">Enrolled Students</h2>
-                <table className="min-w-full bg-white rounded shadow">
-                  <thead>
-                    <tr>
-                      <th className="px-4 py-2 border-b text-left">ID</th>
-                      <th className="px-4 py-2 border-b text-left">Name</th>
-                      <th className="px-4 py-2 border-b text-left">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {getEnrolledStudents().length === 0 ? (
-                      <tr><td colSpan={3} className="px-4 py-2 text-center">No students enrolled.</td></tr>
-                    ) : getEnrolledStudents().map(student => (
-                      <tr key={student.id}>
-                        <td className="px-4 py-2 border-b">{student.id}</td>
-                        <td className="px-4 py-2 border-b">{student.name}</td>
-                        <td className="px-4 py-2 border-b">
-                          <button
-                            className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700"
-                            onClick={() => handleRemoveStudent(student.id)}
-                          >Remove</button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Available Students */}
-              <div>
-                <h2 className="text-xl font-semibold mb-2">Available Students</h2>
-                <table className="min-w-full bg-white rounded shadow">
-                  <thead>
-                    <tr>
-                      <th className="px-4 py-2 border-b text-left">ID</th>
-                      <th className="px-4 py-2 border-b text-left">Name</th>
-                      <th className="px-4 py-2 border-b text-left">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {getAvailableStudents().length === 0 ? (
-                      <tr><td colSpan={3} className="px-4 py-2 text-center">No available students.</td></tr>
-                    ) : getAvailableStudents().map(student => (
-                      <tr key={student.id}>
-                        <td className="px-4 py-2 border-b">{student.id}</td>
-                        <td className="px-4 py-2 border-b">{student.name}</td>
-                        <td className="px-4 py-2 border-b">
-                          <button
-                            className="bg-blue-700 text-white px-2 py-1 rounded text-xs hover:bg-blue-800"
-                            onClick={() => handleEnrollStudent(student.id)}
-                          >Enroll</button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
             </div>
           </div>
         ) : (
