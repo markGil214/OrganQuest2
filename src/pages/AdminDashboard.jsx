@@ -119,26 +119,29 @@ const AdminDashboard = () => {
   const showEnrollmentManagement = activeSidebar === 'Enrollment Management';
 
   // Enrollment Management State (UI only)
-  const [selectedClassId, setSelectedClassId] = useState('');
-  const [selectedStudentId, setSelectedStudentId] = useState('');
+  // Enrollment Management State (UI only, modal approach)
+  const [showEnrollModal, setShowEnrollModal] = useState(false);
+  const [enrollments, setEnrollments] = useState({}); // { classId: [studentId, ...] }
+  const [enrollForm, setEnrollForm] = useState({ classId: '', studentId: '' });
 
   // Get class options for dropdown
   const classOptions = classes ? classes.map(cls => ({ id: cls.id, label: `${cls.grade} - ${cls.section}` })) : [];
   // Get student options for dropdown
   const studentOptions = students ? students.map(stud => ({ id: stud.id, label: stud.name })) : [];
 
-  // Dummy enrolled students per class (UI only, not persistent)
-  const [enrollments, setEnrollments] = useState({}); // { classId: [studentId, ...] }
+  const handleEnrollInputChange = (e) => {
+    setEnrollForm({ ...enrollForm, [e.target.name]: e.target.value });
+  };
 
-  // UI handlers (no backend logic)
   const handleEnrollStudent = (e) => {
     e.preventDefault();
-    if (!selectedClassId || !selectedStudentId) return;
+    if (!enrollForm.classId || !enrollForm.studentId) return;
     setEnrollments(prev => ({
       ...prev,
-      [selectedClassId]: prev[selectedClassId] ? [...new Set([...prev[selectedClassId], selectedStudentId])] : [selectedStudentId],
+      [enrollForm.classId]: prev[enrollForm.classId] ? [...new Set([...prev[enrollForm.classId], enrollForm.studentId])] : [enrollForm.studentId],
     }));
-    setSelectedStudentId('');
+    setEnrollForm({ classId: '', studentId: '' });
+    setShowEnrollModal(false);
   };
 
   const handleRemoveStudent = (classId, studentId) => {
@@ -645,38 +648,64 @@ const AdminDashboard = () => {
         ) : showEnrollmentManagement ? (
           <div>
             <h1 className="text-3xl font-bold mb-6">Enrollment Management</h1>
-            <form onSubmit={handleEnrollStudent} className="mb-8 flex flex-wrap gap-4 items-end">
-              <div>
-                <label className="block text-sm font-medium mb-1">Select Class</label>
-                <select
-                  className="border rounded px-3 py-2 w-48"
-                  value={selectedClassId}
-                  onChange={e => setSelectedClassId(e.target.value)}
-                  required
-                >
-                  <option value="">Select Class</option>
-                  {classOptions.map(cls => (
-                    <option key={cls.id} value={cls.id}>{cls.label}</option>
-                  ))}
-                </select>
+            <button
+              className="mb-6 bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800"
+              onClick={() => {
+                setEnrollForm({ classId: '', studentId: '' });
+                setShowEnrollModal(true);
+              }}
+            >
+              Enroll Student
+            </button>
+
+            {/* Modal for Enroll Student */}
+            {showEnrollModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative">
+                  <button
+                    className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
+                    onClick={() => setShowEnrollModal(false)}
+                  >
+                    &times;
+                  </button>
+                  <h2 className="text-xl font-bold mb-4">Enroll Student to Class</h2>
+                  <form onSubmit={handleEnrollStudent} className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Select Class</label>
+                      <select
+                        name="classId"
+                        className="border rounded px-3 py-2 w-full"
+                        value={enrollForm.classId}
+                        onChange={handleEnrollInputChange}
+                        required
+                      >
+                        <option value="">Select Class</option>
+                        {classOptions.map(cls => (
+                          <option key={cls.id} value={cls.id}>{cls.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Select Student</label>
+                      <select
+                        name="studentId"
+                        className="border rounded px-3 py-2 w-full"
+                        value={enrollForm.studentId}
+                        onChange={handleEnrollInputChange}
+                        required
+                        disabled={!enrollForm.classId}
+                      >
+                        <option value="">Select Student</option>
+                        {studentOptions.map(stud => (
+                          <option key={stud.id} value={stud.id}>{stud.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <button type="submit" className="w-full bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800" disabled={!enrollForm.classId || !enrollForm.studentId}>Enroll</button>
+                  </form>
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Select Student</label>
-                <select
-                  className="border rounded px-3 py-2 w-64"
-                  value={selectedStudentId}
-                  onChange={e => setSelectedStudentId(e.target.value)}
-                  required
-                  disabled={!selectedClassId}
-                >
-                  <option value="">Select Student</option>
-                  {studentOptions.map(stud => (
-                    <option key={stud.id} value={stud.id}>{stud.label}</option>
-                  ))}
-                </select>
-              </div>
-              <button type="submit" className="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800" disabled={!selectedClassId || !selectedStudentId}>Enroll Student</button>
-            </form>
+            )}
 
             {/* Class Lists */}
             <div className="overflow-x-auto">
