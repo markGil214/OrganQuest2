@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card } from '../components/ui/Card';
 import AdminSidebar from '../components/ui/AdminSidebar';
 import { Button } from '../components/ui/Button';
@@ -34,6 +34,18 @@ const AdminDashboard = ({ userData, onLogout }) => {
   const [pagination, setPagination] = useState(null);
   const [questionPage, setQuestionPage] = useState(1);
   const questionsPerPage = 10;
+
+  // Traffic data for chart — use analytics if provided, otherwise a simple placeholder series
+  const trafficData = useMemo(() => {
+    if (analytics && Array.isArray(analytics.traffic) && analytics.traffic.length > 0) {
+      return analytics.traffic;
+    }
+    // placeholder 12-point series (Mon-Sun x2)
+    return Array.from({ length: 12 }, (_, i) => ({
+      name: `W${i + 1}`,
+      value: Math.round(60 + Math.sin(i / 2) * 40 + (i % 3) * 10)
+    }));
+  }, [analytics]);
   
   // Delete confirmation dialog state
   const [deleteConfirmDialog, setDeleteConfirmDialog] = useState({
@@ -546,88 +558,95 @@ const AdminDashboard = ({ userData, onLogout }) => {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-4xl font-bold text-gray-800">Admin Dashboard</h1>
-            <p className="text-gray-600 mt-2">
-              Welcome, {userData?.fullName} 
-              {userData?.role === 'admin' && ' (Admin)'}
-              {userData?.role === 'teacher' && userData.assignedGrade && (
-                ` - ${userData.assignedGrade} Grade${userData.assignedSection && userData.assignedSection !== 'all' ? ` - Section ${userData.assignedSection}` : ''}`
-              )}
-            </p>
+            <p className="text-gray-600 mt-2">Welcome, {userData?.fullName}{userData?.role === 'admin' && ' (Admin)'}</p>
           </div>
           <div className="flex gap-3">
-            <Button
-              onClick={onLogout}
-              variant="outline"
-              className="border-red-500 text-red-600 hover:bg-red-50"
-            >
-              🚪 Logout
-            </Button>
+            <Button onClick={onLogout} variant="outline" className="border-red-500 text-red-600 hover:bg-red-50">🚪 Logout</Button>
           </div>
         </div>
       </div>
 
-      {/* Admin Overview - simplified */}
+      {/* Top metric cards (colored) */}
       <div className="max-w-7xl mx-auto mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <Card className="p-6 text-center">
-            <h3 className="text-lg font-semibold text-gray-600">Students</h3>
-            <p className="text-3xl font-bold text-purple-600">{analytics?.totalStudents ?? students.length ?? 0}</p>
-          </Card>
-          <Card className="p-6 text-center">
-            <h3 className="text-lg font-semibold text-gray-600">Teachers</h3>
-            <p className="text-3xl font-bold text-purple-600">{analytics?.totalTeachers ?? 0}</p>
-          </Card>
-          <Card className="p-6 text-center">
-            <h3 className="text-lg font-semibold text-gray-600">Classes</h3>
-            <p className="text-3xl font-bold text-purple-600">{classes.length}</p>
-          </Card>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="rounded-lg p-5 text-white bg-gradient-to-br from-indigo-600 to-indigo-400">
+            <div className="text-sm">Students</div>
+            <div className="text-3xl font-bold mt-2">{analytics?.totalStudents ?? students.length ?? 0}</div>
+            <div className="text-xs mt-2 opacity-80">Members online</div>
+          </div>
+
+          <div className="rounded-lg p-5 text-white bg-gradient-to-br from-sky-500 to-sky-300">
+            <div className="text-sm">Teachers</div>
+            <div className="text-3xl font-bold mt-2">{analytics?.totalTeachers ?? classes.length ?? 0}</div>
+            <div className="text-xs mt-2 opacity-80">Active</div>
+          </div>
+
+          <div className="rounded-lg p-5 text-white bg-gradient-to-br from-yellow-400 to-yellow-300">
+            <div className="text-sm">Classes</div>
+            <div className="text-3xl font-bold mt-2">{classes.length}</div>
+            <div className="text-xs mt-2 opacity-80">Assigned</div>
+          </div>
+
+          <div className="rounded-lg p-5 text-white bg-gradient-to-br from-rose-500 to-rose-400">
+            <div className="text-sm">Notifications</div>
+            <div className="text-3xl font-bold mt-2">{analytics?.notifications?.length ?? 0}</div>
+            <div className="text-xs mt-2 opacity-80">Unread</div>
+          </div>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="p-6 md:col-span-2">
-            <h3 className="text-xl font-bold mb-3">Recent Activities</h3>
-            <div className="space-y-4">
-              <div>
-                <div className="text-sm text-gray-600">Newly created classes</div>
-                {classes && classes.length > 0 ? (
-                  <ul className="mt-2 list-disc list-inside text-sm text-gray-800">
-                    {classes.slice(0,5).map((c) => (
-                      <li key={c._id || `${c.assignedGrade}-${c.assignedSection}`}>{c.assignedGrade} - Section {c.assignedSection} ({c.fullName || 'Teacher'})</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="mt-2 text-sm text-gray-500">No recent classes</p>
-                )}
+      {/* Main area: left widgets + traffic chart (right) — mirror image style from attachments */}
+      <div className="max-w-7xl mx-auto mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="space-y-6">
+            <Card className="p-4">
+              <h4 className="font-semibold mb-2">Admin Overview</h4>
+              <div className="text-sm text-gray-600">Students<br /><span className="font-bold text-lg">{analytics?.totalStudents ?? students.length ?? 0}</span></div>
+              <div className="text-sm text-gray-600 mt-2">Teachers<br /><span className="font-bold text-lg">{analytics?.totalTeachers ?? classes.length ?? 0}</span></div>
+              <div className="text-sm text-gray-600 mt-2">Classes<br /><span className="font-bold text-lg">{classes.length}</span></div>
+            </Card>
+
+            <Card className="p-4">
+              <h4 className="font-semibold mb-2">Recent Activities</h4>
+              {classes && classes.length > 0 ? (
+                <ul className="text-sm list-disc list-inside">
+                  {classes.slice(0,5).map((c) => (
+                    <li key={c._id || `${c.assignedGrade}-${c.assignedSection}`}>{c.assignedGrade} - Section {c.assignedSection} ({c.fullName || 'Teacher'})</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-gray-500">No recent classes</p>
+              )}
+            </Card>
+
+            <Card className="p-4">
+              <h4 className="font-semibold mb-2">System Notifications</h4>
+              {analytics?.notifications && analytics.notifications.length > 0 ? (
+                <ul className="text-sm list-disc list-inside">
+                  {analytics.notifications.slice(0,5).map((n, i) => (<li key={i}>{n}</li>))}
+                </ul>
+              ) : (
+                <p className="text-sm text-gray-500">No notifications</p>
+              )}
+            </Card>
+          </div>
+
+          <div className="lg:col-span-2">
+            <Card className="p-6">
+              <h3 className="text-2xl font-bold text-gray-800 mb-4">Traffic</h3>
+              <div style={{ height: 320 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={trafficData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="name" stroke="#6b7280" />
+                    <YAxis stroke="#6b7280" />
+                    <Tooltip />
+                    <Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={2} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
-
-              <div>
-                <div className="text-sm text-gray-600">Pending teacher activations</div>
-                {analytics?.pendingTeacherActivations && analytics.pendingTeacherActivations.length > 0 ? (
-                  <ul className="mt-2 list-disc list-inside text-sm text-gray-800">
-                    {analytics.pendingTeacherActivations.slice(0,5).map((t, idx) => (
-                      <li key={t._id || idx}>{t.fullName || t.email || 'Pending teacher'}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="mt-2 text-sm text-gray-500">No pending activations</p>
-                )}
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <h3 className="text-xl font-bold mb-3">System Notifications</h3>
-            {analytics?.notifications && analytics.notifications.length > 0 ? (
-              <ul className="mt-2 list-disc list-inside text-sm text-gray-800">
-                {analytics.notifications.slice(0,5).map((n, i) => (
-                  <li key={i}>{n}</li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm text-gray-500">No notifications</p>
-            )}
-            <p className="text-xs text-gray-400 mt-3">Panel note: Dashboard is informational only.</p>
-          </Card>
+            </Card>
+          </div>
         </div>
       </div>
 
