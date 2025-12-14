@@ -782,6 +782,16 @@ const TeacherDashboard = () => {
               </button>
             </li>
             <hr className="border-white mb-4 mt-0" />
+            {/* Quiz Management */}
+            <li className="mb-4">
+              <button
+                className={`w-full text-left font-semibold text-lg px-2 py-1 rounded transition-colors ${activeSidebar === 'Quiz Management' ? 'bg-blue-700' : 'hover:bg-blue-800'}`}
+                onClick={() => handleSidebarClick('Quiz Management')}
+              >
+                Quiz Management
+              </button>
+            </li>
+            <hr className="border-white mb-4 mt-0" />
           </ul>
         </nav>
       </aside>
