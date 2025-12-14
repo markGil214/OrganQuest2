@@ -248,17 +248,25 @@ const AdminDashboard = () => {
 
   // Student Management State
   const [students, setStudents] = useState([
-    { id: '25-0001-stud', name: 'Juan Dela Cruz', age: 13, sex: 'Male', section: 'Grade 7 - A', status: 'Active' },
-    { id: '25-0002-stud', name: 'Maria Santos', age: 14, sex: 'Female', section: 'Grade 8 - B', status: 'Inactive' },
+    { id: '2025-0001', name: 'Juan Dela Cruz', email: 'juan@example.com', phone: '09171234567', status: 'Active', enrolled: ['Grade 7 - A - Math'] },
+    { id: '2025-0002', name: 'Maria Santos', email: 'maria@example.com', phone: '09179876543', status: 'Pending', enrolled: [] },
+    { id: '2025-0003', name: 'Carlos Reyes', email: 'carlos@example.com', phone: '09170001122', status: 'Disabled', enrolled: ['Grade 8 - B - Science'] },
   ]);
   const [showAddStudentModal, setShowAddStudentModal] = useState(false);
   const [newStudent, setNewStudent] = useState({
     id: '',
     name: '',
-    age: '',
-    sex: '',
-    section: '',
+    email: '',
+    phone: '',
+    status: 'Pending',
+    enrolled: [],
   });
+  // Student Management filters and sort state
+  const [studentStatusFilter, setStudentStatusFilter] = useState('All');
+  const [searchStudentNameID, setSearchStudentNameID] = useState('');
+  const [searchStudentEmail, setSearchStudentEmail] = useState('');
+  const [searchStudentPhone, setSearchStudentPhone] = useState('');
+  const [studentSortBy, setStudentSortBy] = useState('id');
 
   // Generate next student ID
   const getNextStudentId = () => {
@@ -567,10 +575,68 @@ const AdminDashboard = () => {
         ) : showStudentManagement ? (
           <div>
             <h1 className="text-3xl font-bold mb-6">Student Management</h1>
+            {/* Filters */}
+            <div className="flex flex-wrap gap-4 mb-4">
+              <div>
+                <label className="mr-2 font-medium">Status:</label>
+                <select
+                  value={studentStatusFilter}
+                  onChange={e => setStudentStatusFilter(e.target.value)}
+                  className="border px-2 py-1 rounded text-black"
+                >
+                  <option value="All">All</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Active">Active</option>
+                  <option value="Disabled">Disabled</option>
+                </select>
+              </div>
+              <div>
+                <label className="mr-2 font-medium">Search Name/ID:</label>
+                <input
+                  type="text"
+                  value={searchStudentNameID}
+                  onChange={e => setSearchStudentNameID(e.target.value)}
+                  placeholder="Enter name or ID"
+                  className="border px-2 py-1 rounded text-black"
+                />
+              </div>
+              <div>
+                <label className="mr-2 font-medium">Email:</label>
+                <input
+                  type="text"
+                  value={searchStudentEmail}
+                  onChange={e => setSearchStudentEmail(e.target.value)}
+                  placeholder="Enter email"
+                  className="border px-2 py-1 rounded text-black"
+                />
+              </div>
+              <div>
+                <label className="mr-2 font-medium">Phone:</label>
+                <input
+                  type="text"
+                  value={searchStudentPhone}
+                  onChange={e => setSearchStudentPhone(e.target.value)}
+                  placeholder="Enter phone"
+                  className="border px-2 py-1 rounded text-black"
+                />
+              </div>
+              <div>
+                <label className="mr-2 font-medium">Sort By:</label>
+                <select
+                  value={studentSortBy}
+                  onChange={e => setStudentSortBy(e.target.value)}
+                  className="border px-2 py-1 rounded text-black"
+                >
+                  <option value="id">ID</option>
+                  <option value="name">Name</option>
+                  <option value="status">Status</option>
+                </select>
+              </div>
+            </div>
             <button
               className="mb-6 bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800"
               onClick={() => {
-                setNewStudent({ id: getNextStudentId(), name: '', age: '', sex: '', section: '' });
+                setNewStudent({ id: '', name: '', email: '', phone: '', status: 'Pending', enrolled: [] });
                 setShowAddStudentModal(true);
               }}
             >
@@ -590,7 +656,7 @@ const AdminDashboard = () => {
                   <h2 className="text-xl font-bold mb-4">Add Student</h2>
                   <form onSubmit={handleAddStudent} className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium mb-1">ID <span className="text-xs text-gray-500">(auto-generated)</span></label>
+                      <label className="block text-sm font-medium mb-1">ID</label>
                       <input
                         type="text"
                         name="id"
@@ -611,45 +677,27 @@ const AdminDashboard = () => {
                         required
                       />
                     </div>
-                    <div className="flex gap-4">
-                      <div className="flex-1">
-                        <label className="block text-sm font-medium mb-1">Age</label>
-                        <input
-                          type="number"
-                          name="age"
-                          value={newStudent.age}
-                          onChange={handleStudentInputChange}
-                          className="border rounded px-3 py-2 w-full"
-                          placeholder="Age"
-                          required
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <label className="block text-sm font-medium mb-1">Sex</label>
-                        <select
-                          name="sex"
-                          value={newStudent.sex}
-                          onChange={handleStudentInputChange}
-                          className="border rounded px-3 py-2 w-full"
-                          required
-                        >
-                          <option value="">Select</option>
-                          <option value="Male">Male</option>
-                          <option value="Female">Female</option>
-                          <option value="Other">Other</option>
-                        </select>
-                      </div>
-                    </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Section</label>
+                      <label className="block text-sm font-medium mb-1">Email</label>
                       <input
-                        type="text"
-                        name="section"
-                        value={newStudent.section}
+                        type="email"
+                        name="email"
+                        value={newStudent.email}
                         onChange={handleStudentInputChange}
                         className="border rounded px-3 py-2 w-full"
-                        placeholder="e.g. Grade 7 - A"
+                        placeholder="Enter student email"
                         required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Phone</label>
+                      <input
+                        type="text"
+                        name="phone"
+                        value={newStudent.phone}
+                        onChange={handleStudentInputChange}
+                        className="border rounded px-3 py-2 w-full"
+                        placeholder="Enter phone number"
                       />
                     </div>
                     <button type="submit" className="w-full bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800">Add Student</button>
@@ -664,32 +712,49 @@ const AdminDashboard = () => {
                   <tr>
                     <th className="px-4 py-2 border-b text-left">ID</th>
                     <th className="px-4 py-2 border-b text-left">Full Name</th>
-                    <th className="px-4 py-2 border-b text-left">Age</th>
-                    <th className="px-4 py-2 border-b text-left">Sex</th>
-                    <th className="px-4 py-2 border-b text-left">Section</th>
+                    <th className="px-4 py-2 border-b text-left">Email</th>
+                    <th className="px-4 py-2 border-b text-left">Phone</th>
                     <th className="px-4 py-2 border-b text-left">Status</th>
-                    <th className="px-4 py-2 border-b text-left">Actions</th>
+                    <th className="px-4 py-2 border-b text-left">Enrollment</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {students.map((student) => (
-                    <tr key={student.id}>
-                      <td className="px-4 py-2 border-b">{student.id}</td>
-                      <td className="px-4 py-2 border-b">{student.name}</td>
-                      <td className="px-4 py-2 border-b">{student.age}</td>
-                      <td className="px-4 py-2 border-b">{student.sex}</td>
-                      <td className="px-4 py-2 border-b">{student.section}</td>
-                      <td className="px-4 py-2 border-b">{student.status}</td>
-                      <td className="px-4 py-2 border-b flex gap-2">
-                        <button
-                          className={`px-2 py-1 rounded text-xs text-white ${student.status === 'Active' ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-blue-600 hover:bg-blue-700'}`}
-                          onClick={() => handleStudentActivate(student.id)}
-                        >
-                          {student.status === 'Active' ? 'Deactivate' : 'Activate'}
-                        </button>
-                      </td>
+                  {students
+                    .filter((student) =>
+                      (studentStatusFilter === 'All' || student.status === studentStatusFilter) &&
+                      (student.name.toLowerCase().includes(searchStudentNameID.toLowerCase()) ||
+                        student.id.toLowerCase().includes(searchStudentNameID.toLowerCase())) &&
+                      student.email.toLowerCase().includes(searchStudentEmail.toLowerCase()) &&
+                      (student.phone || '').includes(searchStudentPhone)
+                    )
+                    .sort((a, b) => {
+                      if (studentSortBy === 'name') return a.name.localeCompare(b.name);
+                      if (studentSortBy === 'id') return a.id.localeCompare(b.id);
+                      if (studentSortBy === 'status') return a.status.localeCompare(b.status);
+                      return 0;
+                    })
+                    .map((student) => (
+                      <tr key={student.id}>
+                        <td className="px-4 py-2 border-b">{student.id}</td>
+                        <td className="px-4 py-2 border-b">{student.name}</td>
+                        <td className="px-4 py-2 border-b">{student.email}</td>
+                        <td className="px-4 py-2 border-b">{student.phone}</td>
+                        <td className="px-4 py-2 border-b">{student.status}</td>
+                        <td className="px-4 py-2 border-b">{student.enrolled && student.enrolled.length > 0 ? student.enrolled.join(', ') : <span className="text-gray-400">Not enrolled</span>}</td>
+                      </tr>
+                    ))}
+                  {students
+                    .filter((student) =>
+                      (studentStatusFilter === 'All' || student.status === studentStatusFilter) &&
+                      (student.name.toLowerCase().includes(searchStudentNameID.toLowerCase()) ||
+                        student.id.toLowerCase().includes(searchStudentNameID.toLowerCase())) &&
+                      student.email.toLowerCase().includes(searchStudentEmail.toLowerCase()) &&
+                      (student.phone || '').includes(searchStudentPhone)
+                    ).length === 0 && (
+                    <tr>
+                      <td colSpan="6" className="px-4 py-2 border-b text-center text-gray-500">No students found</td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
