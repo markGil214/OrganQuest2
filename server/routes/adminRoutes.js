@@ -338,6 +338,17 @@ router.post('/send-teacher-invitation',
 
       console.log('Sending teacher invitation:', { fullName, email });
 
+      // Check if teacherId is 1002 or 1003 - verify it exists in database
+      if (teacherId === '1002' || teacherId === '1003') {
+        const existingTeacherId = await User.findOne({ teacherId });
+        if (!existingTeacherId) {
+          return res.status(400).json({
+            success: false,
+            message: `Teacher ID ${teacherId} does not exist in the system`
+          });
+        }
+      }
+
       // Check if email already exists
       const existingUser = await User.findOne({ email, role: 'teacher' });
       if (existingUser) {

@@ -557,7 +557,8 @@ const AdminDashboard = ({ onLogout }) => {
                         name="teacherId"
                         value={newTeacher.teacherId}
                         onChange={handleTeacherInputChange}
-                        className="border rounded px-3 py-2 w-full"
+                        readOnly
+                        className="border rounded px-3 py-2 w-full bg-gray-100 cursor-not-allowed"
                         placeholder="e.g., 25-0001-dcs"
                         required
                       />
