@@ -180,35 +180,84 @@ const AdminDashboard = ({ onLogout }) => {
   };
 
   // Status-based actions
-  const handleResendActivation = (id) => {
-    setTeachers(teachers.map(t =>
-      t.id === id
-        ? { ...t, log: [...(t.log || []), `[${new Date().toLocaleString()}] Activation email resent.`] }
-        : t
-    ));
-    setTimeout(() => {
-      alert('Activation email resent!');
-    }, 300);
+  const handleResendActivation = async (id) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${API_URL}/api/admin/teachers/${id}/resend-activation`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setTeacherSuccess('Activation email resent successfully!');
+        setTimeout(() => setTeacherSuccess(''), 3000);
+      } else {
+        setTeacherError(data.message || 'Failed to resend activation email');
+      }
+    } catch (error) {
+      console.error('Error resending activation:', error);
+      setTeacherError('Error resending activation email');
+    }
   };
 
-  const handleDisableAccount = (id) => {
-    setTeachers(teachers.map(t =>
-      t.id === id
-        ? { ...t, status: 'Disabled', log: [...(t.log || []), `[${new Date().toLocaleString()}] Account disabled by admin.`] }
-        : t
-    ));
+  const handleDisableAccount = async (id) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${API_URL}/api/admin/teachers/${id}/status`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ accountStatus: 'disabled' })
+      });
+
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setTeacherSuccess('Teacher account disabled successfully!');
+        await fetchTeachers();
+        setTimeout(() => setTeacherSuccess(''), 3000);
+      } else {
+        setTeacherError(data.message || 'Failed to disable account');
+      }
+    } catch (error) {
+      console.error('Error disabling account:', error);
+      setTeacherError('Error disabling account');
+    }
   };
 
-  const handleEnableAccount = (id) => {
-    setTeachers(teachers.map(t =>
-      t.id === id
-        ? { ...t, status: 'Active', log: [...(t.log || []), `[${new Date().toLocaleString()}] Account enabled by admin.`] }
-        : t
-    ));
+  const handleEnableAccount = async (id) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${API_URL}/api/admin/teachers/${id}/status`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ accountStatus: 'active' })
+      });
+
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setTeacherSuccess('Teacher account enabled successfully!');
+        await fetchTeachers();
+        setTimeout(() => setTeacherSuccess(''), 3000);
+      } else {
+        setTeacherError(data.message || 'Failed to enable account');
+      }
+    } catch (error) {
+      console.error('Error enabling account:', error);
+      setTeacherError('Error enabling account');
+    }
   };
 
   const handleActivate = (id) => {
-    setTeachers(teachers.map(t => t.id === id ? { ...t, status: t.status === 'Active' ? 'Pending' : 'Active' } : t));
+    setTeachers(teachers.map(t => t.id === id ? { ...t, status: t.status === 'active' ? 'pending' : 'active' } : t));
   };
 
   const handleSendActivation = (id) => {

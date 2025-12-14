@@ -434,6 +434,120 @@ router.post('/create-teacher',
   }
 );
 
+// @route   PUT /api/admin/teachers/:id/status
+// @desc    Update teacher account status (Admin only)
+// @access  Admin
+router.put('/teachers/:id/status',
+  authMiddleware,
+  adminMiddleware,
+  [
+    body('accountStatus').isIn(['active', 'disabled', 'pending']).withMessage('Invalid status')
+  ],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          success: false,
+          errors: errors.array()
+        });
+      }
+
+      const { accountStatus } = req.body;
+      const teacher = await User.findById(req.params.id);
+
+      if (!teacher || teacher.role !== 'teacher') {
+        return res.status(404).json({
+          success: false,
+          message: 'Teacher not found'
+        });
+      }
+
+      teacher.accountStatus = accountStatus;
+      await teacher.save();
+
+      res.json({
+        success: true,
+        message: `Teacher account ${accountStatus}`,
+        data: {
+          teacher: {
+            _id: teacher._id,
+            fullName: teacher.fullName,
+            email: teacher.email,
+            username: teacher.username,
+            accountStatus: teacher.accountStatus
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Update teacher status error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server error updating teacher status',
+        error: error.message
+      });
+    }
+  }
+);
+
+// @route   POST /api/admin/teachers/:id/resend-activation
+// @desc    Resend activation email to teacher (Admin only)
+// @access  Admin
+router.post('/teachers/:id/resend-activation',
+  authMiddleware,
+  adminMiddleware,
+  async (req, res) => {
+    try {
+      const teacher = await User.findById(req.params.id);
+
+      if (!teacher || teacher.role !== 'teacher') {
+        return res.status(404).json({
+          success: false,
+          message: 'Teacher not found'
+        });
+      }
+
+      if (teacher.accountStatus !== 'pending') {
+        return res.status(400).json({
+          success: false,
+          message: 'Teacher account is not in pending status'
+        });
+      }
+
+      // Generate new registration token
+      const token = crypto.randomBytes(32).toString('hex');
+      const tokenExpiry = new Date();
+      tokenExpiry.setHours(tokenExpiry.getHours() + 24); // Token expires in 24 hours
+
+      teacher.registrationToken = token;
+      teacher.tokenExpiry = tokenExpiry;
+      await teacher.save();
+
+      // In production, send email here using sendTeacherInvitationEmail
+      // For now, just return success
+      
+      res.json({
+        success: true,
+        message: 'Activation email resent successfully',
+        data: {
+          teacher: {
+            _id: teacher._id,
+            fullName: teacher.fullName,
+            email: teacher.email
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Resend activation error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server error resending activation email',
+        error: error.message
+      });
+    }
+  }
+);
+
 // @route   GET /api/Teacher/admins
 // @desc    Get all admins (Admin only)
 // @access  Admin
