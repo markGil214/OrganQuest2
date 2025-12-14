@@ -507,49 +507,61 @@ const AdminDashboard = ({ onLogout }) => {
                 </thead>
                 <tbody>
                   {teachers
-                    .filter((teacher) =>
-                      (statusFilter === 'All' || teacher.status === statusFilter) &&
-                      (teacher.fullName.toLowerCase().includes(searchNameID.toLowerCase()) ||
-                        teacher.username.toLowerCase().includes(searchNameID.toLowerCase())) &&
-                      teacher.email.toLowerCase().includes(searchEmail.toLowerCase()) &&
-                      (teacher.phone || '').includes(searchPhone)
-                    )
+                    .filter((teacher) => {
+                      const displayStatus = teacher.status || teacher.accountStatus || 'active';
+                      const displayStatus_formatted = displayStatus.charAt(0).toUpperCase() + displayStatus.slice(1);
+                      return (
+                        (statusFilter === 'All' || displayStatus_formatted === statusFilter) &&
+                        (teacher.fullName.toLowerCase().includes(searchNameID.toLowerCase()) ||
+                          teacher.username.toLowerCase().includes(searchNameID.toLowerCase())) &&
+                        teacher.email.toLowerCase().includes(searchEmail.toLowerCase()) &&
+                        (teacher.phone || '').includes(searchPhone)
+                      );
+                    })
                     .sort((a, b) => {
                       if (sortBy === 'name') return a.fullName.localeCompare(b.fullName);
                       if (sortBy === 'id') return a.username.localeCompare(b.username);
-                      if (sortBy === 'status') return a.status.localeCompare(b.status);
+                      if (sortBy === 'status') {
+                        const statusA = a.status || a.accountStatus || 'active';
+                        const statusB = b.status || b.accountStatus || 'active';
+                        return statusA.localeCompare(statusB);
+                      }
                       return 0;
                     })
-                    .map((teacher) => (
-                      <tr key={teacher._id}>
-                        <td className="px-4 py-2 border-b">{teacher.fullName}</td>
-                        <td className="px-4 py-2 border-b">{teacher.email}</td>
-                        <td className="px-4 py-2 border-b">{teacher.phone || '-'}</td>
-                        <td className="px-4 py-2 border-b">{teacher.username}</td>
-                        <td className="px-4 py-2 border-b">{teacher.assignedGrade || '-'}</td>
-                        <td className="px-4 py-2 border-b">{teacher.status}</td>
-                        <td className="px-4 py-2 border-b flex gap-2">
-                          {teacher.status === 'Pending' && (
-                            <button
-                              className="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700"
-                              onClick={() => handleResendActivation(teacher._id)}
-                            >Resend Activation</button>
-                          )}
-                          {teacher.status === 'Active' && (
-                            <button
-                              className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700"
-                              onClick={() => handleDisableAccount(teacher._id)}
-                            >Disable</button>
-                          )}
-                          {teacher.status === 'Disabled' && (
-                            <button
-                              className="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700"
-                              onClick={() => handleEnableAccount(teacher._id)}
-                            >Enable</button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
+                    .map((teacher) => {
+                      const displayStatus = teacher.status || teacher.accountStatus || 'active';
+                      const displayStatus_formatted = displayStatus.charAt(0).toUpperCase() + displayStatus.slice(1);
+                      return (
+                        <tr key={teacher._id}>
+                          <td className="px-4 py-2 border-b">{teacher.fullName}</td>
+                          <td className="px-4 py-2 border-b">{teacher.email}</td>
+                          <td className="px-4 py-2 border-b">{teacher.phone || '-'}</td>
+                          <td className="px-4 py-2 border-b">{teacher.username}</td>
+                          <td className="px-4 py-2 border-b">{teacher.assignedGrade || '-'}</td>
+                          <td className="px-4 py-2 border-b">{displayStatus_formatted}</td>
+                          <td className="px-4 py-2 border-b flex gap-2">
+                            {displayStatus === 'pending' && (
+                              <button
+                                className="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700"
+                                onClick={() => handleResendActivation(teacher._id)}
+                              >Resend Activation</button>
+                            )}
+                            {displayStatus === 'active' && (
+                              <button
+                                className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700"
+                                onClick={() => handleDisableAccount(teacher._id)}
+                              >Disable</button>
+                            )}
+                            {displayStatus === 'disabled' && (
+                              <button
+                                className="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700"
+                                onClick={() => handleEnableAccount(teacher._id)}
+                              >Enable</button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   {teachers
                     .filter((teacher) =>
                       (statusFilter === 'All' || teacher.status === statusFilter) &&
