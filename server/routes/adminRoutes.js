@@ -452,7 +452,8 @@ router.post('/send-teacher-invitation',
           fullName: teacher.fullName,
           username: teacher.username,
           password: password, // Send plain password
-          teacherCode: teacher.teacherCode
+          teacherCode: teacher.teacherCode,
+          teacherId: teacher.teacherId
         });
 
         console.log('Invitation email with credentials sent to:', teacher.email);

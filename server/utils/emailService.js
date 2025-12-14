@@ -27,7 +27,7 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
       return { success: false, error };
     }
 
-    const { email, fullName, teacherCode, username, password } = teacherData;
+    const { email, fullName, teacherCode, username, password, teacherId } = teacherData;
 
     // Generate registration URL (use environment variable or default)
     const baseUrl = process.env.CLIENT_URL || 'https://organ-quest2.vercel.app';
@@ -62,6 +62,9 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
             
             <div class="info-box">
               <h3>🔐 Your Login Credentials</h3>
+              <div class="credential">
+                <span class="label">Teacher ID:</span> <span class="value">${teacherId || 'Not assigned'}</span>
+              </div>
               <div class="credential">
                 <span class="label">Username:</span> <span class="value">${username}</span>
               </div>
@@ -118,7 +121,7 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
       .setTo(recipients)
       .setSubject(`Your Teacher Account Credentials - OrganQuest`)
       .setHtml(emailHtml)
-      .setText(`Hello ${fullName}, Your teacher account is ready! Username: ${username}, Password: ${password}, Teacher Code: ${teacherCode}. Please log in at: ${baseUrl}/#teacher-login`);
+      .setText(`Hello ${fullName}, Your teacher account is ready! Teacher ID: ${teacherId || 'Not assigned'}, Username: ${username}, Password: ${password}, Teacher Code: ${teacherCode}. Please log in at: ${baseUrl}/#teacher-login`);
 
     console.log('📤 Sending email via MailerSend...');
     console.log('   From:', process.env.MAILERSEND_FROM_EMAIL || 'MS_D578ie@test-nrw7gymez1kg2k8e.mlsender.net');
