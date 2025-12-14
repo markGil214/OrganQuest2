@@ -75,8 +75,8 @@ const AdminDashboard = () => {
 
   // Teacher Management State
   const [teachers, setTeachers] = useState([
-    { id: '25-0001-dcs', name: 'Mr. Smith', email: 'smith@example.com', phone: '09171234567', status: 'Pending' },
-    { id: '25-0002-dcs', name: 'Ms. Lee', email: 'lee@example.com', phone: '09179876543', status: 'Active' },
+    { id: '25-0001-dcs', name: 'Mr. Smith', email: 'smith@example.com', phone: '09171234567', status: 'Pending', log: [] },
+    { id: '25-0002-dcs', name: 'Ms. Lee', email: 'lee@example.com', phone: '09179876543', status: 'Active', log: [] },
   ]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newTeacher, setNewTeacher] = useState({
@@ -113,9 +113,10 @@ const AdminDashboard = () => {
       return;
     }
     // Add teacher
+    const newId = getNextTeacherId();
     setTeachers([
       ...teachers,
-      { ...newTeacher, id: getNextTeacherId(), status: 'Pending' },
+      { ...newTeacher, id: newId, status: 'Pending', log: [`[${new Date().toLocaleString()}] Teacher added. Activation email sent.`] },
     ]);
     setShowAddModal(false);
     setNewTeacher({ id: '', name: '', email: '', phone: '' });
@@ -123,6 +124,34 @@ const AdminDashboard = () => {
     setTimeout(() => {
       alert('Activation email sent!');
     }, 300);
+  };
+
+  // Status-based actions
+  const handleResendActivation = (id) => {
+    setTeachers(teachers.map(t =>
+      t.id === id
+        ? { ...t, log: [...(t.log || []), `[${new Date().toLocaleString()}] Activation email resent.`] }
+        : t
+    ));
+    setTimeout(() => {
+      alert('Activation email resent!');
+    }, 300);
+  };
+
+  const handleDisableAccount = (id) => {
+    setTeachers(teachers.map(t =>
+      t.id === id
+        ? { ...t, status: 'Disabled', log: [...(t.log || []), `[${new Date().toLocaleString()}] Account disabled by admin.`] }
+        : t
+    ));
+  };
+
+  const handleEnableAccount = (id) => {
+    setTeachers(teachers.map(t =>
+      t.id === id
+        ? { ...t, status: 'Active', log: [...(t.log || []), `[${new Date().toLocaleString()}] Account enabled by admin.`] }
+        : t
+    ));
   };
 
   const handleActivate = (id) => {
@@ -320,7 +349,7 @@ const AdminDashboard = () => {
                   <h2 className="text-xl font-bold mb-4">Add Teacher</h2>
                   <form onSubmit={handleAddTeacher} className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium mb-1">Teacher ID <span className="text-xs text-gray-500">(auto-generated)</span></label>
+                      <label className="block text-sm font-medium mb-1">Teacher ID</label>
                       <input
                         type="text"
                         name="id"
@@ -354,7 +383,7 @@ const AdminDashboard = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Phone Number <span className="text-xs text-gray-500">(optional)</span></label>
+                      <label className="block text-sm font-medium mb-1">Phone Number</label>
                       <input
                         type="text"
                         name="phone"
@@ -392,7 +421,24 @@ const AdminDashboard = () => {
                       <td className="px-4 py-2 border-b">{teacher.phone || '-'}</td>
                       <td className="px-4 py-2 border-b">{teacher.status}</td>
                       <td className="px-4 py-2 border-b flex gap-2">
-                        {/* Actions will be implemented in the next step */}
+                        {teacher.status === 'Pending' && (
+                          <button
+                            className="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700"
+                            onClick={() => handleResendActivation(teacher.id)}
+                          >Resend Activation Email</button>
+                        )}
+                        {teacher.status === 'Active' && (
+                          <button
+                            className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700"
+                            onClick={() => handleDisableAccount(teacher.id)}
+                          >Disable Account</button>
+                        )}
+                        {teacher.status === 'Disabled' && (
+                          <button
+                            className="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700"
+                            onClick={() => handleEnableAccount(teacher.id)}
+                          >Enable Account</button>
+                        )}
                       </td>
                     </tr>
                   ))}
