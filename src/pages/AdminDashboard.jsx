@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const sidebarItems = [
   {
@@ -60,6 +60,19 @@ const AdminDashboard = () => {
   const pendingTeachers = ['Mr. Smith (Pending Activation)', 'Ms. Lee (Pending Activation)'];
   const notifications = ['System update scheduled for Dec 20', 'New subject added: Robotics'];
 
+  // Sidebar active state
+  const [activeSidebar, setActiveSidebar] = useState('Dashboard');
+  const [activeSubSidebar, setActiveSubSidebar] = useState(null);
+
+  const handleSidebarClick = (title) => {
+    setActiveSidebar(title);
+    setActiveSubSidebar(null);
+  };
+  const handleSubSidebarClick = (parentTitle, subTitle) => {
+    setActiveSidebar(parentTitle);
+    setActiveSubSidebar(subTitle);
+  };
+
   return (
     <div className="flex min-h-screen" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       {/* Sidebar */}
@@ -69,11 +82,23 @@ const AdminDashboard = () => {
           <ul>
             {sidebarItems.map((item, idx) => (
               <li key={item.title} className="mb-4">
-                <div className="font-semibold text-lg">{item.title}</div>
+                <button
+                  className={`w-full text-left font-semibold text-lg px-2 py-1 rounded transition-colors ${activeSidebar === item.title && !activeSubSidebar ? 'bg-blue-700' : 'hover:bg-blue-800'}`}
+                  onClick={() => handleSidebarClick(item.title)}
+                >
+                  {item.title}
+                </button>
                 {item.subItems && (
                   <ul className="ml-6 mt-2">
                     {item.subItems.map((sub, subIdx) => (
-                      <li key={sub.title} className="text-base mb-1">{sub.title}</li>
+                      <li key={sub.title} className="mb-1">
+                        <button
+                          className={`w-full text-left text-base px-2 py-1 rounded transition-colors ${activeSidebar === item.title && activeSubSidebar === sub.title ? 'bg-blue-700' : 'hover:bg-blue-800'}`}
+                          onClick={() => handleSubSidebarClick(item.title, sub.title)}
+                        >
+                          {sub.title}
+                        </button>
+                      </li>
                     ))}
                   </ul>
                 )}
