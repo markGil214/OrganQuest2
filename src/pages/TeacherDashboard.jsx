@@ -28,7 +28,7 @@ const InfoCard = ({ title, value }) => (
   </div>
 );
 
-const TeacherDashboard = () => {
+const TeacherDashboard = ({ onLogout }) => {
   // Sidebar active state
   const [activeSidebar, setActiveSidebar] = useState('Dashboard');
 
@@ -792,6 +792,15 @@ const TeacherDashboard = () => {
               </button>
             </li>
             <hr className="border-white mb-4 mt-0" />
+            {/* Logout */}
+            <li className="mb-4">
+              <button
+                className="w-full text-left font-semibold text-lg px-2 py-1 rounded transition-colors bg-red-600 hover:bg-red-700 text-white"
+                onClick={onLogout}
+              >
+                🚪 Logout
+              </button>
+            </li>
           </ul>
         </nav>
       </aside>
