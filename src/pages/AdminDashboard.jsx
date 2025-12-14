@@ -118,39 +118,6 @@ const AdminDashboard = () => {
   const showClassSectionManagement = activeSidebar === 'Class & Section Management';
   const showEnrollmentManagement = activeSidebar === 'Enrollment Management';
 
-  // Enrollment Management State (UI only)
-  // Enrollment Management State (UI only, modal approach)
-  const [showEnrollModal, setShowEnrollModal] = useState(false);
-  const [enrollments, setEnrollments] = useState({}); // { classId: [studentId, ...] }
-  const [enrollForm, setEnrollForm] = useState({ classId: '', studentId: '' });
-
-  // Get class options for dropdown
-  const classOptions = classes ? classes.map(cls => ({ id: cls.id, label: `${cls.grade} - ${cls.section}` })) : [];
-  // Get student options for dropdown
-  const studentOptions = students ? students.map(stud => ({ id: stud.id, label: stud.name })) : [];
-
-  const handleEnrollInputChange = (e) => {
-    setEnrollForm({ ...enrollForm, [e.target.name]: e.target.value });
-  };
-
-  const handleEnrollStudent = (e) => {
-    e.preventDefault();
-    if (!enrollForm.classId || !enrollForm.studentId) return;
-    setEnrollments(prev => ({
-      ...prev,
-      [enrollForm.classId]: prev[enrollForm.classId] ? [...new Set([...prev[enrollForm.classId], enrollForm.studentId])] : [enrollForm.studentId],
-    }));
-    setEnrollForm({ classId: '', studentId: '' });
-    setShowEnrollModal(false);
-  };
-
-  const handleRemoveStudent = (classId, studentId) => {
-    setEnrollments(prev => ({
-      ...prev,
-      [classId]: prev[classId].filter(id => id !== studentId),
-    }));
-  };
-
   // Class & Section Management State
   const [classes, setClasses] = useState([
     { id: 1, grade: 'Grade 7', section: 'A', teacher: 'Mr. Smith', subject: 'Math' },
@@ -648,95 +615,30 @@ const AdminDashboard = () => {
         ) : showEnrollmentManagement ? (
           <div>
             <h1 className="text-3xl font-bold mb-6">Enrollment Management</h1>
-            <button
-              className="mb-6 bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800"
-              onClick={() => {
-                setEnrollForm({ classId: '', studentId: '' });
-                setShowEnrollModal(true);
-              }}
-            >
-              Enroll Student
-            </button>
-
-            {/* Modal for Enroll Student */}
-            {showEnrollModal && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-                <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative">
-                  <button
-                    className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
-                    onClick={() => setShowEnrollModal(false)}
-                  >
-                    &times;
-                  </button>
-                  <h2 className="text-xl font-bold mb-4">Enroll Student to Class</h2>
-                  <form onSubmit={handleEnrollStudent} className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Select Class</label>
-                      <select
-                        name="classId"
-                        className="border rounded px-3 py-2 w-full"
-                        value={enrollForm.classId}
-                        onChange={handleEnrollInputChange}
-                        required
-                      >
-                        <option value="">Select Class</option>
-                        {classOptions.map(cls => (
-                          <option key={cls.id} value={cls.id}>{cls.label}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Select Student</label>
-                      <select
-                        name="studentId"
-                        className="border rounded px-3 py-2 w-full"
-                        value={enrollForm.studentId}
-                        onChange={handleEnrollInputChange}
-                        required
-                        disabled={!enrollForm.classId}
-                      >
-                        <option value="">Select Student</option>
-                        {studentOptions.map(stud => (
-                          <option key={stud.id} value={stud.id}>{stud.label}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <button type="submit" className="w-full bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800" disabled={!enrollForm.classId || !enrollForm.studentId}>Enroll</button>
-                  </form>
-                </div>
-              </div>
-            )}
-
-            {/* Class Lists */}
+            <h2 className="text-xl font-semibold mb-4">Class Lists</h2>
             <div className="overflow-x-auto">
               <table className="min-w-full bg-white rounded shadow">
                 <thead>
                   <tr>
-                    <th className="px-4 py-2 border-b text-left">Class</th>
-                    <th className="px-4 py-2 border-b text-left">Enrolled Students</th>
+                    <th className="px-4 py-2 border-b text-left">Grade/Year</th>
+                    <th className="px-4 py-2 border-b text-left">Section</th>
+                    <th className="px-4 py-2 border-b text-left">Teacher</th>
+                    <th className="px-4 py-2 border-b text-left">Subject</th>
+                    <th className="px-4 py-2 border-b text-left">Students</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {classOptions.map(cls => (
+                  {classes.map((cls) => (
                     <tr key={cls.id}>
-                      <td className="px-4 py-2 border-b align-top font-semibold">{cls.label}</td>
+                      <td className="px-4 py-2 border-b">{cls.grade}</td>
+                      <td className="px-4 py-2 border-b">{cls.section}</td>
+                      <td className="px-4 py-2 border-b">{cls.teacher}</td>
+                      <td className="px-4 py-2 border-b">{cls.subject}</td>
                       <td className="px-4 py-2 border-b">
-                        <ul className="list-disc ml-5">
-                          {(enrollments[cls.id] || []).length === 0 && <li className="text-gray-400 italic">No students enrolled</li>}
-                          {(enrollments[cls.id] || []).map(studId => {
-                            const stud = students.find(s => s.id === studId);
-                            return (
-                              <li key={studId} className="flex items-center gap-2">
-                                <span>{stud ? stud.name : studId}</span>
-                                <button
-                                  className="ml-2 text-xs bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
-                                  onClick={() => handleRemoveStudent(cls.id, studId)}
-                                >
-                                  Remove
-                                </button>
-                              </li>
-                            );
-                          })}
+                        <ul className="list-disc ml-4">
+                          {students.filter(s => s.section === `${cls.grade} - ${cls.section}`).map(s => (
+                            <li key={s.id}>{s.name}</li>
+                          ))}
                         </ul>
                       </td>
                     </tr>
