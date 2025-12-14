@@ -74,11 +74,20 @@ const AdminDashboard = () => {
   };
 
   // Dummy teacher data for demonstration
+
   const [teachers, setTeachers] = useState([
-    { id: 1, name: 'Mr. Smith', email: 'smith@example.com', status: 'Pending' },
-    { id: 2, name: 'Ms. Lee', email: 'lee@example.com', status: 'Active' },
+    { id: '25-0001-dcs', name: 'Mr. Smith', age: 35, sex: 'Male', email: 'smith@example.com', phone: '09171234567', status: 'Pending' },
+    { id: '25-0002-dcs', name: 'Ms. Lee', age: 29, sex: 'Female', email: 'lee@example.com', phone: '09179876543', status: 'Active' },
   ]);
-  const [newTeacher, setNewTeacher] = useState({ name: '', email: '' });
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newTeacher, setNewTeacher] = useState({
+    id: '',
+    name: '',
+    age: '',
+    sex: '',
+    email: '',
+    phone: '',
+  });
 
   const handleInputChange = (e) => {
     setNewTeacher({ ...newTeacher, [e.target.name]: e.target.value });
@@ -86,12 +95,13 @@ const AdminDashboard = () => {
 
   const handleAddTeacher = (e) => {
     e.preventDefault();
-    if (!newTeacher.name || !newTeacher.email) return;
+    if (!newTeacher.id || !newTeacher.name || !newTeacher.age || !newTeacher.sex || !newTeacher.email || !newTeacher.phone) return;
     setTeachers([
       ...teachers,
-      { id: Date.now(), name: newTeacher.name, email: newTeacher.email, status: 'Pending' },
+      { ...newTeacher, status: 'Pending' },
     ]);
-    setNewTeacher({ name: '', email: '' });
+    setNewTeacher({ id: '', name: '', age: '', sex: '', email: '', phone: '' });
+    setShowAddModal(false);
   };
 
   const handleActivate = (id) => {
@@ -145,39 +155,118 @@ const AdminDashboard = () => {
         {showTeacherManagement ? (
           <div>
             <h1 className="text-3xl font-bold mb-6">Teacher Management</h1>
-            <form onSubmit={handleAddTeacher} className="mb-8 flex gap-4 items-end">
-              <div>
-                <label className="block text-sm font-medium mb-1">Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={newTeacher.name}
-                  onChange={handleInputChange}
-                  className="border rounded px-3 py-2 w-48"
-                  placeholder="Enter teacher name"
-                  required
-                />
+            <button
+              className="mb-6 bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800"
+              onClick={() => setShowAddModal(true)}
+            >
+              Add Teacher
+            </button>
+
+            {/* Modal for Add Teacher */}
+            {showAddModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative">
+                  <button
+                    className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
+                    onClick={() => setShowAddModal(false)}
+                  >
+                    &times;
+                  </button>
+                  <h2 className="text-xl font-bold mb-4">Add Teacher</h2>
+                  <form onSubmit={handleAddTeacher} className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">ID <span className="text-xs text-gray-500">(e.g. 25-0001-dcs)</span></label>
+                      <input
+                        type="text"
+                        name="id"
+                        value={newTeacher.id}
+                        onChange={handleInputChange}
+                        className="border rounded px-3 py-2 w-full"
+                        placeholder="25-0001-dcs"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Full Name</label>
+                      <input
+                        type="text"
+                        name="name"
+                        value={newTeacher.name}
+                        onChange={handleInputChange}
+                        className="border rounded px-3 py-2 w-full"
+                        placeholder="Enter teacher name"
+                        required
+                      />
+                    </div>
+                    <div className="flex gap-4">
+                      <div className="flex-1">
+                        <label className="block text-sm font-medium mb-1">Age</label>
+                        <input
+                          type="number"
+                          name="age"
+                          value={newTeacher.age}
+                          onChange={handleInputChange}
+                          className="border rounded px-3 py-2 w-full"
+                          placeholder="Age"
+                          required
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <label className="block text-sm font-medium mb-1">Sex</label>
+                        <select
+                          name="sex"
+                          value={newTeacher.sex}
+                          onChange={handleInputChange}
+                          className="border rounded px-3 py-2 w-full"
+                          required
+                        >
+                          <option value="">Select</option>
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Email</label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={newTeacher.email}
+                        onChange={handleInputChange}
+                        className="border rounded px-3 py-2 w-full"
+                        placeholder="Enter teacher email"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Phone Number</label>
+                      <input
+                        type="text"
+                        name="phone"
+                        value={newTeacher.phone}
+                        onChange={handleInputChange}
+                        className="border rounded px-3 py-2 w-full"
+                        placeholder="09xxxxxxxxx"
+                        required
+                      />
+                    </div>
+                    <button type="submit" className="w-full bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800">Add Teacher</button>
+                  </form>
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={newTeacher.email}
-                  onChange={handleInputChange}
-                  className="border rounded px-3 py-2 w-64"
-                  placeholder="Enter teacher email"
-                  required
-                />
-              </div>
-              <button type="submit" className="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800">Add Teacher</button>
-            </form>
+            )}
+
             <div className="overflow-x-auto">
               <table className="min-w-full bg-white rounded shadow">
                 <thead>
                   <tr>
-                    <th className="px-4 py-2 border-b text-left">Name</th>
+                    <th className="px-4 py-2 border-b text-left">ID</th>
+                    <th className="px-4 py-2 border-b text-left">Full Name</th>
+                    <th className="px-4 py-2 border-b text-left">Age</th>
+                    <th className="px-4 py-2 border-b text-left">Sex</th>
                     <th className="px-4 py-2 border-b text-left">Email</th>
+                    <th className="px-4 py-2 border-b text-left">Phone</th>
                     <th className="px-4 py-2 border-b text-left">Status</th>
                     <th className="px-4 py-2 border-b text-left">Actions</th>
                   </tr>
@@ -185,8 +274,12 @@ const AdminDashboard = () => {
                 <tbody>
                   {teachers.map((teacher) => (
                     <tr key={teacher.id}>
+                      <td className="px-4 py-2 border-b">{teacher.id}</td>
                       <td className="px-4 py-2 border-b">{teacher.name}</td>
+                      <td className="px-4 py-2 border-b">{teacher.age}</td>
+                      <td className="px-4 py-2 border-b">{teacher.sex}</td>
                       <td className="px-4 py-2 border-b">{teacher.email}</td>
+                      <td className="px-4 py-2 border-b">{teacher.phone}</td>
                       <td className="px-4 py-2 border-b">{teacher.status}</td>
                       <td className="px-4 py-2 border-b flex gap-2">
                         <button
