@@ -192,6 +192,10 @@ function App() {
   };
 
   const handleLoginSuccess = (userData) => {
+    console.log('Login success handler called with userData:', userData);
+    console.log('User role:', userData?.role);
+    console.log('Role type:', typeof userData?.role);
+    
     setUserData(userData);
     // Save user data to cookies for persistent login
     setCookie('organquest_user', userData);
@@ -206,11 +210,22 @@ function App() {
       targetHash = `#${redirectUrl}`;
     } else {
       // Redirect based on role and replace history to prevent back navigation
-      targetHash = (userData.role === 'admin' || userData.role === 'super_admin') 
+      const userRole = userData?.role?.trim().toLowerCase();
+      console.log('Normalized role for comparison:', userRole);
+      
+      const isAdmin = userRole === 'admin' || userRole === 'super_admin';
+      const isTeacher = userRole === 'teacher';
+      
+      console.log('Is admin/super_admin:', isAdmin);
+      console.log('Is teacher:', isTeacher);
+      
+      targetHash = isAdmin 
         ? '#admin/dashboard' 
-        : (userData.role === 'teacher')
+        : isTeacher
         ? '#teacher/dashboard'
         : '#main-menu';
+      
+      console.log('Target hash determined:', targetHash);
     }
     
     window.history.replaceState(null, '', targetHash);
