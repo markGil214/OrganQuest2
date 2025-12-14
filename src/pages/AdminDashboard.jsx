@@ -289,106 +289,15 @@ const AdminDashboard = () => {
                 <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative">
                   <button
                     className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
-                    onClick={() => { setShowAddModal(false); setNewTeacher({ id: '', name: '', email: '', phone: '' }); setTeacherError(''); }}
+                    onClick={() => setShowAddModal(false)}
                   >
                     &times;
                   </button>
                   <h2 className="text-xl font-bold mb-4">Add Teacher</h2>
-                  <form onSubmit={handleAddTeacher} className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Teacher ID <span className="text-xs text-gray-500">(auto-generated)</span></label>
-                      <input
-                        type="text"
-                        name="id"
-                        value={newTeacher.id}
-                        readOnly
-                        className="border rounded px-3 py-2 w-full bg-gray-100 cursor-not-allowed"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Full Name <span className="text-red-500">*</span></label>
-                      <input
-                        type="text"
-                        name="name"
-                        value={newTeacher.name}
-                        onChange={handleTeacherInputChange}
-                        className="border rounded px-3 py-2 w-full"
-                        placeholder="Enter teacher name"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Email <span className="text-red-500">*</span></label>
-                      <input
-                        type="email"
-                        name="email"
-                        value={newTeacher.email}
-                        onChange={handleTeacherInputChange}
-                        className="border rounded px-3 py-2 w-full"
-                        placeholder="Enter teacher email"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Phone Number</label>
-                      <input
-                        type="text"
-                        name="phone"
-                        value={newTeacher.phone}
-                        onChange={handleTeacherInputChange}
-                        className="border rounded px-3 py-2 w-full"
-                        placeholder="09xxxxxxxxx"
-                      />
-                    </div>
-                    {teacherError && <div className="text-red-600 text-sm">{teacherError}</div>}
-                    <button type="submit" className="w-full bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800">Add Teacher</button>
-                  </form>
+                  {/* Add Teacher form will be implemented in the next step */}
                 </div>
               </div>
             )}
-  // Teacher Management: Add Teacher modal logic
-  const [teacherError, setTeacherError] = useState('');
-  const getNextTeacherId = () => {
-    if (teachers.length === 0) return '25-0001-dcs';
-    const last = teachers[teachers.length - 1].id;
-    const num = parseInt(last.split('-')[1], 10) + 1;
-    return `25-${num.toString().padStart(4, '0')}-dcs`;
-  };
-  const [newTeacher, setNewTeacher] = useState({ id: '', name: '', email: '', phone: '' });
-  const handleTeacherInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewTeacher((prev) => ({ ...prev, [name]: value }));
-    if (name === 'email') setTeacherError('');
-  };
-  const handleAddTeacher = (e) => {
-    e.preventDefault();
-    // Validate required fields
-    if (!newTeacher.name || !newTeacher.email) {
-      setTeacherError('Full Name and Email are required.');
-      return;
-    }
-    // Validate unique email
-    if (teachers.some(t => t.email.toLowerCase() === newTeacher.email.toLowerCase())) {
-      setTeacherError('Email address already exists.');
-      return;
-    }
-    // Add teacher with Pending status
-    setTeachers([
-      ...teachers,
-      { id: getNextTeacherId(), name: newTeacher.name, email: newTeacher.email, phone: newTeacher.phone, status: 'Pending' },
-    ]);
-    setShowAddModal(false);
-    setNewTeacher({ id: '', name: '', email: '', phone: '' });
-    setTeacherError('');
-    // Simulate sending activation email
-    alert('Activation email sent!');
-  };
-  // Auto-generate ID when opening modal
-  React.useEffect(() => {
-    if (showAddModal) {
-      setNewTeacher((prev) => ({ ...prev, id: getNextTeacherId() }));
-    }
-  }, [showAddModal, teachers]);
 
             <div className="overflow-x-auto">
               <table className="min-w-full bg-white rounded shadow">
@@ -411,45 +320,8 @@ const AdminDashboard = () => {
                       <td className="px-4 py-2 border-b">{teacher.phone || '-'}</td>
                       <td className="px-4 py-2 border-b">{teacher.status}</td>
                       <td className="px-4 py-2 border-b flex gap-2">
-                        {teacher.status === 'Pending' && (
-                          <button
-                            className="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700"
-                            onClick={() => handleResendActivation(teacher.id)}
-                          >Resend Activation Email</button>
-                        )}
-                        {teacher.status === 'Active' && (
-                          <button
-                            className="bg-yellow-600 text-white px-2 py-1 rounded text-xs hover:bg-yellow-700"
-                            onClick={() => handleDisableTeacher(teacher.id)}
-                          >Disable Account</button>
-                        )}
-                        {teacher.status === 'Disabled' && (
-                          <button
-                            className="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700"
-                            onClick={() => handleEnableTeacher(teacher.id)}
-                          >Enable Account</button>
-                        )}
+                        {/* Actions will be implemented in the next step */}
                       </td>
-                      // Teacher Management: Status-based actions
-                      const handleResendActivation = (id) => {
-                        setTeachers(teachers.map(t =>
-                          t.id === id ? { ...t } : t
-                        ));
-                        alert('Activation email resent!');
-                        // Log action here if needed
-                      };
-                      const handleDisableTeacher = (id) => {
-                        setTeachers(teachers.map(t =>
-                          t.id === id ? { ...t, status: 'Disabled' } : t
-                        ));
-                        // Log action here if needed
-                      };
-                      const handleEnableTeacher = (id) => {
-                        setTeachers(teachers.map(t =>
-                          t.id === id ? { ...t, status: 'Active' } : t
-                        ));
-                        // Log action here if needed
-                      };
                     </tr>
                   ))}
                 </tbody>
