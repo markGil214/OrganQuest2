@@ -49,6 +49,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
     registrationUrl: '',
     emailSent: false
   });
+  const [activeTab, setActiveTab] = useState('classes'); // classes, analytics, quiz-management
 
   const API_URL = import.meta.env.VITE_API_URL || 'https://organquest2.onrender.com';
 
@@ -70,7 +71,9 @@ const AdminDashboard = ({ userData, onLogout }) => {
 
   useEffect(() => {
     fetchStudents();
-    fetchClasses();
+    if (userData?.role === 'admin') {
+      fetchClasses();
+    }
     fetchAnalytics();
   }, [filters, currentPage]);
 
