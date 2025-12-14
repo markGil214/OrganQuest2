@@ -4,44 +4,36 @@ const sidebarItems = [
   {
     title: 'Dashboard',
     description: 'Overview of the system',
-    icon: '🏠',
   },
   {
     title: 'User Management',
     description: 'Manage all system users',
-    icon: '👥',
     subItems: [
       {
         title: 'Teacher Management',
-        icon: '👨‍🏫',
       },
       {
         title: 'Student Management',
-        icon: '👩‍🎓',
       },
     ],
   },
   {
     title: 'Class & Section Management',
     description: 'Organize academic structure',
-    icon: '🏫',
   },
   {
     title: 'Subject Management',
     description: 'Manage academic subjects',
-    icon: '📚',
   },
   {
     title: 'Enrollment Management',
     description: 'Control who belongs to which class',
-    icon: '📝',
   },
 ];
 
-const InfoCard = ({ title, value, icon }) => (
+const InfoCard = ({ title, value }) => (
   <div className="flex flex-col items-center justify-center bg-white rounded-lg shadow p-4 min-w-[160px]">
-    <div className="text-3xl mb-2">{icon}</div>
-    <div className="text-2xl font-bold">{value}</div>
+    <div className="text-2xl font-bold mb-2">{value}</div>
     <div className="text-gray-600 text-sm">{title}</div>
   </div>
 );
@@ -60,9 +52,9 @@ const RecentActivity = ({ title, items }) => (
 const AdminDashboard = () => {
   // Dummy data for demonstration
   const stats = [
-    { title: 'Students', value: 1200, icon: '👩‍🎓' },
-    { title: 'Teachers', value: 45, icon: '👨‍🏫' },
-    { title: 'Classes', value: 36, icon: '🏫' },
+    { title: 'Students', value: 1200 },
+    { title: 'Teachers', value: 45 },
+    { title: 'Classes', value: 36 },
   ];
   const recentClasses = ['Grade 7 - Section A', 'Grade 8 - Section B'];
   const pendingTeachers = ['Mr. Smith (Pending Activation)', 'Ms. Lee (Pending Activation)'];
@@ -77,15 +69,11 @@ const AdminDashboard = () => {
           <ul>
             {sidebarItems.map((item, idx) => (
               <li key={item.title} className="mb-4">
-                <div className="flex items-center gap-2 font-semibold text-lg">
-                  <span>{item.icon}</span> {item.title}
-                </div>
+                <div className="font-semibold text-lg">{item.title}</div>
                 {item.subItems && (
                   <ul className="ml-6 mt-2">
                     {item.subItems.map((sub, subIdx) => (
-                      <li key={sub.title} className="flex items-center gap-2 text-base mb-1">
-                        <span>{sub.icon}</span> {sub.title}
-                      </li>
+                      <li key={sub.title} className="text-base mb-1">{sub.title}</li>
                     ))}
                   </ul>
                 )}
@@ -93,7 +81,7 @@ const AdminDashboard = () => {
             ))}
           </ul>
         </nav>
-        <div className="mt-auto text-xs text-blue-200">Dashboard is informational only.</div>
+        {/* Panel note removed */}
       </aside>
 
       {/* Main Content */}
@@ -113,9 +101,7 @@ const AdminDashboard = () => {
           <RecentActivity title="System Notifications" items={notifications} />
         </div>
 
-        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded">
-          <span className="font-semibold">📌 Panel note:</span> Dashboard is informational only.
-        </div>
+        {/* Panel note removed */}
       </main>
     </div>
   );
