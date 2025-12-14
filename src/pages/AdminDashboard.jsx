@@ -10,9 +10,6 @@ const AdminDashboard = ({ userData, onLogout }) => {
   const toast = useToast();
   const [students, setStudents] = useState([]);
   const [classes, setClasses] = useState([]);
-  const [currentView, setCurrentView] = useState('classes'); // 'classes' or 'class-details'
-  const [selectedClassData, setSelectedClassData] = useState(null);
-  const [classStudents, setClassStudents] = useState([]);
   const [showCreateClassModal, setShowCreateClassModal] = useState(false);
   const [classFormData, setClassFormData] = useState({
     fullName: '',
@@ -23,7 +20,6 @@ const AdminDashboard = ({ userData, onLogout }) => {
   const [createClassLoading, setCreateClassLoading] = useState(false);
   const [createClassError, setCreateClassError] = useState(null);
   const [analytics, setAnalytics] = useState(null);
-  const [quizAnalytics, setQuizAnalytics] = useState(null);
   const [filters, setFilters] = useState({
     search: '',
     performanceLevel: '',
@@ -36,7 +32,6 @@ const AdminDashboard = ({ userData, onLogout }) => {
   const [studentQuizDetails, setStudentQuizDetails] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState(null);
-  const [activeTab, setActiveTab] = useState('classes'); // classes, analytics, quiz-management
   const [questionPage, setQuestionPage] = useState(1);
   const questionsPerPage = 10;
   
@@ -77,7 +72,6 @@ const AdminDashboard = ({ userData, onLogout }) => {
     fetchStudents();
     fetchClasses();
     fetchAnalytics();
-    fetchQuizAnalytics();
   }, [filters, currentPage]);
 
   const fetchClasses = async () => {
@@ -146,62 +140,14 @@ const AdminDashboard = ({ userData, onLogout }) => {
     } catch (error) {
       console.error('Error fetching analytics:', error);
     }
-  };
-
-  const fetchQuizAnalytics = async () => {
-    try {
-      const token = localStorage.getItem('authToken');
-      const response = await fetch(`${API_URL}/api/admin/quiz-analytics`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      const data = await response.json();
-      console.log('Quiz Analytics Response:', data);
-      
-      if (data.success && data.data) {
-        // Keep quizTypeStats as the original object structure from backend
-        const transformed = {
-          ...data.data,
-          performanceTrends: data.data.performanceTrends || {},
-          quizTypeStats: data.data.quizTypeStats || {}, // Keep as object, don't transform to array
-          questionDifficulty: data.data.questionDifficulty?.hardestQuestions || [],
-          badgeStats: {
-            mostEarned: data.data.badgeStats && data.data.badgeStats.length > 0 
-              ? data.data.badgeStats[0].name 
-              : 'None',
-            leastEarned: data.data.badgeStats && data.data.badgeStats.length > 0 
-              ? data.data.badgeStats[data.data.badgeStats.length - 1].name 
-              : 'None'
-          }
-        };
-        console.log('Transformed Quiz Analytics:', transformed);
-        console.log('Quiz Type Stats:', transformed.quizTypeStats);
-        setQuizAnalytics(transformed);
-      } else {
-        console.error('Failed to fetch analytics:', data.message);
-        // Set empty state to stop loading
-        setQuizAnalytics({
-          quizTypeStats: {},
-          performanceTrends: {},
-          questionDifficulty: [],
-          badgeStats: { mostEarned: 'None', leastEarned: 'None' }
-        });
-      }
-    } catch (error) {
-      console.error('Error fetching quiz analytics:', error);
-      // Set empty state to stop loading
-      setQuizAnalytics({
-        quizTypeStats: {},
-        performanceTrends: {},
-        questionDifficulty: [],
-        badgeStats: { mostEarned: 'None', leastEarned: 'None' }
-      });
-    }
-  };
-
   const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    setCurrentPage(1);
+  };
     const { name, value } = e.target;
     setFilters(prev => ({
       ...prev,
@@ -619,45 +565,26 @@ const AdminDashboard = ({ userData, onLogout }) => {
         </div>
       </div>
 
-      {/* Tab Navigation */}
+      {/* Overview Cards */}
       <div className="max-w-7xl mx-auto mb-6">
-        <div className="flex gap-2 bg-white rounded-lg p-2 shadow-md">
-          <button
-            onClick={() => setActiveTab('classes')}
-            className={`flex-1 py-3 px-6 rounded-lg font-semibold transition-all ${
-              activeTab === 'classes'
-                ? 'bg-purple-600 text-white shadow-md'
-                : 'text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            🏫 Classes
-          </button>
-          <button
-            onClick={() => {
-              setActiveTab('analytics');
-              if (!quizAnalytics) fetchQuizAnalytics();
-            }}
-            className={`flex-1 py-3 px-6 rounded-lg font-semibold transition-all ${
-              activeTab === 'analytics'
-                ? 'bg-purple-600 text-white shadow-md'
-                : 'text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            📈 Quiz Analytics
-          </button>
-          {userData?.role !== 'admin' && (
-            <button
-              onClick={() => setActiveTab('quiz-management')}
-              className={`flex-1 py-3 px-6 rounded-lg font-semibold transition-all ${
-                activeTab === 'quiz-management'
-                  ? 'bg-purple-600 text-white shadow-md'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              🎯 Quiz Management
-            </button>
-          )}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <Card className="p-6 text-center">
+            <h3 className="text-lg font-semibold text-gray-600">Students</h3>
+            <p className="text-3xl font-bold text-purple-600">{analytics?.totalStudents ?? students.length ?? 0}</p>
+          </Card>
+          <Card className="p-6 text-center">
+            <h3 className="text-lg font-semibold text-gray-600">Teachers</h3>
+            <p className="text-3xl font-bold text-purple-600">{classes.length}</p>
+          </Card>
+          <Card className="p-6 text-center">
+            <h3 className="text-lg font-semibold text-gray-600">Classes</h3>
+            <p className="text-3xl font-bold text-purple-600">{classes.length}</p>
+          </Card>
         </div>
+        <Card className="p-6">
+          <h3 className="text-2xl font-bold text-gray-800 mb-4">Students Summary</h3>
+          <p className="text-lg">Total Students: {analytics?.totalStudents ?? students.length ?? 0}</p>
+        </Card>
       </div>
 
       {/* Quiz Analytics Tab Content */}
