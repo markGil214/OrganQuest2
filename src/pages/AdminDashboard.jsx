@@ -289,72 +289,41 @@ const AdminDashboard = () => {
                 <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative">
                   <button
                     className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
-                    onClick={() => setShowAddModal(false)}
+                    onClick={() => { setShowAddModal(false); setNewTeacher({ id: '', name: '', email: '', phone: '' }); setTeacherError(''); }}
                   >
                     &times;
                   </button>
                   <h2 className="text-xl font-bold mb-4">Add Teacher</h2>
                   <form onSubmit={handleAddTeacher} className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium mb-1">ID <span className="text-xs text-gray-500">(e.g. 25-0001-dcs)</span></label>
+                      <label className="block text-sm font-medium mb-1">Teacher ID <span className="text-xs text-gray-500">(auto-generated)</span></label>
                       <input
                         type="text"
                         name="id"
                         value={newTeacher.id}
-                        onChange={handleInputChange}
-                        className="border rounded px-3 py-2 w-full"
-                        placeholder="25-0001-dcs"
-                        required
+                        readOnly
+                        className="border rounded px-3 py-2 w-full bg-gray-100 cursor-not-allowed"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Full Name</label>
+                      <label className="block text-sm font-medium mb-1">Full Name <span className="text-red-500">*</span></label>
                       <input
                         type="text"
                         name="name"
                         value={newTeacher.name}
-                        onChange={handleInputChange}
+                        onChange={handleTeacherInputChange}
                         className="border rounded px-3 py-2 w-full"
                         placeholder="Enter teacher name"
                         required
                       />
                     </div>
-                    <div className="flex gap-4">
-                      <div className="flex-1">
-                        <label className="block text-sm font-medium mb-1">Age</label>
-                        <input
-                          type="number"
-                          name="age"
-                          value={newTeacher.age}
-                          onChange={handleInputChange}
-                          className="border rounded px-3 py-2 w-full"
-                          placeholder="Age"
-                          required
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <label className="block text-sm font-medium mb-1">Sex</label>
-                        <select
-                          name="sex"
-                          value={newTeacher.sex}
-                          onChange={handleInputChange}
-                          className="border rounded px-3 py-2 w-full"
-                          required
-                        >
-                          <option value="">Select</option>
-                          <option value="Male">Male</option>
-                          <option value="Female">Female</option>
-                          <option value="Other">Other</option>
-                        </select>
-                      </div>
-                    </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Email</label>
+                      <label className="block text-sm font-medium mb-1">Email <span className="text-red-500">*</span></label>
                       <input
                         type="email"
                         name="email"
                         value={newTeacher.email}
-                        onChange={handleInputChange}
+                        onChange={handleTeacherInputChange}
                         className="border rounded px-3 py-2 w-full"
                         placeholder="Enter teacher email"
                         required
@@ -366,28 +335,69 @@ const AdminDashboard = () => {
                         type="text"
                         name="phone"
                         value={newTeacher.phone}
-                        onChange={handleInputChange}
+                        onChange={handleTeacherInputChange}
                         className="border rounded px-3 py-2 w-full"
                         placeholder="09xxxxxxxxx"
-                        required
                       />
                     </div>
+                    {teacherError && <div className="text-red-600 text-sm">{teacherError}</div>}
                     <button type="submit" className="w-full bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800">Add Teacher</button>
                   </form>
                 </div>
               </div>
             )}
+  // Teacher Management: Add Teacher modal logic
+  const [teacherError, setTeacherError] = useState('');
+  const getNextTeacherId = () => {
+    if (teachers.length === 0) return '25-0001-dcs';
+    const last = teachers[teachers.length - 1].id;
+    const num = parseInt(last.split('-')[1], 10) + 1;
+    return `25-${num.toString().padStart(4, '0')}-dcs`;
+  };
+  const [newTeacher, setNewTeacher] = useState({ id: '', name: '', email: '', phone: '' });
+  const handleTeacherInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewTeacher((prev) => ({ ...prev, [name]: value }));
+    if (name === 'email') setTeacherError('');
+  };
+  const handleAddTeacher = (e) => {
+    e.preventDefault();
+    // Validate required fields
+    if (!newTeacher.name || !newTeacher.email) {
+      setTeacherError('Full Name and Email are required.');
+      return;
+    }
+    // Validate unique email
+    if (teachers.some(t => t.email.toLowerCase() === newTeacher.email.toLowerCase())) {
+      setTeacherError('Email address already exists.');
+      return;
+    }
+    // Add teacher with Pending status
+    setTeachers([
+      ...teachers,
+      { id: getNextTeacherId(), name: newTeacher.name, email: newTeacher.email, phone: newTeacher.phone, status: 'Pending' },
+    ]);
+    setShowAddModal(false);
+    setNewTeacher({ id: '', name: '', email: '', phone: '' });
+    setTeacherError('');
+    // Simulate sending activation email
+    alert('Activation email sent!');
+  };
+  // Auto-generate ID when opening modal
+  React.useEffect(() => {
+    if (showAddModal) {
+      setNewTeacher((prev) => ({ ...prev, id: getNextTeacherId() }));
+    }
+  }, [showAddModal, teachers]);
 
             <div className="overflow-x-auto">
               <table className="min-w-full bg-white rounded shadow">
                 <thead>
                   <tr>
-                    <th className="px-4 py-2 border-b text-left">ID</th>
+                    <th className="px-4 py-2 border-b text-left">Teacher ID</th>
                     <th className="px-4 py-2 border-b text-left">Full Name</th>
-                    <th className="px-4 py-2 border-b text-left">Age</th>
-                    <th className="px-4 py-2 border-b text-left">Sex</th>
                     <th className="px-4 py-2 border-b text-left">Email</th>
-                    <th className="px-4 py-2 border-b text-left">Phone</th>
+                    <th className="px-4 py-2 border-b text-left">Phone Number</th>
                     <th className="px-4 py-2 border-b text-left">Status</th>
                     <th className="px-4 py-2 border-b text-left">Actions</th>
                   </tr>
@@ -397,25 +407,49 @@ const AdminDashboard = () => {
                     <tr key={teacher.id}>
                       <td className="px-4 py-2 border-b">{teacher.id}</td>
                       <td className="px-4 py-2 border-b">{teacher.name}</td>
-                      <td className="px-4 py-2 border-b">{teacher.age}</td>
-                      <td className="px-4 py-2 border-b">{teacher.sex}</td>
                       <td className="px-4 py-2 border-b">{teacher.email}</td>
-                      <td className="px-4 py-2 border-b">{teacher.phone}</td>
+                      <td className="px-4 py-2 border-b">{teacher.phone || '-'}</td>
                       <td className="px-4 py-2 border-b">{teacher.status}</td>
                       <td className="px-4 py-2 border-b flex gap-2">
-                        <button
-                          className="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700"
-                          onClick={() => handleSendActivation(teacher.id)}
-                        >
-                          Send Activation Email
-                        </button>
-                        <button
-                          className={`px-2 py-1 rounded text-xs text-white ${teacher.status === 'Active' ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-blue-600 hover:bg-blue-700'}`}
-                          onClick={() => handleActivate(teacher.id)}
-                        >
-                          {teacher.status === 'Active' ? 'Deactivate' : 'Activate'}
-                        </button>
+                        {teacher.status === 'Pending' && (
+                          <button
+                            className="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700"
+                            onClick={() => handleResendActivation(teacher.id)}
+                          >Resend Activation Email</button>
+                        )}
+                        {teacher.status === 'Active' && (
+                          <button
+                            className="bg-yellow-600 text-white px-2 py-1 rounded text-xs hover:bg-yellow-700"
+                            onClick={() => handleDisableTeacher(teacher.id)}
+                          >Disable Account</button>
+                        )}
+                        {teacher.status === 'Disabled' && (
+                          <button
+                            className="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700"
+                            onClick={() => handleEnableTeacher(teacher.id)}
+                          >Enable Account</button>
+                        )}
                       </td>
+                      // Teacher Management: Status-based actions
+                      const handleResendActivation = (id) => {
+                        setTeachers(teachers.map(t =>
+                          t.id === id ? { ...t } : t
+                        ));
+                        alert('Activation email resent!');
+                        // Log action here if needed
+                      };
+                      const handleDisableTeacher = (id) => {
+                        setTeachers(teachers.map(t =>
+                          t.id === id ? { ...t, status: 'Disabled' } : t
+                        ));
+                        // Log action here if needed
+                      };
+                      const handleEnableTeacher = (id) => {
+                        setTeachers(teachers.map(t =>
+                          t.id === id ? { ...t, status: 'Active' } : t
+                        ));
+                        // Log action here if needed
+                      };
                     </tr>
                   ))}
                 </tbody>
