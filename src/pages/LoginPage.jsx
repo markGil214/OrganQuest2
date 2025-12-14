@@ -38,9 +38,8 @@ const LoginPage = ({ onLoginSuccess }) => {
 
       console.log('Login successful:', response);
       
-      // Store the token in localStorage
-      if (response.data.token) {
-        localStorage.setItem('authToken', response.data.token);
+      // Store user data in localStorage (token is in HTTP-only cookie)
+      if (response.data.user) {
         localStorage.setItem('userData', JSON.stringify(response.data.user));
         
         // Sync avatar from backend
