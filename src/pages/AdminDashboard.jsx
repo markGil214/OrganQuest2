@@ -351,8 +351,8 @@ const AdminDashboard = () => {
         {showTeacherManagement ? (
           <div>
             <h1 className="text-3xl font-bold mb-6">Teacher Management</h1>
-            {/* Status Filter, Name/ID Search, Email Filter, Phone Filter, Sort By */}
-            <div className="flex flex-wrap items-center gap-4 mb-4">
+            {/* Status Filter */}
+            <div className="flex items-center gap-4 mb-4">
               <label className="font-semibold">Status Filter:</label>
               <select
                 className="border rounded px-3 py-2"
@@ -363,46 +363,6 @@ const AdminDashboard = () => {
                 <option value="Pending">Pending</option>
                 <option value="Active">Active</option>
                 <option value="Disabled">Disabled</option>
-              </select>
-              <label className="font-semibold ml-4">Name/ID Search:</label>
-              <input
-                type="text"
-                className="border rounded px-3 py-2"
-                placeholder="Enter name or ID..."
-                value={teacherNameIdSearch}
-                onChange={e => setTeacherNameIdSearch(e.target.value)}
-                style={{ minWidth: 120 }}
-              />
-              <label className="font-semibold ml-4">Email Filter:</label>
-              <input
-                type="text"
-                className="border rounded px-3 py-2"
-                placeholder="Enter email..."
-                value={teacherEmailFilter}
-                onChange={e => setTeacherEmailFilter(e.target.value)}
-                style={{ minWidth: 120 }}
-              />
-              <label className="font-semibold ml-4">Phone Filter:</label>
-              <input
-                type="text"
-                className="border rounded px-3 py-2"
-                placeholder="Enter phone..."
-                value={teacherPhoneFilter}
-                onChange={e => setTeacherPhoneFilter(e.target.value)}
-                style={{ minWidth: 120 }}
-              />
-              <label className="font-semibold ml-4">Sort By:</label>
-              <select
-                className="border rounded px-3 py-2"
-                value={teacherSortBy}
-                onChange={e => setTeacherSortBy(e.target.value)}
-                style={{ minWidth: 120 }}
-              >
-                <option value="name-asc">Full Name (A–Z)</option>
-                <option value="name-desc">Full Name (Z–A)</option>
-                <option value="status">Status (Pending → Active → Disabled)</option>
-                <option value="id-asc">Teacher ID (Ascending)</option>
-                <option value="id-desc">Teacher ID (Descending)</option>
               </select>
               <button
                 className="ml-auto bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800"
@@ -491,35 +451,6 @@ const AdminDashboard = () => {
                 <tbody>
                   {teachers
                     .filter(t => teacherStatusFilter === 'All' ? true : t.status === teacherStatusFilter)
-                    .filter(t =>
-                      teacherNameIdSearch.trim() === ''
-                        ? true
-                        : (
-                            t.name.toLowerCase().includes(teacherNameIdSearch.trim().toLowerCase()) ||
-                            t.id.toLowerCase().includes(teacherNameIdSearch.trim().toLowerCase())
-                          )
-                    )
-                    .filter(t =>
-                      teacherEmailFilter.trim() === ''
-                        ? true
-                        : t.email.toLowerCase().includes(teacherEmailFilter.trim().toLowerCase())
-                    )
-                    .filter(t =>
-                      teacherPhoneFilter.trim() === ''
-                        ? true
-                        : (t.phone || '').toLowerCase().includes(teacherPhoneFilter.trim().toLowerCase())
-                    )
-                    .sort((a, b) => {
-                      if (teacherSortBy === 'name-asc') return a.name.localeCompare(b.name);
-                      if (teacherSortBy === 'name-desc') return b.name.localeCompare(a.name);
-                      if (teacherSortBy === 'id-asc') return a.id.localeCompare(b.id);
-                      if (teacherSortBy === 'id-desc') return b.id.localeCompare(a.id);
-                      if (teacherSortBy === 'status') {
-                        const order = { 'Pending': 0, 'Active': 1, 'Disabled': 2 };
-                        return order[a.status] - order[b.status];
-                      }
-                      return 0;
-                    })
                     .map((teacher) => (
                       <tr key={teacher.id}>
                         <td className="px-4 py-2 border-b">{teacher.id}</td>
@@ -549,7 +480,8 @@ const AdminDashboard = () => {
                         </td>
                       </tr>
                     ))}
-
+                  // Status filter state for Teacher Management
+                  const [teacherStatusFilter, setTeacherStatusFilter] = useState('All');
                 </tbody>
               </table>
             </div>
