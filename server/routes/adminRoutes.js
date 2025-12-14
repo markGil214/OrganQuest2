@@ -335,17 +335,16 @@ router.post('/send-teacher-invitation',
       }
 
       const { fullName, email, phone, teacherId } = req.body;
-      const upperTeacherId = teacherId ? teacherId.toUpperCase() : teacherId;
 
       console.log('Sending teacher invitation:', { fullName, email });
 
       // Check if teacherId is 1002 or 1003 - verify it exists in database
-      if (upperTeacherId === '1002' || upperTeacherId === '1003') {
-        const existingTeacherId = await User.findOne({ teacherId: upperTeacherId });
+      if (teacherId === '1002' || teacherId === '1003') {
+        const existingTeacherId = await User.findOne({ teacherId });
         if (!existingTeacherId) {
           return res.status(400).json({
             success: false,
-            message: `Teacher ID ${upperTeacherId} does not exist in the system`
+            message: `Teacher ID ${teacherId} does not exist in the system`
           });
         }
       }
@@ -414,7 +413,6 @@ router.post('/send-teacher-invitation',
 
       const username = await generateUsername();
       const password = generatePassword();
-      const upperTeacherId = teacherId ? teacherId.toUpperCase() : '';
 
       // Generate registration token
       const registrationToken = crypto.randomBytes(32).toString('hex');
@@ -430,7 +428,7 @@ router.post('/send-teacher-invitation',
         password,
         role: 'teacher',
         teacherCode,
-        teacherId: upperTeacherId, // Add teacher ID
+        teacherId: teacherId || '', // Add teacher ID
         age: 30, // Default for teacher
         grade: '4th', // Required but not used for teachers
         avatar: 1,

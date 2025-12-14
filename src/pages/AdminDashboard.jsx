@@ -150,7 +150,9 @@ const AdminDashboard = ({ onLogout }) => {
   }, []);
 
   const handleTeacherInputChange = (e) => {
-    setNewTeacher({ ...newTeacher, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    const updatedValue = name === 'teacherId' ? value.toUpperCase() : value;
+    setNewTeacher({ ...newTeacher, [name]: updatedValue });
     setTeacherError('');
     setTeacherSuccess('');
   };
@@ -177,7 +179,7 @@ const AdminDashboard = ({ onLogout }) => {
           fullName: newTeacher.fullName,
           email: newTeacher.email,
           phone: newTeacher.phone,
-          teacherId: newTeacher.teacherId
+          teacherId: newTeacher.teacherId.toUpperCase()
         })
       });
 
@@ -194,7 +196,7 @@ const AdminDashboard = ({ onLogout }) => {
       if (data.success) {
         setTeacherSuccess('Teacher invitation sent successfully!');
         setNewTeacher({ fullName: '', email: '', phone: '', teacherId: '' });
-        setShowAddTeacherModal(false);
+        setShowAddModal(false);
         // Refresh teachers list
         fetchTeachers();
       } else {
@@ -555,7 +557,7 @@ const AdminDashboard = ({ onLogout }) => {
                       <input
                         type="text"
                         name="teacherId"
-                        value={newTeacher.teacherId.toUpperCase()}
+                        value={newTeacher.teacherId}
                         onChange={handleTeacherInputChange}
                         readOnly
                         className="border rounded px-3 py-2 w-full bg-gray-100 cursor-not-allowed"
@@ -613,7 +615,7 @@ const AdminDashboard = ({ onLogout }) => {
                       const displayStatus_formatted = displayStatus.charAt(0).toUpperCase() + displayStatus.slice(1);
                       return (
                         <tr key={teacher._id}>
-                          <td className="px-4 py-2 border-b">{teacher.teacherId ? teacher.teacherId.toUpperCase() : '-'}</td>
+                          <td className="px-4 py-2 border-b">{teacher.teacherId || '-'}</td>
                           <td className="px-4 py-2 border-b">{teacher.fullName}</td>
                           <td className="px-4 py-2 border-b">{teacher.email}</td>
                           <td className="px-4 py-2 border-b">{teacher.phone || '-'}</td>
