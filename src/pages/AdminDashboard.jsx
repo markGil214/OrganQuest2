@@ -79,17 +79,61 @@ const AdminDashboard = ({ onLogout }) => {
   const [teacherError, setTeacherError] = useState('');
   const [teacherSuccess, setTeacherSuccess] = useState('');
 
+  // Check authentication on component mount
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    const userData = localStorage.getItem('userData');
+    
+    if (!token || !userData) {
+      console.error('No authentication found, redirecting to login');
+      window.location.hash = 'login';
+      return;
+    }
+
+    try {
+      const user = JSON.parse(userData);
+      if (user.role !== 'admin') {
+        console.error('User is not an admin, redirecting to login');
+        window.location.hash = 'login';
+        return;
+      }
+    } catch (error) {
+      console.error('Invalid user data, redirecting to login');
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userData');
+      window.location.hash = 'login';
+      return;
+    }
+  }, []);
+
   // Fetch teachers from API
   const fetchTeachers = async () => {
     try {
       setLoadingTeachers(true);
       const token = localStorage.getItem('authToken');
+      
+      if (!token) {
+        console.error('No auth token found');
+        setTeachers([]);
+        return;
+      }
+      
       const response = await fetch(`${API_URL}/api/admin/teachers`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
+
+      if (response.status === 401) {
+        console.error('Token is invalid or expired');
+        // Clear invalid token
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userData');
+        // Redirect to login
+        window.location.hash = 'login';
+        return;
+      }
 
       if (!response.ok) {
         throw new Error('Failed to fetch teachers');
@@ -129,6 +173,13 @@ const AdminDashboard = ({ onLogout }) => {
 
     try {
       const token = localStorage.getItem('authToken');
+      
+      if (!token) {
+        console.error('No auth token found');
+        setTeacherError('Authentication required. Please log in again.');
+        return;
+      }
+      
       const response = await fetch(`${API_URL}/api/admin/send-teacher-invitation`, {
         method: 'POST',
         headers: {
@@ -142,37 +193,28 @@ const AdminDashboard = ({ onLogout }) => {
         })
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        setTeacherError(data.message || 'Failed to create teacher account');
+      if (response.status === 401) {
+        console.error('Token is invalid or expired');
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userData');
+        window.location.hash = 'login';
         return;
       }
 
-      // Show success message with generated username if available
-      const username = data.data?.teacher?.username;
-      const successMessage = username 
-        ? `Teacher account created successfully! Username: ${username}. Credentials sent via email.`
-        : 'Teacher account created successfully! Credentials sent via email.';
-      
-      setTeacherSuccess(successMessage);
-      setShowAddModal(false);
-      setNewTeacher({
-        fullName: '',
-        email: '',
-        phone: ''
-      });
-      setTeacherError('');
-      
-      // Refresh teachers list
-      await fetchTeachers();
-      
-      setTimeout(() => {
-        setTeacherSuccess('');
-      }, 3000);
+      const data = await response.json();
+
+      if (data.success) {
+        setTeacherSuccess('Teacher invitation sent successfully!');
+        setNewTeacher({ fullName: '', email: '', phone: '' });
+        setShowAddTeacherModal(false);
+        // Refresh teachers list
+        fetchTeachers();
+      } else {
+        setTeacherError(data.message || 'Failed to send teacher invitation');
+      }
     } catch (error) {
-      console.error('Error sending invitation:', error);
-      setTeacherError('Error sending invitation email: ' + error.message);
+      console.error('Error adding teacher:', error);
+      setTeacherError('Failed to send teacher invitation. Please try again.');
     }
   };
 
@@ -180,6 +222,13 @@ const AdminDashboard = ({ onLogout }) => {
   const handleResendActivation = async (id) => {
     try {
       const token = localStorage.getItem('authToken');
+      
+      if (!token) {
+        console.error('No auth token found');
+        setTeacherError('Authentication required. Please log in again.');
+        return;
+      }
+      
       const response = await fetch(`${API_URL}/api/admin/teachers/${id}/resend-activation`, {
         method: 'POST',
         headers: {
@@ -187,6 +236,14 @@ const AdminDashboard = ({ onLogout }) => {
           'Content-Type': 'application/json'
         }
       });
+
+      if (response.status === 401) {
+        console.error('Token is invalid or expired');
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userData');
+        window.location.hash = 'login';
+        return;
+      }
 
       const data = await response.json();
       if (response.ok && data.success) {
@@ -204,6 +261,13 @@ const AdminDashboard = ({ onLogout }) => {
   const handleDisableAccount = async (id) => {
     try {
       const token = localStorage.getItem('authToken');
+      
+      if (!token) {
+        console.error('No auth token found');
+        setTeacherError('Authentication required. Please log in again.');
+        return;
+      }
+      
       const response = await fetch(`${API_URL}/api/admin/teachers/${id}/status`, {
         method: 'PUT',
         headers: {
@@ -212,6 +276,14 @@ const AdminDashboard = ({ onLogout }) => {
         },
         body: JSON.stringify({ accountStatus: 'disabled' })
       });
+
+      if (response.status === 401) {
+        console.error('Token is invalid or expired');
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userData');
+        window.location.hash = 'login';
+        return;
+      }
 
       const data = await response.json();
       if (response.ok && data.success) {
@@ -230,6 +302,13 @@ const AdminDashboard = ({ onLogout }) => {
   const handleEnableAccount = async (id) => {
     try {
       const token = localStorage.getItem('authToken');
+      
+      if (!token) {
+        console.error('No auth token found');
+        setTeacherError('Authentication required. Please log in again.');
+        return;
+      }
+      
       const response = await fetch(`${API_URL}/api/admin/teachers/${id}/status`, {
         method: 'PUT',
         headers: {
@@ -238,6 +317,14 @@ const AdminDashboard = ({ onLogout }) => {
         },
         body: JSON.stringify({ accountStatus: 'active' })
       });
+
+      if (response.status === 401) {
+        console.error('Token is invalid or expired');
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userData');
+        window.location.hash = 'login';
+        return;
+      }
 
       const data = await response.json();
       if (response.ok && data.success) {
