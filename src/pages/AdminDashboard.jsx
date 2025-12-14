@@ -351,8 +351,8 @@ const AdminDashboard = () => {
         {showTeacherManagement ? (
           <div>
             <h1 className="text-3xl font-bold mb-6">Teacher Management</h1>
-            {/* Status Filter */}
-            <div className="flex items-center gap-4 mb-4">
+            {/* Status Filter & Name/ID Search */}
+            <div className="flex flex-wrap items-center gap-4 mb-4">
               <label className="font-semibold">Status Filter:</label>
               <select
                 className="border rounded px-3 py-2"
@@ -364,6 +364,15 @@ const AdminDashboard = () => {
                 <option value="Active">Active</option>
                 <option value="Disabled">Disabled</option>
               </select>
+              <label className="font-semibold ml-4">Name/ID Search:</label>
+              <input
+                type="text"
+                className="border rounded px-3 py-2"
+                placeholder="Enter name or ID..."
+                value={teacherNameIdSearch}
+                onChange={e => setTeacherNameIdSearch(e.target.value)}
+                style={{ minWidth: 180 }}
+              />
               <button
                 className="ml-auto bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800"
                 onClick={() => setShowAddModal(true)}
@@ -451,6 +460,14 @@ const AdminDashboard = () => {
                 <tbody>
                   {teachers
                     .filter(t => teacherStatusFilter === 'All' ? true : t.status === teacherStatusFilter)
+                    .filter(t =>
+                      teacherNameIdSearch.trim() === ''
+                        ? true
+                        : (
+                            t.name.toLowerCase().includes(teacherNameIdSearch.trim().toLowerCase()) ||
+                            t.id.toLowerCase().includes(teacherNameIdSearch.trim().toLowerCase())
+                          )
+                    )
                     .map((teacher) => (
                       <tr key={teacher.id}>
                         <td className="px-4 py-2 border-b">{teacher.id}</td>
@@ -480,6 +497,8 @@ const AdminDashboard = () => {
                         </td>
                       </tr>
                     ))}
+                    // Name/ID search state for Teacher Management
+                    const [teacherNameIdSearch, setTeacherNameIdSearch] = useState('');
                   // Status filter state for Teacher Management
                   const [teacherStatusFilter, setTeacherStatusFilter] = useState('All');
                 </tbody>
