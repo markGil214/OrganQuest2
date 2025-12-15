@@ -430,7 +430,22 @@ router.post('/send-teacher-invitation',
       console.log('Generated registration token');
 
       // Create teacher user with active status (since credentials are provided)
-      console.log('Creating teacher object...');
+      console.log('Creating teacher object with data:', {
+        fullName,
+        email,
+        phone: phone || '',
+        username,
+        passwordLength: password.length,
+        role: 'teacher',
+        teacherCode,
+        teacherId: teacherId || '',
+        age: 30,
+        grade: '4th',
+        avatar: 1,
+        language: 'english',
+        accountStatus: 'active'
+      });
+
       const teacher = new User({
         fullName,
         email,
@@ -449,6 +464,18 @@ router.post('/send-teacher-invitation',
         accountStatus: 'active' // Active since credentials are provided
       });
 
+      // Validate the teacher object before saving
+      console.log('Validating teacher object...');
+      const validationError = teacher.validateSync();
+      if (validationError) {
+        console.error('Teacher validation failed:', validationError);
+        return res.status(400).json({
+          success: false,
+          message: 'Teacher data validation failed',
+          error: validationError.message
+        });
+      }
+
       console.log('Saving teacher to database...');
       await teacher.save();
       console.log('Teacher saved successfully with ID:', teacher._id);
@@ -460,21 +487,29 @@ router.post('/send-teacher-invitation',
         registrationToken: teacher.registrationToken
       });
 
-      // Send invitation email with credentials
+      // Send invitation email with credentials (non-blocking)
       try {
-        await sendTeacherInvitationEmail({
-          email: teacher.email,
-          fullName: teacher.fullName,
-          username: teacher.username,
-          password: password, // Send plain password
-          teacherCode: teacher.teacherCode,
-          teacherId: teacher.teacherId
+        console.log('Attempting to send invitation email...');
+        // Send email asynchronously - don't block teacher creation
+        setImmediate(async () => {
+          try {
+            await sendTeacherInvitationEmail({
+              email: teacher.email,
+              fullName: teacher.fullName,
+              username: teacher.username,
+              password: password, // Send plain password
+              teacherCode: teacher.teacherCode,
+              teacherId: teacher.teacherId
+            });
+            console.log('Invitation email sent successfully to:', teacher.email);
+          } catch (emailError) {
+            console.error('Failed to send invitation email (non-blocking):', emailError);
+            // Email failure doesn't affect teacher creation
+          }
         });
-
-        console.log('Invitation email with credentials sent to:', teacher.email);
-      } catch (emailError) {
-        console.error('Failed to send invitation email:', emailError);
-        // Don't fail the request if email fails, but log it
+      } catch (syncError) {
+        console.error('Synchronous error in email setup:', syncError);
+        // Continue with teacher creation even if email setup fails
       }
 
       res.status(201).json({

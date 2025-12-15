@@ -65,24 +65,33 @@ export const teacherMiddleware = async (req, res, next) => {
 // Admin middleware - requires admin role only
 export const adminMiddleware = async (req, res, next) => {
   try {
+    console.log('=== ADMIN MIDDLEWARE CHECK ===');
+    console.log('User ID from token:', req.userId);
+
     const user = await User.findById(req.userId);
-    
+
     if (!user) {
+      console.log('User not found for ID:', req.userId);
       return res.status(404).json({
         success: false,
         message: 'User not found'
       });
     }
 
+    console.log('User found:', { id: user._id, role: user.role, email: user.email });
+
     if (user.role !== 'admin' && user.role !== 'superuser') {
+      console.log('Access denied - user role:', user.role);
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin privileges required.'
       });
     }
 
+    console.log('Admin middleware passed for user:', user._id);
     next();
   } catch (error) {
+    console.error('Admin middleware error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error checking admin privileges'
