@@ -86,8 +86,11 @@ router.post('/register',
         grade,
         section,
         avatar,
-        language
+        language,
+        role: 'student' // Explicitly set role
       });
+
+      console.log('Creating user with role:', user.role);
 
       await user.save();
 

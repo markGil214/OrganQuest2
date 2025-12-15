@@ -241,6 +241,7 @@ userSchema.index({ createdAt: -1 }); // For sorting by registration date
 
 // Pre-save hook to generate userId
 userSchema.pre('save', async function(next) {
+  console.log('Pre-save hook running for user:', this.username, 'role:', this.role, 'userId exists:', !!this.userId);
   if (!this.userId) {
     try {
       const roleSuffixes = {
@@ -252,6 +253,8 @@ userSchema.pre('save', async function(next) {
 
       const suffix = roleSuffixes[this.role] || 'USER';
       const year = '25'; // 2025
+
+      console.log('Generating userId for role:', this.role, 'suffix:', suffix);
 
       // Find the highest sequence number for this role
       const lastUser = await this.constructor.findOne(
@@ -274,6 +277,7 @@ userSchema.pre('save', async function(next) {
       next(error);
     }
   } else {
+    console.log('userId already exists:', this.userId);
     next();
   }
 });
