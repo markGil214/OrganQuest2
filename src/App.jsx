@@ -73,40 +73,42 @@ function App() {
         window.location.hash = 'main-menu';
       }
     } else {
+      // TEMPORARILY DISABLED FOR EXPLORATION - Allow access without authentication
       // If no user data, redirect to login (but allow register page, interactive viewer, and teacher-register)
-      const allowedWithoutAuth = currentHash === 'register' || 
-                                 currentHash.startsWith('interactive/') ||
-                                 currentHash.startsWith('teacher-register/');
+      // const allowedWithoutAuth = currentHash === 'register' || 
+      //                            currentHash.startsWith('interactive/') ||
+      //                            currentHash.startsWith('teacher-register/');
       
-      if (!allowedWithoutAuth && (!currentHash || currentHash === 'home')) {
-        window.location.hash = 'login';
-      } else if (!allowedWithoutAuth && currentHash && currentHash !== 'login' && currentHash !== 'register') {
-        // Store the intended destination and redirect to login
-        sessionStorage.setItem('redirectAfterLogin', currentHash);
-        window.location.hash = 'login';
-      }
-      // Allow register route and interactive viewer to work without authentication
+      // if (!allowedWithoutAuth && (!currentHash || currentHash === 'home')) {
+      //   window.location.hash = 'login';
+      // } else if (!allowedWithoutAuth && currentHash && currentHash !== 'login' && currentHash !== 'register') {
+      //   // Store the intended destination and redirect to login
+      //   sessionStorage.setItem('redirectAfterLogin', currentHash);
+      //   window.location.hash = 'login';
+      // }
+      // Allow all routes to work without authentication for exploration
     }
     setIsCheckingAuth(false);
     
     // Handle browser back/forward button to prevent accessing protected pages after logout
-    const handlePopState = () => {
-      const hash = window.location.hash.slice(1);
-      const protectedRoutes = ['main-menu', 'menu', 'quiz', 'scan-explore', 'admin/dashboard', 'admin/manage', 'welcome'];
-      const isProtectedRoute = protectedRoutes.some(route => hash === route || hash.startsWith(route + '/'));
+    // TEMPORARILY DISABLED FOR EXPLORATION
+    // const handlePopState = () => {
+    //   const hash = window.location.hash.slice(1);
+    //   const protectedRoutes = ['main-menu', 'menu', 'quiz', 'scan-explore', 'admin/dashboard', 'admin/manage', 'welcome'];
+    //   const isProtectedRoute = protectedRoutes.some(route => hash === route || hash.startsWith(route + '/'));
       
-      // If user is logged out and trying to access protected route via back button
-      if (isProtectedRoute && !getCookie('organquest_user')) {
-        window.history.replaceState(null, '', '#login');
-        window.location.hash = 'login';
-      }
-    };
+    //   // If user is logged out and trying to access protected route via back button
+    //   if (isProtectedRoute && !getCookie('organquest_user')) {
+    //     window.history.replaceState(null, '', '#login');
+    //     window.location.hash = 'login';
+    //   }
+    // };
     
-    window.addEventListener('popstate', handlePopState);
+    // window.addEventListener('popstate', handlePopState);
     
-    return () => {
-      window.removeEventListener('popstate', handlePopState);
-    };
+    // return () => {
+    //   window.removeEventListener('popstate', handlePopState);
+    // };
   }, []);
 
   // Simple hash-based routing for now
@@ -115,18 +117,21 @@ function App() {
       const hash = window.location.hash.slice(1);
       
       // Protected routes that require authentication
-      const protectedRoutes = ['main-menu', 'menu', 'quiz', 'quiz/mcq', 'quiz/memory', 'quiz/timed', 'scan-explore', 'admin/dashboard', 'admin/manage', 'teacher/dashboard'];
-      const isProtectedRoute = protectedRoutes.some(route => hash === route || hash.startsWith(route + '/'));
+      // TEMPORARILY DISABLED FOR EXPLORATION
+      // const protectedRoutes = ['main-menu', 'menu', 'quiz', 'quiz/mcq', 'quiz/memory', 'quiz/timed', 'scan-explore', 'admin/dashboard', 'admin/manage', 'teacher/dashboard'];
+      // const isProtectedRoute = protectedRoutes.some(route => hash === route || hash.startsWith(route + '/'));
       
       // Check authentication from both cookie and localStorage
-      const hasAuth = userData || getCookie('organquest_user') || (localStorage.getItem('authToken') && localStorage.getItem('userData'));
+      // TEMPORARILY DISABLED FOR EXPLORATION
+      // const hasAuth = userData || getCookie('organquest_user') || (localStorage.getItem('authToken') && localStorage.getItem('userData'));
       
       // If trying to access protected route without auth, redirect to login
-      if (isProtectedRoute && !hasAuth) {
-        window.history.replaceState(null, '', '#login');
-        setCurrentPage('login');
-        return;
-      }
+      // TEMPORARILY DISABLED FOR EXPLORATION
+      // if (isProtectedRoute && !hasAuth) {
+      //   window.history.replaceState(null, '', '#login');
+      //   setCurrentPage('login');
+      //   return;
+      // }
       
       if (hash === 'login') {
         setCurrentPage('login');
