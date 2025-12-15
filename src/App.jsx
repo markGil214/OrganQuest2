@@ -11,6 +11,7 @@ import AdminDashboard from './pages/AdminDashboard'
 import SuperAdminPanel from './pages/SuperAdminPanel'
 import InteractiveViewer from './pages/InteractiveViewer'
 import TeacherRegister from './pages/TeacherRegister'
+import TeacherDashboard from './pages/TeacherDashboard'
 import './App.css'
 
 // Lazy load individual quiz pages
@@ -114,7 +115,7 @@ function App() {
       const hash = window.location.hash.slice(1);
       
       // Protected routes that require authentication
-      const protectedRoutes = ['main-menu', 'menu', 'quiz', 'quiz/mcq', 'quiz/memory', 'quiz/timed', 'scan-explore', 'admin/dashboard', 'admin/manage'];
+      const protectedRoutes = ['main-menu', 'menu', 'quiz', 'quiz/mcq', 'quiz/memory', 'quiz/timed', 'scan-explore', 'admin/dashboard', 'admin/manage', 'teacher/dashboard'];
       const isProtectedRoute = protectedRoutes.some(route => hash === route || hash.startsWith(route + '/'));
       
       // Check authentication from both cookie and localStorage
@@ -155,6 +156,8 @@ function App() {
         setCurrentPage('admin-dashboard');
       } else if (hash === 'admin/manage') {
         setCurrentPage('admin-manage');
+      } else if (hash === 'teacher/dashboard') {
+        setCurrentPage('teacher-dashboard');
       } else {
         setCurrentPage('login');
       }
@@ -196,8 +199,11 @@ function App() {
       targetHash = `#${redirectUrl}`;
     } else {
       // Redirect based on role and replace history to prevent back navigation
-      targetHash = (userData.role === 'teacher' || userData.role === 'admin') 
+      targetHash = (userData.role === 'admin') 
         ? '#admin/dashboard' 
+        : (userData.role === 'teacher')
+        ? '#teacher/dashboard'
+        : '#main-menu'; 
         : '#main-menu';
     }
     
@@ -279,6 +285,8 @@ function App() {
         return <AdminDashboard userData={userData} onLogout={handleLogout} />;
       case 'admin-manage':
         return <SuperAdminPanel onBack={() => window.location.hash = '#admin/dashboard'} />;
+      case 'teacher-dashboard':
+        return <TeacherDashboard userData={userData} onLogout={handleLogout} />;
       case 'teacher-register':
         return <TeacherRegister />;
       default:
