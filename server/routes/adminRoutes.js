@@ -1407,25 +1407,76 @@ function calculateFirstDayProgress(student) {
 // @route   GET /api/Teacher/classes
 // @desc    Get all classes (teachers) - Admin only
 // @access  Admin
-router.get('/classes', authMiddleware, adminMiddleware, async (req, res) => {
-  try {
-    const teachers = await User.find({ role: 'teacher' })
-      .select('-password -__v')
-      .sort({ createdAt: -1 });
+// @route   GET /api/admin/classes
+// @desc    Get all classes with filters
+// @access  Admin
+router.get('/classes',
+  authMiddleware,
+  adminMiddleware,
+  async (req, res) => {
+    try {
+      console.log('=== GET CLASSES ===');
+      const {
+        grade,
+        section,
+        assignedTeacher,
+        search,
+        sortBy = 'createdAt',
+        sortOrder = 'desc',
+        page = 1,
+        limit = 50
+      } = req.query;
 
-    res.json({
-      success: true,
-      data: { classes: teachers }
-    });
-  } catch (error) {
-    console.error('Get classes error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error fetching classes',
-      error: error.message
-    });
-  }
-});
+      // Build query
+      const query = {};
+
+      if (grade) query.grade = grade;
+      if (section) query.section = section;
+      if (assignedTeacher) query.assignedTeacher = assignedTeacher;
+
+      if (search) {
+        query.$or = [
+          { className: { $regex: search, $options: 'i' } },
+          { description: { $regex: search, $options: 'i' } }
+        ];
+      }
+
+      // Calculate pagination
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+
+      // Get classes with populated teacher info
+      const classes = await Class.find(query)
+        .populate('assignedTeacher', 'fullName username email')
+        .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 })
+        .skip(skip)
+        .limit(parseInt(limit));
+
+      // Get total count for pagination
+      const total = await Class.countDocuments(query);
+
+      console.log(`Found ${classes.length} classes (total: ${total})`);
+
+      res.status(200).json({
+        success: true,
+        data: {
+          classes,
+          pagination: {
+            page: parseInt(page),
+            limit: parseInt(limit),
+            total,
+            pages: Math.ceil(total / parseInt(limit))
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Get classes error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server error fetching classes',
+        error: error.message
+      });
+    }
+  });
 
 // @route   POST /api/Teacher/create-class
 // @desc    Create a new class with teacher assignment (sends invitation email)
@@ -1837,7 +1888,8 @@ router.post('/classes',
     body('section').isIn(['A', 'B', 'C', 'D', 'E', 'F']).withMessage('Invalid section'),
     body('className').trim().notEmpty().withMessage('Class name is required'),
     body('capacity').optional().isInt({ min: 1, max: 100 }).withMessage('Capacity must be between 1-100'),
-    body('description').optional().trim().isLength({ max: 200 }).withMessage('Description too long')
+    body('description').optional().trim().isLength({ max: 200 }).withMessage('Description too long'),
+    body('assignedTeacher').notEmpty().withMessage('Teacher assignment is required')
   ],
   async (req, res) => {
     try {
@@ -1864,15 +1916,13 @@ router.post('/classes',
         });
       }
 
-      // If teacher is assigned, verify they exist and are a teacher
-      if (assignedTeacher) {
-        const teacher = await User.findById(assignedTeacher);
-        if (!teacher || teacher.role !== 'teacher') {
-          return res.status(400).json({
-            success: false,
-            message: 'Invalid teacher assignment'
-          });
-        }
+      // Verify teacher exists and is a teacher
+      const teacher = await User.findById(assignedTeacher);
+      if (!teacher || teacher.role !== 'teacher') {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid teacher assignment'
+        });
       }
 
       const newClass = new Class({
@@ -1919,7 +1969,7 @@ router.put('/classes/:id',
     body('className').optional().trim().notEmpty().withMessage('Class name cannot be empty'),
     body('capacity').optional().isInt({ min: 1, max: 100 }).withMessage('Capacity must be between 1-100'),
     body('description').optional().trim().isLength({ max: 200 }).withMessage('Description too long'),
-    body('status').optional().isIn(['active', 'inactive']).withMessage('Invalid status')
+    body('assignedTeacher').notEmpty().withMessage('Teacher assignment is required')
   ],
   async (req, res) => {
     try {
@@ -1953,15 +2003,13 @@ router.put('/classes/:id',
         }
       }
 
-      // If teacher is assigned, verify they exist and are a teacher
-      if (assignedTeacher) {
-        const teacher = await User.findById(assignedTeacher);
-        if (!teacher || teacher.role !== 'teacher') {
-          return res.status(400).json({
-            success: false,
-            message: 'Invalid teacher assignment'
-          });
-        }
+      // Verify teacher exists and is a teacher
+      const teacher = await User.findById(assignedTeacher);
+      if (!teacher || teacher.role !== 'teacher') {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid teacher assignment'
+        });
       }
 
       const updatedClass = await Class.findByIdAndUpdate(

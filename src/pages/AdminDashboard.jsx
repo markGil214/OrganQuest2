@@ -91,7 +91,6 @@ const AdminDashboard = ({ onLogout }) => {
     className: '',
     description: '',
     capacity: 30,
-    status: 'active',
     assignedTeacher: ''
   });
   const [classError, setClassError] = useState('');
@@ -170,6 +169,30 @@ const AdminDashboard = ({ onLogout }) => {
   useEffect(() => {
     fetchTeachers();
   }, []);
+
+  // Fetch teachers for dropdown
+  const fetchTeachersForDropdown = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      
+      const response = await fetch(`${API_URL}/api/admin/teachers`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` })
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data && data.data.teachers) {
+          setTeachers(data.data.teachers);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching teachers for dropdown:', error);
+    }
+  };
 
   const handleTeacherInputChange = (e) => {
     const { name, value } = e.target;
@@ -419,6 +442,11 @@ const AdminDashboard = ({ onLogout }) => {
       return;
     }
 
+    if (!newClass.assignedTeacher) {
+      setClassError('Teacher assignment is required');
+      return;
+    }
+
     try {
       const token = localStorage.getItem('authToken');
 
@@ -449,7 +477,6 @@ const AdminDashboard = ({ onLogout }) => {
           className: '',
           description: '',
           capacity: 30,
-          status: 'active',
           assignedTeacher: ''
         });
         setShowAddClassModal(false);
@@ -473,7 +500,6 @@ const AdminDashboard = ({ onLogout }) => {
       className: classItem.className,
       description: classItem.description || '',
       capacity: classItem.capacity,
-      status: classItem.status,
       assignedTeacher: classItem.assignedTeacher?._id || ''
     });
     setShowAddClassModal(true);
@@ -484,6 +510,11 @@ const AdminDashboard = ({ onLogout }) => {
 
     if (!newClass.className.trim()) {
       setClassError('Class name is required');
+      return;
+    }
+
+    if (!newClass.assignedTeacher) {
+      setClassError('Teacher assignment is required');
       return;
     }
 
@@ -517,7 +548,6 @@ const AdminDashboard = ({ onLogout }) => {
           className: '',
           description: '',
           capacity: 30,
-          status: 'active',
           assignedTeacher: ''
         });
         setEditingClass(null);
@@ -578,6 +608,7 @@ const AdminDashboard = ({ onLogout }) => {
     if (showClassSectionManagement && classes.length === 0) {
       fetchClasses();
       fetchClassStats();
+      fetchTeachersForDropdown();
     }
   }, [showClassSectionManagement, classes.length]);
 
@@ -982,35 +1013,23 @@ const AdminDashboard = ({ onLogout }) => {
                         onChange={handleClassInputChange}
                         className="border rounded px-3 py-2 w-full"
                         min="1"
-                        max="50"
+                        max="100"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Status</label>
-                      <select
-                        name="status"
-                        value={newClass.status}
-                        onChange={handleClassInputChange}
-                        className="border rounded px-3 py-2 w-full"
-                        required
-                      >
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Assigned Teacher</label>
+                      <label className="block text-sm font-medium mb-1">Assigned Teacher *</label>
                       <select
                         name="assignedTeacher"
                         value={newClass.assignedTeacher}
                         onChange={handleClassInputChange}
                         className="border rounded px-3 py-2 w-full"
+                        required
                       >
-                        <option value="">Select Teacher (Optional)</option>
+                        <option value="">Select Teacher</option>
                         {teachers.filter(t => t.accountStatus === 'active').map((teacher) => (
                           <option key={teacher._id} value={teacher._id}>
-                            {teacher.fullName} ({teacher.teacherId || 'No ID'})
+                            {teacher.fullName} ({teacher.teacherId || teacher.username || 'No ID'})
                           </option>
                         ))}
                       </select>
@@ -1032,7 +1051,6 @@ const AdminDashboard = ({ onLogout }) => {
                     <th className="px-4 py-3 border-b text-left font-semibold">Section</th>
                     <th className="px-4 py-3 border-b text-left font-semibold">Class Name</th>
                     <th className="px-4 py-3 border-b text-left font-semibold">Capacity</th>
-                    <th className="px-4 py-3 border-b text-left font-semibold">Status</th>
                     <th className="px-4 py-3 border-b text-left font-semibold">Assigned Teacher</th>
                     <th className="px-4 py-3 border-b text-left font-semibold">Actions</th>
                   </tr>
@@ -1040,13 +1058,13 @@ const AdminDashboard = ({ onLogout }) => {
                 <tbody>
                   {loadingClasses ? (
                     <tr>
-                      <td colSpan="7" className="px-4 py-4 border-b text-center text-gray-500">
+                      <td colSpan="6" className="px-4 py-4 border-b text-center text-gray-500">
                         Loading classes...
                       </td>
                     </tr>
                   ) : classes.length === 0 ? (
                     <tr>
-                      <td colSpan="7" className="px-4 py-4 border-b text-center text-gray-500">
+                      <td colSpan="6" className="px-4 py-4 border-b text-center text-gray-500">
                         No classes found. Create your first class to get started.
                       </td>
                     </tr>
@@ -1059,13 +1077,6 @@ const AdminDashboard = ({ onLogout }) => {
                         <td className="px-4 py-3 border-b">Section {cls.section}</td>
                         <td className="px-4 py-3 border-b font-medium">{cls.className}</td>
                         <td className="px-4 py-3 border-b">{cls.capacity}</td>
-                        <td className="px-4 py-3 border-b">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            cls.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                          }`}>
-                            {cls.status === 'active' ? 'Active' : 'Inactive'}
-                          </span>
-                        </td>
                         <td className="px-4 py-3 border-b">
                           {cls.assignedTeacher ? cls.assignedTeacher.fullName : 'Not assigned'}
                         </td>
