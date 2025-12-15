@@ -179,7 +179,7 @@ const AdminDashboard = ({ onLogout }) => {
           fullName: newTeacher.fullName,
           email: newTeacher.email,
           phone: newTeacher.phone,
-          teacherId: newTeacher.teacherId.toUpperCase()
+          ...(newTeacher.teacherId && { teacherId: newTeacher.teacherId.toUpperCase() })
         })
       });
 
