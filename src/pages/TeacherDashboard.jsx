@@ -53,15 +53,6 @@ const TeacherDashboard = () => {
 
   // Student Management state
   const [selectedClassId, setSelectedClassId] = useState(null);
-  const [showAddStudentModal, setShowAddStudentModal] = useState(false);
-  const [newStudent, setNewStudent] = useState({
-    name: '',
-    dob: '',
-    gender: '',
-    email: '',
-    phone: '',
-  });
-  const [studentError, setStudentError] = useState('');
 
   // Student filters and search state
   const [studentStatusFilter, setStudentStatusFilter] = useState('All');
@@ -75,21 +66,9 @@ const TeacherDashboard = () => {
     { title: 'Pending Activation', value: classes.reduce((sum, cls) => sum + cls.students.filter(s => s.status === 'Pending').length, 0) },
   ];
 
-  // Get next student ID
-  const getNextStudentId = (classId) => {
-    const allStudents = classes.flatMap(c => c.students);
-    if (allStudents.length === 0) return '25-0001-stud';
-    const lastId = allStudents[allStudents.length - 1].id;
-    const num = parseInt(lastId.split('-')[1], 10) + 1;
-    return `25-${num.toString().padStart(4, '0')}-stud`;
-  };
-
   // Navigate to student view for a specific class
   const handleViewStudents = (classId) => {
     setSelectedClassId(classId);
-    setShowAddStudentForm(false);
-    setNewStudent({ name: '', dob: '', gender: '' });
-    setStudentError('');
   };
 
   // Go back to classes list
@@ -98,63 +77,6 @@ const TeacherDashboard = () => {
     setShowAddStudentForm(false);
     setNewStudent({ name: '', dob: '', gender: '' });
     setStudentError('');
-  };
-
-  // Show add student modal
-  const handleShowAddStudentForm = () => {
-    setShowAddStudentModal(true);
-    setNewStudent({ name: '', dob: '', gender: '' });
-    setStudentError('');
-  };
-
-  // Hide add student modal
-  const handleHideAddStudentForm = () => {
-    setShowAddStudentModal(false);
-    setNewStudent({ name: '', dob: '', gender: '' });
-    setStudentError('');
-  };
-
-  // Handle student input change
-  const handleStudentInputChange = (e) => {
-    setNewStudent({ ...newStudent, [e.target.name]: e.target.value });
-    setStudentError('');
-  };
-
-  // Add student to a class
-  const handleAddStudent = (e) => {
-    e.preventDefault();
-
-    // Validate required fields
-    if (!newStudent.name || !newStudent.dob || !newStudent.gender) {
-      setStudentError('All fields are required.');
-      return;
-    }
-
-    // Update classes with new student
-    setClasses(classes.map(cls => {
-      if (cls.id === selectedClassId) {
-        return {
-          ...cls,
-          students: [
-            ...cls.students,
-            {
-              id: getNextStudentId(selectedClassId),
-              name: newStudent.name,
-              dob: newStudent.dob,
-              gender: newStudent.gender,
-              status: 'Active',
-            },
-          ],
-        };
-      }
-      return cls;
-    }));
-
-    // Hide form and reset after adding
-    handleHideAddStudentForm();
-    setTimeout(() => {
-      alert('Student added successfully!');
-    }, 300);
   };
 
   // Remove student from class
@@ -245,12 +167,6 @@ const TeacherDashboard = () => {
                         </h1>
                         <p className="text-gray-600 mt-1">Manage students in this class</p>
                       </div>
-                      <button
-                        onClick={handleShowAddStudentForm}
-                        className="px-6 py-3 bg-blue-700 text-white rounded font-semibold hover:bg-blue-800"
-                      >
-                        + Add Student
-                      </button>
                     </div>
 
 
@@ -427,77 +343,6 @@ const TeacherDashboard = () => {
           </div>
         )}
       </main>
-
-      {/* Add Student Modal */}
-      {showAddStudentModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
-            <h3 className="text-xl font-bold mb-4 text-blue-800">Add New Student</h3>
-            <form onSubmit={handleAddStudent} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Student ID</label>
-                <input
-                  type="text"
-                  value={getNextStudentId(selectedClassId)}
-                  className="border rounded px-3 py-2 w-full bg-gray-100 font-mono"
-                  readOnly
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Full Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={newStudent.name}
-                  onChange={handleStudentInputChange}
-                  className="border rounded px-3 py-2 w-full"
-                  placeholder="Enter student name"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Date of Birth</label>
-                <input
-                  type="date"
-                  name="dob"
-                  value={newStudent.dob}
-                  onChange={handleStudentInputChange}
-                  className="border rounded px-3 py-2 w-full"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Gender</label>
-                <select
-                  name="gender"
-                  value={newStudent.gender}
-                  onChange={handleStudentInputChange}
-                  className="border rounded px-3 py-2 w-full"
-                  required
-                >
-                  <option value="">Select Gender</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-              {studentError && <div className="text-red-600 text-sm font-semibold">{studentError}</div>}
-              <div className="flex gap-4">
-                <button type="submit" className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
-                  Add Student
-                </button>
-                <button
-                  type="button"
-                  onClick={handleHideAddStudentForm}
-                  className="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
     </div>
   );
