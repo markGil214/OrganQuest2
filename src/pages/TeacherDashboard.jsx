@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const sidebarItems = [
   {
@@ -290,32 +290,18 @@ const TeacherDashboard = () => {
                 </div>
 
                 {/* Charts Section */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                  {/* Organs Explored Chart */}
+                <div className="grid grid-cols-1 gap-8 mb-8">
+                  {/* Quiz Scores Chart */}
                   <div className="bg-white rounded-xl shadow-lg p-6">
-                    <h3 className="text-xl font-bold mb-4 text-gray-800">Organs Explored Distribution</h3>
+                    <h3 className="text-xl font-bold mb-4 text-gray-800">Average Quiz Score per Student</h3>
                     <ResponsiveContainer width="100%" height={300}>
                       <BarChart data={progressData}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="name" />
-                        <YAxis />
-                        <Tooltip />
-                        <Bar dataKey="organsExplored" fill="#3B82F6" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-
-                  {/* Quiz Scores Chart */}
-                  <div className="bg-white rounded-xl shadow-lg p-6">
-                    <h3 className="text-xl font-bold mb-4 text-gray-800">Quiz Performance</h3>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <LineChart data={progressData}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
                         <YAxis domain={[0, 100]} />
                         <Tooltip />
-                        <Line type="monotone" dataKey="averageScore" stroke="#10B981" strokeWidth={3} />
-                      </LineChart>
+                        <Bar dataKey="averageScore" fill="#10B981" />
+                      </BarChart>
                     </ResponsiveContainer>
                   </div>
                 </div>
