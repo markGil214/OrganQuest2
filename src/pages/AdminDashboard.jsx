@@ -7,10 +7,9 @@ const sidebarItems = [
   },
   {
     title: 'User Management',
-    description: 'Manage all system users',
+    description: 'Manage teachers',
     subItems: [
       { title: 'Teacher Management' },
-      { title: 'Student Management' },
     ],
   },
   {
@@ -165,7 +164,6 @@ const AdminDashboard = () => {
   };
 
   const showTeacherManagement = activeSidebar === 'User Management' && activeSubSidebar === 'Teacher Management';
-  const showStudentManagement = activeSidebar === 'User Management' && activeSubSidebar === 'Student Management';
   const showClassSectionManagement = activeSidebar === 'Class & Section Management';
   const showEnrollmentManagement = activeSidebar === 'Enrollment Management';
   const [showEnrollModal, setShowEnrollModal] = useState(false);
@@ -329,14 +327,6 @@ const AdminDashboard = () => {
                     onClick={() => handleSubSidebarClick('User Management', 'Teacher Management')}
                   >
                     Teacher Management
-                  </button>
-                </li>
-                <li className="mb-1">
-                  <button
-                    className={`w-full text-left text-base px-2 py-1 rounded transition-colors ${activeSidebar === 'User Management' && activeSubSidebar === 'Student Management' ? 'bg-blue-700' : 'hover:bg-blue-800'}`}
-                    onClick={() => handleSubSidebarClick('User Management', 'Student Management')}
-                  >
-                    Student Management
                   </button>
                 </li>
               </ul>
@@ -614,214 +604,6 @@ const AdminDashboard = () => {
                     ).length === 0 && (
                     <tr>
                       <td colSpan="9" className="px-4 py-2 border-b text-center text-gray-500">No teachers found</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        // ...existing code...
-        ) : showStudentManagement ? (
-          <div>
-            <h1 className="text-3xl font-bold mb-6">Student Management</h1>
-            {/* Filters */}
-            <div className="flex flex-wrap gap-4 mb-4">
-              <div>
-                <label className="mr-2 font-medium">Status:</label>
-                <select
-                  value={studentStatusFilter}
-                  onChange={e => setStudentStatusFilter(e.target.value)}
-                  className="border px-2 py-1 rounded text-black"
-                >
-                  <option value="All">All</option>
-                  <option value="Pending">Pending</option>
-                  <option value="Active">Active</option>
-                  <option value="Disabled">Disabled</option>
-                </select>
-              </div>
-              <div>
-                <label className="mr-2 font-medium">Search Name/ID:</label>
-                <input
-                  type="text"
-                  value={searchStudentNameID}
-                  onChange={e => setSearchStudentNameID(e.target.value)}
-                  placeholder="Enter name or ID"
-                  className="border px-2 py-1 rounded text-black"
-                />
-              </div>
-              <div>
-                <label className="mr-2 font-medium">Email:</label>
-                <input
-                  type="text"
-                  value={searchStudentEmail}
-                  onChange={e => setSearchStudentEmail(e.target.value)}
-                  placeholder="Enter email"
-                  className="border px-2 py-1 rounded text-black"
-                />
-              </div>
-              <div>
-                <label className="mr-2 font-medium">Phone:</label>
-                <input
-                  type="text"
-                  value={searchStudentPhone}
-                  onChange={e => setSearchStudentPhone(e.target.value)}
-                  placeholder="Enter phone"
-                  className="border px-2 py-1 rounded text-black"
-                />
-              </div>
-              <div>
-                <label className="mr-2 font-medium">Sort By:</label>
-                <select
-                  value={studentSortBy}
-                  onChange={e => setStudentSortBy(e.target.value)}
-                  className="border px-2 py-1 rounded text-black"
-                >
-                  <option value="id">ID</option>
-                  <option value="name">Name</option>
-                  <option value="status">Status</option>
-                </select>
-              </div>
-            </div>
-            <button
-              className="mb-6 bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800"
-              onClick={() => {
-                setNewStudent({ id: '', name: '', email: '', phone: '', status: 'Pending', enrolled: [] });
-                setShowAddStudentModal(true);
-              }}
-            >
-              Add Student
-            </button>
-
-            {/* Modal for Add Student */}
-            {showAddStudentModal && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-                <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative">
-                  <button
-                    className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
-                    onClick={() => setShowAddStudentModal(false)}
-                  >
-                    &times;
-                  </button>
-                  <h2 className="text-xl font-bold mb-4">Add Student</h2>
-                  <form onSubmit={handleAddStudent} className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">ID</label>
-                      <input
-                        type="text"
-                        name="id"
-                        value={newStudent.id}
-                        readOnly
-                        className="border rounded px-3 py-2 w-full bg-gray-100 cursor-not-allowed"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Full Name</label>
-                      <input
-                        type="text"
-                        name="name"
-                        value={newStudent.name}
-                        onChange={handleStudentInputChange}
-                        className="border rounded px-3 py-2 w-full"
-                        placeholder="Enter student name"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Date of Birth</label>
-                      <input
-                        type="date"
-                        name="dob"
-                        value={newStudent.dob}
-                        onChange={handleStudentInputChange}
-                        className="border rounded px-3 py-2 w-full"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Gender</label>
-                      <select
-                        name="gender"
-                        value={newStudent.gender}
-                        onChange={handleStudentInputChange}
-                        className="border rounded px-3 py-2 w-full"
-                        required
-                      >
-                        <option value="">Select gender</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Other">Other</option>
-                      </select>
-                    </div>
-                    {/* Email field removed as per new requirements */}
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Phone</label>
-                      <input
-                        type="text"
-                        name="phone"
-                        value={newStudent.phone}
-                        onChange={handleStudentInputChange}
-                        className="border rounded px-3 py-2 w-full"
-                        placeholder="Enter phone number"
-                        required
-                      />
-                    </div>
-                    <button type="submit" className="w-full bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800">Add Student</button>
-                  </form>
-                </div>
-              </div>
-            )}
-
-            <div className="overflow-x-auto">
-              <table className="min-w-full bg-white rounded shadow">
-                <thead>
-                  <tr>
-                    <th className="px-4 py-2 border-b text-left">ID</th>
-                    <th className="px-4 py-2 border-b text-left">Full Name</th>
-                    <th className="px-4 py-2 border-b text-left">DOB</th>
-                    <th className="px-4 py-2 border-b text-left">Gender</th>
-                    <th className="px-4 py-2 border-b text-left">Email</th>
-                    <th className="px-4 py-2 border-b text-left">Phone</th>
-                    <th className="px-4 py-2 border-b text-left">Status</th>
-                    <th className="px-4 py-2 border-b text-left">Enrollment</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {students
-                    .filter((student) =>
-                      (studentStatusFilter === 'All' || student.status === studentStatusFilter) &&
-                      (student.name.toLowerCase().includes(searchStudentNameID.toLowerCase()) ||
-                        student.id.toLowerCase().includes(searchStudentNameID.toLowerCase())) &&
-                      student.email.toLowerCase().includes(searchStudentEmail.toLowerCase()) &&
-                      (student.phone || '').includes(searchStudentPhone)
-                    )
-                    .sort((a, b) => {
-                      if (studentSortBy === 'name') return a.name.localeCompare(b.name);
-                      if (studentSortBy === 'id') return a.id.localeCompare(b.id);
-                      if (studentSortBy === 'status') return a.status.localeCompare(b.status);
-                      return 0;
-                    })
-                    .map((student) => (
-                      <tr key={student.id}>
-                        <td className="px-4 py-2 border-b">{student.id}</td>
-                        <td className="px-4 py-2 border-b">{student.name}</td>
-                        <td className="px-4 py-2 border-b">{student.dob}</td>
-                        <td className="px-4 py-2 border-b">{student.gender}</td>
-                        <td className="px-4 py-2 border-b">{student.email}</td>
-                        <td className="px-4 py-2 border-b">{student.phone}</td>
-                        <td className="px-4 py-2 border-b">{student.status}</td>
-                        <td className="px-4 py-2 border-b">{student.enrolled && student.enrolled.length > 0 ? student.enrolled.join(', ') : <span className="text-gray-400">Not enrolled</span>}</td>
-                      </tr>
-                    ))}
-                  {students
-                    .filter((student) =>
-                      (studentStatusFilter === 'All' || student.status === studentStatusFilter) &&
-                      (student.name.toLowerCase().includes(searchStudentNameID.toLowerCase()) ||
-                        student.id.toLowerCase().includes(searchStudentNameID.toLowerCase())) &&
-                      student.email.toLowerCase().includes(searchStudentEmail.toLowerCase()) &&
-                      (student.phone || '').includes(searchStudentPhone)
-                    ).length === 0 && (
-                    <tr>
-                      <td colSpan="8" className="px-4 py-2 border-b text-center text-gray-500">No students found</td>
                     </tr>
                   )}
                 </tbody>
