@@ -626,7 +626,12 @@ const AdminDashboard = ({ onLogout }) => {
         fetchClassStats();
       } else {
         console.error('Failed to delete class:', data);
-        setClassError(data.message || 'Failed to delete class');
+        // Show user-friendly error message
+        if (data.message && data.message.includes('students assigned')) {
+          setClassError(`${data.message}\n\nPlease move students to another class before deleting.`);
+        } else {
+          setClassError(data.message || 'Failed to delete class');
+        }
       }
     } catch (error) {
       console.error('Error deleting class:', error);
