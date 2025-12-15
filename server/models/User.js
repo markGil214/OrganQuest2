@@ -242,32 +242,40 @@ userSchema.index({ createdAt: -1 }); // For sorting by registration date
 // Pre-save hook to generate userId
 userSchema.pre('save', async function(next) {
   if (!this.userId) {
-    const roleSuffixes = {
-      student: 'STUD',
-      teacher: 'TEACH',
-      admin: 'ADMIN',
-      superuser: 'SUPER'
-    };
+    try {
+      const roleSuffixes = {
+        student: 'STUD',
+        teacher: 'TEACH',
+        admin: 'ADMIN',
+        superuser: 'SUPER'
+      };
 
-    const suffix = roleSuffixes[this.role] || 'USER';
-    const year = '25'; // 2025
+      const suffix = roleSuffixes[this.role] || 'USER';
+      const year = '25'; // 2025
 
-    // Find the highest sequence number for this role
-    const lastUser = await this.constructor.findOne(
-      { role: this.role, userId: { $regex: `^${year}-\\d{4}-${suffix}$` } }
-    ).sort({ userId: -1 });
+      // Find the highest sequence number for this role
+      const lastUser = await this.constructor.findOne(
+        { role: this.role, userId: { $regex: `^${year}-\\d{4}-${suffix}$` } }
+      ).sort({ userId: -1 });
 
-    let sequence = 1;
-    if (lastUser) {
-      const match = lastUser.userId.match(new RegExp(`^${year}-(\\d{4})-${suffix}$`));
-      if (match) {
-        sequence = parseInt(match[1]) + 1;
+      let sequence = 1;
+      if (lastUser) {
+        const match = lastUser.userId.match(new RegExp(`^${year}-(\\d{4})-${suffix}$`));
+        if (match) {
+          sequence = parseInt(match[1]) + 1;
+        }
       }
-    }
 
-    this.userId = `${year}-${sequence.toString().padStart(4, '0')}-${suffix}`;
+      this.userId = `${year}-${sequence.toString().padStart(4, '0')}-${suffix}`;
+      console.log('Generated userId:', this.userId, 'for role:', this.role);
+      next();
+    } catch (error) {
+      console.error('Error generating userId:', error);
+      next(error);
+    }
+  } else {
+    next();
   }
-  next();
 });
 
 const User = mongoose.model('User', userSchema);
