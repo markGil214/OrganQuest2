@@ -254,11 +254,10 @@ const AdminDashboard = () => {
   ]);
   const [showAddStudentModal, setShowAddStudentModal] = useState(false);
   const [newStudent, setNewStudent] = useState({
-    id: '',
+    id: '25-0000-stud',
     name: '',
     dob: '',
     gender: '',
-    email: '',
     phone: '',
     status: 'Pending',
     enrolled: [],
@@ -285,12 +284,12 @@ const AdminDashboard = () => {
   const handleAddStudent = (e) => {
     e.preventDefault();
     // Validate required fields for new structure
-    if (!newStudent.name || !newStudent.dob || !newStudent.gender || !newStudent.email || !newStudent.phone) return;
+    if (!newStudent.name || !newStudent.dob || !newStudent.gender || !newStudent.phone) return;
     setStudents([
       ...students,
       { ...newStudent, id: getNextStudentId(), status: 'Active', enrolled: [] },
     ]);
-    setNewStudent({ id: '', name: '', dob: '', gender: '', email: '', phone: '', status: 'Pending', enrolled: [] });
+    setNewStudent({ id: '25-0000-stud', name: '', dob: '', gender: '', phone: '', status: 'Pending', enrolled: [] });
     setShowAddStudentModal(false);
   };
 
@@ -706,18 +705,7 @@ const AdminDashboard = () => {
                         <option value="Other">Other</option>
                       </select>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Email</label>
-                      <input
-                        type="email"
-                        name="email"
-                        value={newStudent.email}
-                        onChange={handleStudentInputChange}
-                        className="border rounded px-3 py-2 w-full"
-                        placeholder="Enter student email"
-                        required
-                      />
-                    </div>
+                    {/* Email field removed as per new requirements */}
                     <div>
                       <label className="block text-sm font-medium mb-1">Phone</label>
                       <input
