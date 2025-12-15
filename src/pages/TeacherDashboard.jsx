@@ -75,7 +75,7 @@ const TeacherDashboard = ({ onLogout }) => {
   const fetchTeacherClasses = async () => {
     setLoadingClasses(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       const response = await fetch(`${API_URL}/api/admin/teacher/my-classes`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -99,7 +99,7 @@ const TeacherDashboard = ({ onLogout }) => {
   const fetchClassStudents = async (classId) => {
     setLoadingStudents(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       const response = await fetch(`${API_URL}/api/admin/teacher/class-students/${classId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
