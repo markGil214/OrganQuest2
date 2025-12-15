@@ -1815,7 +1815,6 @@ router.get('/classes',
       const {
         grade,
         section,
-        status = 'active',
         assignedTeacher,
         search,
         sortBy = 'createdAt',
@@ -1829,7 +1828,6 @@ router.get('/classes',
 
       if (grade) query.grade = grade;
       if (section) query.section = section;
-      if (status) query.status = status;
       if (assignedTeacher) query.assignedTeacher = assignedTeacher;
 
       if (search) {
@@ -1935,6 +1933,11 @@ router.post('/classes',
       });
 
       await newClass.save();
+      console.log('Class saved to database with ID:', newClass._id);
+
+      // Verify the class was saved
+      const savedClass = await Class.findById(newClass._id);
+      console.log('Verification - class found after save:', savedClass ? 'YES' : 'NO');
 
       // Populate teacher info for response
       await newClass.populate('assignedTeacher', 'fullName username email');
@@ -2054,23 +2057,38 @@ router.delete('/classes/:id',
       console.log('=== DELETE CLASS ===');
       console.log('Class ID:', req.params.id);
 
-      // Check if class has students assigned
-      const studentsInClass = await User.countDocuments({
-        role: 'student',
-        grade: (await Class.findById(req.params.id)).grade,
-        section: (await Class.findById(req.params.id)).section
-      });
-
-      if (studentsInClass > 0) {
-        return res.status(400).json({
-          success: false,
-          message: `Cannot delete class with ${studentsInClass} students assigned. Please reassign students first.`
+      // First check if the class exists
+      const classToDelete = await Class.findById(req.params.id);
+      console.log('Class found in database:', classToDelete ? 'YES' : 'NO');
+      if (classToDelete) {
+        console.log('Class details:', {
+          id: classToDelete._id,
+          grade: classToDelete.grade,
+          section: classToDelete.section,
+          className: classToDelete.className
         });
+      }
+
+      // Check if class has students assigned
+      if (classToDelete) {
+        const studentsInClass = await User.countDocuments({
+          role: 'student',
+          grade: classToDelete.grade,
+          section: classToDelete.section
+        });
+
+        if (studentsInClass > 0) {
+          return res.status(400).json({
+            success: false,
+            message: `Cannot delete class with ${studentsInClass} students assigned. Please reassign students first.`
+          });
+        }
       }
 
       const deletedClass = await Class.findByIdAndDelete(req.params.id);
 
       if (!deletedClass) {
+        console.log('Class not found for deletion');
         return res.status(404).json({
           success: false,
           message: 'Class not found'

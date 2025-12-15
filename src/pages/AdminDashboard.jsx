@@ -398,9 +398,11 @@ const AdminDashboard = ({ onLogout }) => {
         setClasses(data.data.classes);
       } else {
         console.error('Failed to fetch classes:', data);
+        setClasses([]); // Clear classes list on error
       }
     } catch (error) {
       console.error('Error fetching classes:', error);
+      setClasses([]); // Clear classes list on error
     } finally {
       setLoadingClasses(false);
     }
