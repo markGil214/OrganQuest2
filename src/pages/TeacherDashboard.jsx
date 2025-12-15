@@ -29,6 +29,9 @@ const InfoCard = ({ title, value }) => (
 );
 
 const TeacherDashboard = ({ onLogout }) => {
+  // API Configuration
+  const API_URL = import.meta.env.VITE_API_URL || 'https://organquest2.onrender.com';
+
   // Sidebar active state
   const [activeSidebar, setActiveSidebar] = useState('Dashboard');
 
@@ -37,40 +40,14 @@ const TeacherDashboard = ({ onLogout }) => {
   };
 
   // Teacher's assigned classes data
-  const [classes, setClasses] = useState([
-    {
-      id: 1,
-      grade: 'Grade 7',
-      section: 'A',
-      subject: 'Math',
-      students: [
-        { id: '25-0001-stud', name: 'Juan Dela Cruz', dob: '2010-05-15', gender: 'Male', status: 'Active' },
-        { id: '25-0002-stud', name: 'Maria Santos', dob: '2010-08-20', gender: 'Female', status: 'Active' },
-        { id: '25-0003-stud', name: 'Carlos Reyes', dob: '2009-11-02', gender: 'Male', status: 'Pending' },
-        { id: '25-0006-stud', name: 'Ana Lopez', dob: '2010-02-14', gender: 'Female', status: 'Active' },
-        { id: '25-0007-stud', name: 'Pedro Martinez', dob: '2009-09-30', gender: 'Male', status: 'Active' },
-        { id: '25-0010-stud', name: 'Sofia Rodriguez', dob: '2010-01-22', gender: 'Female', status: 'Active' },
-        { id: '25-0015-stud', name: 'Diego Fernandez', dob: '2009-12-05', gender: 'Male', status: 'Pending' },
-      ],
-    },
-    {
-      id: 2,
-      grade: 'Grade 8',
-      section: 'B',
-      subject: 'Science',
-      students: [
-        { id: '25-0004-stud', name: 'Rosa Garcia', dob: '2009-03-10', gender: 'Female', status: 'Active' },
-        { id: '25-0005-stud', name: 'Miguel Torres', dob: '2009-07-25', gender: 'Male', status: 'Active' },
-        { id: '25-0008-stud', name: 'Isabella Morales', dob: '2009-04-18', gender: 'Female', status: 'Active' },
-        { id: '25-0009-stud', name: 'Luis Gonzalez', dob: '2009-06-12', gender: 'Male', status: 'Active' },
-        { id: '25-0012-stud', name: 'Carmen Ruiz', dob: '2009-08-08', gender: 'Female', status: 'Active' },
-        { id: '25-0020-stud', name: 'Antonio Silva', dob: '2008-11-15', gender: 'Male', status: 'Pending' },
-      ],
-    },
-  ]);
+  const [classes, setClasses] = useState([]);
+  const [loadingClasses, setLoadingClasses] = useState(false);
+  const [classStudents, setClassStudents] = useState([]);
+  const [loadingStudents, setLoadingStudents] = useState(false);
 
   // Student Management state
   const [selectedClassId, setSelectedClassId] = useState(null);
+  const [selectedClass, setSelectedClass] = useState(null);
 
   // Student filters and search state
   const [studentStatusFilter, setStudentStatusFilter] = useState('All');
@@ -90,18 +67,77 @@ const TeacherDashboard = ({ onLogout }) => {
   // Dashboard stats
   const stats = [
     { title: 'Classes Assigned', value: classes.length },
-    { title: 'Total Students', value: classes.reduce((sum, cls) => sum + cls.students.length, 0) },
-    { title: 'Pending Activation', value: classes.reduce((sum, cls) => sum + cls.students.filter(s => s.status === 'Pending').length, 0) },
+    { title: 'Total Students', value: classStudents.length },
+    { title: 'Pending Activation', value: classStudents.filter(s => s.status === 'Pending').length },
   ];
+
+  // Fetch teacher's assigned classes
+  const fetchTeacherClasses = async () => {
+    setLoadingClasses(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/api/admin/teacher/my-classes`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setClasses(data.classes || []);
+      } else {
+        console.error('Failed to fetch classes');
+      }
+    } catch (error) {
+      console.error('Error fetching classes:', error);
+    } finally {
+      setLoadingClasses(false);
+    }
+  };
+
+  // Fetch students for a specific class
+  const fetchClassStudents = async (classId) => {
+    setLoadingStudents(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/api/admin/teacher/class-students/${classId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setClassStudents(data.students || []);
+        setSelectedClass(data.classInfo || null);
+      } else {
+        console.error('Failed to fetch students');
+        setClassStudents([]);
+      }
+    } catch (error) {
+      console.error('Error fetching students:', error);
+      setClassStudents([]);
+    } finally {
+      setLoadingStudents(false);
+    }
+  };
+
+  // Load classes on mount
+  useEffect(() => {
+    fetchTeacherClasses();
+  }, []);
 
   // Navigate to student view for a specific class
   const handleViewStudents = (classId) => {
     setSelectedClassId(classId);
+    fetchClassStudents(classId);
   };
 
   // Go back to classes list
   const handleBackToClasses = () => {
     setSelectedClassId(null);
+    setSelectedClass(null);
+    setClassStudents([]);
     setShowAddStudentForm(false);
     setNewStudent({ name: '', dob: '', gender: '' });
     setStudentError('');
@@ -942,11 +978,11 @@ const TeacherDashboard = ({ onLogout }) => {
           selectedClassId ? (
             // Student Management View
             <div>
-              {(() => {
-                const currentClass = classes.find(c => c.id === selectedClassId);
-                if (!currentClass) return null;
-
-                return (
+              {!selectedClass && loadingStudents ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-600">Loading students...</p>
+                </div>
+              ) : selectedClass ? (
                   <>
                     <div className="flex items-center justify-between mb-6">
                       <div>
@@ -957,7 +993,7 @@ const TeacherDashboard = ({ onLogout }) => {
                           ← Back to Classes
                         </button>
                         <h1 className="text-3xl font-bold">
-                          {currentClass.grade} - Section {currentClass.section} ({currentClass.subject})
+                          {selectedClass.grade} - Section {selectedClass.section} ({selectedClass.className || 'Class'})
                         </h1>
                         <p className="text-gray-600 mt-1">Manage students in this class</p>
                       </div>
@@ -1018,26 +1054,39 @@ const TeacherDashboard = ({ onLogout }) => {
                           </tr>
                         </thead>
                         <tbody>
-                          {(() => {
-                            const filteredStudents = currentClass.students
+                          {loadingStudents ? (
+                            <tr>
+                              <td colSpan="6" className="px-4 py-8 text-center text-gray-500">
+                                Loading students...
+                              </td>
+                            </tr>
+                          ) : (() => {
+                            const filteredStudents = classStudents
                               .filter(s =>
                                 (studentStatusFilter === 'All' || s.status === studentStatusFilter) &&
-                                s.name.toLowerCase().includes(searchStudentName.toLowerCase())
+                                s.fullName.toLowerCase().includes(searchStudentName.toLowerCase())
                               )
                               .sort((a, b) => {
-                                if (studentSortBy === 'name') return a.name.localeCompare(b.name);
-                                if (studentSortBy === 'id') return a.id.localeCompare(b.id);
+                                if (studentSortBy === 'name') return a.fullName.localeCompare(b.fullName);
+                                if (studentSortBy === 'id') return a.studentId.localeCompare(b.studentId);
                                 if (studentSortBy === 'status') return a.status.localeCompare(b.status);
                                 return 0;
                               });
                             return (
                               <>
-                                {filteredStudents.map((student) => (
-                            <tr key={student.id}>
-                              <td className="px-4 py-2 border-b font-mono text-sm">{student.id}</td>
-                              <td className="px-4 py-2 border-b">{student.name}</td>
-                              <td className="px-4 py-2 border-b">{student.dob}</td>
-                              <td className="px-4 py-2 border-b">{student.gender}</td>
+                                {filteredStudents.length === 0 ? (
+                                  <tr>
+                                    <td colSpan="6" className="px-4 py-8 text-center text-gray-500">
+                                      No students found in this class.
+                                    </td>
+                                  </tr>
+                                ) : (
+                                  filteredStudents.map((student) => (
+                            <tr key={student._id}>
+                              <td className="px-4 py-2 border-b font-mono text-sm">{student.studentId}</td>
+                              <td className="px-4 py-2 border-b">{student.fullName}</td>
+                              <td className="px-4 py-2 border-b">{student.dateOfBirth ? new Date(student.dateOfBirth).toLocaleDateString() : 'N/A'}</td>
+                              <td className="px-4 py-2 border-b">{student.gender || 'N/A'}</td>
                               <td className="px-4 py-2 border-b font-semibold">
                                 <span className={`px-2 py-1 rounded text-white text-xs ${
                                   student.status === 'Active' ? 'bg-green-600' :
@@ -1049,26 +1098,22 @@ const TeacherDashboard = ({ onLogout }) => {
                               </td>
                               <td className="px-4 py-2 border-b flex gap-2">
                                 <button
-                                  className="bg-orange-600 text-white px-2 py-1 rounded text-xs hover:bg-orange-700"
-                                  onClick={() => handleToggleStudentStatus(currentClass.id, student.id)}
+                                  className="bg-orange-600 text-white px-2 py-1 rounded text-xs hover:bg-orange-700 opacity-50 cursor-not-allowed"
+                                  disabled
+                                  title="Status management coming soon"
                                 >
                                   {student.status === 'Active' ? 'Disable' : 'Enable'}
                                 </button>
                                 <button
-                                  className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700"
-                                  onClick={() => handleRemoveStudent(currentClass.id, student.id)}
+                                  className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700 opacity-50 cursor-not-allowed"
+                                  disabled
+                                  title="Student removal coming soon"
                                 >
                                   Remove
                                 </button>
                               </td>
                             </tr>
-                          ))}
-                                {filteredStudents.length === 0 && (
-                                  <tr>
-                                    <td colSpan="7" className="px-4 py-2 border-b text-center text-gray-500">
-                                      No students found
-                                    </td>
-                                  </tr>
+                                  ))
                                 )}
                               </>
                             );
@@ -1077,8 +1122,7 @@ const TeacherDashboard = ({ onLogout }) => {
                       </table>
                     </div>
                   </>
-                );
-              })()}
+              ) : null}
             </div>
           ) : (
             // Classes List View
@@ -1097,22 +1141,36 @@ const TeacherDashboard = ({ onLogout }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {classes.map((cls) => (
-                      <tr key={cls.id}>
-                        <td className="px-4 py-2 border-b">{cls.grade}</td>
-                        <td className="px-4 py-2 border-b">{cls.section}</td>
-                        <td className="px-4 py-2 border-b">{cls.subject}</td>
-                        <td className="px-4 py-2 border-b">{cls.students.length}</td>
-                        <td className="px-4 py-2 border-b flex gap-2">
-                          <button
-                            className="bg-blue-700 text-white px-3 py-1 rounded hover:bg-blue-800 text-xs"
-                            onClick={() => handleViewStudents(cls.id)}
-                          >
-                            View Students / Add
-                          </button>
+                    {loadingClasses ? (
+                      <tr>
+                        <td colSpan="5" className="px-4 py-8 text-center text-gray-500">
+                          Loading classes...
                         </td>
                       </tr>
-                    ))}
+                    ) : classes.length === 0 ? (
+                      <tr>
+                        <td colSpan="5" className="px-4 py-8 text-center text-gray-500">
+                          No classes assigned to you yet.
+                        </td>
+                      </tr>
+                    ) : (
+                      classes.map((cls) => (
+                        <tr key={cls._id}>
+                          <td className="px-4 py-2 border-b">{cls.grade}</td>
+                          <td className="px-4 py-2 border-b">{cls.section}</td>
+                          <td className="px-4 py-2 border-b">{cls.className || 'N/A'}</td>
+                          <td className="px-4 py-2 border-b">-</td>
+                          <td className="px-4 py-2 border-b flex gap-2">
+                            <button
+                              className="bg-blue-700 text-white px-3 py-1 rounded hover:bg-blue-800 text-xs"
+                              onClick={() => handleViewStudents(cls._id)}
+                            >
+                              View Students
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -1123,19 +1181,24 @@ const TeacherDashboard = ({ onLogout }) => {
         ) : (
           <div>
             <h1 className="text-3xl font-bold mb-10">Teacher Dashboard</h1>
-            <div className="flex gap-12 justify-center mb-12">
-              {stats.map((stat) => (
-                <InfoCard key={stat.title} {...stat} />
-              ))}
-            </div>
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-2xl font-bold mb-4">Quick Overview</h2>
-              <p className="text-gray-700 mb-2">You have <strong>{classes.length}</strong> classes assigned to you.</p>
-              <p className="text-gray-700 mb-2">Total of <strong>{classes.reduce((sum, cls) => sum + cls.students.length, 0)}</strong> students across all your classes.</p>
-              <p className="text-gray-700">
-                <strong>{classes.reduce((sum, cls) => sum + cls.students.filter(s => s.status === 'Pending').length, 0)}</strong> students are pending activation.
-              </p>
-            </div>
+            {loadingClasses ? (
+              <div className="text-center py-8">
+                <p className="text-gray-600">Loading your classes...</p>
+              </div>
+            ) : (
+              <>
+                <div className="flex gap-12 justify-center mb-12">
+                  {stats.map((stat) => (
+                    <InfoCard key={stat.title} {...stat} />
+                  ))}
+                </div>
+                <div className="bg-white rounded-lg shadow p-6">
+                  <h2 className="text-2xl font-bold mb-4">Quick Overview</h2>
+                  <p className="text-gray-700 mb-2">You have <strong>{classes.length}</strong> classes assigned to you.</p>
+                  <p className="text-gray-700 mb-2">View your classes from the "Classes" menu to see assigned students.</p>
+                </div>
+              </>
+            )}
           </div>
         )}
       </main>

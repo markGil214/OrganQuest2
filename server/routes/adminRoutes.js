@@ -8,6 +8,99 @@ import { sendTeacherInvitationEmail } from '../utils/emailService.js';
 
 const router = express.Router();
 
+// ==========================================
+// TEACHER ENDPOINTS
+// ==========================================
+
+// @route   GET /api/admin/teacher/my-classes
+// @desc    Get classes assigned to the logged-in teacher
+// @access  Teacher
+router.get('/teacher/my-classes', authMiddleware, async (req, res) => {
+  try {
+    console.log('=== GET TEACHER CLASSES ===');
+    console.log('Teacher ID:', req.userId);
+
+    const classes = await Class.find({ assignedTeacher: req.userId })
+      .populate('assignedTeacher', 'fullName email')
+      .sort({ grade: 1, section: 1 });
+
+    console.log(`Found ${classes.length} classes for teacher`);
+
+    res.status(200).json({
+      success: true,
+      data: { classes }
+    });
+  } catch (error) {
+    console.error('Get teacher classes error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error fetching classes',
+      error: error.message
+    });
+  }
+});
+
+// @route   GET /api/admin/teacher/class-students/:classId
+// @desc    Get all students in a specific class
+// @access  Teacher
+router.get('/teacher/class-students/:classId', authMiddleware, async (req, res) => {
+  try {
+    console.log('=== GET CLASS STUDENTS ===');
+    console.log('Class ID:', req.params.classId);
+    console.log('Teacher ID:', req.userId);
+
+    // Get the class to verify teacher ownership and get grade/section
+    const classData = await Class.findById(req.params.classId);
+    
+    if (!classData) {
+      return res.status(404).json({
+        success: false,
+        message: 'Class not found'
+      });
+    }
+
+    // Verify this class belongs to the logged-in teacher
+    if (classData.assignedTeacher.toString() !== req.userId) {
+      return res.status(403).json({
+        success: false,
+        message: 'You do not have access to this class'
+      });
+    }
+
+    // Get all students with matching grade and section
+    const students = await User.find({
+      role: 'student',
+      grade: classData.grade,
+      section: classData.section
+    })
+      .select('-password -__v')
+      .sort({ fullName: 1 });
+
+    console.log(`Found ${students.length} students in ${classData.grade}-${classData.section}`);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        class: {
+          _id: classData._id,
+          grade: classData.grade,
+          section: classData.section,
+          className: classData.className,
+          capacity: classData.capacity
+        },
+        students
+      }
+    });
+  } catch (error) {
+    console.error('Get class students error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error fetching students',
+      error: error.message
+    });
+  }
+});
+
 // Email test endpoint removed - will be implemented when email service is configured
 
 // @route   GET /api/Teacher/students
