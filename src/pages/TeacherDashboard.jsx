@@ -34,9 +34,9 @@ const TeacherDashboard = () => {
       section: 'A',
       subject: 'Math',
       students: [
-        { id: '2025-0001', name: 'Juan Dela Cruz', dob: '2010-05-15', gender: 'Male', email: 'juan@example.com', phone: '09171234567', status: 'Active' },
-        { id: '2025-0002', name: 'Maria Santos', dob: '2010-08-20', gender: 'Female', email: 'maria@example.com', phone: '09179876543', status: 'Active' },
-        { id: '2025-0003', name: 'Carlos Reyes', dob: '2009-11-02', gender: 'Male', email: 'carlos@example.com', phone: '09170001122', status: 'Pending' },
+        { id: '25-0000-stud', name: 'Juan Dela Cruz', dob: '2010-05-15', gender: 'Male', email: 'juan@example.com', phone: '09171234567', status: 'Active' },
+        { id: '25-0001-stud', name: 'Maria Santos', dob: '2010-08-20', gender: 'Female', email: 'maria@example.com', phone: '09179876543', status: 'Active' },
+        { id: '25-0002-stud', name: 'Carlos Reyes', dob: '2009-11-02', gender: 'Male', email: 'carlos@example.com', phone: '09170001122', status: 'Pending' },
       ],
     },
     {
@@ -45,8 +45,8 @@ const TeacherDashboard = () => {
       section: 'B',
       subject: 'Science',
       students: [
-        { id: '2025-0004', name: 'Rosa Garcia', dob: '2009-03-10', gender: 'Female', email: 'rosa@example.com', phone: '09181234567', status: 'Active' },
-        { id: '2025-0005', name: 'Miguel Torres', dob: '2009-07-25', gender: 'Male', email: 'miguel@example.com', phone: '09189876543', status: 'Active' },
+        { id: '25-0003-stud', name: 'Rosa Garcia', dob: '2009-03-10', gender: 'Female', email: 'rosa@example.com', phone: '09181234567', status: 'Active' },
+        { id: '25-0004-stud', name: 'Miguel Torres', dob: '2009-07-25', gender: 'Male', email: 'miguel@example.com', phone: '09189876543', status: 'Active' },
       ],
     },
   ]);
@@ -79,10 +79,10 @@ const TeacherDashboard = () => {
   // Get next student ID
   const getNextStudentId = (classId) => {
     const allStudents = classes.flatMap(c => c.students);
-    if (allStudents.length === 0) return '2025-0001';
+    if (allStudents.length === 0) return '25-0000-stud';
     const lastId = allStudents[allStudents.length - 1].id;
     const num = parseInt(lastId.split('-')[1], 10) + 1;
-    return `2025-${num.toString().padStart(4, '0')}`;
+    return `25-${num.toString().padStart(4, '0')}-stud`;
   };
 
   // Navigate to student view for a specific class
@@ -312,6 +312,7 @@ const TeacherDashboard = () => {
                       <table className="min-w-full bg-white rounded shadow border">
                         <thead>
                           <tr className="bg-gray-100">
+                            <th className="px-4 py-2 border-b text-left">Student ID</th>
                             <th className="px-4 py-2 border-b text-left">Student Name</th>
                             <th className="px-4 py-2 border-b text-left">Date of Birth</th>
                             <th className="px-4 py-2 border-b text-left">Gender</th>
@@ -339,6 +340,7 @@ const TeacherDashboard = () => {
                               <>
                                 {filteredStudents.map((student) => (
                             <tr key={student.id}>
+                              <td className="px-4 py-2 border-b font-mono text-sm">{student.id}</td>
                               <td className="px-4 py-2 border-b">{student.name}</td>
                               <td className="px-4 py-2 border-b">{student.dob}</td>
                               <td className="px-4 py-2 border-b">{student.gender}</td>
