@@ -82,6 +82,9 @@ const AdminDashboard = () => {
     name: '',
     email: '',
     phone: '',
+    grade: '',
+    section: '',
+    subject: '',
   });
   const [teacherError, setTeacherError] = useState('');
 
@@ -101,8 +104,8 @@ const AdminDashboard = () => {
   const handleAddTeacher = (e) => {
     e.preventDefault();
     // Validate required fields
-    if (!newTeacher.name || !newTeacher.email) {
-      setTeacherError('Full name and email are required.');
+    if (!newTeacher.name || !newTeacher.email || !newTeacher.grade || !newTeacher.section || !newTeacher.subject) {
+      setTeacherError('All fields are required.');
       return;
     }
     // Validate unique email
@@ -117,7 +120,7 @@ const AdminDashboard = () => {
       { ...newTeacher, id: newId, status: 'Pending', log: [`[${new Date().toLocaleString()}] Teacher added. Activation email sent.`] },
     ]);
     setShowAddModal(false);
-    setNewTeacher({ id: '', name: '', email: '', phone: '' });
+    setNewTeacher({ id: '', name: '', email: '', phone: '', grade: '', section: '', subject: '' });
     setTeacherError('');
     setTimeout(() => {
       alert('Activation email sent!');
@@ -494,6 +497,42 @@ const AdminDashboard = () => {
                         placeholder="Enter phone number"
                       />
                     </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Grade / Year</label>
+                      <input
+                        type="text"
+                        name="grade"
+                        value={newTeacher.grade}
+                        onChange={handleTeacherInputChange}
+                        className="border rounded px-3 py-2 w-full"
+                        placeholder="e.g., Grade 7"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Section</label>
+                      <input
+                        type="text"
+                        name="section"
+                        value={newTeacher.section}
+                        onChange={handleTeacherInputChange}
+                        className="border rounded px-3 py-2 w-full"
+                        placeholder="e.g., A, B"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Subject</label>
+                      <input
+                        type="text"
+                        name="subject"
+                        value={newTeacher.subject}
+                        onChange={handleTeacherInputChange}
+                        className="border rounded px-3 py-2 w-full"
+                        placeholder="e.g., Math, Science"
+                        required
+                      />
+                    </div>
                     {teacherError && <div className="text-red-600 text-sm font-semibold">{teacherError}</div>}
                     <button type="submit" className="w-full bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800">Add Teacher</button>
                   </form>
@@ -509,6 +548,9 @@ const AdminDashboard = () => {
                     <th className="px-4 py-2 border-b text-left">Full Name</th>
                     <th className="px-4 py-2 border-b text-left">Email</th>
                     <th className="px-4 py-2 border-b text-left">Phone Number</th>
+                    <th className="px-4 py-2 border-b text-left">Grade / Year</th>
+                    <th className="px-4 py-2 border-b text-left">Section</th>
+                    <th className="px-4 py-2 border-b text-left">Subject</th>
                     <th className="px-4 py-2 border-b text-left">Status</th>
                     <th className="px-4 py-2 border-b text-left">Actions</th>
                   </tr>
@@ -534,6 +576,9 @@ const AdminDashboard = () => {
                         <td className="px-4 py-2 border-b">{teacher.name}</td>
                         <td className="px-4 py-2 border-b">{teacher.email}</td>
                         <td className="px-4 py-2 border-b">{teacher.phone || '-'}</td>
+                        <td className="px-4 py-2 border-b">{teacher.grade}</td>
+                        <td className="px-4 py-2 border-b">{teacher.section}</td>
+                        <td className="px-4 py-2 border-b">{teacher.subject}</td>
                         <td className="px-4 py-2 border-b">{teacher.status}</td>
                         <td className="px-4 py-2 border-b flex gap-2">
                           {teacher.status === 'Pending' && (
