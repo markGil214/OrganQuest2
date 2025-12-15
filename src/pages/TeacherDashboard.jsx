@@ -1068,7 +1068,7 @@ const TeacherDashboard = ({ onLogout }) => {
                               )
                               .sort((a, b) => {
                                 if (studentSortBy === 'name') return a.fullName.localeCompare(b.fullName);
-                                if (studentSortBy === 'id') return a.studentId.localeCompare(b.studentId);
+                                if (studentSortBy === 'id') return a.userId.localeCompare(b.userId);
                                 if (studentSortBy === 'status') return a.status.localeCompare(b.status);
                                 return 0;
                               });
@@ -1083,7 +1083,7 @@ const TeacherDashboard = ({ onLogout }) => {
                                 ) : (
                                   filteredStudents.map((student) => (
                             <tr key={student._id}>
-                              <td className="px-4 py-2 border-b font-mono text-sm">{student.studentId}</td>
+                              <td className="px-4 py-2 border-b font-mono text-sm">{student.userId}</td>
                               <td className="px-4 py-2 border-b">{student.fullName}</td>
                               <td className="px-4 py-2 border-b">{student.dateOfBirth ? new Date(student.dateOfBirth).toLocaleDateString() : 'N/A'}</td>
                               <td className="px-4 py-2 border-b">{student.gender || 'N/A'}</td>
