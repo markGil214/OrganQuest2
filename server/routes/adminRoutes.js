@@ -1629,40 +1629,6 @@ router.post('/create-class',
   }
 );
 
-// @route   DELETE /api/Teacher/classes/:id
-// @desc    Delete class (teacher) - Admin only
-// @access  Admin
-router.delete('/classes/:id',
-  authMiddleware,
-  adminMiddleware,
-  async (req, res) => {
-    try {
-      const teacher = await User.findById(req.params.id);
-
-      if (!teacher || teacher.role !== 'teacher') {
-        return res.status(404).json({
-          success: false,
-          message: 'Class not found'
-        });
-      }
-
-      await User.findByIdAndDelete(req.params.id);
-
-      res.json({
-        success: true,
-        message: 'Class deleted successfully'
-      });
-    } catch (error) {
-      console.error('Delete class error:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Server error deleting class',
-        error: error.message
-      });
-    }
-  }
-);
-
 // @route   POST /api/admin/complete-registration
 // @desc    Complete teacher registration with username and password
 // @access  Public (with valid token)
@@ -1869,6 +1835,70 @@ router.get('/classes',
       res.status(500).json({
         success: false,
         message: 'Server error fetching classes',
+        error: error.message
+      });
+    }
+  }
+);
+
+// @route   GET /api/admin/classes/stats
+// @desc    Get class statistics
+// @access  Admin
+router.get('/classes/stats',
+  authMiddleware,
+  adminMiddleware,
+  async (req, res) => {
+    try {
+      console.log('=== GET CLASS STATS ===');
+
+      const stats = await Class.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalClasses: { $sum: 1 },
+            activeClasses: {
+              $sum: { $cond: [{ $eq: ['$status', 'active'] }, 1, 0] }
+            },
+            classesByGrade: {
+              $push: {
+                grade: '$grade',
+                section: '$section',
+                status: '$status'
+              }
+            }
+          }
+        }
+      ]);
+
+      // Get grade-wise breakdown
+      const gradeStats = await Class.aggregate([
+        {
+          $group: {
+            _id: '$grade',
+            count: { $sum: 1 },
+            active: { $sum: { $cond: [{ $eq: ['$status', 'active'] }, 1, 0] } }
+          }
+        },
+        { $sort: { '_id': 1 } }
+      ]);
+
+      const result = stats[0] || { totalClasses: 0, activeClasses: 0, classesByGrade: [] };
+
+      console.log('Class stats retrieved:', result);
+
+      res.status(200).json({
+        success: true,
+        data: {
+          totalClasses: result.totalClasses || 0,
+          activeClasses: result.activeClasses || 0,
+          gradeBreakdown: gradeStats
+        }
+      });
+    } catch (error) {
+      console.error('Get class stats error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server error fetching class statistics',
         error: error.message
       });
     }
@@ -2106,70 +2136,6 @@ router.delete('/classes/:id',
       res.status(500).json({
         success: false,
         message: 'Server error deleting class',
-        error: error.message
-      });
-    }
-  }
-);
-
-// @route   GET /api/admin/classes/stats
-// @desc    Get class statistics
-// @access  Admin
-router.get('/classes/stats',
-  authMiddleware,
-  adminMiddleware,
-  async (req, res) => {
-    try {
-      console.log('=== GET CLASS STATS ===');
-
-      const stats = await Class.aggregate([
-        {
-          $group: {
-            _id: null,
-            totalClasses: { $sum: 1 },
-            activeClasses: {
-              $sum: { $cond: [{ $eq: ['$status', 'active'] }, 1, 0] }
-            },
-            classesByGrade: {
-              $push: {
-                grade: '$grade',
-                section: '$section',
-                status: '$status'
-              }
-            }
-          }
-        }
-      ]);
-
-      // Get grade-wise breakdown
-      const gradeStats = await Class.aggregate([
-        {
-          $group: {
-            _id: '$grade',
-            count: { $sum: 1 },
-            active: { $sum: { $cond: [{ $eq: ['$status', 'active'] }, 1, 0] } }
-          }
-        },
-        { $sort: { '_id': 1 } }
-      ]);
-
-      const result = stats[0] || { totalClasses: 0, activeClasses: 0, classesByGrade: [] };
-
-      console.log('Class stats retrieved:', result);
-
-      res.status(200).json({
-        success: true,
-        data: {
-          totalClasses: result.totalClasses || 0,
-          activeClasses: result.activeClasses || 0,
-          gradeBreakdown: gradeStats
-        }
-      });
-    } catch (error) {
-      console.error('Get class stats error:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Server error fetching class statistics',
         error: error.message
       });
     }

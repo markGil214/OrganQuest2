@@ -579,19 +579,35 @@ const AdminDashboard = ({ onLogout }) => {
   };
 
   const handleDeleteClass = async (classId) => {
+    console.log('=== DELETE CLASS FRONTEND ===');
+    console.log('Class ID to delete:', classId);
+    console.log('Class ID type:', typeof classId);
+    console.log('Class ID length:', classId.length);
+    
+    // Find the class in current list
+    const classToDelete = classes.find(c => c._id === classId);
+    console.log('Class found in current list:', classToDelete);
+    
     if (!confirm('Are you sure you want to delete this class? This action cannot be undone.')) {
       return;
     }
 
     try {
       const token = localStorage.getItem('authToken');
+      const deleteUrl = `${API_URL}/api/admin/classes/${classId}`;
+      
+      console.log('DELETE URL:', deleteUrl);
+      console.log('Making DELETE request...');
 
-      const response = await fetch(`${API_URL}/api/admin/classes/${classId}`, {
+      const response = await fetch(deleteUrl, {
         method: 'DELETE',
         headers: {
           ...(token && { 'Authorization': `Bearer ${token}` })
         }
       });
+
+      console.log('DELETE response status:', response.status);
+      console.log('DELETE response ok:', response.ok);
 
       if (response.status === 401) {
         console.error('Unauthorized - token may be invalid or expired');
@@ -602,6 +618,7 @@ const AdminDashboard = ({ onLogout }) => {
       }
 
       const data = await response.json();
+      console.log('DELETE response data:', data);
 
       if (data.success) {
         setClassSuccess('Class deleted successfully!');
