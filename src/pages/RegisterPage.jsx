@@ -123,33 +123,29 @@ const RegisterPage = ({ onRegistrationComplete }) => {
           onClick={() => changeLanguage(language === 'english' ? 'filipino' : 'english')}
           className="bg-white/90 hover:bg-white px-4 py-2 rounded-lg shadow-lg text-sm font-semibold text-purple-600 transition-all hover:scale-105"
         >
-          {language === 'english' ? '🇵🇭 Filipino' : '🇬🇧 English'}
+          {language === 'english' ? 'Filipino' : 'English'}
         </button>
       </div>
 
-      <div className="w-full max-w-md">
+      <Card className="w-full max-w-md bg-white/95 backdrop-blur-sm border-0">
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
-          {/* Profile Picture */}
+          {/* Logo/Icon */}
           <div className="flex justify-center">
             <div className="relative">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center shadow-2xl overflow-hidden">
-                {formData.avatar ? (
-                  <img 
-                    src={`/avatars/avatar-${formData.avatar}.svg`} 
-                    alt="Selected avatar"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="text-4xl text-white">👤</div>
-                )}
-              </div>
-              <div className="absolute inset-0 rounded-full border-4 border-purple-300 animate-ping opacity-30"></div>
+              <img
+                src="/school/dcslogo.jpg"
+                alt="DCS Logo"
+                className="w-24 h-24 rounded-full object-cover shadow-2xl"
+              />
             </div>
           </div>
 
-          <h2 className="text-2xl font-bold text-center bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            {registerText.title}
-          </h2>
+          <div className="text-center space-y-2">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              {registerText.title}
+            </h2>
+            <p className="text-gray-600 text-xs">Create your account to start your anatomy adventure</p>
+          </div>
 
           {/* Error Message */}
           {error && (
@@ -157,6 +153,19 @@ const RegisterPage = ({ onRegistrationComplete }) => {
               <p className="text-red-600 text-sm font-medium text-center">{error}</p>
             </div>
           )}
+
+          {/* Avatar Selection */}
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-gray-700 text-center">
+              {registerText.selectAvatar}
+            </label>
+            <div className="flex justify-center">
+              <AvatarSelector
+                selectedAvatar={formData.avatar}
+                onAvatarSelect={handleAvatarSelect}
+              />
+            </div>
+          </div>
 
           {/* Full Name Input */}
           <div className="space-y-2">
@@ -270,17 +279,6 @@ const RegisterPage = ({ onRegistrationComplete }) => {
             </div>
           </div>
 
-          {/* Avatar Selection */}
-          <div className="space-y-2">
-            <label className="block text-sm font-semibold text-gray-700">
-              {registerText.selectAvatar}
-            </label>
-            <AvatarSelector
-              selectedAvatar={formData.avatar}
-              onAvatarSelect={handleAvatarSelect}
-            />
-          </div>
-
           {/* Language Selector */}
           <div className="space-y-2">
             <label htmlFor="language" className="block text-sm font-semibold text-gray-700">
@@ -322,7 +320,7 @@ const RegisterPage = ({ onRegistrationComplete }) => {
             )}
           </Button>
         </form>
-      </div>
+      </Card>
     </div>
   );
 };
