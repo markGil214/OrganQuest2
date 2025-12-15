@@ -338,13 +338,13 @@ router.post('/send-teacher-invitation',
 
       console.log('Sending teacher invitation:', { fullName, email });
 
-      // Check if teacherId is 1002 or 1003 - verify it exists in database
-      if (teacherId === '1002' || teacherId === '1003') {
+      // Check if teacherId already exists (if provided)
+      if (teacherId) {
         const existingTeacherId = await User.findOne({ teacherId });
-        if (!existingTeacherId) {
+        if (existingTeacherId) {
           return res.status(400).json({
             success: false,
-            message: `Teacher ID ${teacherId} does not exist in the system`
+            message: `Teacher ID ${teacherId} is already assigned to another teacher`
           });
         }
       }
@@ -429,6 +429,8 @@ router.post('/send-teacher-invitation',
         role: 'teacher',
         teacherCode,
         teacherId: teacherId || '', // Add teacher ID
+        registrationToken,
+        tokenExpiry,
         age: 30, // Default for teacher
         grade: '4th', // Required but not used for teachers
         avatar: 1,
