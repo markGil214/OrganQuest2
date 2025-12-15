@@ -62,6 +62,19 @@ const userSchema = new mongoose.Schema({
     enum: ['A', 'B', 'C'],
     uppercase: true
   },
+  dateOfBirth: {
+    type: Date,
+    required: function() {
+      return this.role === 'student';
+    }
+  },
+  gender: {
+    type: String,
+    enum: ['Male', 'Female', 'Other'],
+    required: function() {
+      return this.role === 'student';
+    }
+  },
   avatar: {
     type: mongoose.Schema.Types.Mixed,
     default: 1,

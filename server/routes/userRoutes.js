@@ -24,6 +24,12 @@ router.post('/register',
     body('age')
       .isInt({ min: 1, max: 120 })
       .withMessage('Age must be between 1 and 120'),
+    body('dateOfBirth')
+      .isISO8601()
+      .withMessage('Date of birth must be a valid date'),
+    body('gender')
+      .isIn(['Male', 'Female', 'Other'])
+      .withMessage('Gender must be Male, Female, or Other'),
     body('grade')
       .isIn(['4th', '5th', '6th'])
       .withMessage('Grade must be 4th, 5th, or 6th'),
@@ -58,7 +64,7 @@ router.post('/register',
         });
       }
 
-      const { fullName, username, password, age, grade, section, avatar, language } = req.body;
+      const { fullName, username, password, age, dateOfBirth, gender, grade, section, avatar, language } = req.body;
 
       // Check if user already exists
       const existingUser = await User.findOne({ username });
@@ -75,6 +81,8 @@ router.post('/register',
         username,
         password,
         age,
+        dateOfBirth,
+        gender,
         grade,
         section,
         avatar,
@@ -95,6 +103,8 @@ router.post('/register',
             fullName: user.fullName,
             username: user.username,
             age: user.age,
+            dateOfBirth: user.dateOfBirth,
+            gender: user.gender,
             grade: user.grade,
             section: user.section,
             avatar: user.avatar,
