@@ -35,9 +35,9 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
     const { email, fullName, teacherCode, username, password, teacherId } = teacherData;
     console.log('Extracted email data:', { email, fullName, teacherCode, username, passwordLength: password?.length, teacherId });
 
-    // Generate registration URL (use environment variable or default)
+    // Generate login URL (use environment variable or default)
     const baseUrl = process.env.CLIENT_URL || 'https://organ-quest2.vercel.app';
-    const registrationUrl = `${baseUrl}/#teacher-register/${registrationToken}`;
+    const loginUrl = `${baseUrl}/#teacher-login`;
 
     const emailHtml = `
       <!DOCTYPE html>
@@ -86,7 +86,7 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
               <h3>🚀 Getting Started</h3>
               <p>Your account is now active and ready to use! You can log in to the teacher dashboard using the credentials above.</p>
               <p style="text-align: center;">
-                <a href="${baseUrl}/#teacher-login" class="button">Access Teacher Dashboard</a>
+                <a href="${loginUrl}" class="button">Access Teacher Dashboard</a>
               </p>
             </div>
 
@@ -98,7 +98,7 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
               <h3>📚 What's Next?</h3>
               <ol>
                 <li>Use the credentials above to log in to your teacher dashboard</li>
-                <li>Change your password for better security</li>
+                <li>Change your password for better security (optional)</li>
                 <li>Share your <strong>Teacher Code</strong> with your students</li>
                 <li>Manage quizzes, track progress, and view analytics</li>
               </ol>
@@ -127,7 +127,7 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
       .setTo(recipients)
       .setSubject(`Your Teacher Account Credentials - OrganQuest`)
       .setHtml(emailHtml)
-      .setText(`Hello ${fullName}, Your teacher account is ready! Teacher ID: ${teacherId || 'Not assigned'}, Username: ${username}, Password: ${password}, Teacher Code: ${teacherCode}. Please log in at: ${baseUrl}/#teacher-login`);
+      .setText(`Hello ${fullName}, Your teacher account is ready! Teacher ID: ${teacherId || 'Not assigned'}, Username: ${username}, Password: ${password}, Teacher Code: ${teacherCode}. Please log in at: ${loginUrl}`);
 
     console.log('📤 Preparing to send email via MailerSend...');
     console.log('   From:', process.env.MAILERSEND_FROM_EMAIL || 'MS_D578ie@test-nrw7gymez1kg2k8e.mlsender.net');
