@@ -326,8 +326,12 @@ router.post('/send-teacher-invitation',
   ],
   async (req, res) => {
     try {
+      console.log('=== STARTING TEACHER INVITATION PROCESS ===');
+      console.log('Request body:', req.body);
+
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
+        console.log('Validation errors:', errors.array());
         return res.status(400).json({
           success: false,
           errors: errors.array()
@@ -335,18 +339,22 @@ router.post('/send-teacher-invitation',
       }
 
       const { fullName, email, phone, teacherId } = req.body;
+      console.log('Extracted data:', { fullName, email, phone, teacherId });
 
       console.log('Sending teacher invitation:', { fullName, email });
 
       // Check if teacherId already exists (if provided)
       if (teacherId) {
+        console.log('Checking teacherId uniqueness:', teacherId);
         const existingTeacherId = await User.findOne({ teacherId });
         if (existingTeacherId) {
+          console.log('TeacherId already exists:', existingTeacherId._id);
           return res.status(400).json({
             success: false,
             message: `Teacher ID ${teacherId} is already assigned to another teacher`
           });
         }
+        console.log('TeacherId is unique');
       }
 
       // Check if email already exists
@@ -413,13 +421,16 @@ router.post('/send-teacher-invitation',
 
       const username = await generateUsername();
       const password = generatePassword();
+      console.log('Generated credentials:', { username, passwordLength: password.length });
 
       // Generate registration token
       const registrationToken = crypto.randomBytes(32).toString('hex');
       const tokenExpiry = new Date();
       tokenExpiry.setHours(tokenExpiry.getHours() + 24); // Token expires in 24 hours
+      console.log('Generated registration token');
 
       // Create teacher user with active status (since credentials are provided)
+      console.log('Creating teacher object...');
       const teacher = new User({
         fullName,
         email,
@@ -438,7 +449,9 @@ router.post('/send-teacher-invitation',
         accountStatus: 'active' // Active since credentials are provided
       });
 
+      console.log('Saving teacher to database...');
       await teacher.save();
+      console.log('Teacher saved successfully with ID:', teacher._id);
 
       console.log('Teacher invitation created:', {
         id: teacher._id,
@@ -482,11 +495,18 @@ router.post('/send-teacher-invitation',
         }
       });
     } catch (error) {
-      console.error('Send teacher invitation error:', error);
+      console.error('=== TEACHER INVITATION ERROR ===');
+      console.error('Error message:', error.message);
+      console.error('Error name:', error.name);
+      console.error('Error code:', error.code);
+      console.error('Error stack:', error.stack);
+      console.error('Request body that caused error:', req.body);
+
       res.status(500).json({
         success: false,
         message: 'Server error sending teacher invitation',
-        error: error.message
+        error: error.message,
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
       });
     }
   }
