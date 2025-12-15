@@ -192,6 +192,8 @@ const AdminDashboard = ({ onLogout }) => {
       }
 
       const data = await response.json();
+      
+      console.log('Teacher invitation response:', data);
 
       if (data.success) {
         setTeacherSuccess('Teacher invitation sent successfully!');
@@ -200,7 +202,8 @@ const AdminDashboard = ({ onLogout }) => {
         // Refresh teachers list
         fetchTeachers();
       } else {
-        setTeacherError(data.message || 'Failed to send teacher invitation');
+        console.error('Failed to send invitation:', data);
+        setTeacherError(data.message || data.errors?.[0]?.msg || 'Failed to send teacher invitation');
       }
     } catch (error) {
       console.error('Error adding teacher:', error);
