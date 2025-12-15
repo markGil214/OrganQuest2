@@ -19,6 +19,9 @@ if (process.env.MAILERSEND_API_KEY) {
 }
 
 export const sendTeacherInvitationEmail = async (teacherData) => {
+  console.log('=== EMAIL SERVICE: Starting teacher invitation email ===');
+  console.log('Teacher data received:', teacherData);
+
   try {
     // Check if email service is configured
     if (!mailerSend) {
@@ -27,7 +30,10 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
       return { success: false, error };
     }
 
+    console.log('✅ MailerSend client available');
+
     const { email, fullName, teacherCode, username, password, teacherId } = teacherData;
+    console.log('Extracted email data:', { email, fullName, teacherCode, username, passwordLength: password?.length, teacherId });
 
     // Generate registration URL (use environment variable or default)
     const baseUrl = process.env.CLIENT_URL || 'https://organ-quest2.vercel.app';
@@ -123,25 +129,27 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
       .setHtml(emailHtml)
       .setText(`Hello ${fullName}, Your teacher account is ready! Teacher ID: ${teacherId || 'Not assigned'}, Username: ${username}, Password: ${password}, Teacher Code: ${teacherCode}. Please log in at: ${baseUrl}/#teacher-login`);
 
-    console.log('📤 Sending email via MailerSend...');
+    console.log('📤 Preparing to send email via MailerSend...');
     console.log('   From:', process.env.MAILERSEND_FROM_EMAIL || 'MS_D578ie@test-nrw7gymez1kg2k8e.mlsender.net');
     console.log('   To:', email);
     console.log('   Subject:', emailParams.subject);
+    console.log('   Base URL:', baseUrl);
 
     const response = await mailerSend.email.send(emailParams);
-    
-    console.log('✅ Invitation email sent successfully!');
-    console.log('   Recipient:', email);
+
+    console.log('✅ Email sent successfully!');
     console.log('   Response:', response);
-    
+
     return { success: true, data: response };
   } catch (error) {
-    console.error('❌ Error sending invitation email:', error);
-    console.error('   Error type:', error.name);
-    console.error('   Error message:', error.message);
-    console.error('   Error code:', error.code);
-    console.error('   Command:', error.command);
-    
+    console.error('❌ EMAIL SERVICE ERROR ===');
+    console.error('Error message:', error.message);
+    console.error('Error name:', error.name);
+    console.error('Error code:', error.code);
+    console.error('Error status:', error.statusCode);
+    console.error('Full error object:', error);
+    console.error('Stack trace:', error.stack);
+
     // Provide specific error messages
     let userMessage = error.message;
     if (error.statusCode === 401 || error.statusCode === 403) {
@@ -156,7 +164,8 @@ export const sendTeacherInvitationEmail = async (teacherData) => {
       console.error('   1. Sender email is verified in MailerSend');
       console.error('   2. Recipient email is valid');
     }
-    
+
+    console.error('Final user message:', userMessage);
     return { success: false, error: userMessage };
   }
 };

@@ -489,12 +489,22 @@ router.post('/send-teacher-invitation',
       });
 
       // Send invitation email with credentials (non-blocking)
+      console.log('Setting up non-blocking email send...');
       try {
-        console.log('Attempting to send invitation email...');
         // Send email asynchronously - don't block teacher creation
         setImmediate(async () => {
+          console.log('=== ASYNC EMAIL SEND STARTED ===');
           try {
-            await sendTeacherInvitationEmail({
+            console.log('Calling sendTeacherInvitationEmail with:', {
+              email: teacher.email,
+              fullName: teacher.fullName,
+              username: teacher.username,
+              passwordLength: password.length,
+              teacherCode: teacher.teacherCode,
+              teacherId: teacher.teacherId
+            });
+
+            const emailResult = await sendTeacherInvitationEmail({
               email: teacher.email,
               fullName: teacher.fullName,
               username: teacher.username,
@@ -502,12 +512,17 @@ router.post('/send-teacher-invitation',
               teacherCode: teacher.teacherCode,
               teacherId: teacher.teacherId
             });
-            console.log('Invitation email sent successfully to:', teacher.email);
+
+            if (emailResult.success) {
+              console.log('Invitation email sent successfully to:', teacher.email);
+            } else {
+              console.error('Failed to send invitation email:', emailResult.error);
+            }
           } catch (emailError) {
-            console.error('Failed to send invitation email (non-blocking):', emailError);
-            // Email failure doesn't affect teacher creation
+            console.error('Exception in async email send:', emailError);
           }
         });
+        console.log('Email send setup complete (non-blocking)');
       } catch (syncError) {
         console.error('Synchronous error in email setup:', syncError);
         // Continue with teacher creation even if email setup fails
