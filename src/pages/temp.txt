@@ -1068,6 +1068,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
                 <table className="min-w-full bg-white rounded-lg overflow-hidden">
                   <thead className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
                     <tr>
+                      <th className="px-6 py-4 text-left font-bold">Student ID</th>
                       <th className="px-6 py-4 text-left font-bold">Student Name</th>
                       <th className="px-6 py-4 text-left font-bold">Grade</th>
                       <th className="px-6 py-4 text-left font-bold">Section</th>
@@ -1083,6 +1084,7 @@ const AdminDashboard = ({ userData, onLogout }) => {
                           index % 2 === 0 ? 'bg-gray-50' : 'bg-white'
                         }`}
                       >
+                        <td className="px-6 py-4 font-mono text-sm text-gray-600">{student.userId}</td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-bold">
