@@ -67,6 +67,8 @@ const RegisterPage = ({ onRegistrationComplete }) => {
         username: formData.username,
         password: formData.password,
         age: parseInt(formData.age),
+        dateOfBirth: formData.dateOfBirth,
+        gender: formData.gender,
         grade: formData.grade,
         section: formData.section,
         avatar: formData.avatar,
@@ -221,8 +223,8 @@ const RegisterPage = ({ onRegistrationComplete }) => {
             />
           </div>
 
-          {/* Age and Grade Row */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Age, DOB, Gender Row */}
+          <div className="grid grid-cols-3 gap-4">
             {/* Age Input */}
             <div className="space-y-2">
               <label htmlFor="age" className="block text-sm font-semibold text-gray-700">
@@ -242,41 +244,62 @@ const RegisterPage = ({ onRegistrationComplete }) => {
               />
             </div>
 
-          {/* Date of Birth Input */}
-          <div className="space-y-2">
-            <label htmlFor="dateOfBirth" className="block text-sm font-semibold text-gray-700">
-              Date of Birth
-            </label>
-            <input
-              type="date"
-              id="dateOfBirth"
-              name="dateOfBirth"
-              value={formData.dateOfBirth}
-              onChange={handleInputChange}
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all"
-              required
-            />
+            {/* Date of Birth Input */}
+            <div className="space-y-2">
+              <label htmlFor="dateOfBirth" className="block text-sm font-semibold text-gray-700">
+                Date of Birth
+              </label>
+              <input
+                type="date"
+                id="dateOfBirth"
+                name="dateOfBirth"
+                value={formData.dateOfBirth}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all"
+                required
+              />
+            </div>
+
+            {/* Gender Selector */}
+            <div className="space-y-2">
+              <label htmlFor="gender" className="block text-sm font-semibold text-gray-700">
+                Gender
+              </label>
+              <select
+                id="gender"
+                name="gender"
+                value={formData.gender}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all bg-white"
+                required
+              >
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
           </div>
 
-          {/* Gender Selector */}
-          <div className="space-y-2">
-            <label htmlFor="gender" className="block text-sm font-semibold text-gray-700">
-              Gender
-            </label>
-            <select
-              id="gender"
-              name="gender"
-              value={formData.gender}
-              onChange={handleInputChange}
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all bg-white"
-              required
-            >
-              <option value="">Select Gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
+          {/* Grade and Section Row */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* Grade Selector */}
+            <div className="space-y-2">
+              <label htmlFor="grade" className="block text-sm font-semibold text-gray-700">
+                {registerText.grade}
+              </label>
+              <select
+                id="grade"
+                name="grade"
+                value={formData.grade}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all bg-white"
+                required
+              >
+                <option value="4th">{registerText.grades['4th']}</option>
+                <option value="5th">{registerText.grades['5th']}</option>
+                <option value="6th">{registerText.grades['6th']}</option>
+              </select>
             </div>
 
             {/* Section Selector */}
