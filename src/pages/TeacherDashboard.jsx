@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 
 const sidebarItems = [
   {
@@ -8,6 +9,10 @@ const sidebarItems = [
   {
     title: 'Classes',
     description: 'Manage your assigned classes',
+  },
+  {
+    title: 'Progress Tracking',
+    description: 'Track student progress and analytics',
   },
 ];
 
@@ -59,6 +64,16 @@ const TeacherDashboard = () => {
   const [searchStudentName, setSearchStudentName] = useState('');
   const [studentSortBy, setStudentSortBy] = useState('name');
 
+  // Progress tracking state
+  const [progressData, setProgressData] = useState([]);
+  const [overallStats, setOverallStats] = useState({
+    totalStudents: 0,
+    averageOrgansExplored: 0,
+    averageQuizScore: 0,
+    totalQuizzesTaken: 0
+  });
+  const [loadingProgress, setLoadingProgress] = useState(false);
+
   // Dashboard stats
   const stats = [
     { title: 'Classes Assigned', value: classes.length },
@@ -109,7 +124,96 @@ const TeacherDashboard = () => {
     }));
   };
 
+  // Fetch progress data for all students
+  const fetchProgressData = async () => {
+    setLoadingProgress(true);
+    try {
+      // For now, we'll use mock data since we don't have a teacher progress API
+      // In a real implementation, this would call an API endpoint
+      const mockProgressData = [
+        {
+          id: '25-0001-stud',
+          name: 'Juan Dela Cruz',
+          organsExplored: 8,
+          totalQuizzes: 12,
+          averageScore: 85,
+          lastActivity: '2025-12-10',
+          grade: 'Grade 7',
+          section: 'A'
+        },
+        {
+          id: '25-0002-stud',
+          name: 'Maria Santos',
+          organsExplored: 12,
+          totalQuizzes: 15,
+          averageScore: 92,
+          lastActivity: '2025-12-12',
+          grade: 'Grade 7',
+          section: 'A'
+        },
+        {
+          id: '25-0003-stud',
+          name: 'Carlos Reyes',
+          organsExplored: 5,
+          totalQuizzes: 8,
+          averageScore: 78,
+          lastActivity: '2025-12-08',
+          grade: 'Grade 7',
+          section: 'A'
+        },
+        {
+          id: '25-0004-stud',
+          name: 'Rosa Garcia',
+          organsExplored: 10,
+          totalQuizzes: 14,
+          averageScore: 88,
+          lastActivity: '2025-12-11',
+          grade: 'Grade 8',
+          section: 'B'
+        },
+        {
+          id: '25-0005-stud',
+          name: 'Miguel Torres',
+          organsExplored: 7,
+          totalQuizzes: 10,
+          averageScore: 82,
+          lastActivity: '2025-12-09',
+          grade: 'Grade 8',
+          section: 'B'
+        }
+      ];
+
+      setProgressData(mockProgressData);
+
+      // Calculate overall stats
+      const totalStudents = mockProgressData.length;
+      const averageOrgansExplored = Math.round(mockProgressData.reduce((sum, student) => sum + student.organsExplored, 0) / totalStudents);
+      const averageQuizScore = Math.round(mockProgressData.reduce((sum, student) => sum + student.averageScore, 0) / totalStudents);
+      const totalQuizzesTaken = mockProgressData.reduce((sum, student) => sum + student.totalQuizzes, 0);
+
+      setOverallStats({
+        totalStudents,
+        averageOrgansExplored,
+        averageQuizScore,
+        totalQuizzesTaken
+      });
+
+    } catch (error) {
+      console.error('Error fetching progress data:', error);
+    } finally {
+      setLoadingProgress(false);
+    }
+  };
+
+  // Load progress data when Progress Tracking is selected
+  useEffect(() => {
+    if (activeSidebar === 'Progress Tracking') {
+      fetchProgressData();
+    }
+  }, [activeSidebar]);
+
   const showClassesView = activeSidebar === 'Classes';
+  const showProgressView = activeSidebar === 'Progress Tracking';
 
   return (
     <div className="flex min-h-screen" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
@@ -138,13 +242,141 @@ const TeacherDashboard = () => {
               </button>
             </li>
             <hr className="border-white mb-4 mt-0" />
+            {/* Progress Tracking */}
+            <li className="mb-4">
+              <button
+                className={`w-full text-left font-semibold text-lg px-2 py-1 rounded transition-colors ${activeSidebar === 'Progress Tracking' ? 'bg-blue-700' : 'hover:bg-blue-800'}`}
+                onClick={() => handleSidebarClick('Progress Tracking')}
+              >
+                Progress Tracking
+              </button>
+            </li>
+            <hr className="border-white mb-4 mt-0" />
           </ul>
         </nav>
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 p-8 bg-white/80 min-h-screen">
-        {showClassesView ? (
+        {showProgressView ? (
+          // Progress Tracking View
+          <div>
+            <h1 className="text-3xl font-bold mb-6">Progress Tracking & Analytics</h1>
+
+            {loadingProgress ? (
+              <div className="flex justify-center items-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              </div>
+            ) : (
+              <>
+                {/* Overall Statistics Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                  <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-6 shadow-lg">
+                    <div className="text-3xl font-bold mb-2">{overallStats.totalStudents}</div>
+                    <div className="text-sm opacity-90">Total Students</div>
+                  </div>
+                  <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-6 shadow-lg">
+                    <div className="text-3xl font-bold mb-2">{overallStats.averageOrgansExplored}</div>
+                    <div className="text-sm opacity-90">Avg Organs Explored</div>
+                  </div>
+                  <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl p-6 shadow-lg">
+                    <div className="text-3xl font-bold mb-2">{overallStats.averageQuizScore}%</div>
+                    <div className="text-sm opacity-90">Avg Quiz Score</div>
+                  </div>
+                  <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl p-6 shadow-lg">
+                    <div className="text-3xl font-bold mb-2">{overallStats.totalQuizzesTaken}</div>
+                    <div className="text-sm opacity-90">Total Quizzes Taken</div>
+                  </div>
+                </div>
+
+                {/* Charts Section */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                  {/* Organs Explored Chart */}
+                  <div className="bg-white rounded-xl shadow-lg p-6">
+                    <h3 className="text-xl font-bold mb-4 text-gray-800">Organs Explored Distribution</h3>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <BarChart data={progressData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <Tooltip />
+                        <Bar dataKey="organsExplored" fill="#3B82F6" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  {/* Quiz Scores Chart */}
+                  <div className="bg-white rounded-xl shadow-lg p-6">
+                    <h3 className="text-xl font-bold mb-4 text-gray-800">Quiz Performance</h3>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <LineChart data={progressData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis domain={[0, 100]} />
+                        <Tooltip />
+                        <Line type="monotone" dataKey="averageScore" stroke="#10B981" strokeWidth={3} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* Student Progress Table */}
+                <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+                  <div className="px-6 py-4 border-b border-gray-200">
+                    <h3 className="text-xl font-bold text-gray-800">Individual Student Progress</h3>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student ID</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Grade</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Organs Explored</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Quizzes</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avg Score</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Activity</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {progressData.map((student) => (
+                          <tr key={student.id} className="hover:bg-gray-50">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">{student.id}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{student.name}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{student.grade} - {student.section}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                {student.organsExplored}/15
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{student.totalQuizzes}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                student.averageScore >= 90 ? 'bg-green-100 text-green-800' :
+                                student.averageScore >= 80 ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-red-100 text-red-800'
+                              }`}>
+                                {student.averageScore}%
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{student.lastActivity}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Download Progress Button */}
+                <div className="mt-6 text-center">
+                  <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition-colors">
+                    📊 Download Progress Report
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        ) : showClassesView ? (
           selectedClassId ? (
             // Student Management View
             <div>
