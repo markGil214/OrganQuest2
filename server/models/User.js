@@ -212,18 +212,54 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Hash password before saving
+// Hash password and generate userId before saving
 userSchema.pre('save', async function(next) {
-  // Only hash the password if it has been modified (or is new)
-  if (!this.isModified('password')) {
-    return next();
-  }
-  
   try {
-    const salt = await bcrypt.genSalt(8);
-    this.password = await bcrypt.hash(this.password, salt);
+    // Hash password if modified
+    if (this.isModified('password')) {
+      const salt = await bcrypt.genSalt(8);
+      this.password = await bcrypt.hash(this.password, salt);
+    }
+
+    // Generate userId if not exists
+    if (!this.userId) {
+      console.log('Pre-save hook: Generating userId for user:', this.username, 'role:', this.role);
+
+      const roleSuffixes = {
+        student: 'STUD',
+        teacher: 'TEACH',
+        admin: 'ADMIN',
+        superuser: 'SUPER'
+      };
+
+      const suffix = roleSuffixes[this.role] || 'USER';
+      const year = '25'; // 2025
+
+      console.log('Looking for last user with role:', this.role, 'suffix:', suffix);
+
+      // Find the highest sequence number for this role
+      const lastUser = await this.constructor.findOne(
+        { role: this.role, userId: { $regex: `^${year}-\\d{4}-${suffix}$` } }
+      ).sort({ userId: -1 });
+
+      let sequence = 1;
+      if (lastUser) {
+        const match = lastUser.userId.match(new RegExp(`^${year}-(\\d{4})-${suffix}$`));
+        if (match) {
+          sequence = parseInt(match[1]) + 1;
+          console.log('Found last user:', lastUser.userId, 'next sequence:', sequence);
+        }
+      }
+
+      this.userId = `${year}-${sequence.toString().padStart(4, '0')}-${suffix}`;
+      console.log('Generated userId:', this.userId, 'for role:', this.role);
+    } else {
+      console.log('userId already exists:', this.userId);
+    }
+
     next();
   } catch (error) {
+    console.error('Pre-save hook error:', error);
     next(error);
   }
 });
@@ -238,49 +274,6 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
 userSchema.index({ 'stats.highScore': -1 }); // For leaderboard queries
 userSchema.index({ role: 1, assignedGrade: 1 }); // For admin queries
 userSchema.index({ createdAt: -1 }); // For sorting by registration date
-
-// Pre-save hook to generate userId
-userSchema.pre('save', async function(next) {
-  console.log('Pre-save hook running for user:', this.username, 'role:', this.role, 'userId exists:', !!this.userId);
-  if (!this.userId) {
-    try {
-      const roleSuffixes = {
-        student: 'STUD',
-        teacher: 'TEACH',
-        admin: 'ADMIN',
-        superuser: 'SUPER'
-      };
-
-      const suffix = roleSuffixes[this.role] || 'USER';
-      const year = '25'; // 2025
-
-      console.log('Generating userId for role:', this.role, 'suffix:', suffix);
-
-      // Find the highest sequence number for this role
-      const lastUser = await this.constructor.findOne(
-        { role: this.role, userId: { $regex: `^${year}-\\d{4}-${suffix}$` } }
-      ).sort({ userId: -1 });
-
-      let sequence = 1;
-      if (lastUser) {
-        const match = lastUser.userId.match(new RegExp(`^${year}-(\\d{4})-${suffix}$`));
-        if (match) {
-          sequence = parseInt(match[1]) + 1;
-        }
-      }
-
-      this.userId = `${year}-${sequence.toString().padStart(4, '0')}-${suffix}`;
-      console.log('Generated userId:', this.userId, 'for role:', this.role);
-      next();
-    } catch (error) {
-      console.error('Error generating userId:', error);
-      next(error);
-    }
-  } else {
-    console.log('userId already exists:', this.userId);
-    next();
-  }
-});
 
 const User = mongoose.model('User', userSchema);
 
