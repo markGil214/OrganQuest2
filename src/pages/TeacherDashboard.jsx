@@ -34,9 +34,9 @@ const TeacherDashboard = () => {
       section: 'A',
       subject: 'Math',
       students: [
-        { id: '25-0000-stud', name: 'Juan Dela Cruz', dob: '2010-05-15', gender: 'Male', email: 'juan@example.com', phone: '09171234567', status: 'Active' },
-        { id: '25-0001-stud', name: 'Maria Santos', dob: '2010-08-20', gender: 'Female', email: 'maria@example.com', phone: '09179876543', status: 'Active' },
-        { id: '25-0002-stud', name: 'Carlos Reyes', dob: '2009-11-02', gender: 'Male', email: 'carlos@example.com', phone: '09170001122', status: 'Pending' },
+        { id: '25-0001-stud', name: 'Juan Dela Cruz', dob: '2010-05-15', gender: 'Male', email: 'juan@example.com', phone: '09171234567', status: 'Active' },
+        { id: '25-0002-stud', name: 'Maria Santos', dob: '2010-08-20', gender: 'Female', email: 'maria@example.com', phone: '09179876543', status: 'Active' },
+        { id: '25-0003-stud', name: 'Carlos Reyes', dob: '2009-11-02', gender: 'Male', email: 'carlos@example.com', phone: '09170001122', status: 'Pending' },
       ],
     },
     {
@@ -45,8 +45,8 @@ const TeacherDashboard = () => {
       section: 'B',
       subject: 'Science',
       students: [
-        { id: '25-0003-stud', name: 'Rosa Garcia', dob: '2009-03-10', gender: 'Female', email: 'rosa@example.com', phone: '09181234567', status: 'Active' },
-        { id: '25-0004-stud', name: 'Miguel Torres', dob: '2009-07-25', gender: 'Male', email: 'miguel@example.com', phone: '09189876543', status: 'Active' },
+        { id: '25-0004-stud', name: 'Rosa Garcia', dob: '2009-03-10', gender: 'Female', email: 'rosa@example.com', phone: '09181234567', status: 'Active' },
+        { id: '25-0005-stud', name: 'Miguel Torres', dob: '2009-07-25', gender: 'Male', email: 'miguel@example.com', phone: '09189876543', status: 'Active' },
       ],
     },
   ]);
@@ -79,7 +79,7 @@ const TeacherDashboard = () => {
   // Get next student ID
   const getNextStudentId = (classId) => {
     const allStudents = classes.flatMap(c => c.students);
-    if (allStudents.length === 0) return '25-0000-stud';
+    if (allStudents.length === 0) return '25-0001-stud';
     const lastId = allStudents[allStudents.length - 1].id;
     const num = parseInt(lastId.split('-')[1], 10) + 1;
     return `25-${num.toString().padStart(4, '0')}-stud`;
@@ -452,6 +452,15 @@ const TeacherDashboard = () => {
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
             <h3 className="text-xl font-bold mb-4 text-blue-800">Add New Student</h3>
             <form onSubmit={handleAddStudent} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Student ID</label>
+                <input
+                  type="text"
+                  value={getNextStudentId(selectedClassId)}
+                  className="border rounded px-3 py-2 w-full bg-gray-100 font-mono"
+                  readOnly
+                />
+              </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Full Name</label>
                 <input
