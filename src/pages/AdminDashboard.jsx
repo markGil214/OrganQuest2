@@ -16,10 +16,6 @@ const sidebarItems = [
     title: 'Class & Section Management',
     description: 'Organize academic structure',
   },
-  {
-    title: 'Enrollment Management',
-    description: 'Control who belongs to which class',
-  },
 ];
 
 const InfoCard = ({ title, value }) => (
@@ -165,30 +161,6 @@ const AdminDashboard = () => {
 
   const showTeacherManagement = activeSidebar === 'User Management' && activeSubSidebar === 'Teacher Management';
   const showClassSectionManagement = activeSidebar === 'Class & Section Management';
-  const showEnrollmentManagement = activeSidebar === 'Enrollment Management';
-  const [showEnrollModal, setShowEnrollModal] = useState(false);
-  const [selectedClassId, setSelectedClassId] = useState(null);
-  const [selectedStudents, setSelectedStudents] = useState([]);
-
-  // Helper to check if student is enrolled in a class
-  const isStudentEnrolled = (student, cls) => student.section === `${cls.grade} - ${cls.section}`;
-
-  const handleOpenEnrollModal = (clsId) => {
-    setSelectedClassId(clsId);
-    setShowEnrollModal(true);
-  };
-
-  const handleAddStudentToClass = (studentId, cls) => {
-    setStudents(students.map(s =>
-      s.id === studentId ? { ...s, section: `${cls.grade} - ${cls.section}` } : s
-    ));
-  };
-
-  const handleRemoveStudentFromClass = (studentId) => {
-    setStudents(students.map(s =>
-      s.id === studentId ? { ...s, section: '' } : s
-    ));
-  };
 
   // Class & Section Management State
   const [classes, setClasses] = useState([
@@ -247,57 +219,6 @@ const AdminDashboard = () => {
     setShowAddClassModal(false);
   };
 
-  // Student Management State
-  const [students, setStudents] = useState([
-    { id: '2025-0001', name: 'Juan Dela Cruz', dob: '2010-05-15', gender: 'Male', email: 'juan@example.com', phone: '09171234567', status: 'Active', enrolled: ['Grade 7 - A - Math'] },
-    { id: '2025-0002', name: 'Maria Santos', dob: '2010-08-20', gender: 'Female', email: 'maria@example.com', phone: '09179876543', status: 'Pending', enrolled: [] },
-    { id: '2025-0003', name: 'Carlos Reyes', dob: '2009-11-02', gender: 'Male', email: 'carlos@example.com', phone: '09170001122', status: 'Disabled', enrolled: ['Grade 8 - B - Science'] },
-  ]);
-  const [showAddStudentModal, setShowAddStudentModal] = useState(false);
-  const [newStudent, setNewStudent] = useState({
-    id: '25-0000-stud',
-    name: '',
-    dob: '',
-    gender: '',
-    phone: '',
-    status: 'Pending',
-    enrolled: [],
-  });
-  // Student Management filters and sort state
-  const [studentStatusFilter, setStudentStatusFilter] = useState('All');
-  const [searchStudentNameID, setSearchStudentNameID] = useState('');
-  const [searchStudentEmail, setSearchStudentEmail] = useState('');
-  const [searchStudentPhone, setSearchStudentPhone] = useState('');
-  const [studentSortBy, setStudentSortBy] = useState('id');
-
-  // Generate next student ID
-  const getNextStudentId = () => {
-    if (students.length === 0) return '25-0001-stud';
-    const last = students[students.length - 1].id;
-    const num = parseInt(last.split('-')[1], 10) + 1;
-    return `25-${num.toString().padStart(4, '0')}-stud`;
-  };
-
-  const handleStudentInputChange = (e) => {
-    setNewStudent({ ...newStudent, [e.target.name]: e.target.value });
-  };
-
-  const handleAddStudent = (e) => {
-    e.preventDefault();
-    // Validate required fields for new structure
-    if (!newStudent.name || !newStudent.dob || !newStudent.gender || !newStudent.phone) return;
-    setStudents([
-      ...students,
-      { ...newStudent, id: getNextStudentId(), status: 'Active', enrolled: [] },
-    ]);
-    setNewStudent({ id: '25-0000-stud', name: '', dob: '', gender: '', phone: '', status: 'Pending', enrolled: [] });
-    setShowAddStudentModal(false);
-  };
-
-  const handleStudentActivate = (id) => {
-    setStudents(students.map(s => s.id === id ? { ...s, status: s.status === 'Active' ? 'Inactive' : 'Active' } : s));
-  };
-
   return (
     <div className="flex min-h-screen" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       {/* Sidebar */}
@@ -342,15 +263,6 @@ const AdminDashboard = () => {
               </button>
             </li>
             <hr className="border-white mb-4 mt-0" />
-            {/* Enrollment Management */}
-            <li className="mb-4">
-              <button
-                className={`w-full text-left font-semibold text-lg px-2 py-1 rounded transition-colors ${activeSidebar === 'Enrollment Management' ? 'bg-blue-700' : 'hover:bg-blue-800'}`}
-                onClick={() => handleSidebarClick('Enrollment Management')}
-              >
-                Enrollment Management
-              </button>
-            </li>
           </ul>
         </nav>
       </aside>
@@ -721,103 +633,6 @@ const AdminDashboard = () => {
                 </tbody>
               </table>
             </div>
-          </div>
-        ) : showEnrollmentManagement ? (
-          <div>
-            <h1 className="text-3xl font-bold mb-6">Enrollment Management</h1>
-            <h2 className="text-xl font-semibold mb-4">Select Class</h2>
-            <div className="overflow-x-auto mb-6">
-              <table className="min-w-full bg-white rounded shadow">
-                <thead>
-                  <tr>
-                    <th className="px-4 py-2 border-b text-left">Grade/Year</th>
-                    <th className="px-4 py-2 border-b text-left">Section</th>
-                    <th className="px-4 py-2 border-b text-left">Teacher</th>
-                    <th className="px-4 py-2 border-b text-left">Subject</th>
-                    <th className="px-4 py-2 border-b text-left">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {classes.map((cls) => (
-                    <tr key={cls.id}>
-                      <td className="px-4 py-2 border-b">{cls.grade}</td>
-                      <td className="px-4 py-2 border-b">{cls.section}</td>
-                      <td className="px-4 py-2 border-b">{cls.teacher}</td>
-                      <td className="px-4 py-2 border-b">{cls.subject}</td>
-                      <td className="px-4 py-2 border-b">
-                        <button
-                          className="bg-blue-700 text-white px-3 py-1 rounded hover:bg-blue-800 text-xs"
-                          onClick={() => handleOpenEnrollModal(cls.id)}
-                        >
-                          Enroll Students
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Enroll Students Modal */}
-            {showEnrollModal && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-                <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-2xl relative">
-                  <button
-                    className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
-                    onClick={() => setShowEnrollModal(false)}
-                  >
-                    &times;
-                  </button>
-                  {(() => {
-                    const cls = classes.find(c => c.id === selectedClassId);
-                    if (!cls) return null;
-                    return (
-                      <>
-                        <h2 className="text-xl font-bold mb-4">Enroll Students</h2>
-                        <div className="mb-2 text-sm text-gray-700 font-semibold">
-                          Selected Class: {cls.grade} – Section {cls.section} – {cls.subject}
-                        </div>
-                        <div className="max-h-80 overflow-y-auto">
-                          <table className="min-w-full bg-white rounded shadow">
-                            <thead>
-                              <tr>
-                                <th className="px-4 py-2 border-b text-left">Student Name</th>
-                                <th className="px-4 py-2 border-b text-left">Status</th>
-                                <th className="px-4 py-2 border-b text-left">Action</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {students.map((s) => {
-                                const enrolled = isStudentEnrolled(s, cls);
-                                return (
-                                  <tr key={s.id}>
-                                    <td className="px-4 py-2 border-b">{s.name}</td>
-                                    <td className="px-4 py-2 border-b">{enrolled ? 'Enrolled' : 'Not Enrolled'}</td>
-                                    <td className="px-4 py-2 border-b">
-                                      {enrolled ? (
-                                        <button
-                                          className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-xs"
-                                          onClick={() => handleRemoveStudentFromClass(s.id)}
-                                        >Remove</button>
-                                      ) : (
-                                        <button
-                                          className="bg-blue-700 text-white px-3 py-1 rounded hover:bg-blue-800 text-xs"
-                                          onClick={() => handleAddStudentToClass(s.id, cls)}
-                                        >Add</button>
-                                      )}
-                                    </td>
-                                  </tr>
-                                );
-                              })}
-                            </tbody>
-                          </table>
-                        </div>
-                      </>
-                    );
-                  })()}
-                </div>
-              </div>
-            )}
           </div>
         ) : (
           <div>
