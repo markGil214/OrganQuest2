@@ -53,7 +53,7 @@ const TeacherDashboard = () => {
 
   // Student Management state
   const [selectedClassId, setSelectedClassId] = useState(null);
-  const [showAddStudentForm, setShowAddStudentForm] = useState(false);
+  const [showAddStudentModal, setShowAddStudentModal] = useState(false);
   const [newStudent, setNewStudent] = useState({
     name: '',
     dob: '',
@@ -101,16 +101,16 @@ const TeacherDashboard = () => {
     setStudentError('');
   };
 
-  // Show add student form
+  // Show add student modal
   const handleShowAddStudentForm = () => {
-    setShowAddStudentForm(true);
+    setShowAddStudentModal(true);
     setNewStudent({ name: '', dob: '', gender: '', email: '', phone: '' });
     setStudentError('');
   };
 
-  // Hide add student form
+  // Hide add student modal
   const handleHideAddStudentForm = () => {
-    setShowAddStudentForm(false);
+    setShowAddStudentModal(false);
     setNewStudent({ name: '', dob: '', gender: '', email: '', phone: '' });
     setStudentError('');
   };
@@ -249,102 +249,14 @@ const TeacherDashboard = () => {
                         <p className="text-gray-600 mt-1">Manage students in this class</p>
                       </div>
                       <button
-                        onClick={showAddStudentForm ? handleHideAddStudentForm : handleShowAddStudentForm}
-                        className={`px-6 py-3 rounded font-semibold ${
-                          showAddStudentForm
-                            ? 'bg-gray-500 text-white hover:bg-gray-600'
-                            : 'bg-blue-700 text-white hover:bg-blue-800'
-                        }`}
+                        onClick={handleShowAddStudentForm}
+                        className="px-6 py-3 bg-blue-700 text-white rounded font-semibold hover:bg-blue-800"
                       >
-                        {showAddStudentForm ? 'Cancel Add Student' : '+ Add Student'}
+                        + Add Student
                       </button>
                     </div>
 
-                    {/* Add Student Form */}
-                    {showAddStudentForm && (
-                      <div className="mb-8 p-6 bg-blue-50 rounded-lg border border-blue-200">
-                        <h3 className="text-xl font-bold mb-4 text-blue-800">Add New Student</h3>
-                        <form onSubmit={handleAddStudent} className="space-y-4">
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium mb-1">Full Name</label>
-                              <input
-                                type="text"
-                                name="name"
-                                value={newStudent.name}
-                                onChange={handleStudentInputChange}
-                                className="border rounded px-3 py-2 w-full"
-                                placeholder="Enter student name"
-                                required
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium mb-1">Date of Birth</label>
-                              <input
-                                type="date"
-                                name="dob"
-                                value={newStudent.dob}
-                                onChange={handleStudentInputChange}
-                                className="border rounded px-3 py-2 w-full"
-                                required
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium mb-1">Gender</label>
-                              <select
-                                name="gender"
-                                value={newStudent.gender}
-                                onChange={handleStudentInputChange}
-                                className="border rounded px-3 py-2 w-full"
-                                required
-                              >
-                                <option value="">Select Gender</option>
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                                <option value="Other">Other</option>
-                              </select>
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium mb-1">Email</label>
-                              <input
-                                type="email"
-                                name="email"
-                                value={newStudent.email}
-                                onChange={handleStudentInputChange}
-                                className="border rounded px-3 py-2 w-full"
-                                placeholder="Enter email"
-                                required
-                              />
-                            </div>
-                            <div className="col-span-2">
-                              <label className="block text-sm font-medium mb-1">Phone Number</label>
-                              <input
-                                type="text"
-                                name="phone"
-                                value={newStudent.phone}
-                                onChange={handleStudentInputChange}
-                                className="border rounded px-3 py-2 w-full"
-                                placeholder="Enter phone number"
-                                required
-                              />
-                            </div>
-                          </div>
-                          {studentError && <div className="text-red-600 text-sm font-semibold">{studentError}</div>}
-                          <div className="flex gap-4">
-                            <button type="submit" className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
-                              Add Student
-                            </button>
-                            <button
-                              type="button"
-                              onClick={handleHideAddStudentForm}
-                              className="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600"
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        </form>
-                      </div>
-                    )}
+
 
                     {/* Student Filters */}
                     <div className="flex flex-wrap gap-4 mb-4">
@@ -531,6 +443,92 @@ const TeacherDashboard = () => {
           </div>
         )}
       </main>
+
+      {/* Add Student Modal */}
+      {showAddStudentModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold mb-4 text-blue-800">Add New Student</h3>
+            <form onSubmit={handleAddStudent} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Full Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={newStudent.name}
+                  onChange={handleStudentInputChange}
+                  className="border rounded px-3 py-2 w-full"
+                  placeholder="Enter student name"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Date of Birth</label>
+                <input
+                  type="date"
+                  name="dob"
+                  value={newStudent.dob}
+                  onChange={handleStudentInputChange}
+                  className="border rounded px-3 py-2 w-full"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Gender</label>
+                <select
+                  name="gender"
+                  value={newStudent.gender}
+                  onChange={handleStudentInputChange}
+                  className="border rounded px-3 py-2 w-full"
+                  required
+                >
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={newStudent.email}
+                  onChange={handleStudentInputChange}
+                  className="border rounded px-3 py-2 w-full"
+                  placeholder="Enter email"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Phone Number</label>
+                <input
+                  type="text"
+                  name="phone"
+                  value={newStudent.phone}
+                  onChange={handleStudentInputChange}
+                  className="border rounded px-3 py-2 w-full"
+                  placeholder="Enter phone number"
+                  required
+                />
+              </div>
+              {studentError && <div className="text-red-600 text-sm font-semibold">{studentError}</div>}
+              <div className="flex gap-4">
+                <button type="submit" className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
+                  Add Student
+                </button>
+                <button
+                  type="button"
+                  onClick={handleHideAddStudentForm}
+                  className="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
     </div>
   );
