@@ -253,13 +253,13 @@ userSchema.pre('save', async function(next) {
     const year = '25'; // 2025
 
     // Find the highest sequence number for this role
-    const lastUser = await mongoose.model('User').findOne(
+    const lastUser = await this.constructor.findOne(
       { role: this.role, userId: { $regex: `^${year}-\\d{4}-${suffix}$` } }
     ).sort({ userId: -1 });
 
     let sequence = 1;
     if (lastUser) {
-      const match = lastUser.userId.match(/^25-(\d{4})-STUD$/);
+      const match = lastUser.userId.match(new RegExp(`^${year}-(\\d{4})-${suffix}$`));
       if (match) {
         sequence = parseInt(match[1]) + 1;
       }
