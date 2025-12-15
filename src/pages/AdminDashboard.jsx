@@ -73,8 +73,8 @@ const AdminDashboard = () => {
 
   // Teacher Management State
   const [teachers, setTeachers] = useState([
-    { id: '25-0001-dcs', name: 'Mr. Smith', email: 'smith@example.com', phone: '09171234567', status: 'Pending', log: [] },
-    { id: '25-0002-dcs', name: 'Ms. Lee', email: 'lee@example.com', phone: '09179876543', status: 'Active', log: [] },
+    { id: '25-0001-dcs', name: 'Mr. Smith', email: 'smith@example.com', phone: '09171234567', status: 'Pending', grade: 'Grade 7', section: 'A', subject: 'Math', log: [] },
+    { id: '25-0002-dcs', name: 'Ms. Lee', email: 'lee@example.com', phone: '09179876543', status: 'Active', grade: 'Grade 8', section: 'B', subject: 'Science', log: [] },
   ]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newTeacher, setNewTeacher] = useState({
@@ -82,6 +82,9 @@ const AdminDashboard = () => {
     name: '',
     email: '',
     phone: '',
+    grade: '',
+    section: '',
+    subject: '',
   });
   const [teacherError, setTeacherError] = useState('');
 
@@ -117,7 +120,7 @@ const AdminDashboard = () => {
       { ...newTeacher, id: newId, status: 'Pending', log: [`[${new Date().toLocaleString()}] Teacher added. Activation email sent.`] },
     ]);
     setShowAddModal(false);
-    setNewTeacher({ id: '', name: '', email: '', phone: '' });
+    setNewTeacher({ id: '', name: '', email: '', phone: '', grade: '', section: '', subject: '' });
     setTeacherError('');
     setTimeout(() => {
       alert('Activation email sent!');
@@ -494,6 +497,44 @@ const AdminDashboard = () => {
                         placeholder="Enter phone number"
                       />
                     </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Grade / Year</label>
+                      <input
+                        type="text"
+                        name="grade"
+                        value={newTeacher.grade}
+                        onChange={handleTeacherInputChange}
+                        className="border rounded px-3 py-2 w-full"
+                        placeholder="e.g. Grade 7 or Year 1"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Section</label>
+                      <input
+                        type="text"
+                        name="section"
+                        value={newTeacher.section}
+                        onChange={handleTeacherInputChange}
+                        className="border rounded px-3 py-2 w-full"
+                        placeholder="e.g. A, B, C"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Subject</label>
+                      <select
+                        name="subject"
+                        value={newTeacher.subject}
+                        onChange={handleTeacherInputChange}
+                        className="border rounded px-3 py-2 w-full"
+                      >
+                        <option value="">Select Subject</option>
+                        <option value="Math">Math</option>
+                        <option value="Science">Science</option>
+                        <option value="English">English</option>
+                        <option value="Filipino">Filipino</option>
+                        <option value="Araling Panlipunan">Araling Panlipunan</option>
+                      </select>
+                    </div>
                     {teacherError && <div className="text-red-600 text-sm font-semibold">{teacherError}</div>}
                     <button type="submit" className="w-full bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800">Add Teacher</button>
                   </form>
@@ -509,6 +550,9 @@ const AdminDashboard = () => {
                     <th className="px-4 py-2 border-b text-left">Full Name</th>
                     <th className="px-4 py-2 border-b text-left">Email</th>
                     <th className="px-4 py-2 border-b text-left">Phone Number</th>
+                    <th className="px-4 py-2 border-b text-left">Grade</th>
+                    <th className="px-4 py-2 border-b text-left">Section</th>
+                    <th className="px-4 py-2 border-b text-left">Subject</th>
                     <th className="px-4 py-2 border-b text-left">Status</th>
                     <th className="px-4 py-2 border-b text-left">Actions</th>
                   </tr>
@@ -534,6 +578,9 @@ const AdminDashboard = () => {
                         <td className="px-4 py-2 border-b">{teacher.name}</td>
                         <td className="px-4 py-2 border-b">{teacher.email}</td>
                         <td className="px-4 py-2 border-b">{teacher.phone || '-'}</td>
+                        <td className="px-4 py-2 border-b">{teacher.grade || '-'}</td>
+                        <td className="px-4 py-2 border-b">{teacher.section || '-'}</td>
+                        <td className="px-4 py-2 border-b">{teacher.subject || '-'}</td>
                         <td className="px-4 py-2 border-b">{teacher.status}</td>
                         <td className="px-4 py-2 border-b flex gap-2">
                           {teacher.status === 'Pending' && (
@@ -566,7 +613,7 @@ const AdminDashboard = () => {
                       (teacher.phone || '').includes(searchPhone)
                     ).length === 0 && (
                     <tr>
-                      <td colSpan="6" className="px-4 py-2 border-b text-center text-gray-500">No teachers found</td>
+                      <td colSpan="9" className="px-4 py-2 border-b text-center text-gray-500">No teachers found</td>
                     </tr>
                   )}
                 </tbody>
