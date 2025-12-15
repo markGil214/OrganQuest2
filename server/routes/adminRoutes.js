@@ -438,7 +438,8 @@ router.post('/send-teacher-invitation',
         passwordLength: password.length,
         role: 'teacher',
         teacherCode,
-        teacherId: teacherId || '',
+        teacherId: teacherId || undefined,
+        hasRegistrationToken: !!registrationToken,
         age: 30,
         grade: '4th',
         avatar: 1,
@@ -454,7 +455,7 @@ router.post('/send-teacher-invitation',
         password,
         role: 'teacher',
         teacherCode,
-        teacherId: teacherId || '', // Add teacher ID
+        ...(teacherId && { teacherId }), // Only include if teacherId has a value
         registrationToken,
         tokenExpiry,
         age: 30, // Default for teacher
