@@ -15,6 +15,8 @@ const RegisterPage = ({ onRegistrationComplete }) => {
     username: '',
     password: '',
     age: '',
+    dateOfBirth: '',
+    gender: '',
     grade: '4th',
     section: 'A',
     avatar: null,
@@ -240,23 +242,41 @@ const RegisterPage = ({ onRegistrationComplete }) => {
               />
             </div>
 
-            {/* Grade Selector */}
-            <div className="space-y-2">
-              <label htmlFor="grade" className="block text-sm font-semibold text-gray-700">
-                {registerText.grade}
-              </label>
-              <select
-                id="grade"
-                name="grade"
-                value={formData.grade}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all bg-white"
-                required
-              >
-                <option value="4th">{registerText.grades['4th']}</option>
-                <option value="5th">{registerText.grades['5th']}</option>
-                <option value="6th">{registerText.grades['6th']}</option>
-              </select>
+          {/* Date of Birth Input */}
+          <div className="space-y-2">
+            <label htmlFor="dateOfBirth" className="block text-sm font-semibold text-gray-700">
+              Date of Birth
+            </label>
+            <input
+              type="date"
+              id="dateOfBirth"
+              name="dateOfBirth"
+              value={formData.dateOfBirth}
+              onChange={handleInputChange}
+              className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all"
+              required
+            />
+          </div>
+
+          {/* Gender Selector */}
+          <div className="space-y-2">
+            <label htmlFor="gender" className="block text-sm font-semibold text-gray-700">
+              Gender
+            </label>
+            <select
+              id="gender"
+              name="gender"
+              value={formData.gender}
+              onChange={handleInputChange}
+              className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all bg-white"
+              required
+            >
+              <option value="">Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
             </div>
 
             {/* Section Selector */}
@@ -305,7 +325,7 @@ const RegisterPage = ({ onRegistrationComplete }) => {
             type="submit" 
             className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold text-base py-5 shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
             size="lg"
-            disabled={isLoading || !formData.fullName || !formData.username || !formData.password || !formData.age || !formData.avatar}
+            disabled={isLoading || !formData.fullName || !formData.username || !formData.password || !formData.age || !formData.dateOfBirth || !formData.gender || !formData.avatar}
           >
             {isLoading ? (
               <span className="flex items-center justify-center gap-2">
