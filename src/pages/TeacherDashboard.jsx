@@ -54,6 +54,7 @@ const TeacherDashboard = () => {
   // Student Management state
   const [selectedClassId, setSelectedClassId] = useState(null);
   const [showStudentModal, setShowStudentModal] = useState(false);
+  const [studentModalView, setStudentModalView] = useState('list'); // 'list' or 'add'
   const [newStudent, setNewStudent] = useState({
     name: '',
     dob: '',
@@ -89,6 +90,21 @@ const TeacherDashboard = () => {
   const handleOpenStudentModal = (classId) => {
     setSelectedClassId(classId);
     setShowStudentModal(true);
+    setStudentModalView('list'); // Start with student list view
+    setNewStudent({ name: '', dob: '', gender: '', email: '', phone: '' });
+    setStudentError('');
+  };
+
+  // Switch to add student view
+  const handleSwitchToAddStudent = () => {
+    setStudentModalView('add');
+    setNewStudent({ name: '', dob: '', gender: '', email: '', phone: '' });
+    setStudentError('');
+  };
+
+  // Switch back to student list view
+  const handleSwitchToStudentList = () => {
+    setStudentModalView('list');
     setNewStudent({ name: '', dob: '', gender: '', email: '', phone: '' });
     setStudentError('');
   };
@@ -97,6 +113,7 @@ const TeacherDashboard = () => {
   const handleCloseStudentModal = () => {
     setShowStudentModal(false);
     setSelectedClassId(null);
+    setStudentModalView('list');
     setNewStudent({ name: '', dob: '', gender: '', email: '', phone: '' });
     setStudentError('');
   };
@@ -139,7 +156,8 @@ const TeacherDashboard = () => {
       return cls;
     }));
 
-    handleCloseStudentModal();
+    // Switch back to student list view after adding
+    handleSwitchToStudentList();
     setTimeout(() => {
       alert('Student added successfully!');
     }, 300);
@@ -295,191 +313,221 @@ const TeacherDashboard = () => {
             </button>
 
             <div className="p-8">
-              <h2 className="text-2xl font-bold mb-6">
-                {currentClass.grade} - Section {currentClass.section} ({currentClass.subject}) - Students
-              </h2>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold">
+                  {currentClass.grade} - Section {currentClass.section} ({currentClass.subject})
+                  {studentModalView === 'list' && ' - Students'}
+                  {studentModalView === 'add' && ' - Add Student'}
+                </h2>
+                {studentModalView === 'add' && (
+                  <button
+                    onClick={handleSwitchToStudentList}
+                    className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                  >
+                    ← Back to Students
+                  </button>
+                )}
+              </div>
 
-              {/* Add Student Form */}
-              <div className="mb-8 p-6 bg-gray-50 rounded-lg border">
-                <h3 className="text-xl font-bold mb-4">Add New Student</h3>
-                <form onSubmit={handleAddStudent} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+              {studentModalView === 'list' && (
+                <>
+                  {/* Student List View */}
+                  <div className="mb-6">
+                    <button
+                      onClick={handleSwitchToAddStudent}
+                      className="bg-blue-700 text-white px-6 py-3 rounded hover:bg-blue-800 font-semibold"
+                    >
+                      + Add New Student
+                    </button>
+                  </div>
+
+                  {/* Student Filters */}
+                  <div className="flex flex-wrap gap-4 mb-4">
                     <div>
-                      <label className="block text-sm font-medium mb-1">Full Name</label>
-                      <input
-                        type="text"
-                        name="name"
-                        value={newStudent.name}
-                        onChange={handleStudentInputChange}
-                        className="border rounded px-3 py-2 w-full"
-                        placeholder="Enter student name"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Date of Birth</label>
-                      <input
-                        type="date"
-                        name="dob"
-                        value={newStudent.dob}
-                        onChange={handleStudentInputChange}
-                        className="border rounded px-3 py-2 w-full"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Gender</label>
+                      <label className="mr-2 font-medium">Status:</label>
                       <select
-                        name="gender"
-                        value={newStudent.gender}
-                        onChange={handleStudentInputChange}
-                        className="border rounded px-3 py-2 w-full"
-                        required
+                        value={studentStatusFilter}
+                        onChange={(e) => setStudentStatusFilter(e.target.value)}
+                        className="border px-2 py-1 rounded text-black"
                       >
-                        <option value="">Select Gender</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Other">Other</option>
+                        <option value="All">All</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Active">Active</option>
+                        <option value="Disabled">Disabled</option>
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Email</label>
-                      <input
-                        type="email"
-                        name="email"
-                        value={newStudent.email}
-                        onChange={handleStudentInputChange}
-                        className="border rounded px-3 py-2 w-full"
-                        placeholder="Enter email"
-                        required
-                      />
-                    </div>
-                    <div className="col-span-2">
-                      <label className="block text-sm font-medium mb-1">Phone Number</label>
+                      <label className="mr-2 font-medium">Search Name:</label>
                       <input
                         type="text"
-                        name="phone"
-                        value={newStudent.phone}
-                        onChange={handleStudentInputChange}
-                        className="border rounded px-3 py-2 w-full"
-                        placeholder="Enter phone number"
-                        required
+                        value={searchStudentName}
+                        onChange={(e) => setSearchStudentName(e.target.value)}
+                        placeholder="Enter student name"
+                        className="border px-2 py-1 rounded text-black"
                       />
                     </div>
+                    <div>
+                      <label className="mr-2 font-medium">Search Email:</label>
+                      <input
+                        type="text"
+                        value={searchStudentEmail}
+                        onChange={(e) => setSearchStudentEmail(e.target.value)}
+                        placeholder="Enter email"
+                        className="border px-2 py-1 rounded text-black"
+                      />
+                    </div>
+                    <div>
+                      <label className="mr-2 font-medium">Sort By:</label>
+                      <select
+                        value={studentSortBy}
+                        onChange={(e) => setStudentSortBy(e.target.value)}
+                        className="border px-2 py-1 rounded text-black"
+                      >
+                        <option value="name">Name</option>
+                        <option value="id">ID</option>
+                        <option value="status">Status</option>
+                      </select>
+                    </div>
                   </div>
-                  {studentError && <div className="text-red-600 text-sm font-semibold">{studentError}</div>}
-                  <button type="submit" className="w-full bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800">
-                    Add Student
-                  </button>
-                </form>
-              </div>
 
-              {/* Student Filters */}
-              <div className="flex flex-wrap gap-4 mb-4">
-                <div>
-                  <label className="mr-2 font-medium">Status:</label>
-                  <select
-                    value={studentStatusFilter}
-                    onChange={(e) => setStudentStatusFilter(e.target.value)}
-                    className="border px-2 py-1 rounded text-black"
-                  >
-                    <option value="All">All</option>
-                    <option value="Pending">Pending</option>
-                    <option value="Active">Active</option>
-                    <option value="Disabled">Disabled</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="mr-2 font-medium">Search Name:</label>
-                  <input
-                    type="text"
-                    value={searchStudentName}
-                    onChange={(e) => setSearchStudentName(e.target.value)}
-                    placeholder="Enter student name"
-                    className="border px-2 py-1 rounded text-black"
-                  />
-                </div>
-                <div>
-                  <label className="mr-2 font-medium">Search Email:</label>
-                  <input
-                    type="text"
-                    value={searchStudentEmail}
-                    onChange={(e) => setSearchStudentEmail(e.target.value)}
-                    placeholder="Enter email"
-                    className="border px-2 py-1 rounded text-black"
-                  />
-                </div>
-                <div>
-                  <label className="mr-2 font-medium">Sort By:</label>
-                  <select
-                    value={studentSortBy}
-                    onChange={(e) => setStudentSortBy(e.target.value)}
-                    className="border px-2 py-1 rounded text-black"
-                  >
-                    <option value="name">Name</option>
-                    <option value="id">ID</option>
-                    <option value="status">Status</option>
-                  </select>
-                </div>
-              </div>
+                  {/* Students Table */}
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full bg-white rounded shadow border">
+                      <thead>
+                        <tr className="bg-gray-100">
+                          <th className="px-4 py-2 border-b text-left">Student Name</th>
+                          <th className="px-4 py-2 border-b text-left">Date of Birth</th>
+                          <th className="px-4 py-2 border-b text-left">Gender</th>
+                          <th className="px-4 py-2 border-b text-left">Email</th>
+                          <th className="px-4 py-2 border-b text-left">Phone</th>
+                          <th className="px-4 py-2 border-b text-left">Status</th>
+                          <th className="px-4 py-2 border-b text-left">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredStudents.map((student) => (
+                          <tr key={student.id}>
+                            <td className="px-4 py-2 border-b">{student.name}</td>
+                            <td className="px-4 py-2 border-b">{student.dob}</td>
+                            <td className="px-4 py-2 border-b">{student.gender}</td>
+                            <td className="px-4 py-2 border-b">{student.email}</td>
+                            <td className="px-4 py-2 border-b">{student.phone}</td>
+                            <td className="px-4 py-2 border-b font-semibold">
+                              <span className={`px-2 py-1 rounded text-white text-xs ${
+                                student.status === 'Active' ? 'bg-green-600' :
+                                student.status === 'Pending' ? 'bg-yellow-600' :
+                                'bg-red-600'
+                              }`}>
+                                {student.status}
+                              </span>
+                            </td>
+                            <td className="px-4 py-2 border-b flex gap-2">
+                              <button
+                                className="bg-orange-600 text-white px-2 py-1 rounded text-xs hover:bg-orange-700"
+                                onClick={() => handleToggleStudentStatus(currentClass.id, student.id)}
+                              >
+                                {student.status === 'Active' ? 'Disable' : 'Enable'}
+                              </button>
+                              <button
+                                className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700"
+                                onClick={() => handleRemoveStudent(currentClass.id, student.id)}
+                              >
+                                Remove
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                        {filteredStudents.length === 0 && (
+                          <tr>
+                            <td colSpan="7" className="px-4 py-2 border-b text-center text-gray-500">
+                              No students found
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              )}
 
-              {/* Students Table */}
-              <div className="overflow-x-auto">
-                <table className="min-w-full bg-white rounded shadow border">
-                  <thead>
-                    <tr className="bg-gray-100">
-                      <th className="px-4 py-2 border-b text-left">Student Name</th>
-                      <th className="px-4 py-2 border-b text-left">Date of Birth</th>
-                      <th className="px-4 py-2 border-b text-left">Gender</th>
-                      <th className="px-4 py-2 border-b text-left">Email</th>
-                      <th className="px-4 py-2 border-b text-left">Phone</th>
-                      <th className="px-4 py-2 border-b text-left">Status</th>
-                      <th className="px-4 py-2 border-b text-left">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredStudents.map((student) => (
-                      <tr key={student.id}>
-                        <td className="px-4 py-2 border-b">{student.name}</td>
-                        <td className="px-4 py-2 border-b">{student.dob}</td>
-                        <td className="px-4 py-2 border-b">{student.gender}</td>
-                        <td className="px-4 py-2 border-b">{student.email}</td>
-                        <td className="px-4 py-2 border-b">{student.phone}</td>
-                        <td className="px-4 py-2 border-b font-semibold">
-                          <span className={`px-2 py-1 rounded text-white text-xs ${
-                            student.status === 'Active' ? 'bg-green-600' :
-                            student.status === 'Pending' ? 'bg-yellow-600' :
-                            'bg-red-600'
-                          }`}>
-                            {student.status}
-                          </span>
-                        </td>
-                        <td className="px-4 py-2 border-b flex gap-2">
-                          <button
-                            className="bg-orange-600 text-white px-2 py-1 rounded text-xs hover:bg-orange-700"
-                            onClick={() => handleToggleStudentStatus(currentClass.id, student.id)}
+              {studentModalView === 'add' && (
+                <>
+                  {/* Add Student Form View */}
+                  <div className="p-6 bg-gray-50 rounded-lg border">
+                    <h3 className="text-xl font-bold mb-4">Add New Student</h3>
+                    <form onSubmit={handleAddStudent} className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Full Name</label>
+                          <input
+                            type="text"
+                            name="name"
+                            value={newStudent.name}
+                            onChange={handleStudentInputChange}
+                            className="border rounded px-3 py-2 w-full"
+                            placeholder="Enter student name"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Date of Birth</label>
+                          <input
+                            type="date"
+                            name="dob"
+                            value={newStudent.dob}
+                            onChange={handleStudentInputChange}
+                            className="border rounded px-3 py-2 w-full"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Gender</label>
+                          <select
+                            name="gender"
+                            value={newStudent.gender}
+                            onChange={handleStudentInputChange}
+                            className="border rounded px-3 py-2 w-full"
+                            required
                           >
-                            {student.status === 'Active' ? 'Disable' : 'Enable'}
-                          </button>
-                          <button
-                            className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700"
-                            onClick={() => handleRemoveStudent(currentClass.id, student.id)}
-                          >
-                            Remove
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                    {filteredStudents.length === 0 && (
-                      <tr>
-                        <td colSpan="7" className="px-4 py-2 border-b text-center text-gray-500">
-                          No students found
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Email</label>
+                          <input
+                            type="email"
+                            name="email"
+                            value={newStudent.email}
+                            onChange={handleStudentInputChange}
+                            className="border rounded px-3 py-2 w-full"
+                            placeholder="Enter email"
+                            required
+                          />
+                        </div>
+                        <div className="col-span-2">
+                          <label className="block text-sm font-medium mb-1">Phone Number</label>
+                          <input
+                            type="text"
+                            name="phone"
+                            value={newStudent.phone}
+                            onChange={handleStudentInputChange}
+                            className="border rounded px-3 py-2 w-full"
+                            placeholder="Enter phone number"
+                            required
+                          />
+                        </div>
+                      </div>
+                      {studentError && <div className="text-red-600 text-sm font-semibold">{studentError}</div>}
+                      <button type="submit" className="w-full bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800">
+                        Add Student
+                      </button>
+                    </form>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
