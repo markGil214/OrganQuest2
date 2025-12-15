@@ -24,11 +24,26 @@ router.get('/teacher/my-classes', authMiddleware, async (req, res) => {
       .populate('assignedTeacher', 'fullName email')
       .sort({ grade: 1, section: 1 });
 
+    // Add student count for each class
+    const classesWithCounts = await Promise.all(
+      classes.map(async (cls) => {
+        const studentCount = await User.countDocuments({
+          role: 'student',
+          grade: cls.grade,
+          section: cls.section
+        });
+        return {
+          ...cls.toObject(),
+          studentCount
+        };
+      })
+    );
+
     console.log(`Found ${classes.length} classes for teacher`);
 
     res.status(200).json({
       success: true,
-      data: { classes }
+      data: { classes: classesWithCounts }
     });
   } catch (error) {
     console.error('Get teacher classes error:', error);

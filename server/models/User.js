@@ -3,8 +3,9 @@ import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema({
   userId: {
-    type: Number,
-    unique: true
+    type: String,
+    unique: true,
+    required: true
   },
   fullName: {
     type: String,
@@ -198,21 +199,6 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Auto-increment userId before saving
-userSchema.pre('save', async function(next) {
-  if (!this.isNew) {
-    return next();
-  }
-  
-  try {
-    const lastUser = await this.constructor.findOne({}, { userId: 1 }).sort({ userId: -1 });
-    this.userId = lastUser && lastUser.userId ? lastUser.userId + 1 : 1;
-    next();
-  } catch (error) {
-    next(error);
-  }
-});
-
 // Hash password before saving
 userSchema.pre('save', async function(next) {
   // Only hash the password if it has been modified (or is new)
@@ -235,11 +221,41 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
 };
 
 // Indexes for faster queries
-userSchema.index({ userId: 1 }, { unique: true });
-userSchema.index({ username: 1 });
+// Note: userId and username already have unique indexes from schema definition
 userSchema.index({ 'stats.highScore': -1 }); // For leaderboard queries
 userSchema.index({ role: 1, assignedGrade: 1 }); // For admin queries
 userSchema.index({ createdAt: -1 }); // For sorting by registration date
+
+// Pre-save hook to generate userId
+userSchema.pre('save', async function(next) {
+  if (!this.userId) {
+    const roleSuffixes = {
+      student: 'STUD',
+      teacher: 'TEACH',
+      admin: 'ADMIN',
+      superuser: 'SUPER'
+    };
+
+    const suffix = roleSuffixes[this.role] || 'USER';
+    const year = '25'; // 2025
+
+    // Find the highest sequence number for this role
+    const lastUser = await mongoose.model('User').findOne(
+      { role: this.role, userId: { $regex: `^${year}-\\d{4}-${suffix}$` } }
+    ).sort({ userId: -1 });
+
+    let sequence = 1;
+    if (lastUser) {
+      const match = lastUser.userId.match(/^25-(\d{4})-STUD$/);
+      if (match) {
+        sequence = parseInt(match[1]) + 1;
+      }
+    }
+
+    this.userId = `${year}-${sequence.toString().padStart(4, '0')}-${suffix}`;
+  }
+  next();
+});
 
 const User = mongoose.model('User', userSchema);
 

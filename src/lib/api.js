@@ -1,5 +1,8 @@
-// API configuration
-const BASE_URL = import.meta.env.VITE_API_URL || 'https://organquest2.onrender.com';
+// API configuration - Auto-detect environment
+const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const BASE_URL = isLocalhost
+  ? 'http://localhost:5000'  // Local development
+  : 'https://organquest2.onrender.com';  // Production
 const API_URL = `${BASE_URL}/api`;
 const REQUEST_TIMEOUT = 30000; // 30 seconds timeout
 

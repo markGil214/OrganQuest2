@@ -67,7 +67,7 @@ const TeacherDashboard = ({ onLogout }) => {
   // Dashboard stats
   const stats = [
     { title: 'Classes Assigned', value: classes.length },
-    { title: 'Total Students', value: classStudents.length },
+    { title: 'Total Students', value: classes.reduce((sum, cls) => sum + (cls.studentCount || 0), 0) },
     { title: 'Pending Activation', value: classStudents.filter(s => s.status === 'Pending').length },
   ];
 
@@ -84,7 +84,7 @@ const TeacherDashboard = ({ onLogout }) => {
 
       if (response.ok) {
         const data = await response.json();
-        setClasses(data.classes || []);
+        setClasses(data.data?.classes || []);
       } else {
         console.error('Failed to fetch classes');
       }
@@ -108,8 +108,8 @@ const TeacherDashboard = ({ onLogout }) => {
 
       if (response.ok) {
         const data = await response.json();
-        setClassStudents(data.students || []);
-        setSelectedClass(data.classInfo || null);
+        setClassStudents(data.data?.students || []);
+        setSelectedClass(data.data?.class || null);
       } else {
         console.error('Failed to fetch students');
         setClassStudents([]);
@@ -1159,7 +1159,7 @@ const TeacherDashboard = ({ onLogout }) => {
                           <td className="px-4 py-2 border-b">{cls.grade}</td>
                           <td className="px-4 py-2 border-b">{cls.section}</td>
                           <td className="px-4 py-2 border-b">{cls.className || 'N/A'}</td>
-                          <td className="px-4 py-2 border-b">-</td>
+                          <td className="px-4 py-2 border-b">{cls.studentCount || 0}</td>
                           <td className="px-4 py-2 border-b flex gap-2">
                             <button
                               className="bg-blue-700 text-white px-3 py-1 rounded hover:bg-blue-800 text-xs"
