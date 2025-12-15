@@ -203,7 +203,6 @@ function App() {
         ? '#admin/dashboard' 
         : (userData.role === 'teacher')
         ? '#teacher/dashboard'
-        : '#main-menu'; 
         : '#main-menu';
     }
     
