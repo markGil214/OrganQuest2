@@ -2099,22 +2099,6 @@ router.delete('/classes/:id',
         });
       }
 
-      // Check if class has students assigned
-      if (classToDelete) {
-        const studentsInClass = await User.countDocuments({
-          role: 'student',
-          grade: classToDelete.grade,
-          section: classToDelete.section
-        });
-
-        if (studentsInClass > 0) {
-          return res.status(400).json({
-            success: false,
-            message: `Cannot delete class with ${studentsInClass} students assigned. Please reassign students first.`
-          });
-        }
-      }
-
       const deletedClass = await Class.findByIdAndDelete(req.params.id);
 
       if (!deletedClass) {
