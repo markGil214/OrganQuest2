@@ -34,9 +34,9 @@ const TeacherDashboard = () => {
       section: 'A',
       subject: 'Math',
       students: [
-        { id: '25-0001-stud', name: 'Juan Dela Cruz', dob: '2010-05-15', gender: 'Male', email: 'juan@example.com', phone: '09171234567', status: 'Active' },
-        { id: '25-0002-stud', name: 'Maria Santos', dob: '2010-08-20', gender: 'Female', email: 'maria@example.com', phone: '09179876543', status: 'Active' },
-        { id: '25-0003-stud', name: 'Carlos Reyes', dob: '2009-11-02', gender: 'Male', email: 'carlos@example.com', phone: '09170001122', status: 'Pending' },
+        { id: '25-0001-stud', name: 'Juan Dela Cruz', dob: '2010-05-15', gender: 'Male', status: 'Active' },
+        { id: '25-0002-stud', name: 'Maria Santos', dob: '2010-08-20', gender: 'Female', status: 'Active' },
+        { id: '25-0003-stud', name: 'Carlos Reyes', dob: '2009-11-02', gender: 'Male', status: 'Pending' },
       ],
     },
     {
@@ -45,8 +45,8 @@ const TeacherDashboard = () => {
       section: 'B',
       subject: 'Science',
       students: [
-        { id: '25-0004-stud', name: 'Rosa Garcia', dob: '2009-03-10', gender: 'Female', email: 'rosa@example.com', phone: '09181234567', status: 'Active' },
-        { id: '25-0005-stud', name: 'Miguel Torres', dob: '2009-07-25', gender: 'Male', email: 'miguel@example.com', phone: '09189876543', status: 'Active' },
+        { id: '25-0004-stud', name: 'Rosa Garcia', dob: '2009-03-10', gender: 'Female', status: 'Active' },
+        { id: '25-0005-stud', name: 'Miguel Torres', dob: '2009-07-25', gender: 'Male', status: 'Active' },
       ],
     },
   ]);
@@ -66,7 +66,6 @@ const TeacherDashboard = () => {
   // Student filters and search state
   const [studentStatusFilter, setStudentStatusFilter] = useState('All');
   const [searchStudentName, setSearchStudentName] = useState('');
-  const [searchStudentEmail, setSearchStudentEmail] = useState('');
   const [studentSortBy, setStudentSortBy] = useState('name');
 
   // Dashboard stats
@@ -89,7 +88,7 @@ const TeacherDashboard = () => {
   const handleViewStudents = (classId) => {
     setSelectedClassId(classId);
     setShowAddStudentForm(false);
-    setNewStudent({ name: '', dob: '', gender: '', email: '', phone: '' });
+    setNewStudent({ name: '', dob: '', gender: '' });
     setStudentError('');
   };
 
@@ -97,21 +96,21 @@ const TeacherDashboard = () => {
   const handleBackToClasses = () => {
     setSelectedClassId(null);
     setShowAddStudentForm(false);
-    setNewStudent({ name: '', dob: '', gender: '', email: '', phone: '' });
+    setNewStudent({ name: '', dob: '', gender: '' });
     setStudentError('');
   };
 
   // Show add student modal
   const handleShowAddStudentForm = () => {
     setShowAddStudentModal(true);
-    setNewStudent({ name: '', dob: '', gender: '', email: '', phone: '' });
+    setNewStudent({ name: '', dob: '', gender: '' });
     setStudentError('');
   };
 
   // Hide add student modal
   const handleHideAddStudentForm = () => {
     setShowAddStudentModal(false);
-    setNewStudent({ name: '', dob: '', gender: '', email: '', phone: '' });
+    setNewStudent({ name: '', dob: '', gender: '' });
     setStudentError('');
   };
 
@@ -126,7 +125,7 @@ const TeacherDashboard = () => {
     e.preventDefault();
 
     // Validate required fields
-    if (!newStudent.name || !newStudent.dob || !newStudent.gender || !newStudent.email || !newStudent.phone) {
+    if (!newStudent.name || !newStudent.dob || !newStudent.gender) {
       setStudentError('All fields are required.');
       return;
     }
@@ -143,8 +142,6 @@ const TeacherDashboard = () => {
               name: newStudent.name,
               dob: newStudent.dob,
               gender: newStudent.gender,
-              email: newStudent.email,
-              phone: newStudent.phone,
               status: 'Active',
             },
           ],
@@ -284,16 +281,6 @@ const TeacherDashboard = () => {
                         />
                       </div>
                       <div>
-                        <label className="mr-2 font-medium">Search Email:</label>
-                        <input
-                          type="text"
-                          value={searchStudentEmail}
-                          onChange={(e) => setSearchStudentEmail(e.target.value)}
-                          placeholder="Enter email"
-                          className="border px-2 py-1 rounded text-black"
-                        />
-                      </div>
-                      <div>
                         <label className="mr-2 font-medium">Sort By:</label>
                         <select
                           value={studentSortBy}
@@ -316,8 +303,6 @@ const TeacherDashboard = () => {
                             <th className="px-4 py-2 border-b text-left">Student Name</th>
                             <th className="px-4 py-2 border-b text-left">Date of Birth</th>
                             <th className="px-4 py-2 border-b text-left">Gender</th>
-                            <th className="px-4 py-2 border-b text-left">Email</th>
-                            <th className="px-4 py-2 border-b text-left">Phone</th>
                             <th className="px-4 py-2 border-b text-left">Status</th>
                             <th className="px-4 py-2 border-b text-left">Actions</th>
                           </tr>
@@ -327,8 +312,7 @@ const TeacherDashboard = () => {
                             const filteredStudents = currentClass.students
                               .filter(s =>
                                 (studentStatusFilter === 'All' || s.status === studentStatusFilter) &&
-                                s.name.toLowerCase().includes(searchStudentName.toLowerCase()) &&
-                                s.email.toLowerCase().includes(searchStudentEmail.toLowerCase())
+                                s.name.toLowerCase().includes(searchStudentName.toLowerCase())
                               )
                               .sort((a, b) => {
                                 if (studentSortBy === 'name') return a.name.localeCompare(b.name);
@@ -344,8 +328,6 @@ const TeacherDashboard = () => {
                               <td className="px-4 py-2 border-b">{student.name}</td>
                               <td className="px-4 py-2 border-b">{student.dob}</td>
                               <td className="px-4 py-2 border-b">{student.gender}</td>
-                              <td className="px-4 py-2 border-b">{student.email}</td>
-                              <td className="px-4 py-2 border-b">{student.phone}</td>
                               <td className="px-4 py-2 border-b font-semibold">
                                 <span className={`px-2 py-1 rounded text-white text-xs ${
                                   student.status === 'Active' ? 'bg-green-600' :
@@ -498,30 +480,6 @@ const TeacherDashboard = () => {
                   <option value="Female">Female</option>
                   <option value="Other">Other</option>
                 </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={newStudent.email}
-                  onChange={handleStudentInputChange}
-                  className="border rounded px-3 py-2 w-full"
-                  placeholder="Enter email"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Phone Number</label>
-                <input
-                  type="text"
-                  name="phone"
-                  value={newStudent.phone}
-                  onChange={handleStudentInputChange}
-                  className="border rounded px-3 py-2 w-full"
-                  placeholder="Enter phone number"
-                  required
-                />
               </div>
               {studentError && <div className="text-red-600 text-sm font-semibold">{studentError}</div>}
               <div className="flex gap-4">
