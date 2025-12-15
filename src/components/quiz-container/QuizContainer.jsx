@@ -261,7 +261,7 @@ const QuizContainer = ({ useSiteHeader = false }) => {
       // Check if this is teacher mode (has assignment ID)
       if (assignmentId) {
         // Submit to teacher quiz assignment
-        const API_URL = import.meta.env.VITE_API_URL || 'https://organquest2.onrender.com';
+        const API_URL = import.meta.env.VITE_API_URL || (window.location.hostname === 'localhost' ? 'http://localhost:5000' : 'https://organquest2.onrender.com');
         const response = await fetch(`${API_URL}/api/teacher/quiz/submit/${assignmentId}`, {
           method: 'POST',
           headers: {
