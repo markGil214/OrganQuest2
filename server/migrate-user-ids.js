@@ -1,7 +1,11 @@
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 import User from './models/User.js';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/organquest';
+// Load environment variables
+dotenv.config();
+
+const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb://localhost:27017/organquest';
 
 async function migrateUserIds() {
   try {
