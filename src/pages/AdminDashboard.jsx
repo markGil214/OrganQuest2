@@ -80,6 +80,28 @@ const AdminDashboard = ({ onLogout }) => {
   const [teacherError, setTeacherError] = useState('');
   const [teacherSuccess, setTeacherSuccess] = useState('');
 
+  // Class Management State
+  const [classes, setClasses] = useState([]);
+  const [loadingClasses, setLoadingClasses] = useState(false);
+  const [showAddClassModal, setShowAddClassModal] = useState(false);
+  const [editingClass, setEditingClass] = useState(null);
+  const [newClass, setNewClass] = useState({
+    grade: '4th',
+    section: 'A',
+    className: '',
+    description: '',
+    capacity: 30,
+    status: 'active',
+    assignedTeacher: ''
+  });
+  const [classError, setClassError] = useState('');
+  const [classSuccess, setClassSuccess] = useState('');
+  const [classStats, setClassStats] = useState({
+    totalClasses: 0,
+    activeClasses: 0,
+    gradeBreakdown: []
+  });
+
   // Check authentication on component mount
   useEffect(() => {
     const userData = localStorage.getItem('userData');
@@ -327,63 +349,237 @@ const AdminDashboard = ({ onLogout }) => {
   const showTeacherManagement = activeSidebar === 'User Management' && activeSubSidebar === 'Teacher Management';
   const showClassSectionManagement = activeSidebar === 'Class & Section Management';
 
-  // Class & Section Management State
-  const [classes, setClasses] = useState([
-    { id: 1, grade: '4th', section: 'A', teacher: 'Mr. Smith', subject: 'Math' },
-    { id: 2, grade: '5th', section: 'B', teacher: 'Ms. Lee', subject: 'Science' },
-    { id: 3, grade: '6th', section: 'C', teacher: 'Mrs. Johnson', subject: 'English' },
-  ]);
-  const [showAddClassModal, setShowAddClassModal] = useState(false);
-  const [newClass, setNewClass] = useState({
-    grade: '',
-    section: '',
-    teacher: '',
-    subject: '',
-  });
+  // Class Management Functions
+  const fetchClasses = async () => {
+    try {
+      setLoadingClasses(true);
+      const token = localStorage.getItem('authToken');
 
+      const response = await fetch(`${API_URL}/api/admin/classes`, {
+        headers: {
+          ...(token && { 'Authorization': `Bearer ${token}` })
+        }
+      });
 
-  // Dummy teacher and subject options for assignment
-  const teacherOptions = teachers ? teachers.map(t => t.fullName) : [];
-  const subjectOptions = ['Math', 'Science', 'English', 'Filipino', 'Araling Panlipunan'];
+      if (response.status === 401) {
+        console.error('Unauthorized - token may be invalid or expired');
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userData');
+        window.location.hash = 'login';
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        setClasses(data.data.classes);
+      } else {
+        console.error('Failed to fetch classes:', data);
+      }
+    } catch (error) {
+      console.error('Error fetching classes:', error);
+    } finally {
+      setLoadingClasses(false);
+    }
+  };
+
+  const fetchClassStats = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+
+      const response = await fetch(`${API_URL}/api/admin/classes/stats`, {
+        headers: {
+          ...(token && { 'Authorization': `Bearer ${token}` })
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setClassStats(data.data);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching class stats:', error);
+    }
+  };
 
   const handleClassInputChange = (e) => {
-    setNewClass({ ...newClass, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setNewClass(prev => ({ ...prev, [name]: value }));
+    setClassError('');
+    setClassSuccess('');
   };
 
-  const handleAddClass = (e) => {
+  const handleAddClass = async (e) => {
     e.preventDefault();
-    if (!newClass.grade || !newClass.section || !newClass.teacher || !newClass.subject) return;
-    setClasses([
-      ...classes,
-      { id: Date.now(), ...newClass },
-    ]);
-    setNewClass({ grade: '', section: '', teacher: '', subject: '' });
-    setShowAddClassModal(false);
+
+    if (!newClass.className.trim()) {
+      setClassError('Class name is required');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('authToken');
+
+      const response = await fetch(`${API_URL}/api/admin/classes`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` })
+        },
+        body: JSON.stringify(newClass)
+      });
+
+      if (response.status === 401) {
+        console.error('Unauthorized - token may be invalid or expired');
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userData');
+        window.location.hash = 'login';
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        setClassSuccess('Class created successfully!');
+        setNewClass({
+          grade: '4th',
+          section: 'A',
+          className: '',
+          description: '',
+          capacity: 30,
+          status: 'active',
+          assignedTeacher: ''
+        });
+        setShowAddClassModal(false);
+        fetchClasses();
+        fetchClassStats();
+      } else {
+        console.error('Failed to create class:', data);
+        setClassError(data.message || 'Failed to create class');
+      }
+    } catch (error) {
+      console.error('Error creating class:', error);
+      setClassError('Failed to create class. Please try again.');
+    }
   };
 
-  // Edit class state and handlers (moved to top level)
-  const [editClassId, setEditClassId] = useState();
-  const [editClass, setEditClass] = useState({ grade: '', section: '', teacher: '', subject: '' });
-
-  const handleEditClassOpen = (id) => {
-    const cls = classes.find(c => c.id === id);
-    setEditClassId(id);
-    setEditClass({ grade: cls.grade, section: cls.section, teacher: cls.teacher, subject: cls.subject });
+  const handleEditClass = (classItem) => {
+    setEditingClass(classItem);
+    setNewClass({
+      grade: classItem.grade,
+      section: classItem.section,
+      className: classItem.className,
+      description: classItem.description || '',
+      capacity: classItem.capacity,
+      status: classItem.status,
+      assignedTeacher: classItem.assignedTeacher?._id || ''
+    });
+    setShowAddClassModal(true);
   };
 
-  const handleEditClassInputChange = (e) => {
-    setEditClass({ ...editClass, [e.target.name]: e.target.value });
-  };
-
-  const handleEditClass = (e) => {
+  const handleUpdateClass = async (e) => {
     e.preventDefault();
-    setClasses(classes.map(c =>
-      c.id === editClassId ? { ...c, ...editClass } : c
-    ));
-    setEditClassId(undefined);
-    setEditClass({ grade: '', section: '', teacher: '', subject: '' });
-    setShowAddClassModal(false);
+
+    if (!newClass.className.trim()) {
+      setClassError('Class name is required');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('authToken');
+
+      const response = await fetch(`${API_URL}/api/admin/classes/${editingClass._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` })
+        },
+        body: JSON.stringify(newClass)
+      });
+
+      if (response.status === 401) {
+        console.error('Unauthorized - token may be invalid or expired');
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userData');
+        window.location.hash = 'login';
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        setClassSuccess('Class updated successfully!');
+        setNewClass({
+          grade: '4th',
+          section: 'A',
+          className: '',
+          description: '',
+          capacity: 30,
+          status: 'active',
+          assignedTeacher: ''
+        });
+        setEditingClass(null);
+        setShowAddClassModal(false);
+        fetchClasses();
+        fetchClassStats();
+      } else {
+        console.error('Failed to update class:', data);
+        setClassError(data.message || 'Failed to update class');
+      }
+    } catch (error) {
+      console.error('Error updating class:', error);
+      setClassError('Failed to update class. Please try again.');
+    }
   };
+
+  const handleDeleteClass = async (classId) => {
+    if (!confirm('Are you sure you want to delete this class? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('authToken');
+
+      const response = await fetch(`${API_URL}/api/admin/classes/${classId}`, {
+        method: 'DELETE',
+        headers: {
+          ...(token && { 'Authorization': `Bearer ${token}` })
+        }
+      });
+
+      if (response.status === 401) {
+        console.error('Unauthorized - token may be invalid or expired');
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userData');
+        window.location.hash = 'login';
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        setClassSuccess('Class deleted successfully!');
+        fetchClasses();
+        fetchClassStats();
+      } else {
+        console.error('Failed to delete class:', data);
+        setClassError(data.message || 'Failed to delete class');
+      }
+    } catch (error) {
+      console.error('Error deleting class:', error);
+      setClassError('Failed to delete class. Please try again.');
+    }
+  };
+
+  // Load classes when class management is opened
+  useEffect(() => {
+    if (showClassSectionManagement && classes.length === 0) {
+      fetchClasses();
+      fetchClassStats();
+    }
+  }, [showClassSectionManagement, classes.length]);
 
   return (
     <div className="flex min-h-screen" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
@@ -667,31 +863,69 @@ const AdminDashboard = ({ onLogout }) => {
         ) : showClassSectionManagement ? (
           <div>
             <h1 className="text-3xl font-bold mb-6">Class & Section Management</h1>
+
+            {/* Class Statistics */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <div className="bg-blue-700 text-white rounded-xl shadow-lg p-6">
+                <div className="text-3xl font-extrabold mb-2">{classStats.totalClasses || 0}</div>
+                <div className="text-lg font-semibold">Total Classes</div>
+              </div>
+              <div className="bg-green-700 text-white rounded-xl shadow-lg p-6">
+                <div className="text-3xl font-extrabold mb-2">{classStats.activeClasses || 0}</div>
+                <div className="text-lg font-semibold">Active Classes</div>
+              </div>
+              <div className="bg-purple-700 text-white rounded-xl shadow-lg p-6">
+                <div className="text-3xl font-extrabold mb-2">{classStats.gradeBreakdown?.length || 0}</div>
+                <div className="text-lg font-semibold">Grade Levels</div>
+              </div>
+            </div>
+
             <button
               className="mb-6 bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800"
-              onClick={() => setShowAddClassModal(true)}
+              onClick={() => {
+                setEditingClass(null);
+                setNewClass({
+                  grade: '4th',
+                  section: 'A',
+                  className: '',
+                  description: '',
+                  capacity: 30,
+                  status: 'active',
+                  assignedTeacher: ''
+                });
+                setShowAddClassModal(true);
+              }}
             >
               Create Class
             </button>
 
-            {/* Modal for Add/Edit Class/Section */}
-            {(showAddClassModal || editClassId !== undefined) && (
+            {/* Success/Error Messages */}
+            {classError && <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">{classError}</div>}
+            {classSuccess && <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">{classSuccess}</div>}
+
+            {/* Modal for Add/Edit Class */}
+            {showAddClassModal && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-                <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative">
+                <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative max-h-[90vh] overflow-y-auto">
                   <button
                     className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
-                    onClick={() => { setShowAddClassModal(false); setEditClassId(undefined); }}
+                    onClick={() => {
+                      setShowAddClassModal(false);
+                      setEditingClass(null);
+                      setClassError('');
+                      setClassSuccess('');
+                    }}
                   >
                     &times;
                   </button>
-                  <h2 className="text-xl font-bold mb-4">{editClassId !== undefined ? 'Edit Class' : 'Create Class'}</h2>
-                  <form onSubmit={editClassId !== undefined ? handleEditClass : handleAddClass} className="space-y-4">
+                  <h2 className="text-xl font-bold mb-4">{editingClass ? 'Edit Class' : 'Create Class'}</h2>
+                  <form onSubmit={editingClass ? handleUpdateClass : handleAddClass} className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium mb-1">Grade Level</label>
                       <select
                         name="grade"
-                        value={editClassId !== undefined ? editClass.grade : newClass.grade}
-                        onChange={editClassId !== undefined ? handleEditClassInputChange : handleClassInputChange}
+                        value={newClass.grade}
+                        onChange={handleClassInputChange}
                         className="border rounded px-3 py-2 w-full"
                         required
                       >
@@ -705,8 +939,8 @@ const AdminDashboard = ({ onLogout }) => {
                       <label className="block text-sm font-medium mb-1">Section</label>
                       <select
                         name="section"
-                        value={editClassId !== undefined ? editClass.section : newClass.section}
-                        onChange={editClassId !== undefined ? handleEditClassInputChange : handleClassInputChange}
+                        value={newClass.section}
+                        onChange={handleClassInputChange}
                         className="border rounded px-3 py-2 w-full"
                         required
                       >
@@ -717,67 +951,143 @@ const AdminDashboard = ({ onLogout }) => {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Assign Teacher</label>
+                      <label className="block text-sm font-medium mb-1">Class Name</label>
+                      <input
+                        type="text"
+                        name="className"
+                        value={newClass.className}
+                        onChange={handleClassInputChange}
+                        className="border rounded px-3 py-2 w-full"
+                        placeholder="e.g., Mathematics 4A"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Description</label>
+                      <textarea
+                        name="description"
+                        value={newClass.description}
+                        onChange={handleClassInputChange}
+                        className="border rounded px-3 py-2 w-full"
+                        placeholder="Optional description"
+                        rows="3"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Capacity</label>
+                      <input
+                        type="number"
+                        name="capacity"
+                        value={newClass.capacity}
+                        onChange={handleClassInputChange}
+                        className="border rounded px-3 py-2 w-full"
+                        min="1"
+                        max="50"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Status</label>
                       <select
-                        name="teacher"
-                        value={editClassId !== undefined ? editClass.teacher : newClass.teacher}
-                        onChange={editClassId !== undefined ? handleEditClassInputChange : handleClassInputChange}
+                        name="status"
+                        value={newClass.status}
+                        onChange={handleClassInputChange}
                         className="border rounded px-3 py-2 w-full"
                         required
                       >
-                        <option value="">Select Teacher</option>
-                        {teacherOptions.map((t, idx) => (
-                          <option key={idx} value={t}>{t}</option>
-                        ))}
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Assign Subject</label>
+                      <label className="block text-sm font-medium mb-1">Assigned Teacher</label>
                       <select
-                        name="subject"
-                        value={editClassId !== undefined ? editClass.subject : newClass.subject}
-                        onChange={editClassId !== undefined ? handleEditClassInputChange : handleClassInputChange}
+                        name="assignedTeacher"
+                        value={newClass.assignedTeacher}
+                        onChange={handleClassInputChange}
                         className="border rounded px-3 py-2 w-full"
-                        required
                       >
-                        <option value="">Select Subject</option>
-                        {subjectOptions.map((s, idx) => (
-                          <option key={idx} value={s}>{s}</option>
+                        <option value="">Select Teacher (Optional)</option>
+                        {teachers.filter(t => t.accountStatus === 'active').map((teacher) => (
+                          <option key={teacher._id} value={teacher._id}>
+                            {teacher.fullName} ({teacher.teacherId || 'No ID'})
+                          </option>
                         ))}
                       </select>
                     </div>
-                    <button type="submit" className="w-full bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800">{editClassId !== undefined ? 'Save Changes' : 'Create'}</button>
+                    <button type="submit" className="w-full bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800">
+                      {editingClass ? 'Update Class' : 'Create Class'}
+                    </button>
                   </form>
                 </div>
               </div>
             )}
 
+            {/* Classes Table */}
             <div className="overflow-x-auto">
               <table className="min-w-full bg-white rounded shadow">
                 <thead>
-                  <tr>
-                    <th className="px-4 py-2 border-b text-left">Grade</th>
-                    <th className="px-4 py-2 border-b text-left">Section</th>
-                    <th className="px-4 py-2 border-b text-left">Teacher</th>
-                    <th className="px-4 py-2 border-b text-left">Subject</th>
-                    <th className="px-4 py-2 border-b text-left">Actions</th>
+                  <tr className="bg-gray-50">
+                    <th className="px-4 py-3 border-b text-left font-semibold">Grade</th>
+                    <th className="px-4 py-3 border-b text-left font-semibold">Section</th>
+                    <th className="px-4 py-3 border-b text-left font-semibold">Class Name</th>
+                    <th className="px-4 py-3 border-b text-left font-semibold">Capacity</th>
+                    <th className="px-4 py-3 border-b text-left font-semibold">Status</th>
+                    <th className="px-4 py-3 border-b text-left font-semibold">Assigned Teacher</th>
+                    <th className="px-4 py-3 border-b text-left font-semibold">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {classes.map((cls) => (
-                    <tr key={cls.id}>
-                      <td className="px-4 py-2 border-b">{cls.grade === '4th' ? '4th Grade' : cls.grade === '5th' ? '5th Grade' : cls.grade === '6th' ? '6th Grade' : cls.grade}</td>
-                      <td className="px-4 py-2 border-b">Section {cls.section}</td>
-                      <td className="px-4 py-2 border-b">{cls.teacher}</td>
-                      <td className="px-4 py-2 border-b">{cls.subject}</td>
-                      <td className="px-4 py-2 border-b">
-                        <button
-                          className="bg-blue-700 text-white px-3 py-1 rounded hover:bg-blue-800 text-xs"
-                          onClick={() => handleEditClassOpen(cls.id)}
-                        >View / Edit</button>
+                  {loadingClasses ? (
+                    <tr>
+                      <td colSpan="7" className="px-4 py-4 border-b text-center text-gray-500">
+                        Loading classes...
                       </td>
                     </tr>
-                  ))}
+                  ) : classes.length === 0 ? (
+                    <tr>
+                      <td colSpan="7" className="px-4 py-4 border-b text-center text-gray-500">
+                        No classes found. Create your first class to get started.
+                      </td>
+                    </tr>
+                  ) : (
+                    classes.map((cls) => (
+                      <tr key={cls._id} className="hover:bg-gray-50">
+                        <td className="px-4 py-3 border-b">
+                          {cls.grade === '4th' ? '4th Grade' : cls.grade === '5th' ? '5th Grade' : cls.grade === '6th' ? '6th Grade' : cls.grade}
+                        </td>
+                        <td className="px-4 py-3 border-b">Section {cls.section}</td>
+                        <td className="px-4 py-3 border-b font-medium">{cls.className}</td>
+                        <td className="px-4 py-3 border-b">{cls.capacity}</td>
+                        <td className="px-4 py-3 border-b">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            cls.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
+                            {cls.status === 'active' ? 'Active' : 'Inactive'}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 border-b">
+                          {cls.assignedTeacher ? cls.assignedTeacher.fullName : 'Not assigned'}
+                        </td>
+                        <td className="px-4 py-3 border-b">
+                          <div className="flex gap-2">
+                            <button
+                              className="bg-blue-700 text-white px-3 py-1 rounded hover:bg-blue-800 text-xs"
+                              onClick={() => handleEditClass(cls)}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              className="bg-red-700 text-white px-3 py-1 rounded hover:bg-red-800 text-xs"
+                              onClick={() => handleDeleteClass(cls._id)}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>

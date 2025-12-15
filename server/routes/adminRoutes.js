@@ -2,6 +2,7 @@ import express from 'express';
 import { body, validationResult } from 'express-validator';
 import crypto from 'crypto';
 import User from '../models/User.js';
+import Class from '../models/Class.js';
 import { authMiddleware, teacherMiddleware, adminMiddleware } from '../middleware/auth.js';
 import { sendTeacherInvitationEmail } from '../utils/emailService.js';
 
@@ -1746,5 +1747,367 @@ router.get('/verify-token/:token', async (req, res) => {
     });
   }
 });
+
+// ==========================================
+// CLASS MANAGEMENT ENDPOINTS
+// ==========================================
+
+// @route   GET /api/admin/classes
+// @desc    Get all classes with filters
+// @access  Admin
+router.get('/classes',
+  authMiddleware,
+  adminMiddleware,
+  async (req, res) => {
+    try {
+      console.log('=== GET CLASSES ===');
+      const {
+        grade,
+        section,
+        status = 'active',
+        assignedTeacher,
+        search,
+        sortBy = 'createdAt',
+        sortOrder = 'desc',
+        page = 1,
+        limit = 50
+      } = req.query;
+
+      // Build query
+      const query = {};
+
+      if (grade) query.grade = grade;
+      if (section) query.section = section;
+      if (status) query.status = status;
+      if (assignedTeacher) query.assignedTeacher = assignedTeacher;
+
+      if (search) {
+        query.$or = [
+          { className: { $regex: search, $options: 'i' } },
+          { description: { $regex: search, $options: 'i' } }
+        ];
+      }
+
+      // Calculate pagination
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+
+      // Get classes with populated teacher info
+      const classes = await Class.find(query)
+        .populate('assignedTeacher', 'fullName username email')
+        .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 })
+        .skip(skip)
+        .limit(parseInt(limit));
+
+      // Get total count for pagination
+      const total = await Class.countDocuments(query);
+
+      console.log(`Found ${classes.length} classes (total: ${total})`);
+
+      res.status(200).json({
+        success: true,
+        data: {
+          classes,
+          pagination: {
+            page: parseInt(page),
+            limit: parseInt(limit),
+            total,
+            pages: Math.ceil(total / parseInt(limit))
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Get classes error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server error fetching classes',
+        error: error.message
+      });
+    }
+  }
+);
+
+// @route   POST /api/admin/classes
+// @desc    Create a new class
+// @access  Admin
+router.post('/classes',
+  authMiddleware,
+  adminMiddleware,
+  [
+    body('grade').isIn(['4th', '5th', '6th', '7th', '8th', '9th', '10th']).withMessage('Invalid grade'),
+    body('section').isIn(['A', 'B', 'C', 'D', 'E', 'F']).withMessage('Invalid section'),
+    body('className').trim().notEmpty().withMessage('Class name is required'),
+    body('capacity').optional().isInt({ min: 1, max: 100 }).withMessage('Capacity must be between 1-100'),
+    body('description').optional().trim().isLength({ max: 200 }).withMessage('Description too long')
+  ],
+  async (req, res) => {
+    try {
+      console.log('=== CREATE CLASS ===');
+      console.log('Request body:', req.body);
+
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        console.log('Validation errors:', errors.array());
+        return res.status(400).json({
+          success: false,
+          errors: errors.array()
+        });
+      }
+
+      const { grade, section, className, description, capacity, assignedTeacher } = req.body;
+
+      // Check if grade-section combination already exists
+      const existingClass = await Class.findOne({ grade, section });
+      if (existingClass) {
+        return res.status(400).json({
+          success: false,
+          message: `Class ${grade}-${section} already exists`
+        });
+      }
+
+      // If teacher is assigned, verify they exist and are a teacher
+      if (assignedTeacher) {
+        const teacher = await User.findById(assignedTeacher);
+        if (!teacher || teacher.role !== 'teacher') {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid teacher assignment'
+          });
+        }
+      }
+
+      const newClass = new Class({
+        grade,
+        section,
+        className,
+        description,
+        capacity: capacity || 30,
+        assignedTeacher
+      });
+
+      await newClass.save();
+
+      // Populate teacher info for response
+      await newClass.populate('assignedTeacher', 'fullName username email');
+
+      console.log('Class created successfully:', newClass._id);
+
+      res.status(201).json({
+        success: true,
+        message: 'Class created successfully',
+        data: { class: newClass }
+      });
+    } catch (error) {
+      console.error('Create class error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server error creating class',
+        error: error.message
+      });
+    }
+  }
+);
+
+// @route   PUT /api/admin/classes/:id
+// @desc    Update a class
+// @access  Admin
+router.put('/classes/:id',
+  authMiddleware,
+  adminMiddleware,
+  [
+    body('grade').optional().isIn(['4th', '5th', '6th', '7th', '8th', '9th', '10th']).withMessage('Invalid grade'),
+    body('section').optional().isIn(['A', 'B', 'C', 'D', 'E', 'F']).withMessage('Invalid section'),
+    body('className').optional().trim().notEmpty().withMessage('Class name cannot be empty'),
+    body('capacity').optional().isInt({ min: 1, max: 100 }).withMessage('Capacity must be between 1-100'),
+    body('description').optional().trim().isLength({ max: 200 }).withMessage('Description too long'),
+    body('status').optional().isIn(['active', 'inactive']).withMessage('Invalid status')
+  ],
+  async (req, res) => {
+    try {
+      console.log('=== UPDATE CLASS ===');
+      console.log('Class ID:', req.params.id);
+      console.log('Update data:', req.body);
+
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          success: false,
+          errors: errors.array()
+        });
+      }
+
+      const { grade, section, assignedTeacher, ...updateData } = req.body;
+
+      // If grade or section is being updated, check for conflicts
+      if (grade || section) {
+        const existingClass = await Class.findOne({
+          grade: grade || undefined,
+          section: section || undefined,
+          _id: { $ne: req.params.id }
+        });
+
+        if (existingClass) {
+          return res.status(400).json({
+            success: false,
+            message: `Class ${grade || existingClass.grade}-${section || existingClass.section} already exists`
+          });
+        }
+      }
+
+      // If teacher is assigned, verify they exist and are a teacher
+      if (assignedTeacher) {
+        const teacher = await User.findById(assignedTeacher);
+        if (!teacher || teacher.role !== 'teacher') {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid teacher assignment'
+          });
+        }
+      }
+
+      const updatedClass = await Class.findByIdAndUpdate(
+        req.params.id,
+        { ...updateData, ...(grade && { grade }), ...(section && { section }), ...(assignedTeacher !== undefined && { assignedTeacher }) },
+        { new: true, runValidators: true }
+      ).populate('assignedTeacher', 'fullName username email');
+
+      if (!updatedClass) {
+        return res.status(404).json({
+          success: false,
+          message: 'Class not found'
+        });
+      }
+
+      console.log('Class updated successfully:', updatedClass._id);
+
+      res.status(200).json({
+        success: true,
+        message: 'Class updated successfully',
+        data: { class: updatedClass }
+      });
+    } catch (error) {
+      console.error('Update class error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server error updating class',
+        error: error.message
+      });
+    }
+  }
+);
+
+// @route   DELETE /api/admin/classes/:id
+// @desc    Delete a class
+// @access  Admin
+router.delete('/classes/:id',
+  authMiddleware,
+  adminMiddleware,
+  async (req, res) => {
+    try {
+      console.log('=== DELETE CLASS ===');
+      console.log('Class ID:', req.params.id);
+
+      // Check if class has students assigned
+      const studentsInClass = await User.countDocuments({
+        role: 'student',
+        grade: (await Class.findById(req.params.id)).grade,
+        section: (await Class.findById(req.params.id)).section
+      });
+
+      if (studentsInClass > 0) {
+        return res.status(400).json({
+          success: false,
+          message: `Cannot delete class with ${studentsInClass} students assigned. Please reassign students first.`
+        });
+      }
+
+      const deletedClass = await Class.findByIdAndDelete(req.params.id);
+
+      if (!deletedClass) {
+        return res.status(404).json({
+          success: false,
+          message: 'Class not found'
+        });
+      }
+
+      console.log('Class deleted successfully:', deletedClass._id);
+
+      res.status(200).json({
+        success: true,
+        message: 'Class deleted successfully'
+      });
+    } catch (error) {
+      console.error('Delete class error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server error deleting class',
+        error: error.message
+      });
+    }
+  }
+);
+
+// @route   GET /api/admin/classes/stats
+// @desc    Get class statistics
+// @access  Admin
+router.get('/classes/stats',
+  authMiddleware,
+  adminMiddleware,
+  async (req, res) => {
+    try {
+      console.log('=== GET CLASS STATS ===');
+
+      const stats = await Class.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalClasses: { $sum: 1 },
+            activeClasses: {
+              $sum: { $cond: [{ $eq: ['$status', 'active'] }, 1, 0] }
+            },
+            classesByGrade: {
+              $push: {
+                grade: '$grade',
+                section: '$section',
+                status: '$status'
+              }
+            }
+          }
+        }
+      ]);
+
+      // Get grade-wise breakdown
+      const gradeStats = await Class.aggregate([
+        {
+          $group: {
+            _id: '$grade',
+            count: { $sum: 1 },
+            active: { $sum: { $cond: [{ $eq: ['$status', 'active'] }, 1, 0] } }
+          }
+        },
+        { $sort: { '_id': 1 } }
+      ]);
+
+      const result = stats[0] || { totalClasses: 0, activeClasses: 0, classesByGrade: [] };
+
+      console.log('Class stats retrieved:', result);
+
+      res.status(200).json({
+        success: true,
+        data: {
+          totalClasses: result.totalClasses || 0,
+          activeClasses: result.activeClasses || 0,
+          gradeBreakdown: gradeStats
+        }
+      });
+    } catch (error) {
+      console.error('Get class stats error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server error fetching class statistics',
+        error: error.message
+      });
+    }
+  }
+);
 
 export default router;
