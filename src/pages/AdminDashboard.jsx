@@ -61,6 +61,12 @@ const AdminDashboard = ({ onLogout }) => {
   const handleSidebarClick = (title) => {
     setActiveSidebar(title);
     setActiveSubSidebar(null);
+    // Clear class data when switching away from class management
+    if (title !== 'Class & Section Management') {
+      setClasses([]);
+      setClassError('');
+      setClassSuccess('');
+    }
   };
   const handleSubSidebarClick = (parentTitle, subTitle) => {
     setActiveSidebar(parentTitle);
@@ -378,6 +384,7 @@ const AdminDashboard = ({ onLogout }) => {
       setLoadingClasses(true);
       const token = localStorage.getItem('authToken');
 
+      console.log('Fetching classes from:', `${API_URL}/api/admin/classes`);
       const response = await fetch(`${API_URL}/api/admin/classes`, {
         headers: {
           ...(token && { 'Authorization': `Bearer ${token}` })
@@ -393,8 +400,13 @@ const AdminDashboard = ({ onLogout }) => {
       }
 
       const data = await response.json();
+      console.log('Classes fetch response:', data);
 
       if (data.success) {
+        console.log('Classes received:', data.data.classes.length, 'classes');
+        if (data.data.classes.length > 0) {
+          console.log('First class sample:', data.data.classes[0]);
+        }
         setClasses(data.data.classes);
       } else {
         console.error('Failed to fetch classes:', data);
@@ -607,12 +619,13 @@ const AdminDashboard = ({ onLogout }) => {
 
   // Load classes when class management is opened
   useEffect(() => {
-    if (showClassSectionManagement && classes.length === 0) {
+    if (showClassSectionManagement) {
+      setClasses([]); // Clear any stale data
       fetchClasses();
       fetchClassStats();
       fetchTeachersForDropdown();
     }
-  }, [showClassSectionManagement, classes.length]);
+  }, [showClassSectionManagement]);
 
   return (
     <div className="flex min-h-screen" style={{ backgroundImage: 'url(/school/bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
